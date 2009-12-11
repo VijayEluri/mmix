@@ -1,0 +1,82 @@
+#lessons learned: the tab in the script will cause some problem when execute it 
+#in interactive shell. replace "\t" with "    ".
+
+#!/usr/bin/env bash
+cd ~/eddie/mmix/
+
+old one:
+for myfile in ./*.w
+do
+    if [ -d "$myfile" ] 
+    then
+      echo "$myfile (dir)"
+    else          
+         echo "$myfile"     
+    fi
+done
+
+v1:
+for myfile in *.w
+do
+    if [ -d "$myfile" ] 
+    then
+      echo "$myfile (dir)"
+    else          
+        echo "$myfile"     
+        echo ${myfile%%.*}  
+        myfile1=`echo ${myfile%%.*}`;     
+        echo "$myfile1"
+      
+        cweave "$myfile"
+        tex "${myfile1}.tex"
+        dvips "${myfile1}.dvi" -o "${myfile1}.ps"
+        ps2pdf "${myfile1}.ps"
+    fi
+done
+    
+v2:
+for myfile in *.w
+do
+    if [ -d "$myfile" ] 
+    then
+      echo "$myfile (dir)"
+    else          
+        echo "$myfile"     
+        echo ${myfile%%.*}  
+        myfile1=`echo ${myfile%%.*}`;     
+        echo "$myfile1"
+      
+        cweave "$myfile"       
+        tex "\let\pdf+ \input ${myfile1}"
+          dvipdfm ${myfile1}
+    fi
+done
+
+//for tex. knuth actuall did not provide the tex file, it only provide ps file for pre-fascicle.
+for myfile in *.tex
+do
+    if [ -d "$myfile" ] 
+    then
+      echo "$myfile (dir)"
+    else          
+        echo "$myfile"     
+        echo ${myfile%%.*}  
+        myfile1=`echo ${myfile%%.*}`;     
+        echo "$myfile1"
+                 
+        tex "\let\pdf+ \input ${myfile1}"
+        dvipdfm ${myfile1}
+    fi
+done
+    
+#my first shell script for a real world usage.      
+      #dvips abstime -o abstime.ps
+      
+tex "\let\pdf+ \input cob"
+dvipdfm cob
+acroread cob.pdf
+
+cweave cweave.w
+tex "\let\pdf+ \input cweave"
+dvipdfm cweave
+acroread cweave.pdf

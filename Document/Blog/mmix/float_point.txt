@@ -1,0 +1,171 @@
+There is no significant progress in past weeks.
+Now I am studying Floating point knowledge, hopefully, I can make some progress
+ in this weekend, at least implement one Floating point instrution.
+
+There are several point I have got about float point.
+1. the same 64 bit can be map to integer and float point, depends on how you see
+ them. there is a mapping between integer and float point. it is connectted by
+  the same bit pattern.
+ (same bit pattern is the bridge between the integer it presented and the float
+  number it presentes.
+ 
+2. there are some special bit patterns as the following:
+    NaNs. 
+    standard NaN: f=1/2     One
+    quiet NaN: f            many
+    signaling NaN:          Many
+    ()
+    
+    Positive Infinity:               One
+    Negative Infinity:               One    
+    
+    +0.0                             One
+    -0.0                             One
+    (from logic point of view, there are two 0s with different bit patterns.)
+    
+    subnormal   number: no extra bit in the left of the point.
+    normalized  number: there are one implicit bit with value 1 at the left of 
+    the point.
+    
+3. Some number can not be represently exactly as floating point. example. 3.3 
+interesting thing is it can be output correctly. at least it is so in Java. 
+there must be some magin in it.
+another example is some big number.
+Long.MAX_VALUE - 1 and Long.MAX_VALUE are same when converted to floating number.
+9.223372036854776E18
+
+4. The Floating point is really complex. that is the reason why most of the 
+developers actaully do not know Float Point mathmetics.
+
+Note we only consider the absolute value in the following discusstion, because
+it is really easy to handle the sign in floaitng point. ignore the sign can make
+the sicussion way easier.
+
+
+Double floating point number (64 bits)
+sign(s): 1 bit
+exponent(e): 11 bits
+fraction(f): 52 bitx(if it is normalized, one extra implicit bit will be at the 
+beginning!)
+
+s, e, are positive integer numbers or 0.
+f is positive fraction numbers or 0.
+range of s: [0,1]
+range of e: [0,2047]
+range of f: [0, 1 - power(2, -52)]
+
+when e = 0 (min of the range)
+	when f = 0, result = 0;
+	when f != 0, result = power(2, -1022) * f;
+		the min is power(2, -1074)
+		the max is power(2, -1022) * max(f), which is close to power(2, -1022)
+		
+when e = 2047 (max of the range)	
+	when f = 0, result = Infinite;
+	when f is in (0,1/2), result = signaling NaN;
+	when f >= 1/2, result = quite NaN;
+	(Semantically, Quiet NaN's denote indeterminate operations, while Signaling
+	NaN's denote invalid operations. )
+	(when f == 1/2, it is called standard NaN;) 
+	
+when e is in (0, 2047), i.e. [1, 2046], result = power(2, e - 1023) * (1 + f);
+	the min is power(2, -1022) (only consider the absolute value)
+	the max is power(2, 1023) * (1 + max(f)), which is close to power(2, 1024) 
+note that the range of (e - 1023) is [ -1022, 1023]
+
+e			Range 								Interval
+0			[0,power(2, -1022))					power(2, -1074)
+1			[power(2, -1022), power(2, -1021))	power(2, -1074)
+2			[power(2, -1021), power(2, -1020))	power(2, -1073)
+...			...									...
+e			[power(2, e-1023), power(2, -1022))	power(2, e-1075)
+...			...									...
+1023		[1,2)								power(2, -52)
+1024		[2,4)								power(2, -51)
+...			...									...
+2046		[power(2, 1023), power(2, 1024))	power(2, 971)
+
+in MMIXWare there is an unpacked way to represent the same floating number.
+three compomnet: 
+s and e are same as before, but f is integer and power(2,54) <= f <= power(2,55)
+the result = power(2,e-1076) * f.
+also result = power(2, e-1022) * (f/power(2,54)
+if we treat f as fraction (f/power(2,54)). then f is in range[1.0, 2.0]
+ 
+
+1. first difference
+
+e in IEEE present same range as e -1 in new format. 
+for same range, the precison diff is 2 bits.
+The internal is inclusive on the right.
+
+e			Range 								Interval			map to e in IEEE
+-55			[power(2, -1077),power(2, -1076)]	power(2, -1131)		0
+-54			[power(2, -1076),power(2, -1075)]	power(2, -1130)		0
+-53			[power(2, -1075),power(2, -1074)]	power(2, -1129)		0
+...			...									...					0
+-1			[power(2, -1023),power(2, -1022)]	power(2, -1077)		0
+0			[power(2, -1022),power(2, -1021)]	power(2, -1076)  	1
+1			[power(2, -1021), power(2, -1020)]	power(2, -1075)		2
+2			[power(2, -1020), power(2, -1019)]	power(2, -1074)
+...			...									...
+#e			[power(2, e-1023), power(2, -1022)]	power(2, e-1075)
+e			[power(2, e-1022), power(2, -1021)]	power(2, e-1076)	e+1
+...			...									...
+1022		[1,2]								power(2, -54)		1023
+1023		[2,4]								power(2, -53)		1024
+...			...									...
+2045		[power(2, 1023), power(2, 1024)]	power(2, 969)		2046
+2046 		[power(2, 1024), power(2, 1024)]
+
+2. seconde difference
+the same floating number may have two differenct representation in this new format.
+when the f is 1.0 or 2.0.	(e,1) = (e-1,2) unless e is max and min
+
+3. No way to express 0, just can express some value close to 0 as much as possible.
+
+
+For short float, we have similar fact.
+s, e, are positive integer numbers or 0.
+f is positive fraction numbers or 0.
+range of s: [0,1]					 1 bit
+range of e: [0,255]					 8 bit
+range of f: [0, 1 - power(2, -23)]	23 bits
+biase: 127
+
+when e = 0 (min of the range)
+	when f = 0, result = 0;
+	when f != 0, result = power(2, -126) * f;
+		the min is power(2, -149)
+		the max is power(2, -126) * max(f), which is close to power(2, -126)
+		(max(f) is 1 - 1/power(2,23))
+		
+when e = 255 (max of the range)	
+	when f = 0, result = Infinite;
+	when f is in (0,1/2), result = signaling NaN;
+	when f >= 1/2, result = quite NaN;
+	(Semantically, Quiet NaN's denote indeterminate operations, while Signaling
+	NaN's denote invalid operations. )
+	(when f == 1/2, it is called standard NaN;) 
+	
+when e is in (0, 255), i.e. [1, 254], result = power(2, e - 127) * (1 + f);
+	the min is power(2, -126) (only consider the absolute value)
+	the max is power(2, 127) * (1 + max(f)), which is close to power(2, 128) 
+note that the range of (e - 127) is [-126, 127]
+
+e			Range 								Interval
+0			[0,power(2, -126))					power(2, -149)
+1			[power(2, -126), power(2, -125))	power(2, -149)
+2			[power(2, -125), power(2, -124))	power(2, -148)
+...			...									...
+e			[power(2, e-127), power(2, e-126))	power(2, e-150)
+...			...									...
+127		[1,2)								power(2, -23)
+128		[2,4)								power(2, -22)
+...			...									...
+254		[power(2, 127), power(2, 128))	power(2, 104)
+
+
+
+
+    

@@ -1,0 +1,53 @@
+\hsize=29pc
+\vsize=42pc
+\topglue 0.5 in
+\centerline{\bf Birthday Paradox}
+\smallskip
+\centerline{May 7, 2009}
+\bigskip
+Today I resolved the following problem independantly.
+
+%\beginsection 1. Problem description.\par
+For a group of n people, what is the probability of at least two people having same 
+birthday.
+
+$$1 - {365!\over(365-n)!*365^n}$$
+   
+{\bf Note:} (1)$365!/(365-n)!$ is equal to $365*364*\cdots*(365-n+1)$. (2) this 
+problem is popularly knowns as Birthday Paradox.
+
+{\bf Explaination:}
+Consider we only have 365 day in a year, each person may have 365 possible 
+birthday. The possibility all of them have different birthday is 
+$$ 365!\over(365-n)!*365^n$$  
+$365^n$ is the total combination, and $365!/(365-n)!$ is the combination
+each person have different birthday.
+ 
+If we consider leap year have 366 day, than the problem become more complex.
+ %averagely,
+because the possiblity of Feb. 29 birthday is lower than normal days.
+ 
+If we consider the probability of exact two people having same birthday.  it is
+$$C_n^2 * {365!\over(365-n+1)!*365^n}$$  
+
+similarly we can get the possibility of exact $k$ people having same birthday. 
+it is
+$$C_n^k * {365!\over(365-n+(k-1))!*365^n}$$ 
+
+so we can get the possiblity of at leat two people by sum the possiblity of $2, 3,  
+\cdots n$ people having same birthday.
+$$\sum_{k=2}^n C_n^k * {365!\over(365-n+(k-1))!*365^n}$$
+
+To see whether our guess is correct. we multiply $365^n$ on both formulas. now we need
+to compare $365^n-365*364*\cdots*(365-n+1)$ and 
+$\sum_{k=2}^n C_n^k * 365*364*\cdots*(365-n+k-1)$
+
+it show this conjecture is wrong when $n\beq 4$, I spend many time to find out
+why it is not correct because of blind point in my mind. After I figure it out
+it is easy to understand with a simple example when $n=4$.
+for k=2, we only consider that 2 of people have same birthday and another two have
+different birthday. but we did not consider that another two may also have same birthday.
+so we loss some cases when summing.
+
+
+\bye

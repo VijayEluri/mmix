@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persons>
+	<age>25</age>
+	<name>jerry</name>
+	<isSingle>true</isSingle>
+	<rank>
+		<money>888.888</money>
+		<accountId>10001</accountId>
+	</rank>
+</persons>

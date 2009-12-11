@@ -1,0 +1,23 @@
+page 3:
+(Shortest) Depth of f will impact the parallelism.
+(Shortest) Cost of f will impact the steps needed to evaluate.
+(Shortest) Length of f just tell you the shortest formula. it can not ensure 
+the (Shortest) Cost.
+
+There is a complement function for each one. and they share the same Depth, 
+Cost, and Length;
+so we only need consider half of them.
+
+same class should have same C(f), D(f), L(f).
+
+what is B(f).
+may be it just mean the size of BDD diagram.
+
+Yeah, in the index, it says "B(f): size of its BDD".
+
+for I_s representation. it corresponds to the arch in the BDD. (Complete Wrong)
+
+
+The size of BDD is the number of Nodes (Vertices) in the BDD.
+
+    

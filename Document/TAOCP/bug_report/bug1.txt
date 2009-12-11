@@ -1,0 +1,29 @@
+Bug was sent to: 
+taocp@cs.stanford.edu
+
+Title:
+Reporting one bug on Page 31 of Volume 4 Fascicle 1a - Section 7.1.3 
+
+Hi There,
+
+In the formula 129 on Page 31 of Volume 4 Fascicle 1a, the Boolean expression for "x implication y" is not correct since it does not match the truth table defined in formula 127 in the same page.
+
+The truth table for "x implication y" defined in formula 127 is as the following:
+11  11  11
+01  11  11
+00  01  11
+
+
+But the truth table for "x implication y" we get from formula 129 is as the following:
+00  00  00
+10  00  00
+11  00  00
+
+In my opinion, to match the truth table defined in formula 127, the Boolean expression for "x implication y" in formula 129 should be changed as the following.
+    For left bit of "x implication y", the formula should be: (!(xr^yl)|(!xl)&yr);
+    For right bit of "x implication y", the formula should be: (!xl)|(yr)    
+
+Please kindly review it and let me know if it is a real bug.
+
+Regards,
+Eddie Wu

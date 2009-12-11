@@ -1,0 +1,538 @@
+35$Ticket!
+
+8/27/2008 1:45PM
+
+
+
+
+
+
+
+
+8/25/2008 10:24AM
+
+by the may. the copy comman in VI is "yy".
+
+include/linux/gfp.h
+#ifdef CONFIG_NUMA
+extern struct page *alloc_pages_current(gfp_t gfp_mask, unsigned order);
+
+static inline struct page *
+alloc_pages(gfp_t gfp_mask, unsigned int order)
+{
+        if (unlikely(order >= MAX_ORDER))
+                return NULL;
+
+        return alloc_pages_current(gfp_mask, order);
+}
+extern struct page *alloc_page_vma(gfp_t gfp_mask,
+                        struct vm_area_struct *vma, unsigned long addr);
+#else
+#define alloc_pages(gfp_mask, order) \
+                alloc_pages_node(numa_node_id(), gfp_mask, order)
+#define alloc_page_vma(gfp_mask, vma, addr) alloc_pages(gfp_mask, 0)
+#endif
+
+alloc_pages is a common interface.
+in numa system, it will call alloc_pages_current();
+in uma system, it is an alias of alloc_pages_node();
+
+in uma system, parameter vma in alloc_page_vma() is actually useless.
+
+every file will have a lot of imformation from many different aspects. so it is almost impossible to understand all the information in one reading. In order to get a comprehensive understanding, you need to read it again and again.
+
+You also need to get familiar with the building process, otherwise, it is not easy to understand the intention of code organizaion and the usage to all kinds of macros.
+Example:
+include/linux/numa.h
+#ifndef _LINUX_NUMA_H
+#define _LINUX_NUMA_H
+ 
+ 
+#ifdef CONFIG_NODES_SHIFT
+#define NODES_SHIFT     CONFIG_NODES_SHIFT
+#else
+#define NODES_SHIFT     0
+#endif
+
+#define MAX_NUMNODES    (1 << NODES_SHIFT)
+
+#endif /* _LINUX_NUMA_H */
+
+we can know the location of each function and variable form the System.map.
+/boot/System.map -> System.map-2.4.21-27.0.2.EL
+
+here is the content of System.map:
+c0100000 A _text
+c0100000 t startup_32
+c01000a5 t checkCPUtype
+c0100133 t is486
+c0100142 t is386
+c010018c t L6
+c010018e t ready
+c010018f t check_x87
+c01001b6 t setup_idt
+c01001d3 t rp_sidt
+c01001e0 T stack_start
+c01001e8 t int_msg
+c01001fc t ignore_int
+c010021e T idt_descr
+c0100224 T cpu_gdt_descr
+c0101000 T swapper_pg_dir
+c0102000 T pg0
+c0103000 T pg1
+c0104000 T pg2
+c0105000 T pg3
+c0106000 T empty_zero_page
+c0107000 T _stext
+c0107000 T stext
+...
+c0430c20 b dist_code
+c0430e20 b length_code
+c0430f20 b base_length
+c0430fa0 b base_dist
+c0431018 A _end
+We can see that the kernel image is smaller that 4M.
+
+
+Congig file size:
+[oracle@database 2.6.23.17-88.fc7-i686]$ wc .config 
+ 3629  6206 78675 .config
+[oracle@database 2.6.23.17-88.fc7-i686]$ ls -l .config
+-rw-r--r-- 1 root root 78675 2008-05-15 12:44 .config
+[oracle@database 2.6.23.17-88.fc7-i686]$ 
+characters  78675
+words       6206
+lines       3629
+
+
+[oracle@database 2.6.23.17-88.fc7-i686]$ ls -l /proc/config.gz
+ls: cannot access /proc/config.gz: No such file or directory
+[oracle@database 2.6.23.17-88.fc7-i686]$ 
+
+vi .config
+CONFIG_X86_32=y
+CONFIG_GENERIC_TIME=y
+CONFIG_GENERIC_CMOS_UPDATE=y
+CONFIG_CLOCKSOURCE_WATCHDOG=y
+CONFIG_GENERIC_CLOCKEVENTS=y
+CONFIG_GENERIC_CLOCKEVENTS_BROADCAST=y
+CONFIG_LOCKDEP_SUPPORT=y
+CONFIG_STACKTRACE_SUPPORT=y
+CONFIG_SEMAPHORE_SLEEPERS=y
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_ZONE_DMA=y
+CONFIG_QUICKLIST=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_GENERIC_BUG=y
+CONFIG_GENERIC_HWEIGHT=y
+...
+CONFIG_HAS_DMA=y
+CONFIG_CHECK_SIGNATURE=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_GENERIC_PENDING_IRQ=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_KTIME_SCALAR=y
+
+once you config the parameter, the corresponding macro was defined. so the include/linux/numa.h will 
+#define NODES_SHIFT     0
+
+
+
+
+
+
+Trace implementation of alloc_pages.
+
+alloc_pages [include/linux/gfp.h]
+
+#ifdef CONFIG_NUMA
+extern struct page *alloc_pages_current(gfp_t gfp_mask, unsigned order);
+
+static inline struct page *
+alloc_pages(gfp_t gfp_mask, unsigned int order)
+{
+        if (unlikely(order >= MAX_ORDER))
+                return NULL;
+
+        return alloc_pages_current(gfp_mask, order);
+}
+extern struct page *alloc_page_vma(gfp_t gfp_mask,
+                        struct vm_area_struct *vma, unsigned long addr);
+#else
+#define alloc_pages(gfp_mask, order) \
+                alloc_pages_node(numa_node_id(), gfp_mask, order)
+#define alloc_page_vma(gfp_mask, vma, addr) alloc_pages(gfp_mask, 0)
+#endif
+
+
+alloc_pages [include/linux/gfp.h]-->
+alloc_pages_node [include/linux/gfp.h]
+static inline struct page *alloc_pages_node(int nid, gfp_t gfp_mask,
+                                                unsigned int order)
+{
+        if (unlikely(order >= MAX_ORDER))
+                return NULL;    
+
+        /* Unknown node is current node */                              
+        if (nid < 0)
+                nid = numa_node_id();
+
+        return __alloc_pages(gfp_mask, order,
+                NODE_DATA(nid)->node_zonelists + gfp_zone(gfp_mask));
+}
+
+to check
+gfp_zone(gfp_mask)
+__alloc_pages
+
+
+
+alloc_pages [include/linux/gfp.h]-->
+alloc_pages_node [include/linux/gfp.h]-->
+__alloc_pages [mm/page_alloc.c]
+
+...
+ page = get_page_from_freelist(gfp_mask|__GFP_HARDWALL, order,
+                                zonelist, ALLOC_WMARK_LOW|ALLOC_CPUSET);
+...
+
+and many exception case.
+
+
+alloc_pages [include/linux/gfp.h]-->
+alloc_pages_node [include/linux/gfp.h]-->
+__alloc_pages [mm/page_alloc.c]-->
+get_page_from_freelist [mm/page_alloc.c]
+
+...
+ page = buffered_rmqueue(zonelist, zone, order, gfp_mask);
+...
+
+
+
+
+alloc_pages [include/linux/gfp.h]-->
+alloc_pages_node [include/linux/gfp.h]-->
+__alloc_pages [mm/page_alloc.c]-->
+get_page_from_freelist [mm/page_alloc.c]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+you may use strace to trace all the system calls issued by the traced application. (strace just mean system call tracing)
+
+by executing the following command in shell, you can get a lot of output, which you may not understand and want to research.
+$> strace date
+
+execve("/bin/date", ["date"], [/* 26 vars */]) = 0
+uname({sys="Linux", node="ora10gapp1.cn.bleum.com", ...}) = 0
+brk(0)                                  = 0x95ee000
+
+open("/etc/ld.so.preload", O_RDONLY)    = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=17, ...}) = 0
+old_mmap(NULL, 17, PROT_READ|PROT_WRITE, MAP_PRIVATE, 3, 0) = 0xb75f4000
+close(3)                                = 0
+
+
+open("/etc/libcwait.so", O_RDONLY)      = 3
+read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0p\5\0\000"..., 512) = 512
+fstat64(3, {st_mode=S_IFREG|0755, st_size=4990, ...}) = 0
+old_mmap(NULL, 6216, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0xaad000
+old_mmap(0xaae000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0) = 0xaae000
+close(3)                                = 0
+
+
+mprotect(0xbfff8000, 4096, PROT_READ|PROT_WRITE|PROT_EXEC|PROT_GROWSDOWN) = 0
+munmap(0xb75f4000, 17)                  = 0
+
+
+open("/etc/ld.so.cache", O_RDONLY)      = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=55817, ...}) = 0
+old_mmap(NULL, 55817, PROT_READ, MAP_PRIVATE, 3, 0) = 0xb75e7000
+close(3)                                = 0
+
+
+open("/lib/tls/librt.so.1", O_RDONLY)   = 3
+read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0`\36\0\000"..., 512) = 512
+old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb75e6000
+fstat64(3, {st_mode=S_IFREG|0755, st_size=47024, ...}) = 0
+old_mmap(NULL, 81368, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0xb99000
+old_mmap(0xba1000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x7000) = 0xba1000
+old_mmap(0xba3000, 40408, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0xba3000
+close(3)                                = 0
+
+
+open("/lib/tls/libc.so.6", O_RDONLY)    = 3
+read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\200X\1"..., 512) = 512
+fstat64(3, {st_mode=S_IFREG|0755, st_size=1571692, ...}) = 0
+old_mmap(NULL, 1275340, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x78e000
+old_mmap(0x8c0000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x132000) = 0x8c0000
+old_mmap(0x8c3000, 9676, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x8c3000
+close(3)                                = 0
+
+
+open("/lib/tls/libpthread.so.0", O_RDONLY) = 3
+read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\20G\0\000"..., 512) = 512
+fstat64(3, {st_mode=S_IFREG|0755, st_size=97712, ...}) = 0
+old_mmap(NULL, 64820, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0xcc4000
+old_mmap(0xcd1000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0xc000) = 0xcd1000
+old_mmap(0xcd2000, 7476, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0xcd2000
+close(3)                                = 0
+
+
+old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb75e5000
+set_thread_area({entry_number:-1 -> 6, base_addr:0xb75e5080, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 0
+munmap(0xb75e7000, 55817)               = 0
+
+set_tid_address(0xb75e50c8)             = 26193
+rt_sigaction(SIGRTMIN, {0xcc8670, [], SA_RESTORER|SA_SIGINFO, 0xccee50}, NULL, 8) = 0
+rt_sigprocmask(SIG_UNBLOCK, [RTMIN], NULL, 8) = 0
+getrlimit(RLIMIT_STACK, {rlim_cur=10240*1024, rlim_max=RLIM_INFINITY}) = 0
+brk(0)                                  = 0x95ee000
+brk(0x960f000)                          = 0x960f000
+brk(0)                                  = 0x960f000
+
+
+open("/usr/lib/locale/locale-archive", O_RDONLY|O_LARGEFILE) = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=32148976, ...}) = 0
+mmap2(NULL, 2097152, PROT_READ, MAP_PRIVATE, 3, 0) = 0xb73e5000
+close(3)                                = 0
+
+
+open("/usr/share/locale/locale.alias", O_RDONLY) = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=2601, ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb73e4000
+read(3, "# Locale name alias data base.\n#"..., 4096) = 2601
+read(3, "", 4096)                       = 0
+close(3)                                = 0
+munmap(0xb73e4000, 4096)                = 0
+
+
+open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/coreutils.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US.utf8/LC_MESSAGES/coreutils.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US/LC_MESSAGES/coreutils.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.UTF-8/LC_MESSAGES/coreutils.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.utf8/LC_MESSAGES/coreutils.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en/LC_MESSAGES/coreutils.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+
+clock_gettime(0, 0xbfff8d38)            = -1 ENOSYS (Function not implemented)
+gettimeofday({1216974611, 295785}, NULL) = 0
+
+open("/etc/localtime", O_RDONLY)        = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=165, ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb73e4000
+read(3, "TZif\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\3\0\0\0\3\0"..., 4096) = 165
+close(3)                                = 0
+munmap(0xb73e4000, 4096)                = 0
+
+
+fstat64(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 1), ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb73e4000
+write(1, "Fri Jul 25 16:30:11 CST 2008\n", 29Fri Jul 25 16:30:11 CST 2008) = 29
+munmap(0xb73e4000, 4096)                = 0
+exit_group(0)                           = ?
+$ 
+
+The following is the question come to my mind when I see the output.
+1. why we need to invoke uname();
+2. after mmap we close the file descriptor, will it impact the memory mapping? check the details of memory - file mapping.
+No, because when closing the file descriptor, it only decrease the reference count for
+3. 
+
+
+
+you can even use the following command to see how strace works.
+$ strace strace date
+you can see that command strace is heavilly dependent on the ptrace(sys_ptrace) system call 
+
+...
+ptrace(PTRACE_PEEKDATA, 26606, 0x920b914, [0x6f6d]) = 0
+write(2, "open(\"/usr/share/locale/en_US.UT"..., 71open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/coreutils.mo", O_RDONLY) = 71
+ptrace(PTRACE_SYSCALL, 26606, 0x1, SIG_0) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFSTOPPED(s) && WSTOPSIG(s) == SIGTRAP}], __WALL, NULL) = 26606
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT PIPE TERM], NULL, 8) = 0
+ptrace(PTRACE_PEEKUSER, 26606, 4*ORIG_EAX, [0x5]) = 0
+ptrace(PTRACE_PEEKUSER, 26606, 4*EAX, [0xfffffffe]) = 0
+write(2, ") = -1 ENOENT (No such file or d"..., 42) = -1 ENOENT (No such file or directory)
+) = 42
+
+when user map the file to user space memory, will it bypass system cache? i.e. is there duplicate memory area between user space and kernel space?
+No. when user map the file, the userspace vm is mapping to the kernel chche directly through the paging.
+
+sys_mmap2 -> 
+
+
+
+
+
+7/28/2008 3:31PM
+ ps -H -A
+can show the relationship between all the processes. it is helpful when you want to research the internals of UNIX.
+ 
+ init
+   keventd
+   ksoftirqd/0
+   bdflush
+   kswapd   
+ 
+we can see that all the process are the children of init (directly or indirectly). especially the kernel thread are also the children of init process.
+process 0 is special, it is not displayed.
+
+
+  sshd
+    sshd
+      sshd
+        bash
+          vim
+            cscope
+    sshd
+      sshd
+        bash
+          ps
+ we can see that how ssh works. actually I have created two ssh session to the server.
+ 
+ ps -f 3805
+ UID        PID  PPID  C STIME TTY      STAT   TIME CMD
+oracle    3805  2126  1 16:36 ?        S      0:52 /opt/OraHome1/jdk/bin/java -s
+
+ps -f 2126
+no result. which show that the two java processes are in Sleep status, and their parent are died and not in the system.
+when will the init adopt them?  q
+
+
+7/29/2008 8:18AM
+one finding in code structure in include folder
+It seems all the asm-generic header are only referenced by asm-<arch> headers
+Q: what is the relationship between linux and asm-generic folder. 
+A: It seems all the asm-generic header are only referenced by asm-<arch> headers. it will not be directly referencec by .c file. but the headers in linux folder will be referenced by .c file, e.g. linux/mm.h. header in asm-generic will also reference head in asm-<arch>, which provide the implementation for some feature. e.g.
+asm-generic/local.h    ->(refer to)     asm-x86/atomic.h    -> asm-x86/atomic_32.h
+
+
+It is said, the memory management is most complex sub-system in linux kernel, at the same time, there aren't too much System Calls for it. Becuase most the the complex mechanism happens trasparently to the user process, such as COW(Copy On Write), On Demand Paging. For user process, to successfully refer to a linear memory address, the following factors are necessary:
+    vm_area_struct (Virtual Memory Area, Memory Region) are set up correctly.
+    Phsical memory are allocated.
+    Page Global Directory, Page Table, and the corresponding entry are correclty set up according to Virtual Memory Area and Phisical Meory.
+    
+This three factors can be further simplified as 
+    Virtual Memory
+    Phisical Memory
+    Mappting between Virtual Momory and Phisical Memory.
+
+From user process's perspective, only Virtual Memory is visible, when user process applys for memory, he got virtual memory; phisical memory may not be allocated yet. All these three factors are managed by the kernel, they can be thought of as three resource managed by the kernel. kernel not only need to manage the Virtual Memoty in user address space, but also need to manage Virtual Memory in kernel address space.
+
+When user process try to use his virtual memory, but the phisical memory is not allocated yet. Page Exception happens, kernel take charge of it and allocate the phisical memory and set up the mapping. user process reexecute the instruction and everything go forward smoothly. It's called On Demand Paging. 
+           
+
+page fault handler is the center of all the copcept.
+1. find out the calling sequence.
+Page fault is a kind of Exception, which is different from Interrupt. before we start to research on it, we need to know Exception are handled.
+arch/x86/kernel/traps_32.c
+set_intr_gate(14,&page_fault);
+
+arch/x86/kernel/entry_32.S
+KPROBE_ENTRY(page_fault)
+        RING0_EC_FRAME
+        pushl $do_page_fault
+        CFI_ADJUST_CFA_OFFSET 4
+        ALIGN
+error_code:
+        /* the function address is in %fs's slot on the stack */
+        pushl %es
+        CFI_ADJUST_CFA_OFFSET 4
+...
+
+do_page_fault
+arch/x86/mm/fault_32.c
+
+
+
+
+
+2. read do_page_fault
+
+
+我们学校的英文教学是全台湾最好的。我从美国请来两名老师，专门教我的学生学说外语。我有一个留美班，他们一定是要留美的。但是他们所学的教材第一页上都印着我的话：“中国人学英文是我们的国耻行为，学英文是中国最可悲的行为，但我们不能不学，因为别人超过了我们，“敌人”枪炮、科学压过了我们。今天我们必须学习他们的科学，然后才能打倒他们！超过他们！我们要以夷制夷！非把英文学好不可，所以要咬牙切齿学英文！要告诉学生雪耻图强，打败列强，这是中国人的希望！你们这里不也有英文老师吗？外语系的学生以后不也去教英文吗？上课以前你们要对学生进行爱国学英文的教育，不要上来就替外国吹一场，你们不要认为：传道者只是传英文之道、授英文之业，而要传爱国之道，授英文之业。好，同学们懂得了这些道理，下一步我们就要知道，我们今天的教育是很失败的。
+
+中国人学英文是我们的国耻行为，学英文是中国最可悲的行为，但我们不能不学，因为别人超过了我们
+we have to learn English, because we are a developing country, not a developed country.
+The intention to learn English is not just to use it. The intention is to develop our country.
+when China become a developed country, we do not need to speak English, instead Foreigner will become to learn Chinese if they want to win business in China.
+
+
+8/1/2008 8:59AM
+The kernel are trying to use as little resource as possible. Here is an example, Originally, in kernerl 2.4, the size of Kernel Stack is 8K. Now, in kernel 2.6, it could be 4K, if you enable it in compilaiton time. 
+
+Why will kernel spend effort to support such a feature when most of PC have more than 1 Gigabyte memonry. I think it has something to do with the C10K probleum; C10K means Concurrent 10 Thousand Processes(Threads). considering a system with more thant 10 thousand processes, such as a WEB server, the save of 4K in every kernel stack will become 4K * 10 K = 40 M tatal save of memory, which is a big deal! 
+
+How is it possible to achieve that? originally the kernel mode stack is also used in Exception and Interrupt handling, but Exception and Interrupt handling is not specific to any process. so in 2.6, Interrupt and Exception will have their own Stack for each CPU. Kernel stack is only used by process in the kernel mode. so the acutal kernel stack did not become small.
+2.4     8K Stack shared between process kernel mode, Exception, Interrupt.
+v.s     
+2.6     4K Stack specific for process kernel mode Stack
+        4K Stack specific for Exception Stack
+        4K Stack specific for Interrupt Stack
+Besides this, in 8K stack of 2.4, task_struct is at the bottom of stack, which may cost about 1K, in 4K stack of 2.6, only thread_info is at the bottom of stack, the task_struct is put into a per-CPU data structre, thread_info is only about 50 bytes.
+
+8/5/2008 10:27AM
+Virtual Memory Area
+
+Virtual Memory Area is also called Memory Region in some book. 
+
+In the process address spaces, there are many memory areas, contiguous addresses wil be divided into different memory area if the access right of them are different. For example, in one Java Process, there are 359 memory areas.
+
+so the kernel need to find a effective way to insert into, remove from, search from the list of memory areas. The semantics of find_area  API is the as the following.
+
+return null if 
+    1. The list itself is empty.
+    2. The list is not empty, and the address is big than the last memory area.
+
+return found area if
+    1. the address is in the region of one area.
+    2. the address is not in the region of any area. but is not bigger than the last area.         it means it is in the hole between areas. right area besides the hole is returned.
+        
+  
+
+
+8/8/2008 9:12AM
+layering is an important softeare concept, especially for large scale software project, such as linux kernel.
+
+SLAB layer
+(Which Provide the memory for un-regular sized object)
+kmem_getpages 
+
+
+Zoned Page Frame Allocator
+(Which will manage the phisical mememoy - composed of Page Frames.)
+page = alloc_pages_node(nodeid, flags, cachep->gfporder);

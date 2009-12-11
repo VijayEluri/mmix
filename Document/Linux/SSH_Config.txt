@@ -1,0 +1,448 @@
+SSH usage is easy.
+1. ssh was installed on F:\Program Files\ssh
+since many file name has suffix 2. copy and rename to the one without suffix.
+(Creating a short cut doesn't work. it shows shortcut in Windows is 
+different from soft link in UNIX.)
+
+2. connect to 100 with ssh
+F:\Program Files\ssh>ssh 192.168.2.100 -l oracle
+
+3. It will prompt you to imput password. after you input correct password.
+you connected to the server and get a secure shell 
+
+Config SSH so that we do not need to input password everytime. It is also
+important when it is used in script, since it is hard to input password.
+
+1. since ssh-keygenerate only generate key for user who is logged in. 
+i create two user bbu and oracle.
+
+2. create DSA for oracle
+ $ ssh-keygen -t dsa  
+ 
+3. put it on server.
+ $ scp .ssh/id_dsa.pub dude@remote.edu: 
+
+
+5. install it
+ $ cat id_dsa.pub >> .ssh/authorized_keys 
+ 
+ 
+ 
+ Private key saved to C:/Documents and Settings/bbu/Application Data/SSH/UserKeys
+/id_rsa_2048_a
+Public key saved to 
+
+scp "C:/Documents and Settings/bbu/Application Data/SSH/UserKeys/id_rsa_2048_a.pub" oracle@192.168.2.100:
+
+ssh-keygen2.exe -i -F "C:/Documents and Settings/oracle/Application Data/SSH/UserKeys/id_rsa_2048_a.pub" >> id_rsa_2048_a.pub
+
+check ssh version in 100.
+sudo vi /etc/ssh/sshd_config
+
+Protocol 2
+
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA10DfaWq2h65OHe3HIuKGrL6PnDW2f3wgyNKWecN8GJfN7wwkmPhfh0FdFd0JcurKq2Hfw9D56VS5QA2czUfy8UnFWKeT5+gHplXNspJVA1TlYLx8TrA0Hj4xJ+OouOprua/V/mq/HSAjUttd8TWjaSbO2btcnn9iXhmcgniOOemtDOaxbXi0KzM9wWbNk9YNEynP4pVPwz3WlEpE6xaY7JdHPIPN2H8F3x0Llq90gcXQmZJvogHGycMoVtRtHow+kDKejoRRCPmYi6/8N/XgqIa0r2KzPv68mA0+6ISmIhvtsEwq3K2cdfKsqQ/dmOv1aTiOf6b7NTW3v6GURuoPlQ==
+
+ora10gapp2> sudo more ssh_host_key.pub    
+2048 35 242546501754805706239445487763462317327567335843831385061330588788627137
+12065976533660318226829615111614954724674241149218270514110536838010677078634988
+92357326335397251885235841182769399544932327149742838525171230640911910604549833
+26343952228886259323663870354821102642665172603403277628817849293224845397552650
+07623492768551244661410473511882942211357903474148825447539650820006440715961142
+09312425735815052027134607374861063315794997462201153543133682055626644444116328
+79182860433010181925008059382297798008043881783624148607839922107646998715578903
+25598076246448060135987775507303861022347588121626950249162308721 
+ora10gapp2> sudo more ssh_host_dsa_key.pub 
+ssh-dss AAAAB3NzaC1kc3MAAACBAOMQ5QyJAiZFgg70ak+ggEG2FAK5/PZVi+DYMBPlJ4RjOrpDQKtQ
++ncMh9u1U8UeYYP4zaCPn9Xw0FIRUmggadTv6KsZbEpIjF0IM8zRIMUrJAx83VK0UVLSsnY92XnNayDd
+vNnRDaeF42BNIzdwjzZK4/zNVgk1dlMyNLMm5PdzAAAAFQC2Sv/djZ2lqeQk9sBOvBA/LN+XGQAAAIA3
+uy96IBAeXJcAIwpz+jiy5At54WyHEp9o7eY2iCU1F1Qx0ExvlHYWsvWxXGjgZxtYRJnazmtwcWcUxgY0
+TspbZJ5lfXWRRF84LphLEYXw2d615V/hQf940CSBFQQsvqxSTj1FY3ggTzn5UFtWey44vXqjof0N9HLh
+RKJq7+kDoAAAAIBzfFX/KNA9sVZ3ojYwHQmhtyh7V6OECVABLnAZe9pCdyIlv0Ktn0kKPfYubYcJ1Rrz
+EoAjrl/fWk0tUzojH8whgPrd3AXqJ5ahilQ0te1NS2aty8L70z4QMDUPLYt+gDJNKj5uJ+kQTGiZXI5D
+he/92zBBPfHtH4Z69WoXoBr/xA== 
+
+
+C:/Documents and Settings/eddie.wu/Application Data/SSH/UserKeys/
+
+
+try ssh from 99 to 100. still need to input password
+
+in 99 
+ora10gapp1,192.168.2.99 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAmlPMGw5jHIsC1qSMhjoV
+36chRa/sbPeqi4IGiMt1ZiCO4fC9mrS/g/SOXo2OOfS5o+SvT34fVOhuufSyv6OyS9AN27ZeseclGcPM
+CihmOSPUq0bu6FpwwoD5u/SX/goJsHfWztMC87sIRoC0qMeYIYN/g81bfoz3UBwM+mlPUa1QVmpCCRa2
+/uAuASrylUQk40hPhIZWmSkG+S3jwj8EiAjYRsy1Oopib3gczlckKiZEVNwjsXkCqvoEl+RfC1J+rnB6
+U+QCFiIAYgv3BB8znF74r3xdIgqF6IOgw4Qc7Opmr0H5gpyZyjgWwf8Gg28kVRmbnrQDKCC1KtUCbDyQ
+Tw==
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that the RSA host key has just been changed.
+The fingerprint for the RSA key sent by the remote host is
+89:14:25:e2:4e:90:6c:e9:4c:9b:6a:7c:9c:65:61:32.
+Please contact your system administrator.
+Add correct host key in /home/oracle/.ssh/known_hosts to get rid of this message.
+Offending key in /home/oracle/.ssh/known_hosts:2
+RSA host key for 192.168.2.100 has changed and you have requested strict checking.
+Host key verification failed.
+
+in 100:
+line 4 invalid key: ora10gapp2,192.168.2.100...
+line 5 missing key: 7wwkmPhfh0FdFd0JcurKq2Hfw9D56VS5QA2czUfy...
+line 6 missing key: uOprua/V/mq/HSAjUttd8TWjaSbO2btcnn9iXhmc...
+line 7 missing key: lEpE6xaY7JdHPIPN2H8F3x0Llq90gcXQmZJvogHG...
+line 8 missing key: Pv68mA0+6ISmIhvtsEwq3K2cdfKsqQ/dmOv1aTiO...
+/home/oracle/.ssh/known_hosts is not a valid known_hosts file.
+
+Enter file in which the key is (/home/oracle/.ssh/id_rsa): 
+2048 e5:7a:de:69:03:67:60:7b:aa:54:85:48:1d:f4:95:af /home/oracle/.ssh/id_rsa.pub (RSA)
+
+/home/oracle/100_key.pub
+Enter file in which the key is (/home/oracle/.ssh/id_rsa): /home/oracle/100_key.pub
+2048 88:47:4b:dc:d4:79:55:c0:d4:fe:0f:e3:ad:f1:d8:8f /home/oracle/100_key.pub (RSA)
+ora10gapp2> 
+
+
+ora10gapp2> diff /home/oracle/100_key.pub  /home/oracle/.ssh/id_rsa.pub
+1c1
+< ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwmXX/AyyaFGhtEsBkV+//gtT+Yy44Fa1tLc/y9PzUbwFLPzGiQ+2dUJp0pA1oiibtK7iQdrPzW+rcZg8zD6djHk2z3EDCyRzXvFrbu6mpRYVx3ge3tyM05xAwhip7FcU+wKb/5lUouPj7B9k5T5j42/I3kAT8Fa3QL422d/RcV9KeHfwJTxFXC3mh7zGduL63SUtDJBTGG0njRH6JQb4IK2N1c7zBeqzoNcaUw26rjekv7aCpQyrYJvHN/rhD4Q5qMM7OIS9mYmczDX1ffiFiKpUhs4bhPlE+7ncehrsVa/ujAUtEk2a+dkuENEygOAk0StHAbW09TsGrCwwQUfwfw== oracle@ora10gapp2
+---
+> ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAr1qfEMupYRgD1RPG4SRVhLatFUaIk5CdICpjNUdmzzDLfmC2XDThAtJLBX6Ta4f5Vbsv+Dt5VeRWCGo4mI7cHS9fsg+Yp7oYAwY6/5uzp1CW48A6v+vykit6p9hZUg3THTIHk1dsc4XQl/xXJmUnkDSLT20ziUQ0Gx3oPQkpehku5V4E1GqJRJZ/amsmpw25xoeOpCkryK/DF20Roh9kpSe23dWbDN3CMQQ7K0ioXNVHeC7uZe2TgwMDSZoot9wnizSk/X1qQsPWBHd909XFbaX1k7xSXboRtRSsyoPptYusKn4BHHK5dtk345tRo+GsGDlummMk6wSNtAcpje5yAQ== oracle@ora10gapp2
+
+ssh -l <login name> -i identify file
+
+ssh -l oracle -i "C:\Documents and Settings\oracle\Application Data\SSH\UserKeys\id_rsa_2048_a" 192.168.2.100
+ssh -l oracle -i "C:\Documents and Settings\oracle\Application Data\SSH\UserKeys\identification" 192.168.2.100
+
+ssh -v -i id_dsa_2048_a 192.168.2.100
+
+identification
+identification
+
+authorization
+authorization 
+
+99 connect to 100
+debug1: Reading configuration data /usr/etc/ssh_config
+debug1: Connecting to 192.168.2.100 [192.168.2.100] port 22.
+debug1: Connection established.
+debug1: identity file /home/oracle/.ssh/identity type -1
+debug1: identity file /home/oracle/.ssh/id_rsa type 1
+debug1: identity file /home/oracle/.ssh/id_dsa type -1
+debug1: Remote protocol version 2.0, remote software version OpenSSH_5.2
+debug1: match: OpenSSH_5.2 pat OpenSSH*
+debug1: Enabling compatibility mode for protocol 2.0
+debug1: Local version string SSH-2.0-OpenSSH_5.2
+debug1: SSH2_MSG_KEXINIT sent
+debug1: SSH2_MSG_KEXINIT received
+debug1: kex: server->client aes128-ctr hmac-md5 none
+debug1: kex: client->server aes128-ctr hmac-md5 none
+debug1: SSH2_MSG_KEX_DH_GEX_REQUEST(1024<1024<8192) sent
+debug1: expecting SSH2_MSG_KEX_DH_GEX_GROUP
+debug1: SSH2_MSG_KEX_DH_GEX_INIT sent
+debug1: expecting SSH2_MSG_KEX_DH_GEX_REPLY
+debug1: Host '192.168.2.100' is known and matches the RSA host key.
+debug1: Found key in /home/oracle/.ssh/known_hosts:2
+debug1: ssh_rsa_verify: signature correct
+debug1: SSH2_MSG_NEWKEYS sent
+debug1: expecting SSH2_MSG_NEWKEYS
+debug1: SSH2_MSG_NEWKEYS received
+debug1: SSH2_MSG_SERVICE_REQUEST sent
+debug1: SSH2_MSG_SERVICE_ACCEPT received
+debug1: Authentications that can continue: publickey,password,keyboard-interactive
+debug1: Next authentication method: publickey
+debug1: Trying private key: /home/oracle/.ssh/identity
+debug1: Offering public key: /home/oracle/.ssh/id_rsa
+debug1: Server accepts key: pkalg ssh-rsa blen 277
+debug1: read PEM private key done: type RSA
+debug1: Authentication succeeded (publickey).
+debug1: channel 0: new [client-session]
+debug1: Requesting no-more-sessions@openssh.com
+debug1: Entering interactive session.
+Last login: Fri Aug  7 19:30:05 2009 from ora10gapp1
+/home/oracle/.profile[16]: ulimit: 16384: limit exceeded [Operation not permitte
+
+windows. platform
+debug: Ssh2: License file not found, certificates & smart cards disabled.
+debug: Ssh2: User config file not found, using defaults. (Looked for 'C:/Documen
+ts and Settings/eddie.wu/Application Data/SSH/ssh2_config')
+debug: Connecting to 192.168.2.100, port 22... (SOCKS not used)
+debug: Ssh2Transport: My version: SSH-1.99-3.2.9 SSH Secure Shell Windows Client
+
+debug: client supports 2 auth methods: 'publickey,password'
+debug: Ssh2Common: local ip = 192.168.2.70, local port = 4266
+debug: Ssh2Common: remote ip = 192.168.2.100, remote port = 22
+debug: SshConnection: Wrapping...
+debug: Remote version: SSH-2.0-OpenSSH_5.2
+debug: OpenSSH: Major: 5 Minor: 2 Revision: 0
+debug: Ssh2Transport: All versions of OpenSSH handle kex guesses incorrectly.
+debug: Ssh2Transport: lang s to c: `', lang c to s: `'
+debug: Ssh2Transport: c_to_s: cipher aes128-cbc, mac hmac-sha1, compression none
+
+debug: Ssh2Transport: s_to_c: cipher aes128-cbc, mac hmac-sha1, compression none
+
+debug: Remote host key found from database.
+debug: Ssh2Common: Received SSH_CROSS_STARTUP packet from connection protocol.
+debug: Ssh2Common: Received SSH_CROSS_ALGORITHMS packet from connection protocol
+.
+debug: server offers auth methods 'publickey,password,keyboard-interactive'.
+debug: Ssh2AuthPubKeyClient: Starting pubkey auth...
+debug: Ssh2AuthPubKeyClient: Agent is not running.
+debug: Ssh2AuthPubKeyClient: Got 0 keys from the agent.
+debug: SshConfig: Unable to open C:/Documents and Settings/eddie.wu/Application
+Data/SSH/id_dsa_2048_a
+debug: SshUnixUserFiles: Keys for login not specified in 'C:/Documents and Setti
+ngs/eddie.wu/Application Data/SSH/id_dsa_2048_a', using all keys available.
+debug: Ssh2AuthPubKeyClient: adding keyfile "C:/Documents and Settings/eddie.wu/
+Application Data/SSH/userkeys/id_dsa_2048_a" to candidates
+debug: Ssh2AuthPubKeyClient: adding keyfile "C:/Documents and Settings/eddie.wu/
+Application Data/SSH/userkeys/id_dsa_2048_b" to candidates
+debug: Ssh2AuthPubKeyClient: adding keyfile "C:/Documents and Settings/eddie.wu/
+Application Data/SSH/userkeys/id_rsa_1024_a" to candidates
+debug: Ssh2AuthPubKeyClient: Trying 3 key candidates.
+debug: server offers auth methods 'publickey,password,keyboard-interactive'.
+debug: server offers auth methods 'publickey,password,keyboard-interactive'.
+debug: server offers auth methods 'publickey,password,keyboard-interactive'.
+debug: Ssh2AuthPubKeyClient: All keys declined by server, disabling method.
+debug: Ssh2AuthClient: Method 'publickey' disabled.
+debug: server offers auth methods 'publickey,password,keyboard-interactive'.
+debug: Ssh2AuthPasswdClient: Starting password auth...
+eddie.wu's password:
+debug: server offers auth methods 'publickey,password,keyboard-interactive'.
+debug: Ssh2AuthPasswdClient: Starting password auth...
+eddie.wu's password:
+debug: Ssh2Common: DISCONNECT received: Too many authentication failures for edd
+ie.wu
+warning: Authentication failed.
+Disconnected; protocol error (Too many authentication failures for eddie.wu).
+debug: Ssh2Common: Destroying SshCommon object.
+debug: SshConnection: Destroying SshConn object.
+
+
+ssh-rsa 
+AAAAB3NzaC1yc2EAAAABIwAAAQEAr1qfEMupYRgD1RPG4SRVhLatFUaIk5CdICpjNUdmzzDLfmC2XDThAtJLBX6Ta4f5Vbsv+Dt5VeRWCGo4mI7cHS9fsg+Yp7oYAwY6/5uzp1CW48A6v+vykit6p9hZUg3THTIHk1dsc4XQl/xXJmUnkDSLT20ziUQ0Gx3oPQkpehku5V4E1GqJRJZ/amsmpw25xoeOpCkryK/DF20Roh9kpSe23dWbDN3CMQQ7K0ioXNVHeC7uZe2TgwMDSZoot9wnizSk/X1qQsPWBHd909XFbaX1k7xSXboRtRSsyoPptYusKn4BHHK5dtk345tRo+GsGDlummMk6wSNtAcpje5yAQ== oracle@ora10gapp2
+2048 rsa
+AAAAB3NzaC1yc2EAAAADAQABAAABAQCy1ff01/MmeUKJJ/yHe+I1Gv49j1bGGGCDECenzgcXblwXs+xVYhfBzj5IWq0NKlWUiH7mxgh2Kn3KhCrJKq02LFTiTNzZfJsHF/lB90qLvOGJ5rMAPOhdis6K5ewcFWQp2lN9R7KNuPAkixrt+kUE9aK4N+V7fUhsHC261qxiZ/jJ8UlhjkimeckEjuXd7cdh8onLFpoywwV+3EgOYTXP/AD3viEdmpOcvKeNfXDobxuDsXdghQ2Rj5Ng5ASgJK+kDYmiuWLU20vqoiaI9jvErwg5zqeFoimVEuyMKSaXmNgMPrRMV752nICyyYLSD4QDtAMVfjUwAc4DQngk2l6Z eddie.wu@BS-PC-124
+
+1024 rsa
+AAAAB3NzaC1yc2EAAAADAQABAAAAgQD/VwM18998Vodn955pDntPgll8qy7OwoXg9ZTcbX
+0cGLtAfHd+Xm/Q4fYqqTZFzqgK99v8i6RhuoCMpcqWUK0O52c71FLgYL2D4fa4FWc9Wr8t
+TwRe3ufJjwqi1vizGneKuBoLTd45DfmQ8hOctywXC+MaAPo6T0+coxMFOVdwlQ==
+
+2048 dsa
+AAAAB3NzaC1kc3MAAAEBAJVWrTJcDBQe+kJkJpmFpK+ro7ko9HC/x91HW0ZGkJ/mM/NI3B
+6x5NOVKeCZdyScX0IDNsRjGO3+UkAI2+H4VxGCaFGuAgWkgvYhJEuEmqhNoB7hfykL2hNB
+w1zG6n05Eb2Zfl1CL+/wRByLm/+tXOhInqGoRNzODHlRvggtwIcupUU4LBXsAkSi2s2ro2
+CYkkhJOJSEnC6Yjx926pvi8WyxR94t84NMEFidUmL4i1UvJWZx5AsAmH9Goosab4j5DODU
+ko/MMCiP2vuvzQ6UR3OwETdwikkvsAtCuQuFexlyqurvEDPwFxxDijE2/m4nPDRfiILc9f
+1GwLImKLQVJAkAAAAVANxswb1EM0eiuQ2Yjv90EL3UZo9zAAABAQCRhh0Pz22Y8MMBsb8m
+EPPWI5fYluB7Aa7Bp+XBhB+hu50eF7tz89OXpj9q63564cGmaE5dVlDaKEK9eTimNfHMKF
+vxO25YI08tXcYrypfY0wlcyMkXXEZfRaIxOkFNamkbhEWtEby/vRzOjplzyg+7/JC8uu1A
+1kLr4Efk91K6dBnSVEjWTHVPasE7H6TPqq0joGfzjtGGd6/9OBnvive3exoTbvz4BGZ/nb
+K1OUz37/WIEHla3GsamqoCXnir0ML1CIapu8dNFhytrDt3L1Pl0/5cBGojPpynQyQL8s+N
+Q47wLsYcq4Fjm5GwSpE4Ff4jMTbDzjPtPYqke1HdvIQIAAABADBAxXsOE0mrQXs9den8lk
+vO259Gt0tPO8d0ca7U+L1018QZ2BOCBnpej5oT5FfKPL+pJl3plO16wVDNh7wwdlp7IQSY
+dxmUluMuy1MZV67r4DEDMdDeTaynh2jTGRyUnAWI4HjvSqcKF9aRI/X0cnYxc0RTYxXKxC
+o+YuSINKVj4oQJEjcaIqflO8gX+cffUyCSfyuj1m4Keau+XZ5ampzr32dPbAkuRWBvLuoX
+cXIXpuMd3izKvwMyg36/6pPgSIQDuRkvT+8RLc+OOrmlZyC5lMQZNJOywP0d7F645olCtv
+g7Raip+0CYNL4kvs988lf3MkidqdfRq7dSAeRQLBg=
+
+
+SSH-2 Key File Formats
+
+The two major implementations of SSH-OpenSSH and SSH Secure Shell ("SSH2")-use different file formats for SSH-2 protocol keys. (Their SSH-1 protocol keys are compatible.) OpenSSH public keys for the SSH-2 protocol begin like this:
+
+ssh-dss A9AAB3NzaC1iGMqHpSCEliaouBun8FF9t8p...
+
+
+or:
+
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEA3DIqRox...
+
+
+SSH Secure Shell public keys for the SSH-2 protocol look like this:
+
+---- BEGIN SSH2 PUBLIC KEY ---- 
+AAAAB3NzaC1kc3MAAACBAM4a2KKBE6zhPBgRx4q6Dbjxo5hXNKNWYIGkX/W/k5PqcCH0J6 ...
+---- END SSH2 PUBLIC KEY ----
+
+
+These keys are installed differently too. For OpenSSH, you insert your public keys into the file ~/.ssh/authorized_keys. For SSH Secure Shell, you copy your public key files into the directory ~/.ssh2 and reference them in the file ~/.ssh2/authorization by name:
+
+Key public_key_filename
+
+
+As for private keys, OpenSSH has no special requirements for installation, but SSH Secure Shell does. You must reference them in the file ~/.ssh2/identification by name:
+
+IdKey private_key_filename
+
+//SSH2 's convention (authorization and ... can not apply to OpenSSH).
+
+//final solution.
+OpenSSh can convert the key.
+/usr/bin/ssh-keygen -i -f id_rsa_2048_b.pub > id_rsa_2048_b.pub2
+
+/usr/bin/ssh-keygen -i -f id_rsa_2048_b.pub >>\
+/home/oracle/.ssh/authorized_keys 
+
+ssh -v -l oracle -i identification 192.168.2.99
+
+C:/Documents and Settings/oracle/Application Data/SSH/UserKeys/id_rsa_2048_a.pub
+
+ora10gapp2> ssh -v       
+OpenSSH_5.2p1, OpenSSL 1.0.0-beta2 21 Apr 2009
+
++++++++++++++++++++++++++++++
+=============================
+F:\Program Files\ssh>ssh -v -l oracle -i identification 192.168.2.100
+
+Yeah! succeed.
+-l option let you use an username which may be not the current log in user.
+(it is convinient when you use different user in remote server.)
+
+-i option is required by SSH2 (Secureity Shell community version).
+you have to config a "indentitfy" file which 
+
+
+keygen should also have similar option to specify username.
+
+
+not sure whether authorize_keys2 is necessary.
++++++++++++++++++++++++++++++
+=============================
+
+
+
+SSH2 就很不一樣了。SSH2 允許有多個 identity，因此會有一個檔案 ~/.ssh/identification 可以設定有哪些 identity 可用，例如:
+
+IdKey identity-1
+IdKey identity-2
+IdKey identity-3
+
+真正的 private key 放在 identity-1, identity-2, identity-3 這三個檔案內，而使用 ssh -i 指定 identity 時，不同於 OpenSSH 是直接指到 key 本身，SSH2 必須指定這個間接的 identification file
+
+SSH2 的 public key format 也與 OpenSSH 不同，不再是一行而已，也因此 authorization file 沒辦法跟 ~/.ssh/authorized_keys 一樣一行放一個 key 值。
+
+SSH2 也是一樣使用一個檔案來設定允許的 public key 有哪些，檔案放在 ~/.ssh/authorization
+
+Key identity-1.pub
+Key identity-2.pub
+Key identity-3.pub
+
+這個檔案表示可接受三個 public key 分別為 identity-1.pub, identity-2.pub, identity-3.pub
+
+而如同 OpenSSH 一樣，SSH2 的 authorization 檔案內也可以指定各種 options，例如：
+
+Key identity-1.pub
+Options no-port-forwarding,no-pty
+Key identity-2.pub
+Options command="rsync -az --server . /home/backup-x",no-pty
+
+詳細資訊可參考 SSH2 的 manual
+
+SSH2 的 key format 與 OpenSSH 不同，這在兩者之間要作 public key authentication 時造成了一些麻煩。OpenSSH 提供的 ssh-keygen 可以用 -e 和 -i 兩個選項來轉換兩者的 key format:
+
+# ssh-keygen -e -f openssh-key.pub > ssh2-key.pub
+# ssh-keygen -i -f ssh2-key.pub > openssh-key.pub
+
+
+
+Step 1
+
+Generate a public and private keypair. The private key stays on the local machine, the public key is copied to remote
+
+a) If the local machine is running OpenSSH (most machines on our system)
+
+generate an RSA "Key pair" with
+
+ >ssh-keygen -t rsa
+ >[hit return for location]
+ >[hit return (twice) for no passphrase]
+
+This creates the files ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub
+
+Now edit .ssh/config to make sure after
+
+ Host *
+
+it includes the line
+
+IdentityFile /your_home_dir/.ssh/id_rsa
+
+b) If the local machine (e.g. landru) is running the ssh.com secure shell use
+
+ >ssh_keygen2 
+
+to create a key pair id_dsa_1024_a.
+
+Create an identification file in your ~/.ssh2 directory on local:
+
+> cd ~/.ssh2
+> echo "IdKey id_dsa_1024_a" > identification
+
+You now have an identification file which consists of one line that denotes the file containing your identification (your private key). For special applications, you can create multiple identifications by executing ssh-keygen2 again. This is, however, not usually needed.
+
+Step 2
+
+Now you need to copy your PUBLIC key to the remote machine that you wish to log in to.
+
+a) If local and remote both run OpenSSH
+
+On remote, edit the file .ssh/authorized_keys2 and paste the contents of the local file .ssh/id_rsa.pub
+
+b) If local and remote both run SSH.COM
+
+Copy your public key file on local (id_dsa_1024_a.pub) to your ~/.ssh2 directory on remote, renaming it to something identifiable, e.g. username_local_id.pub.
+
+Create or edit authorization file in your ~/.ssh2 directory on remote. Add the following line to the authorization file:
+
+key username_local_id.pub
+
+This directs the SSH Secure Shell server to use username_local_id.pub as a valid public key when authorizing your login. If you want to login to remote from other hosts, create a key pair on the hosts (steps 1 and 2) and repeat steps 3, 4 and 5 on remote. (Remember to specify a different file name for each key pair.)
+
+c) If you local uses OpenSSH and remote uses SSH.COM or vice versa, you will need to convert your keys. The conversion commands are only available under OpenSSH.
+
+To convert your OpenSSH key to the SSH.COM format use:
+
+ssh-keygen -e -f ssh_key.pub
+
+To convert your SSH.COM key to OpenSSH format use:
+
+ssh-keygen -i -f ssh_key.pub
+
+Then proceed withe the configuration described above in step b).
+
+From the ssh-keygen manpage
+
+     -e   This option will read a private or public OpenSSH key file and
+          print the key in a `SECSH Public Key File Format' to stdout.
+          This option allows exporting keys for use by several
+          commercial SSH implementations.
+
+     -f  Specifies the filename of the key file.
+
+     -i   This option will read an unencrypted private (or public) key
+          file in SSH2-compatible format and print an OpenSSH
+          compatible private (or public) key to stdout.  ssh-keygen
+          also reads the `SECSH Public Key File Format'.  This option
+          allows importing keys from several commercial SSH
+          implementations.
+
+To set up public-key authentication in your account on an SSH server machine, you create an authorization file, typically called authorized_keys (SSH1, OpenSSH/1), authorized_keys2 (OpenSSH/2), or authorization (SSH2), and list the keys that provide access to your account. Well, we've been keeping a secret. Your authorization file can contain not only keys but also other keywords or options to control the SSH server in powerful ways.
+
+
+For fiona to check out code. 
+we need to do:
+in Client side:
+1. get the old key from cygwin.
+2. convert it to SSH2 format.
+3. import into SSH2 and config identity file
+
+in Server side:
+put old key into authorize_keys2.
+
+verify CVS checkout.

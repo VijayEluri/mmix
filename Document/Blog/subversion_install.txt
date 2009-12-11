@@ -1,0 +1,25 @@
+\t
+
+There are two ways to install subversion.
+1. Source Code.
+2. Binary Package.
+
+Since compile from source code is more complex, subversion also depends on 
+APR (Apache Public Runtime). I decided to use Binary package.
+
+I am using Fedora, it's quite simple, just type
+
+	{\tt yum install subversion}
+
+I use Ubuntu in home, so I should type
+
+	{\tt apt-get install subversion}
+
+I have tried the following commands.
+
+	{\tt svn checkout https://mmix.googlecode.com/svn/trunk/ mmix \}
+	{\tt --username eddie.wjf}
+	{\tt tW8bQ2Wh5EW9}
+
+Then I can check in code for quick sort.
+\bye

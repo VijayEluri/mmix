@@ -1,0 +1,22 @@
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace"
+		schemaLocation="http://www.w3.org/2001/xml.xsd" />
+
+	<xs:complexType name="person">
+		<xs:sequence>
+			<xs:element name="age" type="xs:int" />
+			<xs:element name="name" type="xs:string" />
+			<xs:element name="isSingle" type="xs:boolean" />
+			<xs:element name="rank" type="Rank" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Rank">
+		<xs:sequence>
+			<xs:element name="money" type="xs:double" />
+			<xs:element name="accountId" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="persons" type="person" />
+</xs:schema>   

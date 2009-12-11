@@ -1,0 +1,26 @@
+\hsize=29pc
+\vsize=42pc
+\topglue 0.5 in
+\centerline{\bf Learning Notes---Displayed Equations (Chapter 19)}
+\centerline{4/24/2009 11:00AM}
+
+\beginsection Examples
+
+
+$$X_n=Y_k\qquad\hbox{if and only if}\qquad Y_n=Y_k \quad\hbox{and}\quad Z_n=Z_k$$
+
+$$Y_n=X_n\bmod p \quad\hbox{and}\quad Z_n=X_n\bmod q
+\qquad\hbox{for all }n\ge0.$$
+
+$$Y_n=X_n\bmod p \quad\hbox{and}\quad Z_n=X_n\bmod q
+\qquad\hbox{for all $n\ge0$.}$$
+
+$$\sum_{n=0}^n a_nz^n \qquad\hbox{converges if} \qquad\hbox{$n\ge0$}\eqno(15)$$
+$$\sum_{n=0}^n a_nz^n \qquad\hbox{converges if} \qquad\hbox{$n\ge0$}\eqno(*)$$
+$$\sum_{n=0}^n a_nz^n \qquad\hbox{converges if} \qquad\hbox{$n\ge0$}\eqno(**)$$
+$$\sum_{n=0}^n a_nz^n \qquad\hbox{converges if} \qquad\hbox{$n\ge0$}\eqno(***)$$
+
+
+
+\bye
+

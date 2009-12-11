@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fdl:document xmlns:fdl="http://ov.hp.com/ium/namespace/fdl"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://ov.hp.com/ium/namespace/fdl fdl.xsd "
+	import="Radius-2865.xfd">
+
+	<!-- Radius body -->
+	<set name="BodyType">
+
+		<raw />
+
+		<field name="userName" type="User_Name_Type" />
+		<field name="userPassword" type="User_Password_Type" />
+		
+		
+		<field name="vendorSpecific" type="Vendor_Specific_Array_Type" />
+		
+		
+		<field name="acctStatusType" type="Acct_Status_Type_Type" />
+		<field name="acctDelayTime" type="Acct_Delay_Time_Type" />
+		<field name="acctInputOctets" type="Acct_Input_Octets_Type" />
+		<field name="acctOutputOctets" type="Acct_Output_Octets_Type" />
+		<field name="acctSessionId" type="Acct_Session_Id_Type" />
+		<field name="acctAuthentic" type="Acct_Authentic_Type" />
+		<field name="acctSessionTime" type="Acct_Session_Time_Type" />
+		<field name="acctInputPackets" type="Acct_Input_Packets_Type" />
+		<field name="acctOutputPackets" type="Acct_Output_Packets_Type" />
+		<field name="acctTerminateCause" type="Acct_Terminate_Cause_Type" />
+		<field name="acctMultiSessionId" type="Acct_Multi_Session_Id_Type" />
+		<field name="acctLinkCount" type="Acct_Link_Count_Type" />
+
+	</set>
+
+	<integer name="Acct_Status_Type_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="40" />
+		</tlv>
+	</integer>
+
+	<integer name="Acct_Delay_Time_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="41" />
+		</tlv>
+	</integer>
+
+	<integer name="Acct_Input_Octets_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="42" />
+		</tlv>
+	</integer>
+	<integer name="Acct_Output_Octets_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="43" />
+		</tlv>
+	</integer>
+
+	<string name="Acct_Session_Id_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="44" />
+		</tlv>
+	</string>
+
+	<integer name="Acct_Authentic_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="45" />
+		</tlv>
+	</integer>
+	<integer name="Acct_Session_Time_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="46" />
+		</tlv>
+	</integer>
+	<integer name="Acct_Input_Packets_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="47" />
+		</tlv>
+	</integer>
+	<integer name="Acct_Output_Packets_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="48" />
+		</tlv>
+	</integer>
+	<integer name="Acct_Terminate_Cause_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="49" />
+		</tlv>
+	</integer>
+
+	<string name="Acct_Multi_Session_Id_Type" charset="UTF_8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="50" />
+		</tlv>
+	</string>
+
+	<integer name="Acct_Link_Count_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="51" />
+		</tlv>
+	</integer>
+
+</fdl:document>

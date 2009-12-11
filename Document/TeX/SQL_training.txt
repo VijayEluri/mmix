@@ -1,0 +1,327 @@
+\hsize=29pc
+\vsize=42pc
+\topglue 0.5in
+
+\centerline{\bf Training of SQL Performance Tuning}
+\smallskip
+\centerline{Eddie Wu (5/11/2009)}
+
+\beginsection 0. Introduction.\par
+In today's training, I will show you something related to performance tuning through case
+study, let you have a feeling how real performance tuning looks like. There is no PPT for this training because 
+\settabs\+\indent&\indent&\cr
+\+&\hfill1. &I am not good at making PPT.\cr
+\+&\hfill2. &There are already a lot pretty good documents there.\cr
+
+\smallskip
+For Audience, Please raise question when you have, do not hesitate. 
+Questions are more than welcomed. 
+
+For myself, Do Not be too quick. Give audience at least 30 seconds to understand.
+
+\smallskip
+If you are interested, (I suppose you are interested in this since you attend 
+this training), I have a very good book to recommend---``Effective Oracle By Design'',
+written by Thomas Kyte.
+%-- emphasised in the end
+By the way, most of the material I will show you comes from the second chapter 
+of this book.
+
+\beginsection 1. Agenda. \par
+\settabs\+\indent&\indent&How to read the execution plan?&\cr
+\+&\hss1.&What is execution plan?\cr
+\+&\hss2.&How to get the execution plan?\cr
+\+&\hss3.&How to read the execution plan?\cr
+\+&\hss4.&A case study \cr
+
+To explain the result we got in the case study, more detailed explanation of 
+the output of execution plan, the oracle internal mechanism will be 
+disccussed .
+
+\beginsection 2. What is executive plan? \par
+An execution plan defines how Oracle finds or writes the data. For example, 
+an important decision that Oracle has to take is if it uses indexes or not. 
+And if there are more indexes, which of these is used. All this is contained 
+in an execution plan.
+
+When you write a SQL statement, you are thinking of SQL logically, you almost 
+never pay attention on how it will be executed, the Oracle will take care
+of the details. but when you performance tune a SQL statement, you need to 
+know how Oracle actually execute this SQL internally and try to impact the 
+way Oracle will execute the SQL to improve performance. 
+
+When we talk about the SQL, we major care about the Logic view of SQL statement.
+But executive plan reveal the Physical View of SQL statement. 
+
+
+\beginsection 3. How to read the execution plan? \par
+There are many ways to get the execution plan. I will only show you my favorite
+one---AUTOTRACE in SQL*PLUS.
+
+Example of connect information:\par
+sqlplus codadmin/pretty-12345@fsdev\_218\par
+sqlplus csadmin/pretty-12345@csdev\_192.168.2.214
+\medskip
+\indent
+SQL$>$ set autotrace on\par
+\indent
+SQL$>$ select * from dual;
+
+\indent
+D\par
+\indent
+-\par
+\indent
+X
+
+\indent
+Execution Plan\par
+---------------------------------------------------------\par
+   0      SELECT STATEMENT Optimizer$=$ALL\_ROWS (Cost$=$2 Card$=$1 Bytes$=$2)\par
+   1    0   TABLE ACCESS (FULL) OF `DUAL' (TABLE) (Cost$=$2 Card$=$1 Bytes\par
+          $=$2)
+
+\medskip
+
+
+%\settabs
+%\+\indent&Statistics\quad&\cr
+%\+&Statistics		&\cr
+          %\+&1  &recursive calls\cr
+          %\+&0  $db block gets\cr
+          %\+&3  $consistent gets\cr
+          %\+&0  $physical reads\cr
+          %\+&0  $redo size\cr
+        %\+&408  $bytes sent via SQL*Net to client\cr
+        %\+&500  $bytes received via SQL*Net from client\cr
+          %\+&2  $SQL*Net roundtrips to/from client\cr
+          %\+&0  $sorts (memory)\cr
+          %\+&0  $sorts (disk)\cr
+          %\+&1  $rows processed\cr
+          
+Statistics tell the metrics of the operation Oracle performed to execute the statement.
+here is the rough explanation: (mention the first four statistics first.)
+
+All kinds of possible options. \par
+\smallskip
+{\tt
+set autotrace on\par
+set autotrace on explain\par
+set autotrace on statistics\par
+}
+\smallskip
+It means explain and/or statistics are enabled, the result of SQL will also be displayed.
+\smallskip
+{\tt
+set autotrace traceonly\par
+set autotrace traceonly explain \par
+set autotrace traceonly	statistics \par
+}
+\smallskip
+It means explain and/or statistics are enabled, please note trace only will not
+ print the result of SQL, it saves time if the 
+returned result set is big. \par
+
+Here is one example to show you the usage.\par
+\smallskip
+{\tt
+select * from bank;}\par
+\smallskip
+You will get terrible output since bank table is big.
+I will give more detailed description when I refer to it later.
+
+\beginsection 4. Case Study\par
+\beginsection 4.1. The effect of index---full table scan vs index access\par
+The following example will show you the difference between table access and index access.
+First, we prepare the table and data.\par
+\smallskip
+{\tt
+drop table I1;\par
+create table I1(n number primary key, v varchar2(10), n2 number);\par
+insert into i1 \par
+select rownum, rpad(`*',10,`*'), rownum from all\_objects;\par
+}
+\smallskip
+we only encounter performance issue when the table is big. big table means 
+more than hundrends of thousands of records.
+If table is small, say, there is only thousands of records. the full table 
+scan is very possibly the best execution plan.\par
+\smallskip
+{\tt
+select count(*) from I1;\par
+select * from I1 where rownum $<$ 2;\par
+select max(n) from I1;\par
+}
+{\tt
+set autotrace traceonly\par
+alter system flush buffer\_cache;\par
+select * from I1 where n $=$ 30000;\par
+}
+\smallskip
+Note: primary key(n1) by default is a unique index\par
+\smallskip
+{\tt
+alter system flush buffer\_cache;\par
+select * from I1 where n2 $=$ 30000; \par
+}
+\smallskip
+Note: no index on n2.
+
+Why we use the following command before each query?\par
+\smallskip
+{\tt
+alter system flush shared\_pool;\par
+alter system flush buffer\_cache;\par}
+\smallskip
+Answer: to make sure the table is not in memory, otherwise, it is hard to measure the performance difference.
+especially it is hard to explain the phsical reads number.
+
+\beginsection 4.1. Exception Case\par
+Now we know index can help to improve the performance, but there is some case, 
+the index can not be used.
+Following is case.\par
+{\tt
+drop table MAP;\par
+drop table I1;\par
+drop table I2;\par
+\par
+\par
+desc MAP;\par
+desc I1;\par
+desc I2;\par
+create table I1(n number primary key, v varchar2(10));\par
+create table I2(n number primary key, v varchar2(10));\par
+\par
+create table MAP\par
+(n number primary key,\par
+ i1 number referencing I1(n),\par
+ i2 number referencing I2(n));\par
+\par
+create unique index IDX\_MAP on MAP(i1, i2);
+}
+%--drop index IDX\_MAP;
+{\tt
+insert into i1 \par
+select rownum, rpad(`*',10,`*') from all\_objects;\par
+\par
+insert into i2 \par
+select rownum, rpad(`*',10,`*') from all\_objects;\par
+\par
+insert into map \par
+select rownum, rownum, rownum from all\_objects;\par
+\par
+select * from I1 where rownum $<$ 2;\par
+select * from I2 where rownum $<$ 2;\par
+select * from MAP where rownum $<$ 2;\par
+\par
+select count(*) from I1;\par
+select count(*) from I2;\par
+select count(*) from MAP;\par
+}
+
+Point 1: %(be slower)
+When will the index be used?
+\smallskip
+{\tt
+set autotrace traceonly\par
+select * from MAP where i1 $=$ 369;\par
+}
+From the execution plan we can see that index can not be used.
+I may need explain it by introduing the theory B* index.
+
+Point 2: full table scan may not be evil, index may not be good.
+--succede with RULE hint.
+set autotrace traceonly
+
+ select/*$+$ RULE */ * from i1, map,  i2
+ where     i1.n $=$ map.i1 and i2.n $=$ map.i2
+ and i1.v $=$ `x' and i2.v $=$ `y';
+
+select * from           map,       i1,       i2
+ where     i1.n $=$ map.i1  and i2.n $=$ map.i2
+ and i1.v $=$ `x' and i2.v $=$ `y';
+ 
+ select * from                     i1,       i2,       map
+ where     i1.n $=$ map.i1 and i2.n $=$ map.i2
+ and i1.v $=$ `x' and i2.v $=$ `y';
+
+analyze table i1 compute statistics;
+
+analyze table i2 compute statistics;
+
+analyze table map compute statistics;
+
+ select *  from        i1,       map,       i2
+ where     i1.n $=$ map.i1 and i2.n $=$ map.i2
+ and i1.v $=$ `x' and i2.v $=$ `y';
+
+
+
+Final Solution:\par
+{\tt
+set autotrace off
+create index i1\_idx on i1(v);
+analyze table i1 compute statistics;
+set autotrace traceonly
+select * from       i1,       map,       i2
+ where     i1.n $=$ map.i1  and i2.n $=$ map.i2
+ and i1.v $=$ `x' and i2.v $=$ `y';
+
+set autotrace off
+select * from       i1,       map,       i2
+ where     i1.n $=$ map.i1  and i2.n $=$ map.i2
+ and i1.v $=$ `369' and i2.v $=$ `369';
+ 
+ 
+ 
+ 3
+ select * from scott.emp
+ select * from scott.emp temp, scott.dept tdept where temp.deptno=tdept.deptno;
+
+If you can not reproduce the description in the book, try to control the environment. for example, add hint to affect the execution plan.
+If you have something you are not so sure of, please design a small case to verify it. it is an effective way to learn.
+
+
+
+
+To summarize, I hope now you know what a executive plan is, how it looks like, and 
+how to get and read executive plan.
+
+
+If you want to improve SQL tuning capability, do remember the book I reccomended
+atthe beginning of the training---$<<$Effective Oracle By Design$>>$, written by Thomas Kyte.%  -- 
+It covers all the things you need to know to be an expert on performance tuning, it is worth reading.
+
+
+
+
+select/*$+$ HASH\_JOIN */ *
+ from
+       i1,
+       map,
+       i2
+ where     i1.n = map.i1
+ and i2.n = map.i2
+ and i1.v = `x'
+ and i2.v = `y';
+ 
+ 
+ 
+ 
+ 
+\beginsection Appendix 1. Set up Plus Trace.\par
+cd /opt/oracle/product/10.2.0/db\_1/sqlplus/admin
+sqlplus ``sys/pretty-12345 as sysdba''
+
+@plustrace.sql \par
+grant plustrace to public;\par
+set autotrace traceonly;
+
+\beginsection Appendix 1. Commands Used in this training.\par
+% collect the useful commands used in this training.
+To enbale execution plan.
+ {\tt
+ @?/rdbms/admin/utlxpls\par 
+ @?{\tt\char`\\}rdbms{\tt\char`\\}admin{\tt\char`\\}utlxpls\par 
+ }
+\bye

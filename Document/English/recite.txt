@@ -1,0 +1,15 @@
+Other problems remain difficult in general, but they were found to
+have important special cases that are simpler.
+
+Many combinatorial problems I once thought would never be answered has
+now been resolved, and these breakthroughs are mainly due to improvement
+in algorithms rather than to improvement in processor speeds.
+
+
+ BUILD_LOGGER="-logger org.apache.tools.ant.listener.AnsiColorLogger";
+ $SCRIPT_DIR/buildnew.sh $PROJ_NAME $BUILD_LOGGER $*
+ 
+echo $SCRIPT_DIR
+/1fb/home/build/jdev/scripts/scripts/build
+
+

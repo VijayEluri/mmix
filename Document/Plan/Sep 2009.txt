@@ -1,0 +1,49 @@
+For Fascicle 4---generating all the trees, I have not gotten the time to read
+it. Yesterday I took a look and today I implement the example of parenthesis.
+
+the point of the implementation is to treat the resulted string 
+lexicographically.
+And there should be other ways to count the numer of results in a formula.
+
+for n = 4, there are 14 result of parenthesis.
+
+Think of it in another way, how to count all the forest of 4 nodes.
+4 nodes:    (14)
+    4 trees: 1
+    3 trees: 3
+    2 trees: 6 + 1 = 7
+    1 tree: (3)
+        3 level: 2
+        4 level: 1        
+    
+3 nodes:    ((6))
+    3 trees: 1
+    2 trees: 2
+    1 tree: (3)
+        2 level: 2
+        3 level: 1    
+    
+2 nodes:   ((2))
+    2 trees: 1    
+    1 tree:  1
+    
+1 node:    ((1))
+    1 tree:  1     
+    
+We can count for n=5 in a similar way.    
+
+The number series is calles Catalan Number. There is a formula for $C_n$.
+
+
+Recently I also re-read the code for Latin-Square, I couldn't understand
+it any more until yesterday I got the meaning of Transversals correctly.
+
+Now I have two idea to improve the performance. a) filter some combination 
+between t0 and t1, t2 and t3, hope it can filter more than half of the 
+combinations.
+
+also consider filter the optoin in T_1 if there is no any valid mate in 
+eith T_2 ... T_n. But I do not think the possiblity is high.
+
+
+

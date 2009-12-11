@@ -1,0 +1,61 @@
+\magnification=\magstep1
+\hsize=29pc % The lines in this book are 29 picas wide.
+\vsize=42pc % The page body is 42 picas (not counting footlines).
+
+\topglue 0.5in % This makes an inch of blank space (1in=2.54cm).
+\centerline{\bf Dynamic Programming---Matrix Chain Optimization}
+\bigskip
+\beginsection 1. Notation.\par
+The {\it matrix-chain multiplication problem} can be stated as follows: given 
+a chain $<A_1, A_2, \ldots, A_n>$ of $n$ matrices, where for $i = 1, 2, ..., n,$ 
+matrix $A_i$ has dimension $p_{i-1} * p_i$, fully parenthesize the product 
+${A_1 A_2 A_n}$ in a way that minimizes the number of scalar multiplications.
+
+\beginsection 2. Pseudo Code\par
+int n;
+
+int [] p = new int[n+1];//A_i
+int[][] m = new int[n+1][n+1];//index from 1 to make it simple
+int [] s = new int[n+1];
+
+for(int i=1;i<=n;i++){
+    m[i][i]=0;//for length==1;
+}
+
+for(int i=2; i<=n;i++){//loop on length
+    for(int j=1; j+i-1<=n;j++){//try different start point
+        //range is [j,j+i-1]
+        int min=Integer.MAX;
+        int temp=0;
+        for(int k=j;k<j+i-1;k++){//split after k_th position.
+            temp=m[j][k]+m[k+1][j+i-1]+ p[k-1]*p[k]*p[k+1];
+            //the length of subproblem are less than i;
+            if(temp<min){
+                min=temp;
+            }
+        }
+        m[j][j+i-1]=temp;
+    }
+}
+
+\beginsection Longest Common Subsequence\par
+
+One goal of comparing two strands of DNA is to determine how ``similar''the two 
+strands are, as some measure of how closely related the two organisms are. 
+Similarity can be and is defined in many different ways. 
+
+For example, we can say that two DNA strands are similar if one is a substring 
+of the other. (Chapter 32 explores algorithms to solve this problem.) 
+ 
+In our example, neither S1 nor S2 is a substring of the other. Alternatively, 
+we could say that two strands are similar if the number of changes needed to 
+turn one into the other is small. (Problem 15-3 looks at this notion.) 
+ 
+Yet another way to measure the similarity of strands S1 and S2 is by finding 
+a third strand S3 in which the bases in S3 appear in each of S1 and S2; 
+these bases must appear in the same order, but not necessarily consecutively. 
+The longer the strand S3 we can find, the more similar S1 and S2 are. 
+In our example, the longest strand S3 is GTCGTCGGAAGCCGGCCGAA.
+
+
+\bye

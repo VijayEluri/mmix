@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<app xmlns="urn:rtp:ra" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:rtp:ra ra-1.0.xsd" name="proxy">
+	<conf>
+		<language>groovy</language>
+		<var name="clientNode" bean="DiameterProxy_ClientNode"/>
+		<var name="serverNode" bean="DiameterProxy_ServerNode"/>
+	</conf>
+	<flow name="server">
+		<node name="Start" asyn="false">
+			<dest name="Process"/>
+		</node>
+		<node name="Process" asyn="true">
+			<process bean="">
+				<expression><![CDATA[
+			def handle(evt) {
+			   com.hp.atom.diameter.DiameterEvent ccr = new (com.hp.atom.diameter.DiameterEvent) evt;
+         
+				ccr.getBean().setIntegerAttribute("code", 1);
+				...
+				...
+				...
+				...
+				...
+				
+         ccr.setPeerKey(new com.hp.atom.diameter.DiameterNodeAddress("serverHost", "serverRealm"));
+			   clientNode.getPCSMManager().send(evt, 10, TimeoutHandler(){
+			   	
+			   });
+			   return evt;
+			}
+		]]></expression>
+			</process>
+			<dest name="Response"/>
+		</node>
+		<node name="Response" asyn="false">
+			<process>
+				<expression><![CDATA[
+			def handle(evt) {
+			  com.hp.atom.diameter.DiameterEvent cca = (com.hp.atom.diameter.DiameterEvent) evt;
+        com.hp.atom.diameter.DiameterEvent ccr = (com.hp.atom.diameter.DiameterEvent) cca.getRequestEvent();
+
+        assert cca.getBean().getIntegerAttribute("code") == 1
+        
+			  return evt;
+			}
+		]]></expression>
+			</process>
+		</node>
+	</flow>
+</app>

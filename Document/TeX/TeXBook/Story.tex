@@ -1,0 +1,151 @@
+\hrule
+\vskip 1in
+\centerline{\bf a short story}
+\vskip 6pt
+\centerline{\sl Eddie Wu}
+\vskip 0.5cm
+\noindent 
+I am a 
+``Do you understand the math?'', my son asked.
+``Sure, I know a lot about it. Are you interested on it? I can teach you
+and there is a lot of fun in it.''
+
+\lq\lq I understand.\rq\rq\ for you
+
+a hyphen (-);
+an en-dash (--);
+an em-dash (---);
+a minus sign ($-$).
+
+exercise 2.1
+Alice said, ``I always use an
+en-dash instead of a hyphen when specifying page numbers like `480--491' in a
+bibliography.''
+
+What do you think happens when you type four hyphens in a row?
+\par----
+\par-----
+\par------
+\par-------
+\par--------
+\par$-$
+\par$--$
+\par$---$
+\par$----$
+\par$-----$
+
+3/27/2009 1:56PM
+\def\badcheck{A penalty has been added because your
+check to us was not honored by your bank.\par}
+\def\cheater{A penalty of 50\% of the underpaid tax
+has been added for fraud.\par}
+
+\badcheck
+\cheater
+
+\def\xbold{{\bf x}}%{ and } must match.
+\xbold
+
+\def\silent{I must not talk in class.\par}
+\def\five{\silent \silent \silent \silent \silent \silent}
+\def\twentyfive{\five \five \five \five \five}
+\def\hundred{\twentyfive \twentyfive \twentyfive \twentyfive}
+\hundred
+
+\def\silent#1#2{I must not #1 in #2.}
+\def\five#1#2{\silent{#1}{#2} \silent{#1}{#2} \silent{#1}{#2} \silent{#1}{#2}
+ \silent{#1}{#2} \silent{#1}{#2}}
+\def\twentyfive#1#2{\five{#1}{#2} \five{#1}{#2} \five{#1}{#2} \five{#1}{#2} \five{#1}{#2}}
+\def\punishment#1#2{\twentyfive{#1}{#2} \twentyfive{#1}{#2}
+ \twentyfive{#1}{#2} \twentyfive{#1}{#2}}
+\punishment{run}{the halls}
+
+\def\a{\b}
+\def\b{A\def\a{B\def\a{C\def\a{\b}}}}
+\def\puzzle{\a\a\a\a\a}
+\puzzle
+
+\def\row#1{(#1_1,\ldots,#1_n)}
+$\row x$
+$\row{x}$
+$\row\alpha$
+$\row \alpha$
+$\row{x'}$
+$\row{{x'}}$
+$\row{\bf x}$
+
+\def\cs #1. #2\par{first parameter is: #1 ... second parameter is: #2}
+\cs You owe \$5.00. Pay it.\par
+
+\def\cs#1. #2\par{first parameter is: #1 ... second parameter is: #2}
+\cs You owe \$5.00. Pay it.\par
+
+\def\cs #1.#2\par{first parameter is: #1 ... second parameter is: #2}
+\cs You owe \$5.00. Pay it.\par
+
+\def\cs#1.#2\par{first parameter is: #1 ... second parameter is: #2}
+\cs You owe \$5.00. Pay it.\par
+
+{\obeylines\smallskip
+Roses are red,
+\quad Violets are blue;
+Rhymes can be typeset
+\quad With boxes and glue.
+\smallskip}
+
+try something special:
+% $ # % &
+\$ \# \% \&
+use it as special character
+$a\backslash b$ 
+
+% \ { } ^ _ ~
+% $\backslash \{ \} \^ \_ \~$
+$\{a^2+b_1\}$ eddie~wu
+$\backslash \{ \}$
+
+%^ _ ~
+seems only allowed in math mode.
+%$^$
+%$_$
+%$~$
+
+%" | < >
+%" | < >
+{\rm Roman}
+
+{\bf Roman}
+
+{\it Roman}
+
+{\sl Roman}
+
+{\tt Roman}
+
+\line{This text will be flush left.\hfil}
+\line{\hfil This text will be flush right.}
+\line{\hfil This text will be centered.\hfil}
+\line{Some text flush left\hfil and some flush right.}
+\line{Alpha\hfil centered between Alpha and Omega\hfil Omega}
+\line{Five\hfil words\hfil equally\hfil spaced\hfil out.}
+
+\line{\hfil\hfil What happens now?\hfil}
+\line{\hfill\hfil and now?\hfil}
+
+Mr.~\& Mrs.~User were married by
+Rev.~Drofnats, who preached on Matt.~$19:3-9$.
+
+% 84 characters
+abcdefghijklmkopqrstuvwxyz
+ABCDEFGHIJKLMKOPQRSTUVWXYZ
+0123456789
+; ! ? ( ) ` ' - * / . , @
+ff ffi `` !`
+fi ffl '' ?`
+fl -- --- 
+
+\vskip 1in
+\hrule
+\vfill\eject
+
+\end

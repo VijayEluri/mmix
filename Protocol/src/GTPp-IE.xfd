@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fdl:definition xmlns:fdl="http://ov.hp.com/ium/namespace/fdl"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://ov.hp.com/ium/namespace/fdl fdl.xsd ">
+  <!-- Definition of a gtpp Information Element type -->
+	<tlv name="IE" tag="ie_type" length="ie_length" startLength="ie_length" lengthUnits="bytes" class="com.hp.usage.tlv.codec.GTPPUtils">
+		<field name="ie_type" size="1" sizeUnits="bytes"/>
+		<field name="ie_length"  size="2" sizeUnits="bytes">
+		    <raw reference="ie_type / 127" value="1" />
+		</field>
+	</tlv>
+	
+</fdl:definition>

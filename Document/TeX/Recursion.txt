@@ -1,0 +1,89 @@
+\hsize=29pc
+\vsize=42pc
+
+\topglue .5in
+\centerline{\bf Comcrete Math Learning Notes---Recursion and Sum}
+\smallskip
+\rightline{4/22/2009 9:30AM}
+\bigskip
+Yesterday I read the Fabonacci Number and Harmonic Number section in ``Concrete Mathematics'',
+I found that the way to resolve the recusion is beautiful and actually easy to 
+understand.\footnote*{After I finish written down the solution, I feel like that 
+I have ever know the solution, at least the idea, before.}
+The reason I repharase it here is to practice my \TeX{} skill; another reason is that I fail to resolve
+a simple recursion problem when I took the Jiao Tong University Graduate Entry Exam on 2003. I wish I have had 
+the oppotunity to read the ``Concrete Mathmatics'' before I took the exam.
+
+\beginsection 1. General solution
+
+Here is the generalized recursion formula, which represent a series of recursion formulae.
+$$\eqalign{
+	a_0 T_0 &= 0 + c_0;\cr
+	a_n T_n &= b_n T_{n-1}+c_n \qquad\hbox{for $n\ge1$.}\cr
+}\eqno(1)$$
+
+To simplify the recursion, we need to find out a $s_n$ to multiply on the both sides and get the following.
+$$\eqalign{s_n a_n T_n &= s_n b_n T_{n-1}+s_n c_n \cr
+ s_{n-1} a_{n-1} T_{n-1} &= s_{n-1} b_{n-1} T_{n-2}+s_{n-1} c_{n-1} \cr
+% \ldots &= \ldots \cr
+ \cdots &= \cdots \cr
+ s_2 a_2 T_2 &= s_2 b_2 T_1 + s_2 c_2 \cr
+ s_1 a_1 T_1 &= s_1 b_1 T_0 + s_1 c_1 \cr
+ s_0 a_0 T_0 &= 0 + s_0 c_0 \cr}$$
+ 
+The $s_n$ should ensure that $s_n b_n=s_{n-1} a_{n-1}$, so that when we sum both sides for
+above equations we can get result as follows. %Most of the items will disappear as follows. 
+$$\eqalign{
+	s_n a_n T_n &=  s_0 c_0 + \Sigma_1^n{s_n c_n}\qquad\hbox{or}\cr
+	s_n a_n T_n &=  s_0 a_0 T_0 + \Sigma_1^n{s_n c_n}\qquad\hbox{or}\cr
+	s_n a_n T_n &=  s_1 b_1 T_0 + \Sigma_1^n{s_n c_n}\cr}\eqno(2)$$
+
+Let $s_0=1$, then we get
+$$\eqalign{
+	T_n &=  {c_0 + \sum_1^n{s_n c_n}\over s_n a_n }\qquad\hbox{or}\cr
+	T_n &=  {a_0 T_0 + \sum_1^n{s_n c_n}\over s_n a_n }\cr}\eqno(3)$$
+
+
+From $s_n b_n=s_{n-1} a_{n-1}$, we get easily get $s_n =s_{n-1} a_{n-1} / b_n$.
+Keep applying the formula we can get $s_1, s_2$, till $s_{n}$.
+$$\eqalign{s_1 &= a_0 / b_1\cr
+	s_2 &= (a_0 / b_1)(a_1/b_2)\cr
+	s_3 &= (a_0 / b_1)(a_1/b_2)((a_2/b_3))\cr
+\hbox{in general}\qquad s_n &= (a_0 {...} a_{n-1})/(b_1 {...} b_n)\cr
+\hbox{or} \qquad s_n &= {a_0 {...} a_{n-1} \over b_1 {...} b_n}\cr}\eqno(4)$$
+
+an alternative solution is to let $s_1 = 1$, then we get
+$$T_n =  {{b_1 T_0 + \sum_1^n{s_n c_n}}\over s_n a_n }\eqno(3^\prime)$$
+and 
+$$s_n = {a_1 \ldots a_{n-1} \over b_2 \ldots b_n}\qquad\hbox{for $n>1$.}\eqno(4^\prime)$$
+
+
+\beginsection 2. Concrete example.
+
+We can apply the general technology to a concrete example:
+
+$$\eqalign{T_0 &= 0;\cr
+T_n &= 2 T_{n-1} + 1 \qquad\hbox{for $n\geq1$.}\cr}$$
+
+According to formula (4), we should use $s_n=1/2^n$ since $a_n=1$ for $n\ge0$ and $b_n=2$ for $n\ge1$.
+The result, according to formula (3), should be:
+$$T_n={\sum_1^n2^n \over 1/2^n}$$
+since $\sum_1^n2^n=1-1/2^n$, we get $T_n=2^n-1$.
+
+Here is the detailes if you want to verify the entire process manually.
+(Note $s_n\neq0$ when $n \geq 0$.)
+$$\eqalign{T_n / 2^n &= 2 T_{n-1}/ 2^n + 1 / 2^n\cr
+T_{n-1} / 2^{n-1} &= 2 T_{n-2}/ 2^{n-1} + 1 / 2^{n-1}\cr
+\cdots &= \cdots \cr
+T_3 / 2^3 &= 2 T_2 / 2^3 + 1/2^3 \cr
+T_2 /2^2 &= 2 T_1 / 2^2  + 1 / 2^2 \cr
+T_1 /2^1 &= 2 T_0 / 2^1 + 1 / 2^1 \cr
+T_0 /2^0 &= 0 + 0 \cr}$$
+Sum both sides, we get
+$$T_n / 2^n = \sum^n_1{1/2^n}$$
+It follows that $T_n = 2^n -1$.
+
+\bye
+
+
+

@@ -1,0 +1,33 @@
+9/26/2008 8:57AM
+Today I want to research the different ways to substitute text in the file. 
+For records, I written them down.
+
+1. Use Ultra Edit, it is super easy for a Windows user if you have Ultra Edit installed.
+use Ctrl + R to get Replacement Wizard and follow you intuition.
+
+*Note: Do remember choose proper regular expresison engine though.
+
+2. use VI in Unix.
+:s/xx/yy/
+will replace xx with yy.
+
+
+
+3. use filter, such as sed, and awk in Unix.
+sed -e 's/xx/yy/g' file.in > file.out
+
+sed -e 's/xfs\/linux.git/xfs\/linux-2.6/g' cs
+replace xx with yy in all the lines. It seem sed will not change the original input file, so I redirect the out put to file.out
+
+
+select item_id, school_id, school_name, count_type, create_date, profile_nickname, college_class, registration_user_id, status_id from 
+    (select rownum row_, temp_table.* from 
+        (select nt.item_id item_id, nt.school_id school_id, nt.school_name school_name, count_type count_type, nt.create_date create_date,         sud.profile_nickname profile_nickname, sud.college_class college_class, sud.registration_user_id registration_user_id, nt.status_id status_id from                csadmin.NEWSFEED_ITEM nt, csadmin.SURVEY_USER_DATA sud 
+        where nt.registration_id = sud.registration_user_id and sud.college_class is not null and sud.college_class != 99 
+        and nt.count_type = 1 order by nt.item_id desc) 
+    temp_table) 
+    where row_ <= 100;
+
+
+select count(1) from csadmin.NEWSFEED_ITEM nt
+select count(1) from csadmin.SURVEY_USER_DATA

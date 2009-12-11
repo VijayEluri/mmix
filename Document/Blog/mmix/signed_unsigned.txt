@@ -1,0 +1,6 @@
+in hardware level, the signed adding and unsigned adding are similar. the slight 
+difference is whether checking the exception. unsigned adding does not check 
+exception, but signed adding needs to check overflow exception.
+
+because the adding is module on power(2,d).
+-a + b = power(2,d) - a + b.

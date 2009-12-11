@@ -1,0 +1,207 @@
+\hsize=29pc
+\vsize=42pc
+\topglue 0.5in
+
+\centerline{\bf Introduction To Algorithm Learning Notes}
+\centerline{\bf---Chapter 32 (String Matching)}
+\smallskip
+\centerline{6/23/2009 2:19PM}
+\bigskip
+
+\beginsection Automata Terms
+
+The automata theory used a lot of Greek Characters. It it convinient for people
+in that field, but for newbies, it takes time to get used to that.
+
+$\Sigma$ means the set of characters.
+
+$\sigma(x) = max \{k : P_k$ is suffix of $x\}.$ More exactly, $\sigma(x,P) = max
+ \{k : P_k$ is suffix of $x\}.$
+
+(*Note: $P_k$ is the substring of length $k$, start from the beginning of string
+ $P.$)
+
+$\delta$ means the state conversion function. $\delta (i, a)= j$ means that the
+ state conversion function $\delta$ will convert the
+state $i$ to state $j$ with the input character $a$;
+
+$\phi(T_i)$ means the resulted state with the input $T[i].$
+
+In the automata implementation, consider the example as follows.
+
+$P = ababaca$; $T = abababacaba.$ 
+
+(*Note: $P$ and $T$ is indexed from $1$, not $0$ in the text.)
+
+so $\sigma(T)$ is 3, the $P_3$ is $aba.$
+
+automata is defined as $\delta(q,a)=\sigma(P_qa).$
+
+It is similar to the naive implementation, but with some improvement. The idea 
+of the algorithm is as follows:
+iterate on the input, if everything match the pattern, then we get a match.
+otherwise, for example, pattern is of size $7$, and current imput match the 
+$P_5$, the sixth position does not
+match the input $a$. Now $\delta(q,a)$ is $\delta(5,a)$, suppose it is $2$, 
+that means the $P_2$ is a suffix 
+of current input, we have to start the match from $current position - 2 + 1$. 
+not like the naive implementation, we need not to try each shift, some invalid 
+shift can be skiped. Because of this improvement, we get the complexity O(n)
+instead of O(mn).
+
+KMP's method use similar but different way to achieve same result. in KMP's 
+method, if there is any mismatch happened, 
+we know that it is possilbe that the next few shifts are not valid and we 
+do not need to check it. with this knowledge,
+we can skip a few chars in the input string and improve the performance.
+
+but since the next char still need to be checked, the asymptotic complexity 
+is also $O(n)$.
+
+Though automata and KMP method have same complexity $O(n)$, but the constand
+ can be different. I have not check the performance of them. I guess I need to 
+ clean up the code to make is easy to understand.
+
+
+
+%COMPUTE-TRANSITION-FUNCTION(P, ¦²)
+%1 m ¡û length[P]
+%2 for q ¡û 0 to m
+%3     do for each character a ¡Ê ¦²
+%4            do k ¡û min(m + 1, q + 2)
+%5               repeat k ¡û k - 1
+%6                 until Pk ? Pqa
+%7               ¦Ä(q, a) ¡û k
+%8 return ¦Ä
+%//init delta;
+%int m = p.length;
+%Set<Integer> sigma = 
+%Map<Integer,Integer> sigmaMap = new HashMap<Integer,Integer>();
+%for(int a: sigma){
+%    sigmaMap.put(a,i);
+%    sigmaChar[i++]=a;
+%    
+%}
+%String sigmaString = String.valueOf(sigmaChar);
+%System.out.println("sigma string is" + sigmaString);
+%
+%//char[]=
+%//int sigma=
+%
+%for(int q=0; q<=m;q++{
+%    for(Iterator it=sigma.iterator(); it.hasNext();){
+%        k = min(m+1, q+2);
+%        do{
+%            k=k-1;
+%            
+%        }while(Pk is suffix of pqa)
+%    }
+%}
+%
+%function delta(int q, char t){
+%    if(sigma.contains(t)){
+%        return dd[q][sigmaMap.get(t));
+%    }else{
+%        return 0;
+%    }
+%}
+%
+%
+%FINITE-AUTOMATON-MATCHER(T, ¦Ä, m)
+%1  n ¡û length[T]
+%2  q ¡û 0
+%3  for i ¡û 1 to n
+%4      do q ¡û ¦Ä(q, T[i])
+%5         if q = m
+%6            then print "Pattern occurs with shift" i - m
+%
+%\\java code
+%int n = T.length;
+%int q=0;
+%for(int i=1; i<=n; i++){
+%    q=delta(q,T[i]);
+%    if(q=m){
+%        ll.add(i);
+%    }
+%}hat means Pq has matched with text but q+1 position does not match,
+%now what is the max k which make Pk a suffix of Pq.
+
+%computer prefix.
+%/**
+%	COMPUTE-PREFIX-FUNCTION(P)
+%	 1 m ¡û length[P]
+%	 2 ¦Ð[1] ¡û 0
+%	 3 k ¡û 0
+%	 4 for q ¡û 2 to m
+%	 5      do while k > 0 and P[k + 1] ¡Ù P[q]
+%	 6             do k ¡û ¦Ð[k]
+%	 7         if P[k + 1] = P[q]
+%	 8            then k ¡û k + 1
+%	 9         ¦Ð[q] ¡û k
+%	10 return ¦Ð
+%*/
+%int m = pattern.length();
+%int[] pi = new int[m+1];
+%pi[1]=0;
+%int k=0;
+%for(int q=2;q<=m;q++){
+%    while(k>0 && pattern.chatAt(k+1)!=pattern.chatAt(q)){
+%        k=pi[k];
+%    }
+%    if(pattern.chatAt(k+1)!=pattern.chatAt(q)){
+%        k=k+1;
+%    }
+%    pi[q]=k;
+%}
+%return pi;
+%
+%KMP-MATCHER(T, P)
+% 1 n ¡û length[T]
+% 2 m ¡û length[P]
+% 3 ¦Ð ¡û COMPUTE-PREFIX-FUNCTION(P)
+% 4 q ¡û 0                          ?Number of characters matched.
+% 5 for i ¡û 1 to n                 ?Scan the text from left to right.
+% 6      do while q > 0 and P[q + 1] ¡Ù T[i]
+% 7             do q ¡û ¦Ð[q]    ?Next character does not match.
+% 8         if P[q + 1] = T[i]
+% 9            then q ¡û q + 1      ?Next character matches.
+%10         if q = m                    ?Is all of P matched?
+%11            then print "Pattern occurs with shift" i - m
+%12                 q ¡û ¦Ð[q]    ?Look for the next match.
+%
+%int q=0;
+%for(int i=0;i<n;i++){
+%    while(q>0 && p[q] 1= p[i-1]){
+%        q = pi[q];
+%    }
+%    if(p[q+1]==t[i]){
+%    
+%        q++;
+%    }
+%    if(q==m){
+%        
+%        q=pi[q];
+%    }
+%        
+%}      
+
+Thought: the idea is great and fatastic! it improve the algorithm step by step.
+it becomes more and more complex, and have better and better performance. It may
+no longer be the mainstream of Software Engineering, since now most people is 
+focus on application development instead of system research, but it is still 
+interesting and amazing to know.
+
+by comment on the java implementation, it seems now I can understand the algorithm
+fully. it no longer looks so complex as it looks last week.
+
+Notes on the reading of lask weekend.
+$B$ Tree, $B^+$ Tree, $B^*$ Tree are all balanced tree, targeted at the indexing 
+on disk storage. the number of braches are high to reduce the height of the tree, 
+it can save disk access effectively.
+
+But I did not get into the details of the $B$ Tree. Not sure how the data structure
+change effectivly when there are more data added into the tree.
+
+
+
+\bye                                                                                    

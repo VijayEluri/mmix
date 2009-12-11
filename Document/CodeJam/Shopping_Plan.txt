@@ -1,0 +1,166 @@
+\hsize=29pc
+\vsize=42pc
+\topglue 0.5in
+\centerline{\bf Shopping Plan---Google Code Jam Practice Problem}
+\smallskip
+\rightline{6/24/2009}
+\medskip
+
+I do not know the answer yet. For record, I document the process of thinking.
+
+\beginsection 0. First Idea
+
+\noindent For each item, there may be several stores providing it. For all the items, the
+combination of stores choices can cover all the cases. Suppose we have $m$ items
+to purchase and there are $n$ stores total. The worst situation is $n^m$ cases.
+
+Second step is to combine the items in same stores and get the total stores we need
+to go. This step may result worst case $min(m,n)$ stores. let's say, $r$ stores are
+resulted.
+
+Third step is to decide the best travelling path to get all the items, consider
+ some perishable item may require you go home first before purchasing any more 
+ items in other store. suppose there are $s$ special stores in which we purchase
+ perishable items. we loop on all the possible paths (sequences of stores), 
+ there are $r!$ cases.
+
+This is the easiest algorithm I can imagine, still I am not sure how to get 
+the optimized travelling path.
+
+\beginsection 1. Consider possible way to address it.
+
+\noindent choose as less stores as possible
+
+choose as cheaper items as possible
+
+as less rounds as possible (if there are $n$ perishable items, then at least $n$
+rounds are necessary.)
+
+choose the best travelling path to cover all the stores
+
+(*Hindsight: Those idea may be useful for the approximaiton algorithm, but can not 
+ensure the accurate result.)
+
+\beginsection 2. Focus on optimization of path for stores.
+
+It should already be addressed in Graph Theory. or maybe it is {\bf NP Complete}.
+If so, we can only resort to brute force and assuming the size of the problem is small.
+
+(Actually, I get the correct answer for small input with brute force. It cost me about 
+8 hours programming and debugging. Considering that I have used the existing Java code to
+generate the combination of all path sequences, which I developed before when learing Volume
+4 of {\it The Art of Computer Programming}, I actually spent more effort to addres this 
+problem.)
+
+\beginsection 3. The benefit of Literate Programming
+
+It it the first time I experience the benefit of Literate Programming. It seems
+the process of documenting your rough idea can help you classify the idea and 
+make it clear. Or just because you spend effort to say it out, you have gotten 
+familiar with the problem domain and solution in your mind naturally and improve 
+you ability and efficient to think about it.
+
+The structure provided by CWEB is actually helpful for you to organize the code 
+better, at least for the program to address the algorithm problem. The reason is that 
+although we can use method to structure the algorithm in Java, the parameter used to 
+transer information between method will cause inconvinient. but in CWEB, in program level
+you only have one method, there is no problem of information sharing and no extra redundant 
+parameters, but still keep same abstract structure.
+
+Next step is to refactor the java code to improve the maintainability.
+
+\beginsection 4. System.out.printf
+
+Good to System.out.printf, which is handy at format the number for output.
+
+\beginsection 5. Challenge of Large Input
+
+For the large Input, e.g. $12$ items, $48$ stores, gas price is $1$, the worst case
+is $48^12$ combinations. the actual situation is 
+ [26, 21, 29, 27, 30, 27, 28, 29, 22, 29, 32, 27, 27, 19]
+it causes 1, 333, 228, 544 case.
+
+But if we consider the stores combination, there are at most
+$\sigma_{i=1}^{12}C_48^i$, which is large than $C_48^12$. alos not small. we can also calculate the minimun
+stores required to provide all the items.
+
+
+If there are $p$ peishable items, then at most $p$ store need to go home. the minimum of stores required
+can be calculated out.
+
+After we decide the stores. we further decide in which store we will pruchase
+perishable items( which means we need to go home from that store). then the combination is 
+$3^12$ at most. 
+
+Once the stores are decided, for each item, we just pruchase it form the store with the cheapest 
+price. If it cause some store is not used. It if fine. it means the combination of stores are not 
+optimal one. we can ignore it immediately. some combination of stores may not be able to provide
+all the items. ignore it immediatly.
+
+For heuristic method, we can choose store which provide the lowest price for same item. but we can not
+ensure it is the optimal one, because we may save one store if we purchase the item with a higher 
+price and the money we saved by reducing a store may weight out the extra money we spend on the item.
+
+If we choose the result with least number of stores, it is not necessarily optimal one, we may 
+add one store, and get lower price in items.
+
+The strategy is to filter out some useless combinations.
+
+Add a store, will cause extra cost on gas, the extra cost is equal to or less than $0$.
+
+\beginsection New Idea.
+
+when we choose one store, any items in the store, which is cheapest among stores, should be the natural 
+optimal option, no need to consider choose them in another store.
+
+Pseudo code:
+0. For each item, decide the store which provide it with the lowest price, (There may be more than one store.)
+
+0\prime. for each store, mark the lowest price items.
+
+1. init item list to purchase.
+
+2. init the stores list for each item.
+
+3. if item list is not empty, work on the first item, loop on possible options.
+
+4. 
+
+It seems I need to develop a home grown Depth-First search algorithm. It will take much more effor than expected
+17.2 hours.
+
+algorithm design
+1. level 0. nothing decided. add into stack
+
+2. loop on the stack, if it is not empty.
+
+
+
+2.1. pop one. decide the next possible option .generate all the level object an push to the stack.
+if the level object is aleady no further choide. do not add it. instead get the price and update minprice.
+
+go back to step 2.
+
+Level object will be a array of size [items.length], each element mark the index of store already choose, -1 means
+not decided yet. easy to know how many option are left.
+
+2.3 if stac is empty, we are done. show min price. 
+
+Debugging:
+3 3 5
+cookies milk! cereal 
+0 2 cookies:360 cereal:110 
+4 0 milk:150 cereal:90 
+-3 -3 milk:200 cookies:200 
+
+pop 0; [-1, -1, -1]
+push 1; [0, -1, -1]
+push 1; [1, -1, -1]
+
+pop 1; [1, -1, -1]
+meaningless compbinatoin
+
+pop 1; [0, -1, -1]
+meaningless compbinatoin
+
+\bye

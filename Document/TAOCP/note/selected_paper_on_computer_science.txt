@@ -1,0 +1,135 @@
+2/23/2009 11:03AM
+11th world computer congress.
+
+Chapter 9: Theory and Practice
+
+vocabulary:
+pervasive   
+--Existed everywhere.
+
+
+
+sillicon valley.
+silly icon valley.
+
+pictograph 
+
+bulb 
+eye ball. 
+
+a hand carrying a briefcase
+
+Disenchant
+free from enchantment
+
+enchant
+He was enchanted by the idea.
+
+
+inbred
+The act of mating closely related individuals.
+
+
+Chapter 10: Are toy problems usefull?
+dichotomy
+--being twofold.
+a classification into two opposed parts or subclasses.
+The dichotomy between eastern and estern culture.
+
+Chaper 6: Theory and practice - 1
+The student and faculty here are teeming with exciting ideas, and I believe this creative ferment is due to the fact that we are maintaining an excellent balance between theory and practice.
+
+She does these things for me while serving as secretary to several other people and keeping everyone's spirit up with her intagious laugher.
+
+retract
+
+
+Chapter 14: Artistic programming
+The author was asked to write a commentary for the books.
+
+
+
+I had no idea that a new discipline called computer sciende would soon spring 
+up at numerous campuses, not did i realize that "deep down" I was really a 
+computer scientist, not a mathematician. Computer scientists haven't discover 
+each other yet. But I had been writting computer programs to help support 
+education, and the book project was immediately appealling.
+
+By the time I reached home that day I had planned the book in my mind, and I 
+quickly jotted down the titles of 12 chapters.
+
+My estimate of manuscript pages per printed page was off by a factor of three.
+
+After hectic conference, we agree to change the original book to a series of 
+seven volumes.
+(I spent a very hectic Sunday.)
+
+In the art of programming, Knuth is first, there is no second.
+
+So I tried to gain efficiency by taking a year off to develop computer tools 
+for typography. Alas, that project takes 11 years.
+
+Chapter 
+babylonian algorithm
+
+
+Preface
+This book assemble under one roof all of the things I've written about 
+computer science for who aren't necessarily specialists in the subject - 
+for computer scientists and mathmaticians in general, and for educated 
+people in all fields.
+
+Scientists always find it easiest to write for colleagues who have their 
+own subspeciality. But George Forsythe told me in 1970 that I should be 
+prepared to explain things to a wider group of people - at least once or 
+twice during my life - even though it is scary to talk to people you 
+don't know well. 
+
+I kept his advice in mind during the next years and tried my best to 
+fulfill the responsibility when suitable opportuinities arose. Writting 
+such papers has proved to be a pleasant task, and quite instructive, 
+becaust it has given a chance to reflect on what I has been doing and to 
+see the things in a broder perspective. Therefore I hope the reader will 
+learn at least a fraction of what I have learned when preparing the 
+expository material in this book.
+
+Chapter 0 give a brief definiton of computer science and related notions 
+of algorithms and programms. Chapter 1 discuss the relationship between 
+computer science and a branch of science that is its closest neighbour: 
+Mathmatics.
+
+Synergy between computer scientist and mathematics is further explored in 
+Chapter 2,which tell us the story of how to cope with the limitation of time 
+and space, as computers get faster and more powerful, yet do not keep up with 
+our growing expectations.
+
+...
+
+I have made minor adjustments to the texts, but BY AND LARGE these chanpters remain essentially as I originally wrote them. the bibliography
+
+
+
+chapter 2
+reminiscent
+
+quadratic   二次的
+cubic       三次的
+quartic     四次的
+
+Important point and example
+1. the difference between Finite and infinite is not as big as the difference between realistic and unrealistic.
+author constructed some unimagible big numbers which is much much bigger than the whole neutrons in the universe.
+
+2. some problem looks hard appaently may be attackable. 
+Example is the latin square, in this case, you do not need to go through all the possibilites. 
+there are more examples based on a 10*10 network.
+
+3. some problem is really hard. you can not get the optimum result, but you may find a approxiamte result easily.
+one problem is first proved to finite, then it is proved to unrealistic since it takes about
+10 power 125.
+
+4. computer may act as a assistant to show the result of the small cases, which is hardly done by hand. then it may still need the human being to conquer the problem finally, e.g.
+latin sqare exists for number large than 6.
+it is a tie for game of 8 consecutive point.(similar to 五子棋)
+
+

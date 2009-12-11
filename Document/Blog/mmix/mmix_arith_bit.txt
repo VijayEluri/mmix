@@ -1,0 +1,63 @@
+\hsize=29pc
+\vsize=42pc
+\topglue 0.5in
+
+\centerline{\bf MMIXWare Learning Notes --- Wyde Difference}
+
+A detailed reading process of a piece of beautiful and trick bitwise operation 
+code.
+ 
+The following code is from MMIXWare, it is used to implement the Wyde difference
+between two octabyte. (in file: "mmix-arith.w") 
+	%question 1: how to format the source code.??? 
+	 423 tetra wyde_diff(y,z)
+	 424   tetra y,z;
+	 425 {
+	 426   register tetra a=((y>>16)-(z>>16))&0x10000;
+	 427   register tetra b=((y&0xffff)-(z&0xffff))&0x10000;
+	 428   return y-(z^((y^z)&(b-a-(b>>16))));
+	 429 }
+ 
+It is hard to understand it if without any thinking or verification, here is 
+the process I used to check the correctness of this algorithm.
+
+let $y = 0xuuuuvvvv$;
+     $z = 0xccccdddd$; (please note the $c$\/'s here may be different hex 
+     number.)
+     
+then $y>>16 = 0x0000uuuu$;
+     $z>>16 = 0x0000cccc$;
+      
+then ((y>>16)-(z>>16)) = 0x1111gggg if #uuuu < #cccc or
+     ((y>>16)-(z>>16)) = 0x0000gggg if #uuuu >= #cccc    
+
+so variable a = 0x00010000 if #uuuu < #cccc or
+   variable a = 0x00000000 if #uuuu >= #cccc 
+   
+similarly, we can get 
+   variable b = 0x00010000 if #vvvv < #dddd or
+   variable b = 0x00000000 if #vvvv >= #dddd 
+
+for (b-a-(b>>16)))), there are four different result depending on the relation 
+between a and b.
+when #uuuu >= #cccc and #vvvv >= #dddd, (b-a-(b>>16)))) = 0x00000000;
+when #uuuu >= #cccc and #vvvv < #dddd, (b-a-(b>>16)))) = 0x00001111;
+when #uuuu < #cccc and #vvvv >= #dddd, (b-a-(b>>16)))) = 0x11110000;
+when #uuuu < #cccc and #vvvv < #dddd, (b-a-(b>>16)))) = 0x11111111;
+You can see that >= map to #0000 and < map to #1111
+
+for y-(z^((y^z)&(b-a-(b>>16)))), when (b-a-(b>>16)))) is 
+0x00000000, z^((y^z)&(b-a-(b>>16))) is 
+z^((y^z)& 0) = z^0=z, so y-(z^((y^z)&(b-a-(b>>16))))=y-z. 
+similarily, when (b-a-(b>>16)))) is 0x11111111, z^((y^z)&(b-a-(b>>16))) is 
+z^((y^z)& 1) = z^(y^z)=y, so y-(z^((y^z)&(b-a-(b>>16))))=0.
+
+when (b-a-(b>>16)))) is 0x11110000 or 0x11110000, we can treat the y and z as
+ two separate wydes. 
+each wyde in the result is correct.
+
+You may think it is a little stupid to verify such kind of details. but for my 
+point of view, without such detailed analysis, i can not understand the
+ algorithm in the code.  with the hard work like this, I successfully 
+ understand it. The pleasure deserve the effort.
+ 

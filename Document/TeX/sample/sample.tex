@@ -1,0 +1,60 @@
+% This test file generates the output shown on the opposite page.
+% It's a bit complex because it tries to illustrate lots of stuff.
+% TeX ignores commentary (like this) that follows a `%' sign.
+% First the standard output style is changed slightly:
+\hsize=29pc % The lines in this book are 29 picas wide.
+\vsize=42pc % The page body is 42 picas (not counting footlines).
+\footline={\tenrm Footline\quad\dotfill\quad Page \folio}
+\pageno=1009 % This is the starting page number (don't ask why).
+% See Chapter 23 for the way to make other page format changes via
+% \hoffset, \voffset, \nopagenumbers, \headline, or \raggedbottom.
+
+\topglue 1in % This makes an inch of blank space (1in=2.54cm).
+\centerline{\bf A Bold, Centered Title}
+\smallskip % This puts a little extra space after the title line.
+\rightline{\it avec un sous-titre \`a la fran\c caise}
+
+% Now we use \beginsection to introduce part 1 of the document.
+\beginsection 1. Plain \TeX nology % The next line must be blank!
+
+The first paragraph of a new section is not indented.
+\TeX\ recognizes the end of a paragraph when it comes to a blank
+line in your manuscript file. % or to a `\par': see below.
+
+Subsequent paragraphs {\it are\/} indented.\footnote*{The amount
+of indentation can be changed by changing a parameter called
+{\tt\char`\\parindent}. Turn the page for a summary of \TeX's most
+important parameters.} (See?) The computer breaks a paragraph's
+text into lines in an interesting way---see reference~[1]---and h%
+yphenates words automatically when necessary.
+
+\midinsert % This begins inserted material, e.g., a figure.
+\narrower\narrower % This brings the margins in (see Chapter 14).
+\noindent \llap{``}If there hadn't been room for this material on
+the present page, it would have been inserted on the next one.''
+\endinsert % This ends the insertion and the effect of \narrower.
+
+\proclaim Theorem T. The typesetting of $math$ is discussed in
+Chapters 16--19, and math symbols are summarized in Appendix~F.
+
+\noindent
+()()()()()()()()()()()()\break ()()()()()()()()()()()()()\break()()()()()()()()()()()
+()()()()()()()()()()()()()()()()()()()()()
+()()()\par
+()()()\par
+()()()()\break ()()()()()()()()()()()()()()
+mmmmmmmmm\break mmmmmmmmmmmmmmmm\break mmmmmmmmmmmmmmmm
+\break mmmmmmmmmmmmmmmm\break mmmmmmmmmmmmmm
+nnnnnnnnnnnnnnnnnnnnnnnnnn\break nnnnnnnnnnnnnnnnnn
+\break nnnnnnnnnnnnnnnnnnnnnnnnnnn
+
+\beginsection 2. Bibliography\par % `\par' acts like a blank line.
+
+\frenchspacing % (Chapter 12 recommends this for bibliographies.)
+\item{[1]} D.~E. Knuth and M.~F. Plass, ``Breaking paragraphs
+into lines,'' {\sl Softw. pract. exp. \bf11} (1981), 1119--1184.
+
+|\+|\<text$_1$>|&|\<text$_2$>|&|$\,\cdots\,$|\cr|
+
+
+\bye % This is the way the file ends, not with a \bang but a \bye.

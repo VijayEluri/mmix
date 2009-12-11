@@ -1,0 +1,51 @@
+8/4/2009 5:15PM
+Today I have a look at GB_RISC, Take_RISC and Multiply.
+GB_RISC include a lot of knowledge of hardware gate design. also show 
+the power of algorithm in PARALLEL_ADDER and Parallel_Multiply.
+
+Take_Risc and Multiply just two small example to show the usage of GB_RISC.
+The six routine is 
+extern Graph *risc(); /* make a network for a microprocessor */
+    extern long run_risc(); /* simulate the microprocessor */
+    extern unsigned long risc_state[]; /* the output of |run_risc| */
+
+extern Graph *prod(); /* make a network for high-speed multiplication */
+
+extern Graph *partial_gates(); /* reduce network size */
+
+extern long gate_eval(); /* evaluate a network */
+
+
+extern void print_gates(); /* write a network to standard output file */
+
+The complete prototype is as follows.
+
+Graph *risc(regs)
+  unsigned long regs; /* number of registers supported */
+
+long run_risc(g,rom,size,trace_regs)
+  Graph *g; /* graph output by |risc| */
+  unsigned long rom[]; /* contents of read-only memory */
+  unsigned long size; /* length of |rom| vector */
+  unsigned long trace_regs; /* if nonzero, this many registers will be traced */
+
+long gate_eval(g,in_vec,out_vec)
+  Graph *g; /* graph with gates as vertices */
+  char *in_vec; /* string for input values, or |NULL| */
+  char *out_vec; /* string for output values, or |NULL| */
+  
+I have not get the whole picture yet.
+
+The logic of parallel adder looks complex.
+
+Tell us how to build gates in software. one gate is one object(struct), 
+represented by a Vertex in the Graph, which stands for the network of
+gates.
+
+
+
+Many of these subtables often turn out to be identical, in such a case,
+we are able to represent \tao in a compressed form.
+
+The nodes of a boolean function's BDD are in one-to-one corespondence 
+to the beads in the truth table.

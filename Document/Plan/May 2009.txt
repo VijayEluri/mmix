@@ -1,0 +1,89 @@
+1. Today read the concept of Database partitions.
+
+2. run the Cycle Counting code in Computer System.
+found some trickly linkage issue. it seems system also provide start_counter
+and get_counter. it cause the result of HZ is not correct.
+
+3. apply cycle counting in alphamatics puzzle.
+
+4. Edit the old document/note I have written before.
+
+5. Book I ordered for teamate is sold out, re-order it.
+
+
+Yesterday.
+
+1. Finish Exercise for chapter 1, 2, and 3
+
+2. Draft the tex file for SQL Training, but the result if far from satisfying.
+It also took too much time.
+(Fot the source code, it seems Latex's verbatim is a better solutin.)
+
+3.
+
+gb_football raise a NP problem. it looks like a GO (Weiqi) problem.
+But Professional Player can get perfect solution although it is a NP problem.
+If we research the football problem enough, can we reach same level of 
+professional. (I mean Man Power supercedes Computer Power. It usually happened 
+in the domain of the Art. GO is just one example.)   
+
+5/15/2009 11:04AM
+Today I learning the time measurement in ``Computer System: A Programmer's Perspective''
+
+times function actually used time interval(clock tick) to measure the time. it is not accuate.
+The result you get by calling times should be close to the result you get by using unix command---time.
+
+cycle count is much accurate, close to micro seconds. please note the delay caused by cycle counting funciton 
+itself. It is powerful, it also require assembly programming, fortunately, author already developed it for you.
+
+gettimeofday is another system function to measure the time, ( you will see that JVM use it a lot). its accuracy
+depends on the system. in Linux/IA-32, it is based on cycle counter, so the accuracy is same as cycle counter.
+
+To summarize,
+C functions: times --> clock --> gettimeofday
+Cycle counter in IA-32!
+
+Interview questions from internet.
+1. How many golf balls can fit in a school bus?
+
+2. You are shrunk to the height of a nickel and your mass is proportionally reduced so as to maintain your original density. You are then thrown into an empty glass blender. The blades will start moving in 60 seconds. What do you do?
+
+3. How much should you charge to wash all the windows in Seattle?
+
+4. How would you find out if a machine’s stack grows up or down in memory?
+
+5. Explain a database in three sentences to your eight-year-old nephew.
+
+6. How many times a day does a clock’s hands overlap?
+
+7. You have to get from point A to point B. You don’t know if you can get there. What would you do?
+
+8. Imagine you have a closet full of shirts. It’s very hard to find a shirt. So what can you do to organize your shirts for easy retrieval?
+
+9. Every man in a village of 100 married couples has cheated on his wife. Every wife in the village instantly knows when a man other than her husband has cheated, but does not know when her own husband has. The village has a law that does not allow for adultery. Any wife who can prove that her husband is unfaithful must kill him that very day. The women of the village would never disobey this law. One day, the queen of the village visits and announces that at least one husband has been unfaithful. What happens?
+
+10. In a country in which people only want boys, every family continues to have children until they have a boy. if they have a girl, they have another child. if they have a boy, they stop. what is the proportion of boys to girls in the country?
+
+11. If the probability of observing a car in 30 minutes on a highway is 0.95, what is the probability of observing a car in 10 minutes (assuming constant default probability)?
+
+12. If you look at a clock and the time is 3:15, what is the angle between the hour and the minute hands? (The answer to this is not zero!)
+
+13. Four people need to cross a rickety rope bridge to get back to their camp at night. Unfortunately, they only have one flashlight and it only has enough light left for seventeen minutes. The bridge is too dangerous to cross without a flashlight, and it’s only strong enough to support two people at any given time. Each of the campers walks at a different speed. One can cross the bridge in 1 minute, another in 2 minutes, the third in 5 minutes, and the slow poke takes 10 minutes to cross. How do the campers make it across in 17 minutes?
+
+14. You are at a party with a friend and 10 people are present including you and the friend. your friend makes you a wager that for every person you find that has the same birthday as you, you get $1; for every person he finds that does not have the same birthday as you, he gets $2. would you accept the wager?
+
+15. How many piano tuners are there in the entire world?
+
+16. You have eight balls all of the same size. 7 of them weigh the same, and one of them weighs slightly more. How can you find the ball that is heavier by using a balance and only two weighings?
+
+17. You have five pirates, ranked from 5 to 1 in descending order. 
+The top pirate has the right to propose how 100 gold coins should be 
+divided among them. But the others get to vote on his plan, and if fewer 
+than half agree with him, he gets killed. How should he allocate the gold in 
+order to maximize his share but live to enjoy it? (Hint: One pirate ends up 
+with 98 percent of the gold.)
+98 0 1 1 0
+if fail. only 4 people left. the problem size reduce to 4.
+
+
+

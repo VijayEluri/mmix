@@ -1,0 +1,90 @@
+\magnification=\magstep1
+\hsize=29pc % The lines in this book are 29 picas wide.
+\vsize=42pc % The page body is 42 picas (not counting footlines).
+
+\topglue 1in % This makes an inch of blank space (1in=2.54cm).
+\centerline{\bf Self Introduction}
+\bigskip
+I am an experienced J2EE software engineer. I want to apply this 
+position---JVM Developer, just because I am interested on lower level of System.
+I have accumulated enough knowledge about lower level of System, 
+such as how the Linux Kernel works. Now I am looking forward to applying my knowledge
+in the practice and further improving my skills and knowledge.
+
+The following is my profile against the requirement in the job description.
+
+\medskip
+%For the junior members, we are more interested in their potential rather than their specific experience.
+%The following are important:
+{\it * Ability to learn quickly with an interest in learning new things}\par
+I am a quick learner, especially when I am learning the things on which I am 
+interested. After I graduated from university, I realized that I am more 
+interested on Computer Science than my major, so I self-studied Computer 
+Science and successfully become a J2EE software engineer.
+
+\medskip
+{\it * Motivation---interest in JVM work and interest in learning new operating 
+systems (HPUX and VMS)}\par
+Sure, I am interested in how JVM works. I already know how the Linux kernel works,
+I want to know how the JVM is implemented on top of the Kernel. It is also good to know more 
+kernel such as HPUX and VMS. 
+
+\medskip
+{\it * Flexibility and teamwork ¨C interesting and willing to chip in with routine
+ tasks to help the team get the overall job done}\par
+I am a team player. I have been part-time Server Administrator and Database 
+Administrator in the team and has ever supported almost every team member.
+
+%\noindent Desirable skills and experience:\par
+\medskip
+{\it * JVM experience}\par
+I have had a look on the source code of the Hot Spot JVM after Sun open sourced it. 
+I have analyzed its build process. Most of the code are written in $C^{++}$, 
+but some $C^{++}$ language features like Exception are not used.
+
+
+\medskip
+{\it * Interest in how things work at a lower systems level.}\par
+I am interested in things  at a lower systems level. For example,
+I am interested in synchronization issues involving multiple threads. In order to 
+understand the synchronization, I have to know how it is implemented in 
+the hardware level, such as atomic operation and Memory Bus Lock, without
+this kind of lower level knowledge, I don't think I really understand how 
+synchronization works.
+
+\smallskip          
+I am interested in operating systems Kernel, I have read ``Understanding Linux Kernel'', 
+``Linux Kernel Scenario Analysis'', and ``Linux Kernel Development'' many times to 
+understand how Linux works.
+memory management subsystem is one of the most complex component of the Kernel. 
+I know the structure of virtual memory management quite well. 
+          
+
+\bye
+
+
+
+  {\it * Very good written/verbal English communication skills}\par
+I have worked in a Software Outsourcing company for more than 4 years. I need to 
+communicate with our customer though email every day, through conference call
+every week. Also internally we communicate in English. I am confident on my 
+written/verbal English communication skills.
+
+{\it    * Excellent problem solving skills}\par
+I have solved many technical issues in development and produciton environment.
+E.g. the performance tuning experience mentioned in my resume.
+
+{\it    * Significant C programming experience}\par
+C language is not hard for me, especially I think the pointer is not a
+chanllenge even when I fisrt time encounter it.
+
+{\it * Java or C++ programming}\par
+I have more than 6 year Java Programming experience. I also know C++ language, 
+but do not have much hands on exeprience.
+
+{\it * J2EE ¨C sometimes useful but less important than the above}\par
+I have more than 5 years experience on J2EE.
+\medskip
+%{\it * Knowledge of object oriented concepts (most people have from school)}\par
+%Yes. I have a lot of experience not only on basic object oriented concepts, 
+%but also on OOAD and design patterns.

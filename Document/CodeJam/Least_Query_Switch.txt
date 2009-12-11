@@ -1,0 +1,51 @@
+\hsize=29pc
+\vsize=42pc
+\topglue 0.5in
+\centerline{\bf Least Search Engine Switch---Google Code Jam Qualification Problem}
+\smallskip
+\rightline{6/24/2009}
+\medskip
+
+I do not know the answer yet. For record, I document the process of thinking.
+
+\beginsection 0. First Idea
+
+By intuition, I believe it is a problem which can be addessed by dynamic 
+progamming.
+
+\beginsection 1. Consider possible way to address it.
+
+Now suppose we already have an optimal solution. let's analysis its structure
+and see whether we can find some sub-problems.
+
+Let's say the optimal solution is the sequence of $n$ engines used. The first one
+is $S_1$, the last one is $S_n$.
+
+If $S_n$ match the $k\/$th element in the input queries. then the sub-problem
+of k element can be addressed in $n-1$ engines. and can not be addressed in 
+$n-2$ engines. otherwise, we combine the sub-problem and get a better solution
+of size $n-1$, which is a contradictory.
+
+for each possible engine, we get the optimized solution for sub-problem. then 
+compare between them and get the optimized solution.
+
+we get the solution in a recursive manner.  
+
+consider an extreme case, all the query are engine names. then it is a special 
+case of original problem.
+
+
+\beginsection 3. The benefit of Literate Programming
+
+during the impelmentation, I realized that the last step should remove as much
+as queries as possoble, becase the left string array may have better optimal 
+value if it is smaller. the smaller problem will not have bigger optimal value.
+because the optimal result for bigger one can be a solution to the smaller one.
+
+so finally we found that Greedy Algorithm will give the optimal solution very 
+quickly.
+
+It is relatively easy to get the answer. I guess that is the reason it is the 
+first problem in the qualification round.
+
+\bye

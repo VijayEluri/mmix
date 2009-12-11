@@ -1,0 +1,4 @@
+use following command to invoke plaintex. the dafault one is latex in my Latex installation.
+    tex Tex1.txt &plaintex
+    
+\

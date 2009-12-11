@@ -1,0 +1,146 @@
+\hsize=29pc
+\vsize=42pc
+\topglue 0.5in
+\centerline{\bf Learning Notes---GB\_SORT}
+\smallskip
+\rightline{4/28/2009 10:09AM}
+\medskip
+Today I read gb\_sort, which is basically a radix sorting algorithm, but how the author ensure
+the stability of sorting is a bit tricky. Here I documents my understanding.
+
+\beginsection 1. Consider two nodes with equal key value.
+
+After the random distribution, suppose the order of two nodes with equal key value is $a_i > a_j$, 
+which means $a_i$ procedes $a_j$, either the sub-list index for $a_i$ is larger than sub-list index for $a_j$ or
+they are in the same sub-list and  $a_i$ precedes $a_j$ in the sub-list.
+
+Check how the final order bocome conrrect after 4 passes.
+\medskip
+{\it Before Pass 1 (lowest byte)}: $a_i > a_j$; They may or may not be in the same sub-list.
+\smallskip
+{\it After Pass 1 (lowest byte)}: $a_i < a_j$, and they are in the same sub-list, because we loop from 255 to 0, the one with higher list 
+index($a_i$ ) is put into the end side of the list.
+\smallskip
+
+{\it After Pass 2 (second-lowest byte)}:
+$a_i > a_j$, and they are in the same sub-list. The order is reversed because the preceeding one $a_j$ will be 
+put into the end side of the list.
+we can see that after pass 1 and 2, the order is kept.
+\smallskip
+
+{\it Pass 3 (secone higher byte)}:
+$a_i < a_j$, and they are in the same sub-list. The order is reversed because the preceeding one $a_i$ will be 
+put into the end side of the list.
+\smallskip
+
+{\it After Pass 4 (higher byte)}:
+$a_i > a_j$, they are in the same sub-list. The order is reversed because the preceeding one $a_j$ will be
+put into the end side of the list.
+
+\medskip
+Since the order is reversed  in  pass 1 through pass 4, over all the resulted order is correct.
+
+\beginsection 2. Other cases.
+
+From above discussion, we may also noticed that if two nodes are in the difference sublist in previous pass, 
+they already in their correct order if they come into the same sub-list in current pass
+.  they will be inversed if and only if current pass are pass 1 and 3;
+that means in pass 2 and 4, they will not be reversed.
+
+based on this, we can draw the following diagram.
+\medskip
+\settabs\+\indent&Reverse\quad&Reversed in\quad&Reversed in\quad&Not reversed\quad&Not reversed\quad\cr
+\+&Before		&Same  				&Not same 			&Same 				&Not same \cr
+\+&					&sub-list 		&sub-list				&sub-list 		&sub-list \cr
+\+&After		&Same  				&Same 				 	&Not same 		&Not same \cr
+\+&					&sub-list 		&sub-list 			&sub-list			&sub-list \cr
+\+&Reverse	&Reversed in 	&Reversed in 		&Not reversed &Not reversed\cr
+\+&					&all passes		&pass 1, 3			&at all				&at all\cr
+\medskip
+
+Based on above diagram
+\medskip
+\settabs\+\indent&higher and second higher byte are same\quad&pass 3 and 4 will reverse\quad\cr
+\+&Only higher byte are same							& pass 4 will not reverse \cr
+\+&higher and second higher byte are same	& pass 3 and 4 will reverse \cr
+\+&only lower byte are different					& pass 3 and 4 will reverse \cr
+\+&all the bytes are same									& all passes will reverse \cr
+\medskip
+
+
+according to above diagram, it is clear why two nodes with equal key will in the correct order after all 4 passes.
+in pass 1, no matter whether two nodes are in same sub-list or not, since they come into the same sub-list,
+their order will be reversed. 
+
+If only part of two keys of nodes are equal. what will happen?
+E.g. only lower byte are same. it does not matter. because finally they are not in the same sub-list.
+so if the higher byte are different, the case is simple.
+
+If both higer byte and lower byte are same. they finally will be in the same list. no matter what is the order after pass~1, it does not matter.
+in pass2 and pass 3 they will get the correct order. and pass~4 will get the correct
+order.
+
+If only the second-lower byte are different.
+after pass2, they are in different list.
+pass 3 and pass 4 will reverse the order.
+
+\beginsection 3. Is the trick necessary?
+
+Suppose we do not do the trick as in the algorithm, then we can get the following diagram according to same analysis.
+
+\medskip
+\settabs\+\indent&Reverse\quad&Reversed in\quad&Reversed in\quad&Not reversed\quad&Not reversed\quad\cr
+\+&Before		&Same  				&Not same 			&Same 				&Not same \cr
+\+&Before		&sub-list 		&sub-list				&sub-list 		&sub-list \cr
+\+&After		&Same  				&Same 				 	&Not same 		&Not same \cr
+\+&After		&sub-list 		&sub-list 			&sub-list			&sub-list \cr
+\+&Reverse	&Reversed in 	&Reversed in 		&Not reversed &Not reversed\cr
+\+&					&all passes		&all passes			&at all				&at all\cr
+\medskip
+
+\medskip
+\settabs\+\indent&higher and second higher byte are same\quad&pass 2, 3, and 4 will reverse\quad\cr
+\+&Only higher byte are same							& pass 4 will reverse \cr
+\+&higher and second higher byte are same	& pass 3 and 4 will reverse \cr
+\+&only lower byte are different					& pass 2, 3, and 4 will reverse \cr
+\+&all the bytes are same									&all passes will reverse \cr
+\medskip
+
+So, basically this trick is necessary and it works if we extends it.
+
+\beginsection Revisit Radix Sort in MILES_SPAN
+
+The radix sort in MILES_SPAN have two passes. and the result is the increasing order. it has
+nothing to do with stability, because the original order does not exist---they are stored in 
+Graph structure which does not define the preceeding relationship.
+
+\beginsection When to use Radix Sorting?
+
+Radix sorting has good performance---close to linear ($O(n)$), but it is not yet used
+as a general sorting solution as often as Quick Sort and Merge Sort are used.  I would like
+to ask why?
+
+since the popular implementation of radix sort is not in-place sort. also it need more overhead
+to maintain the buckets. so for example. in a case of a array of 1M integers. the quick sort is 10 times
+faster than the home grown radix sort which use list to maintain the buckets.
+
+Do some experiments to see the real performance?
+
+Theory analysis first. say to sort a list of 1M elements. the performance comparision between 
+quick sort and radix sort.
+Several findings.
+1. in java, quick sort is used for array of primitives, such int, short, long.
+the performance is very good. there is no radix sorting alternative since radix
+sorting usually is not a in place sorting.
+2. for array of Object, java class library(Arrays) use merge sorting, it's performance is
+close to and faster than home grown Radix sorting in the size of 1M elements. 
+3. For list of Object, java class library(Collections) also use merge sorting. 
+it's performance is close to and slower than Radix sorting from ``mindprod'' 
+in the size of 1M elements.
+
+4. There are many tuned quick sort to avoid the performance degration, for eample,
+the one used in java class library Arrays
+can they gurantee that? I am afraid not. If not, can 
+we find the specific dataset, which will cause the degration to quadratic performance.
+
+\bye

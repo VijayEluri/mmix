@@ -1,0 +1,189 @@
+\hsize=29pc
+\vsize=42pc
+\topglue 0.5in
+
+\centerline{\bf Tutorial---Linux Kernel Source Code Reading}
+\smallskip
+\centerline{Eddie Wu}
+\bigskip
+
+\beginsection 1. Background \par
+I try to document the steps when I set up a environment for reading Linux
+Kernel Source Code. Hopefully next time when I need to do the same thing 
+again I can reuse this documnet to do it effectivly. If it can also help others
+when performing the similar task, it will be great.
+
+\beginsection 2. Steps Outline \par
+\indent Download Linux source code
+\indent Install ctags
+\indent Install ncurses
+\indent Install cscope
+\indent Re-install vim
+
+\beginsection 2. Download Linux source code \par
+
+\beginsection 2.1. Download Linux source code through git \par
+1). Download Git from {\tt http://git-scm.com/\#download}.
+
+\indent
+2). Upload the installation file to the target directory and unzipped it as 
+follows.\par
+\indent{\tt tar -zxvf file.name}
+
+3). Executing the following commands.\par
+\indent     {\tt ./configure}\par
+\indent 	{\tt make}\par
+\indent 	{\tt sudo make install}\par
+ 	
+4. create file prepare.txt with the following content.
+	echo \$PATH;
+	export PATH=\$PATH:/home/oracle/exer/git-1.6.3.3/git-1.6.3.3/:
+	echo \$PATH;
+ 	
+5. execute the command to set the path every time.
+	. ./prepare.txt
+	
+6. execute command below to get the source code of linux.
+	git-clone \
+	git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git \
+	linux-2.6
+\par here linux-2.6 is the top folder for Linux source code.
+
+\beginsection 2.2. Download Linux source code through http \par
+git is blocked by firewall, instead I download the source code from 
+{\tt http://www.kernel.org/}.  click the "F" link, which stands for the 
+Full Source Code.
+
+6.2 install ctags. and add /usr/local/bin into the PATH
+
+6.3 install cscope failed.
+
+7. 4/3/2008 3:33PM
+cscope 
+
+cd /home/oracle/exer/linux/linux-2.6.30.1;
+LNX=`pwd`;
+echo $LNX;
+find  $LNX                                                                \
+-path "$LNX/arch/*" ! -path "$LNX/arch/x86*" -prune -o               \
+-path "$LNX/firmware*" -prune -o                                           \
+-path "$LNX/Documentation*" -prune -o                                 \
+-path "$LNX/scripts*" -prune -o                                       \
+-path "$LNX/drivers*" -prune -o                                       \
+-path "$LNX/samples*" -prune -o                                       \
+-path "$LNX/sound*" -prune -o                                       \
+-path "$LNX/net*" -prune -o                                       \
+-name "*.[chxsS]" -print >/home/oracle/exer/linux/cscope.files
+
+IT succeed. but very quick and there is no output. So I do not realize 
+that it actually succeed.
+
+ctags [options] [file(s)]
+ctags -L <file>
+ctags -L /home/oracle/exer/linux/cscope.files
+
+vi 
+:tag do_brk;
+
+:ts can show you all the options. then you can choose from the list of options.
+
+Ctrl-] go to the definition 
+Ctrl-t return to last place.
+
+
+linux-2.6.30.1
+change 1:
+the asm for different arch are put into corresponding arch, it is no longer
+in the inlcude folder.    
+
+So all the includes are relative to too possible path, one is relative to 
+./include folder, another is arhc-specific, e.g. ./arch/x86/include/, later 
+folder only have a sub-folder called asm.	
+    
+    
+Documentation/kbuild/makefiles.txt explain all the details of the Kbuild 
+system.    
+    
+    
+    
+    
+    
+reinstall vim
+configure --enable-cscope
+check
+[oracle@ora10gapp1 vim71]$ vim --version | grep cscope
++cryptv +cscope +cursorshape +dialog_con +diff +digraphs -dnd -ebcdic
+    
+ :cscope add /home/oracle/eddie/cscope.out
+ 
+find  : Query cscope.  All cscope query options are available
+        except option #5 ("Change this grep pattern").
+
+    USAGE   :cs find {querytype} {name}
+
+        {querytype} corresponds to the actual cscope line
+        interface numbers as well as default nvi commands:
+
+            0 or s: Find this C symbol
+            1 or g: Find this definition
+            2 or d: Find functions called by this function
+            3 or c: Find functions calling this function
+            4 or t: Find this text string
+            6 or e: Find this egrep pattern
+            7 or f: Find this file
+            8 or i: Find files #including this file
+need to manually add the following config in ~/.vimrc
+:cscope add /home/oracle/eddie/cscope/cscope.out        
+
+example usage in vim:
+:cs find c tty_ldisc_deref             
+:cs find s      tty_ldisc_wait
+  
+  
+  
+  
+  
+  7/27/2009 3:44PM
+Trouble shooting when installing the cscope
+The error message says
+"line 52 in build.c can not find the referece to curse.h"
+
+Root cause is that ncurses library is not installed in the system.
+
+1. download ncurses-5.7 from
+http://ftp.gnu.org/pub/gnu/ncurses/  
+
+intall it 
+./configure
+make
+sudo make install
+
+2. Then it is easy to install cscope.
+
+3. next step is to install vim from source code (it is already done)
+ora10gapp2> vim --version | grep scope
++cryptv +cscope +cursorshape +dialog_con +diff +digraphs -dnd -ebcdic 
+
+ora10gapp2> ls -l `which vim`
+-rwxr-xr-x 1 root root 1704148 2008-02-12 03:00 /usr/bin/vim
+ora10gapp2> ls -l `which vi` 
+-rwxr-xr-x 1 root root 660564 2008-02-12 03:00 /bin/vi
+
+/home/oracle/exer/linux/     # the directory with 'cscope.files'
+cscope -b -q -k    
+add the following in .vimrc
+:cscope add /home/oracle/exer/linux/cscope.out 
+start vim again.
+:cs find c sys_mmap2
+
+If there are many candidate options and you do not go through them all.
+just use "q" to exit from the choices list and input the number you 
+choosed.
+
+
+Surprising enough, no head file ever include the auto.conf.ß
+  
+  
+  
+  
+\bye  

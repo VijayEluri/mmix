@@ -1,0 +1,366 @@
+1. Recite one sentense every day.
+4/10
+The number of systems of terminology presently used in graph theory is equal, 
+to a close approximation, to the number of graph theorists.
+
+Graph theory: The basics.
+
+Subgraph:
+G' = (V', E') is a subgraph of G = (V,E) if V' is contained in V and E' is 
+contained in E.
+
+G' is spanning subgraph if V' = V.
+
+G' is a induced subgraph if E' has as many edges as possible.
+the annotation is G|V', it is called "G restricted to V'"
+
+if V' = V\{v}, then G|V' = G|V\{v} is simplified to G\v, it is called
+"G minus vertex v"
+
+similarly, we have G\e, which means G'=(V, E\{e}).
+
+A graph has n vertices and e edges is said to have order n and size e.
+
+Complete Graph Kn: "Complete graph of order n"
+It has n(n-1)/2 edges. every n vertices graph is a spanning subgraphe of Kn.	 
+Path Pn: "Path of order n"
+It has n-1 edges
+Cycle Cn: "Cycle of order n"	
+It has n edges.
+C1 and C2 are multigraphs.
+C1 has a loop.
+C2 has multi edges.
+
+isomorphic: conbinatorially equivalent.
+
+A graph is called PLANAR if there is a way to draw it without any 	crossings.
+
+A grgular graph od degree 3 is often called "cubic" or "trivalent"
+
+isomorphism
+G and G' are isomorphism if and only if there is a one to one mapping between
+V and V', so that 
+u --- v in G <====> u' --- v' in G' (u', v' is decided by the mapping.)
+
+autmorphism??
+
+A spanning path of a graph is called Hamiltonian path.
+A spanning cycle of a graph is called Hamiltonian cycle.
+A graph is called Hamiltonian if it has a Hamiltonian cycle.
+
+The Girth of a graph is the length of its shortest cycle.
+The girth is infinite if the graph is acyclic.
+
+A graph of minimun degree of k and girth 5 must have at least K^2 + 1 vertices.
+
+d(u,v) is the distance between u and v, it is inifinity if there is not a path 
+between u and v.
+d(v,v)=0;
+d(u,v)=d(v,u);
+d(u,v) + d(v,w) >= d(u,w);
+
+concept of distance can be generalized to the minimun number of edges in a 
+connected subgraph.
+
+A connected graph with fewest edges are called free tree.
+
+
+Coloring:
+ 
+no simple proof is known. If one proof can be simplified, actually it is still
+very valuable, bacause it make the learning process easier.
+
+use bipartite in the examapls of medium-high-level algorithms described in 
+English. 
+
+The graph is connected if the diameter is finite. otherwise it is composed of 
+components.
+
+The diameter of a diagraph is the maximum of the d(u,v).
+
+
+Complete Bipartite Graph. 
+Km,n  two part, one with size m, another with size n. 
+There is edge between every vertex in different part.
+(One comments of potential bug. in previous section, size is used to measure 
+the number of edges, and order is used to measure the nubmer of vertices.
+but now author switch the meaning of size to be the number of vertices.) 
+
+
+K2,2,2 generalized 
+
+
+Symmetries can always be exploited to avoid unnecessary computations, making 
+an algorithm almost k times fast when it operates on a graph with k 
+automorphisms.
+
+
+
+Strict diagraph - multi arc are not allowed.
+
+
+
+
+
+
+Graph v.s. Multigraph v.s. Digraph
+Graph: (Not directed)
+No vertex is adjacent to itself.
+
+Multigraph. ???
+two conditions:
+1) Loops from a vertex to itself is permitted.
+2) More than one arcs may be present for the same vertex pair {u, v}.
+Three results:
+1) and 2) (multi loops allowed)
+only 1) loop is allowed. ( but no multi loop)
+only 2) no loop, but allow multi edges for same pair. (multi edges, but no
+multi loops, even no loop)
+deprecated term. not clear about the meaning. 
+
+In the specific context of TAOCP,
+It not only allow loop, but also allow multi loop.
+
+
+Digraph (Directed Graph)
+Loops from a vertex to itself is permitted.
+More than one arcs may be present for the same vertex pair {u, v}.
+
+
+Network
+When the vertices and/or arcs of a graph or digraph are decorated with 
+additional data, we call it a Network.
+(but many of them are stilled called graph in Standford Graphbase.)
+
+4/15/2009 4:52PM
+Monday
+1. reading TexBook and its source code.
+2. try write own experience in Tex.
+
+Tuesday
+1. Reading GB_MILEs and Miles_Span
+2. Implement the program to check automorphism.
+
+Wednesday
+1. continue reading miles_span 
+2. listen to Mathematic Writting series - Ullman, The author of Dragon Book.
+ 
+Thursday
+1. Continue reading miles_span and get familiar with the concept of binary 
+heap and Fabonacii heap. binomial queue - not sure?  The conclusion of 
+efficiency comparision is instructive.
+2. Listen to the "Copy editing" and "dancing link", but did not get too much.
+maybe less than 30%
+
+Friday
+1. read chapter 22 Alighment and practice the table layout.
+2. read chapter 23 Output Routine.
+3. purchase the book.
+4. update biography and resume.
+
+4/20/2009 11:21AM
+recite:
+Taking an afternoon to skim the manuals and discover what is out there will 
+pay for itself in a week.
+
+Last weekend, I have read the Minimum Spanning Tree in 
+``Introduciton to Algorithm'',
+now I understand why Kruskal's algorithm works.
+
+Today I will reread the Mile_Span to re-inforce my understanding.
+
+This approximation is likely to get even better in the future, as the RISC 
+computers get
+faster and faster in comparision to meomory devices.
+
+And the converse statement is even more ture: A algorithm that runs fast will 
+not cosume many mems.
+
+
+``Effective Oracle by Design'':
+I want to get across two important messages.
+One is that it isn't true unless it can be proven to be true.
+And if it can be proven to be true (or false) it should be.
+
+Put simply, question Authority.
+Put it simply, question authority.
+
+The other main point to take away from this chapter is to exploit 
+what you have.
+
+Now we are ready to go into greater detail
+
+4/21/2009 10:38AM
+Miles_Span.pdf
+The aim of all of the analysis of performance should be to provide help 
+in predicting 
+and understanding the performance in real situation.
+
+The performance measurement is complex, you may have seen many 
+confusion result.
+Big O tech. try to ignore the constant factor, it is too simplified 
+to reveal the real situation.
+because the Biggest n we can images now is usually 2^32, 
+and in most case, the n is just in the
+range from 1 to 2^20. so actually we have to consider that the n is 
+a finite number. so constant
+factor can not always be ignored. and that for different applicaiton, 
+the range of n maybe different
+we should consider on the basis of specific cases. e.g. 
+google always deals with large amount of data.
+so the range maybe in the scope of 2^48. but for a small application. 
+the classic value for n may be 
+around 1000.
+
+In the second edition of TAOCP, Volume 2, the MIX example only counts 
+the number of instrucitons. 
+however, when MIX is replaced by MMIX, it will counts the mems and us, 
+which are the cost of memmory 
+access and instruction execution. The change is the result of inceasing 
+gap between register speed 
+and memory speed. since memory speed is almost ten times slower than 
+register speed. it is no wonder
+Knuth recommend comparing efficienty of algorithm with mems count.
+
+To me, to compare the performance of two algorithm, I prefer to count 
+both mems and us. and keep the formula
+unchanged instead of ignore the constant factor.
+
+Amotized analysis is simliar to average analysis, the big differene is 
+that the Amortized result is
+100% achievable, however, it is not guranteed that result getting from 
+average analysis is actually
+achievable in a specific case.
+
+Pending:
+How fabonacci heap works?
+How algorithm 4 works?
+
+Name after core implemenation.
+binary heap. it is closed realted the implementation. 
+
+Name after the interface (what operations it provide)
+Priority queue is an example of naming after the interface. it did not 
+mention how you will implement it.
+actually it can be implemented with many diffrenet data structures, 
+such as binary heap, fabonacci heap,
+binomial queue, etc.
+
+4/24/2009 2:57PM
+Now I am quite familiar with the concept of Priority Queue. I have ever 
+see this name 
+in the book about operating system, but I did not know it is the name 
+of a data structure.
+
+After reading a few examples in Standford Graph Base, the meaning of 
+Priority Queue become
+clear. The key difference between Queue and Priority Queue is that 
+we need to maintain the order of 
+the elements in the queue to some extent so that we can remove the 
+minimum one very quickly.
+
+Besides the binary heap, Fibonacci heap, binomal queue mentioned 
+in mile_span, in GB_DIJK double linked list and 
+special k doubly linked lists (K should be small) are also used to 
+implement Priority Queue.
+
+The double linked list is easy to implement. so what is the performance?
+init: O(1)
+enqueue: O(n)
+del_min: O(1)
+re-enqueue: O(n)
+when the list is small, the performance should be OK. but it soon become 
+unacceptable when n is large.
+
+For k doubly linked lists
+init: O(1)
+enqueue: O(1)
+del_min: O(1)
+re-enqueue: O(1)
+Since the input data is special, it is no wonder that we can ge so 
+good performance. I guess this
+is the core of the Priority Queue in Linux Kernel 2.6.
+
+
+Keep the analysis of algorithm in mind and re-read the Priority Queue 
+in linux kernel 2.6 and the O(1) Scheduler.
+
+
+I like to conquer the challenge, but where is platform for me?
+
+
+4/27/2009 11:04AM
+I can convert my dairy to TeX format in the future after I get familiar 
+with it.
+
+Today's topic is about the approximation algorihtm of a NP-Complete Problem.
+I have not get all the point of it, but I think it should be interesting, 
+it make me thinking of 
+the Artificial Intelegence and the GO program I have ever developed. 
+If I have more knowledge on
+those kind of clever algorithm, maybe I can realize my GO program and 
+improve its capability.
+
+1. The first way is quite simple and easy to understand. it is so 
+called single minded greedy algorithm.
+it choose the game with the biggest score difference in each step (The game
+which is to the goal always have the minimum score, so it will not be 
+choosed unless it is last resort.)
+
+So the complexity of this algorithm is limited. only the step to ensure 
+the option is valid is a little
+complex, which ensure that we are not choosing some vertex, which can 
+not reach the goal.
+
+2. I also read the improved algorithm, however it is much harder to 
+understand. especially you have
+to read the Book_Component to get the basic idea first.
+
+3.
+
+4/28/2009 10:09AM
+Today I read db_sort, which is basically a radix sorting algorithm. 
+but how the author ensure
+the stability of sorting is a bit tricky.
+
+consider two node with equal key value, after the random distribution. 
+the order is $a_i > a_j$, 
+which means $a_i$ procedes $a_j$, actually the list index for 
+$a_i$ is large than list index for $a_j$.
+
+check how the final order bocome conrrect after 4 pass.
+pass 1 (lowest byte): They are in the same sub-list and we get 
+$a_i < a_j$, because we loop from 255 to 0, the one with higher list 
+index($a_i$ ) is put into the end side of the list.
+
+pass 2 (second-lowest byte): They are in the same sub-list and we 
+get $a_j < a_i$, because we loop from 0 to 255, the one with lower 
+list index($a_i$) is
+put into the end side of the list.
+we can see that after pass 1 and 2, the order is kept.
+
+pass 3 (secone higher byte): They are in the same sub-list and we 
+get $a_i < a_j$, because we loop from 255 to 0, the one with higher list 
+index($a_i$ ) is put into the end side of the list.
+
+pass 4 (higher byte): They are in the same sub-list and we 
+get $a_j < a_i$, because we loop from 0 to 255, the one with lower 
+list index($a_i$) is
+put into the end side of the list.
+we can see that after pass 1 and 2, the order is kept.
+
+over all the order is changed in each pass. but after even-number of 
+passes, the result is correct.
+
+if two key have only part of bytes are equal. what will happen.
+E.g. only lower byte are same. it does not matter. because they are not 
+in the same list.
+if higer byte and lower byte are same. they will be in the same list. 
+And pass1 and pass 4 will get the correct
+order.
+
+
+
+
+
+Try it in Java?

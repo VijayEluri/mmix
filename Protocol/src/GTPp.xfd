@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fdl:document xmlns:fdl="http://ov.hp.com/ium/namespace/fdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+   xsi:schemaLocation="http://ov.hp.com/ium/namespace/fdl fdl.xsd "  import="GTPp-IE.xfd">
+	<root name="GTPpMsg" type="GTPpType" snmeNamespace="GTPp"/>
+	<!--  GTPp message -->
+	<sequence name="GTPpType" endOfRecord="true">
+		<raw/>
+		<field name="header_length" type="Bits_1"/>
+		<field name="reserved" type="Bits_3"/>
+		<field name="protocol_Type" type="Bits_1"/>
+		<field name="version" type="Bits_3"/>
+		<field name="message_Type" type="Octet_1"/>
+		<field name="length" type="Octet_2"/>
+		<field name="sequence_Number" type="Octet_2"/>
+		<field name="body" type="BodyType"/>
+	</sequence>
+
+	<!-- GTP' body -->
+	<set name="BodyType">
+	
+		<raw size="length"/>
+		
+		<field name="private_Extension" type="Private_Extension_Type" />
+
+		<field name="cause" type="Cause_Type"/>
+		
+		<field name="recovery" type="Recovery_Type"/>
+		
+		<field name="node_Address" type="Charging_Gateway_Address_Type" />
+		
+		<field name="address_of_Recommended_Node" type="Address_of_Recommended_Node_Type" />
+		
+		<field name="packet_Transfer_Command" type="packet_Transfer_Command_Type" />
+		
+		<field name="data_Record_Packet" type="Data_Record_Packet_Type" />
+		
+		<field name="sequence_Numbers_of_Released_Packets" usage="required" type="Sequence_Numbers_of_Released_Packets_Type"/>
+		
+		<field name="sequence_Numbers_of_Cancelled_Packets" usage="required" type="Sequence_Numbers_of_Cancelled_Packets_Type"/>
+		
+		<field name="requests_Responded" usage="required" type="Requests_Responded_Type"/>
+		
+	</set>
+
+	<sequence name="Private_Extension_Type">
+		<tlv type="IE">
+			<field name="ie_type" value="255" />
+		</tlv>
+		<field name="extension_Identifier" type="String_2"/>
+		<field name="extension_Value" type="Extension_Value"/>
+	</sequence>
+	
+	
+	<string name="Extension_Value">
+		<raw />
+	</string>
+	
+	<integer name="Cause_Type">
+		<tlv type="IE" size="1" >
+			<field name="ie_type" value="1" />
+		</tlv>
+	</integer>
+	
+	<integer name="Recovery_Type">
+	    <tlv type="IE" size="1">
+			<field name="ie_type" value="14" />
+		</tlv>
+	</integer>
+	
+	<string name="Charging_Gateway_Address_Type">
+	    <tlv type="IE">
+			<field name="ie_type" value="251" />
+		</tlv>
+	</string>
+	
+	<string name="Address_of_Recommended_Node_Type">
+	    <tlv type="IE">
+			<field name="ie_type" value="254" />
+		</tlv>
+	</string>
+	
+	<integer name="packet_Transfer_Command_Type">
+	    <tlv type="IE" size="1">
+			<field name="ie_type" value="126" />
+		</tlv>
+	</integer>
+	
+	<sequence name="Data_Record_Packet_Type">
+		<tlv type="IE">
+			<field name="ie_type" value="252" />
+		</tlv>
+		<field name="number" type="Octet_1"/>
+		<field name="format" type="Octet_1"/>
+		<field name="format_Version" type="Octet_2"/>
+		<field name="records" type="Data_Records_Type"/>
+	</sequence>
+	
+	<array name="Data_Records_Type" field="Data_Record_Type">
+		<raw></raw>
+	</array>
+	
+	<sequence name="Data_Record_Type">
+		<raw/>
+		<field name="record_length" type="Octet_2"/>
+		<field name="record_data" type="Data_Record_Data_Type"/>
+    </sequence>
+    
+    <string name="Data_Record_Data_Type">
+			<raw size="record_length"></raw>
+	</string>
+	
+    <sequence name="Sequence_Numbers_of_Released_Packets_Type">
+		<tlv type="IE">
+			<field name="ie_type" value="249" />
+		</tlv>
+		<field name="sequenceNumbers" type="Sequence_Numbers_Type"/>
+	</sequence>
+	
+    <sequence name="Sequence_Numbers_of_Cancelled_Packets_Type">
+		<tlv type="IE">
+			<field name="ie_type" value="250" />
+		</tlv>
+		<field name="sequenceNumbers" type="Sequence_Numbers_Type"/>
+	</sequence>
+	
+    <sequence name="Requests_Responded_Type">
+		<tlv type="IE">
+			<field name="ie_type" value="253" />
+		</tlv>
+		<field name="sequenceNumbers" type="Sequence_Numbers_Type"/>
+	</sequence>
+	
+	<array name="Sequence_Numbers_Type" field="Octet_2">
+		<raw></raw>
+	</array>
+
+	<integer name="Bits_1">
+		<raw size="1" sizeUnits="bits" signed="false"/>
+	</integer>
+	<integer name="Bits_2">
+		<raw size="2" sizeUnits="bits" signed="false"/>
+	</integer>
+	<integer name="Bits_3">
+		<raw size="3" sizeUnits="bits" signed="false"/>
+	</integer>
+	<integer name="Bits_6">
+		<raw size="6" sizeUnits="bits" signed="false"/>
+	</integer>
+	<integer name="Octet_1">
+		<raw size="1" signed="false"/>
+	</integer>
+	<integer name="Octet_2">
+		<raw size="2" signed="false"/>
+	</integer>
+	<integer name="Octet_3">
+		<raw size="3" signed="false"/>
+	</integer>
+	<integer name="Octet_4">
+		<raw size="4" signed="false"/>
+	</integer>
+	<string name="String_2">
+		<raw size="2"/>
+	</string>
+	<string name="String_4">
+		<raw size="4"/>
+	</string>
+	<string name="String_6">
+		<raw size="6"/>
+	</string>
+	<string name="String_8">
+		<raw size="8"/>
+	</string>
+	<string name="String_16">
+		<raw size="16"/>
+	</string>
+</fdl:document>

@@ -1,0 +1,97 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Are you part ace coder, part adrenaline - neatness is 1
+junkie? Do you have a knack for seeing a - neatness is 0
+problem and immediately discerning the - neatness is 2
+likely solution? Maybe you have been - neatness is 4
+
+coding for years, are bored with the old - neatness is 0
+design-build-review-test-ship-repeat - neatness is 4
+routine, and yearn for some faster-paced - neatness is 0
+challenges? Or perhaps you are a - neatness is 8
+
+seasoned software engineer who is also a - neatness is 0
+genius at jockeying networks and - neatness is 8
+administering UNIX clusters. - neatness is 0
+1 0 2 4         0 4 0 8         0 8 0
+Are you part ace coder, part adrenaline - neatness is 1
+junkie? Do you have a knack for seeing - neatness is 2
+a problem and immediately discerning - neatness is 4
+the likely solution? Maybe you have been - neatness is 0
+
+coding for years, are bored with the - neatness is 4
+old design-build-review-test-ship-repeat - neatness is 0
+routine, and yearn for some faster-paced - neatness is 0
+challenges? Or perhaps you are a - neatness is 8
+
+seasoned software engineer who is also - neatness is 2
+a genius at jockeying networks and - neatness is 6
+administering UNIX clusters. - neatness is 0
+1 2 4 0         4 0 0 8         2 6 0
+
+5 years+
+> server side Product R&D experiences
+>
+>
+> - Bachelor degree (or above) in computer science software is a must.
+>
+>
+> a) top 20 university in china. (Computer Science Software)
+>
+>
+> - Experienced in server-side software design and development.
+>
+>
+> a) network, socket programming, protocol
+> implementation.(Diameter/TCP,Radius/UDP, HTTP/TCP/IP)
+>
+>
+> b) concurrent(server) programming, support muliple clients concurrent
+> access.
+>
+>
+> - Solid Java (Java Standard Edition, Java Enterprise
+> Edition) programming is a must.
+>
+>
+> - Familiar with software engineering processes.
+>
+>
+> a) Source control system (Distributed Development Environment), i.e.
+> CVS, SVN,
+>
+>
+> b) build system: source-->distribute (i.e. ant, maven)
+>
+>
+> c) bug tracking: i.e. bugzilla, Quality Center.
+>
+>
+> - Strong English communication skill (written/oral).
+>
+>
+> - Stable and strong commitment to long-term product development.
+>
+>
+> - Strong learning research ability.
+>
+>
+> - Leader Capability
+> 

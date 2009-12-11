@@ -1,0 +1,120 @@
+started on 7/15/2008 
+kernel memory mapping summay
+
+Today, finally I become clear about the relationship between 
+fixed mapping
+permanent kernel mapping
+temporary kernel mapping
+noncontiguous memory area mapping
+(I feel that most of the name is not appropriate, to some text, it will mislead the reader.) 
+
+4G linear virtual address space is divided into two major part.
+kernel space mapping 	[3G, 4G)
+user space mapping		[0, 3G)
+
+kernel space mapping is divided into more pieces
+linear mapping [3G, 3G + 896M)
+non linear mapping [3G + 896M + 8M, 4G)
+1. Fixed Mapping (wrong name, should be compile time mapping, the virtual address is decided in compile time. )
+2. Temporary mapping	
+	void *kmap_atomic(struct page *page, enum km_type type)	
+	void kunmap_atomic(void *kvaddr, enum km_type type)			
+
+3. Permanent mapping
+	void *kmap(struct page *page)
+	void *kunmap(struct page *page)
+
+4. noncontiguous memory area mapping (Vmalloc area)
+
+The following is the diagram for the reference.
+
+FIXADDR_TOP			(=0xfffff000)
+ 
+					fixed_addresses (temporary kernel mapping is part of it)
+ 					#define __FIXADDR_SIZE  (__end_of_permanent_fixed_addresses << PAGE_SHIFT)
+ 				
+FIXADDR_START		(FIXADDR_TOP - __FIXADDR_SIZE)
+ 						
+					temp fixed addresses (used in boot time)
+ 					#define __FIXADDR_BOOT_SIZE     (__end_of_fixed_addresses << PAGE_SHIFT)
+ 				
+FIXADDR_BOOT_START	(FIXADDR_TOP - __FIXADDR_BOOT_SIZE)
+ 						
+					Persistent kmap area (4M)
+ 
+PKMAP_BASE			( (FIXADDR_BOOT_START - PAGE_SIZE*(LAST_PKMAP + 1)) & PMD_MASK )
+ 
+ 					2*PAGE_SIZE
+ 
+VMALLOC_END			(PKMAP_BASE-2*PAGE_SIZE) or (FIXADDR_START-2*PAGE_SIZE) 
+
+                     noncontiguous memory area mapping (Vmalloc area)
+                     
+VMALLOC_START		(((unsigned long) high_memory + 2*VMALLOC_OFFSET-1) & ~(VMALLOC_OFFSET-1))  
+
+high_memory			MIN (896M, phisical memory size)
+ 
+below the excerp of the source code.
+
+#ifdef CONFIG_X86_PAE
+#define LAST_PKMAP 512
+#else
+#define LAST_PKMAP 1024
+#endif 
+                                                                          
+#define VMALLOC_OFFSET  (8*1024*1024)
+#define VMALLOC_START   (((unsigned long) high_memory + \                          
+                        2*VMALLOC_OFFSET-1) & ~(VMALLOC_OFFSET-1))    
+                               
+#ifdef CONFIG_HIGHMEM                                              
+# define VMALLOC_END    (PKMAP_BASE-2*PAGE_SIZE)
+#else                                                                     
+# define VMALLOC_END    (FIXADDR_START-2*PAGE_SIZE)               
+#endif
+
+enum fixed_addresses {
+        FIX_HOLE,
+        FIX_VDSO,
+        FIX_DBGP_BASE,
+        FIX_EARLYCON_MEM_BASE,
+#ifdef CONFIG_X86_LOCAL_APIC
+        FIX_APIC_BASE,  /* local (CPU) APIC) -- required for SMP or not */
+#endif
+#ifdef CONFIG_X86_IO_APIC
+        FIX_IO_APIC_BASE_0,
+        FIX_IO_APIC_BASE_END = FIX_IO_APIC_BASE_0 + MAX_IO_APICS-1,
+#endif
+#ifdef CONFIG_X86_VISWS_APIC
+        FIX_CO_CPU,     /* Cobalt timer */
+        FIX_CO_APIC,    /* Cobalt APIC Redirection Table */
+        FIX_LI_PCIA,    /* Lithium PCI Bridge A */
+        FIX_LI_PCIB,    /* Lithium PCI Bridge B */
+#endif
+#ifdef CONFIG_X86_F00F_BUG
+        FIX_F00F_IDT,   /* Virtual mapping for IDT */
+#endif
+#ifdef CONFIG_X86_CYCLONE_TIMER
+        FIX_CYCLONE_TIMER, /*cyclone timer register*/
+#endif
+#ifdef CONFIG_HIGHMEM
+        FIX_KMAP_BEGIN, /* reserved pte's for temporary kernel mappings */
+        FIX_KMAP_END = FIX_KMAP_BEGIN+(KM_TYPE_NR*NR_CPUS)-1,
+#endif
+#ifdef CONFIG_ACPI
+        FIX_ACPI_BEGIN,
+        FIX_ACPI_END = FIX_ACPI_BEGIN + FIX_ACPI_PAGES - 1,
+#endif
+#ifdef CONFIG_PCI_MMCONFIG
+        FIX_PCIE_MCFG,
+#endif
+#ifdef CONFIG_PARAVIRT
+        FIX_PARAVIRT_BOOTMAP,
+#endif
+        __end_of_permanent_fixed_addresses,
+        /* temporary boot-time mappings, used before ioremap() is functional */
+#define NR_FIX_BTMAPS   16
+        FIX_BTMAP_END = __end_of_permanent_fixed_addresses,
+        FIX_BTMAP_BEGIN = FIX_BTMAP_END + NR_FIX_BTMAPS - 1,
+        FIX_WP_TEST,
+        __end_of_fixed_addresses
+}

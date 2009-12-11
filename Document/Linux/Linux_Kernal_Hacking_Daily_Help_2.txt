@@ -1,0 +1,453 @@
+--majorly about kernel startup -- initialization.
+init/main.c
+/*
+ * Ok, the machine is now initialized. None of the devices
+ * have been touched yet, but the CPU subsystem is up and
+ * running, and memory and process management works.
+ *
+ * Now we can finally start doing some real work..
+ */
+static void __init do_basic_setup(void)
+{
+        /* drivers will send hotplug events */
+        init_workqueues();
+        usermodehelper_init();
+        driver_init();
+
+#ifdef CONFIG_SYSCTL
+        sysctl_init();
+#endif
+
+        /* Networking initialization needs a process context */
+        sock_init();
+
+        do_initcalls();
+}
+
+/**
+ *      driver_init - initialize driver model.
+ *
+ *      Call the driver model init functions to initialize their
+ *      subsystems. Called early from init/main.c.
+ */
+
+void __init driver_init(void)
+{
+        /* These are the core pieces */
+        devices_init();
+        buses_init();
+        classes_init();
+        firmware_init();
+
+        /* These are also core pieces, but must come after the
+         * core core pieces.
+         */
+        platform_bus_init();
+        system_bus_init();
+        cpu_dev_init();	//drivers/base/cpu.c
+        attribute_container_init();
+}
+int __init
+attribute_container_init(void)
+{
+        INIT_LIST_HEAD(&attribute_container_list);
+        return 0;
+}
+static struct list_head attribute_container_list;
+
+int __init cpu_dev_init(void)
+{
+        return sysdev_class_register(&cpu_sysdev_class);
+}
+int sysdev_class_register(struct sysdev_class * cls)
+{
+        pr_debug("Registering sysdev class '%s'\n",
+                 kobject_name(&cls->kset.kobj));
+        INIT_LIST_HEAD(&cls->drivers);
+        cls->kset.subsys = &system_subsys;
+        kset_set_kset_s(cls, system_subsys);
+        return kset_register(&cls->kset);
+}
+struct bus_type platform_bus_type = {
+        .name           = "platform",
+        .match          = platform_match,
+        .suspend        = platform_suspend,
+        .resume         = platform_resume,
+};
+
+int __init platform_bus_init(void)
+{
+        device_register(&platform_bus);
+        return bus_register(&platform_bus_type);
+}
+
+int __init firmware_init(void)
+{
+        return subsystem_register(&firmware_subsys);
+}
+int __init classes_init(void)
+{
+        int retval;
+
+        retval = subsystem_register(&class_subsys);
+        if (retval)
+                return retval;
+
+        /* ick, this is ugly, the things we go through to keep from showing up
+         * in sysfs... */
+        subsystem_init(&class_obj_subsys);
+        if (!class_obj_subsys.kset.subsys)
+                        class_obj_subsys.kset.subsys = &class_obj_subsys;
+        return 0;
+}
+
+int __init devices_init(void)
+{
+        return subsystem_register(&devices_subsys);
+}
+
+/**
+ *      subsystem_register - register a subsystem.
+ *      @s:     the subsystem we're registering.
+ *
+ *      Once we register the subsystem, we want to make sure that
+ *      the kset points back to this subsystem for correct usage of
+ *      the rwsem.
+ */
+
+int subsystem_register(struct subsystem * s)
+{
+        int error;
+
+        subsystem_init(s);
+        pr_debug("subsystem %s: registering\n",s->kset.kobj.name);
+
+        if (!(error = kset_add(&s->kset))) {
+                if (!s->kset.subsys)
+                        s->kset.subsys = s;
+        }
+        return error;
+}
+
+void subsystem_init(struct subsystem * s)
+{
+        init_rwsem(&s->rwsem);
+        kset_init(&s->kset);
+}
+
+/**
+ *      kset_init - initialize a kset for use
+ *      @k:     kset
+ */
+
+void kset_init(struct kset * k)
+{
+        kobject_init(&k->kobj);
+        INIT_LIST_HEAD(&k->list);
+        spin_lock_init(&k->list_lock);
+}
+
+/**
+ *      kset_add - add a kset object to the hierarchy.
+ *      @k:     kset.
+ *
+ *      Simply, this adds the kset's embedded kobject to the
+ *      hierarchy.
+ *      We also try to make sure that the kset's embedded kobject
+ *      has a parent before it is added. We only care if the embedded
+ *      kobject is not part of a kset itself, since kobject_add()
+ *      assigns a parent in that case.
+ *      If that is the case, and the kset has a controlling subsystem,
+ *      then we set the kset's parent to be said subsystem.
+ */
+
+int kset_add(struct kset * k)
+{
+        if (!k->kobj.parent && !k->kobj.kset && k->subsys)
+                k->kobj.parent = &k->subsys->kset.kobj;
+
+        return kobject_add(&k->kobj);
+}
+
+
+int __init buses_init(void)
+{
+        return subsystem_register(&bus_subsys);
+}
+
+
+arch/i386/kernel/i8259.c
+void __init init_IRQ(void)
+{
+        int i;
+
+        /* all the set up before the call gates are initialised */
+        pre_intr_init_hook();
+
+        /*
+         * Cover the whole vector space, no vector can escape
+         * us. (some of these will be overridden and become
+         * 'special' SMP interrupts)
+         */
+        for (i = 0; i < (NR_VECTORS - FIRST_EXTERNAL_VECTOR); i++) {
+                int vector = FIRST_EXTERNAL_VECTOR + i;
+                if (i >= NR_IRQS)
+                        break;
+                if (vector != SYSCALL_VECTOR)
+                        set_intr_gate(vector, interrupt[i]);
+        }
+
+        /* setup after call gates are initialised (usually add in
+         * the architecture specific gates)
+         */
+        intr_init_hook();
+
+        /*
+         * Set the clock to HZ Hz, we already have a valid
+         * vector now:
+         */
+        setup_pit_timer();
+
+        /*
+         * External FPU? Set up irq13 if so, for
+         * original braindamaged IBM FERR coupling.
+         */
+        if (boot_cpu_data.hard_math && !cpu_has_fpu)
+                setup_irq(FPU_IRQ, &fpu_irq);
+
+        irq_ctx_init(smp_processor_id());
+}
+
+
+
+
+
+
+
+
+--start kernel
+/*
+ *      Activate the first processor.
+ */
+
+asmlinkage void __init start_kernel(void)
+{
+        char * command_line;
+        extern struct kernel_param __start___param[], __stop___param[];
+/*
+ * Interrupts are still disabled. Do necessary setups, then
+ * enable them
+ */
+        lock_kernel();
+        page_address_init();
+        printk(KERN_NOTICE);
+        printk(linux_banner);
+        setup_arch(&command_line);
+        setup_per_cpu_areas();
+
+        /*
+         * Mark the boot cpu "online" so that it can call console drivers in
+         * printk() and can access its per-cpu storage.
+         */
+        smp_prepare_boot_cpu();
+
+        /*
+         * Set up the scheduler prior starting any interrupts (such as the
+         * timer interrupt). Full topology setup happens at smp_init()
+         * time - but meanwhile we still have a functioning scheduler.
+         */
+        sched_init();
+        /*
+         * Disable preemption - early bootup scheduling is extremely
+         * fragile until we cpu_idle() for the first time.
+         */
+        preempt_disable();
+        build_all_zonelists();
+        page_alloc_init();
+        printk(KERN_NOTICE "Kernel command line: %s\n", saved_command_line);
+        parse_early_param();
+        parse_args("Booting kernel", command_line, __start___param,
+                   __stop___param - __start___param,
+                   &unknown_bootoption);
+        sort_main_extable();
+        trap_init();
+        rcu_init();
+        init_IRQ();
+        pidhash_init();
+        init_timers();
+        softirq_init();
+        time_init();
+                softirq_init();
+        time_init();
+
+        /*
+         * HACK ALERT! This is early. We're enabling the console before
+         * we've done PCI setups etc, and console_init() must be aware of
+         * this. But we do want output early, in case something goes wrong.
+         */
+        console_init();
+        if (panic_later)
+                panic(panic_later, panic_param);
+        profile_init();
+        local_irq_enable();
+#ifdef CONFIG_BLK_DEV_INITRD
+        if (initrd_start && !initrd_below_start_ok &&
+                        initrd_start < min_low_pfn << PAGE_SHIFT) {
+                printk(KERN_CRIT "initrd overwritten (0x%08lx < 0x%08lx) - "
+                    "disabling it.\n",initrd_start,min_low_pfn << PAGE_SHIFT);
+                initrd_start = 0;
+        }
+#endif
+        vfs_caches_init_early();
+        mem_init();
+        kmem_cache_init();
+        setup_per_cpu_pageset();
+        numa_policy_init();
+        if (late_time_init)
+                late_time_init();
+        calibrate_delay();
+        pidmap_init();
+        pgtable_cache_init();
+        prio_tree_init();
+        anon_vma_init();
+#ifdef CONFIG_X86
+        if (efi_enabled)
+                efi_enter_virtual_mode();
+#endif
+        fork_init(num_physpages);
+        proc_caches_init();
+        buffer_init();
+        unnamed_dev_init();
+        key_init();
+        security_init();
+        vfs_caches_init(num_physpages);
+        radix_tree_init();
+        signals_init();
+        /* rootfs populating might need page-writeback */
+        page_writeback_init();
+#ifdef CONFIG_PROC_FS
+        proc_root_init();
+#endif
+        cpuset_init();
+
+        check_bugs();
+
+        acpi_early_init(); /* before LAPIC and SMP init */
+
+        acpi_early_init(); /* before LAPIC and SMP init */
+
+        /* Do the rest non-__init'ed, we're now alive */
+        rest_init();
+}
+
+
+/*
+ * We need to finalize in a non-__init function or else race conditions
+ * between the root thread and the init thread may cause start_kernel to
+ * be reaped by free_initmem before the root thread has proceeded to
+ * cpu_idle.
+ *
+ * gcc-3.4 accidentally inlines this function, so use noinline.
+ */
+
+static void noinline rest_init(void)
+        __releases(kernel_lock)
+{
+        kernel_thread(init, NULL, CLONE_FS | CLONE_SIGHAND);
+        numa_default_policy();
+        unlock_kernel();
+        preempt_enable_no_resched();
+
+        /*
+         * The boot idle thread must execute schedule()
+         * at least one to get things moving:
+         */
+        schedule();
+
+        cpu_idle();
+}
+
+
+
+
+
+static int init(void * unused)
+{
+        lock_kernel();
+        /*
+         * init can run on any cpu.
+         */
+        set_cpus_allowed(current, CPU_MASK_ALL);
+        /*
+         * Tell the world that we're going to be the grim
+         * reaper of innocent orphaned children.
+         *
+         * We don't want people to have to make incorrect
+         * assumptions about where in the task array this
+         * can be found.
+         */
+        child_reaper = current;
+
+        /* Sets up cpus_possible() */
+        smp_prepare_cpus(max_cpus);
+
+        do_pre_smp_initcalls();
+
+        fixup_cpu_present_map();
+        smp_init();
+        sched_init_smp();
+
+        cpuset_init_smp();
+
+        /*
+         * Do this before initcalls, because some drivers want to access
+         * firmware files.
+         */
+        populate_rootfs();
+
+        do_basic_setup();
+
+        /*
+         * check if there is an early userspace init.  If yes, let it do all
+         * the work
+         */
+        if (sys_access((const char __user *) "/init", 0) == 0)
+                execute_command = "/init";
+        else
+                prepare_namespace();
+
+        /*
+         * Ok, we have completed the initial bootup, and
+         * we're essentially up and running. Get rid of the
+         * initmem segments and start the user-mode stuff..
+         */
+        free_initmem();
+        unlock_kernel();
+        system_state = SYSTEM_RUNNING;
+        numa_default_policy();
+        numa_default_policy();
+
+        if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
+                printk(KERN_WARNING "Warning: unable to open an initial console.\n");
+
+        (void) sys_dup(0);
+        (void) sys_dup(0);
+
+        /*
+         * We try each of these until one succeeds.
+         *
+         * The Bourne shell can be used instead of init if we are
+         * trying to recover a really broken machine.
+         */
+
+        if (execute_command)
+                run_init_process(execute_command);
+
+        run_init_process("/sbin/init");
+        run_init_process("/etc/init");
+        run_init_process("/bin/init");
+        run_init_process("/bin/sh");
+
+        panic("No init found.  Try passing init= option to kernel.");
+}        
+

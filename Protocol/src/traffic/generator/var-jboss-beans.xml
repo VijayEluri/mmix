@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+
+
+	<bean name="proxyEventProcessor"
+		class="com.hp.atom.connector.WorkflowEventProcessor">
+		<property name="appId">proxy</property>
+		<property name="nodeId">Start</property>
+		<property name="flowName">server</property>
+		<property name="racDeployer">
+			<inject bean="workflowEngine" />
+		</property>
+		<!--property name="errorHandler"></property-->
+		<create method="create" />
+		<start ignored="true" />
+		<stop ignored="true" />
+	</bean>
+
+	<bean name="DiameterProxy_ServerNode"
+		class="com.hp.atom.diameter.DiameterServer">
+		<constructor>
+			<parameter class="com.hp.atom.diameter.DiameterNodeInfo">
+				<inject bean="proxyDiameterNodeInfo"/>
+			</parameter>
+		</constructor>
+
+		<property name="codecFactory">
+			<inject bean="diameterProtocolCodecFactory" />
+		</property>
+		
+		<property name="sessionManagerFactory">
+			 <inject bean="sessionManagerFactory" />
+		</property>
+	  
+		<property name="scheduler">
+			<inject bean="scheduler" />
+		</property>
+
+		<property name="eventProcessor">
+			<inject bean="proxyEventProcessor" />
+		</property>
+		
+		<property name="bindAddressBeans">
+			<set elementClass="com.hp.atom.connector.socket.SocketAddressBean">
+				<value>localhost:9999</value>
+			</set>
+		</property>
+		
+	</bean>
+
+	<bean name="fixIntervalReconnectPolicy"
+		class="com.hp.atom.connector.reconnect.FixIntervalReconnectPolicy">
+		<!-- maxTryTimes if <= 0, means no limitation for retry -->
+		<property name="maxTryTimes">5</property>
+		<!-- waitInterval's time unit is millisecond -->
+		<property name="waitInterval">100</property>
+	</bean>
+
+	<bean name="DiameterProxy_ClientNode"
+		class="com.hp.atom.diameter.DiameterClient">
+		<constructor>
+			<parameter class="com.hp.atom.diameter.DiameterNodeInfo">
+				<inject bean="proxyDiameterNodeInfo"/>
+			</parameter>
+		</constructor>
+
+		<property name="codecFactory">
+			<inject bean="diameterProtocolCodecFactory" />
+		</property>
+		
+		<property name="sessionManagerFactory">
+			 <inject bean="sessionManagerFactory" />
+		</property>
+		
+		<property name="scheduler">
+			<inject bean="scheduler" />
+		</property>
+
+		<property name="reconnectPolicy">
+			<inject bean="fixIntervalReconnectPolicy" />
+		</property>
+
+		<property name="eventProcessor">
+			<inject bean="proxyEventProcessor" />
+		</property>
+		
+		<property name="addressMappingList">
+			<list elementClass="com.hp.atom.diameter.DiameterAddressMapping">
+				<value>serverHost;serverRealm;127.0.0.1;2222</value>
+			</list>
+		</property>
+		
+	</bean>
+	
+   <bean name="proxyDiameterNodeInfo" class="com.hp.atom.diameter.DiameterNodeInfo">
+    <property name="serverHost">proxyHost</property>
+    <property name="serverRealm">proxyRealm</property>
+    <property name="productName">rtp</property>
+    <property name="supportedAppIds">
+			<array>
+				<value>1</value>
+				<value>2</value>
+			</array>
+		</property>
+		<property name="supportedVendorIds">
+			<array>
+				<value>11</value>
+				<value>10415</value>
+			</array>
+		</property>
+		<property name="supportedAuthIds">
+			<array>
+				<value>167772151</value>
+				<value>4</value>
+			</array>
+		</property>
+		<property name="supportedAccountIds">
+			<array>
+				<value>0</value>
+				<value>3</value>
+			</array>
+		</property>
+		<property name="supportedVendorSpecApplIdStrs">
+			<list>
+				<value>11;167772151;0</value>
+				<value>5,6;45;46</value>
+			</list>
+		</property>
+  </bean>
+
+</deployment>

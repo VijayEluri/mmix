@@ -1,0 +1,303 @@
+what is the facility provided by kernel for the following shell command:
+
+strace cat /dev/null
+
+...
+open("/dev/null", O_RDONLY|O_LARGEFILE) = 3
+fstat64(3, {st_mode=S_IFCHR|0666, st_rdev=makedev(1, 3), ...}) = 0
+read(3, "", 4096)                       = 0
+close(3)                                = 0
+close(1)                                = 0
+exit_group(0)                           = ?
+Process 6168 detached
+
+hint: research fstat64 later
+
+in file drivers/char/mem.c
+
+static int __init chr_dev_init(void)
+{
+        int i;
+        int err;
+
+        err = bdi_init(&zero_bdi);
+        if (err) 
+                return err;
+
+        if (register_chrdev(MEM_MAJOR,"mem",&memory_fops))
+                printk("unable to get major %d for memory devs\n", MEM_MAJOR);
+
+        mem_class = class_create(THIS_MODULE, "mem");
+        for (i = 0; i < ARRAY_SIZE(devlist); i++)
+                device_create(mem_class, NULL,
+                              MKDEV(MEM_MAJOR, devlist[i].minor),
+                              devlist[i].name);
+
+        return 0;
+}
+fs_initcall(chr_dev_init);
+
+obviously, the MEM_MAJOR is binded when system is initialized. so later, when we open a char device file, we can get corresponding f_ops sturct from global data structure.
+
+int register_chrdev(unsigned int major, const char *name,
+                    const struct file_operations *fops)
+{               
+        struct char_device_struct *cd;
+        struct cdev *cdev;
+        char *s;
+        int err = -ENOMEM;
+
+        cd = __register_chrdev_region(major, 0, 256, name);
+        if (IS_ERR(cd))
+                return PTR_ERR(cd);
+        
+        cdev = cdev_alloc();
+        if (!cdev)
+                goto out2;
+
+        cdev->owner = fops->owner;
+        cdev->ops = fops;     
+        kobject_set_name(&cdev->kobj, "%s", name);
+        for (s = strchr(kobject_name(&cdev->kobj),'/'); s; s = strchr(s, '/'))
+                *s = '!';
+                
+        err = cdev_add(cdev, MKDEV(cd->major, 0), 256);
+        if (err)
+                goto out;
+
+        cd->cdev = cdev;
+
+        return major ? 0 : cd->major;
+out:
+        kobject_put(&cdev->kobj);
+out2:
+        kfree(__unregister_chrdev_region(cd->major, 0, 256));
+        return err;
+}
+
+static struct char_device_struct *
+__register_chrdev_region(unsigned int major, unsigned int baseminor,
+                           int minorct, const char *name)
+{
+        struct char_device_struct *cd, **cp;
+        int ret = 0;
+        int i;
+
+        cd = kzalloc(sizeof(struct char_device_struct), GFP_KERNEL);
+        if (cd == NULL)
+                return ERR_PTR(-ENOMEM);
+
+        mutex_lock(&chrdevs_lock);
+
+        /* temporary */
+        if (major == 0) {
+                for (i = ARRAY_SIZE(chrdevs)-1; i > 0; i--) {
+                        if (chrdevs[i] == NULL)
+                                break;
+                }
+
+                if (i == 0) {
+                        ret = -EBUSY;
+                        goto out;
+                }
+                major = i;
+                ret = major;
+        }
+
+        cd->major = major;
+        cd->baseminor = baseminor;
+        cd->minorct = minorct;
+        strncpy(cd->name,name, 64);
+
+        i = major_to_index(major);
+
+        for (cp = &chrdevs[i]; *cp; cp = &(*cp)->next)
+                if ((*cp)->major > major ||
+                    ((*cp)->major == major &&
+                     (((*cp)->baseminor >= baseminor) ||
+                      ((*cp)->baseminor + (*cp)->minorct > baseminor))))
+                        break;
+
+    	/* Check for overlapping minor ranges.  */
+        if (*cp && (*cp)->major == major) {
+                int old_min = (*cp)->baseminor;
+                int old_max = (*cp)->baseminor + (*cp)->minorct - 1;
+                int new_min = baseminor;
+                int new_max = baseminor + minorct - 1;
+
+                /* New driver overlaps from the left.  */
+                if (new_max >= old_min && new_max <= old_max) {
+                        ret = -EBUSY;
+                        goto out;
+                }
+
+                /* New driver overlaps from the right.  */
+                if (new_min <= old_max && new_min >= old_min) {
+                        ret = -EBUSY;
+                        goto out;
+                }
+        }
+
+        cd->next = *cp;
+        *cp = cd;
+        mutex_unlock(&chrdevs_lock);
+        return cd;
+out:
+        mutex_unlock(&chrdevs_lock);
+        kfree(cd);
+        return ERR_PTR(ret);
+}
+
+in fs/char_dev.c
+static DEFINE_MUTEX(chrdevs_lock);
+--this is the global data structure, shared by different code, such as the registration and lookup code.
+static struct char_device_struct {
+        struct char_device_struct *next;
+        unsigned int major;
+        unsigned int baseminor;
+        int minorct;
+        char name[64];
+        struct file_operations *fops;
+        struct cdev *cdev;              /* will die */
+} *chrdevs[CHRDEV_MAJOR_HASH_SIZE];
+
+/* index in the above */
+static inline int major_to_index(int major)
+{
+        return major % CHRDEV_MAJOR_HASH_SIZE;
+}
+
+
+/**
+ * cdev_add() - add a char device to the system
+ * @p: the cdev structure for the device
+ * @dev: the first device number for which this device is responsible
+ * @count: the number of consecutive minor numbers corresponding to this
+ *         device 
+ *
+ * cdev_add() adds the device represented by @p to the system, making it
+ * live immediately.  A negative error code is returned on failure.
+ */
+int cdev_add(struct cdev *p, dev_t dev, unsigned count)
+{
+        p->dev = dev;
+        p->count = count;
+        return kobj_map(cdev_map, dev, count, NULL, exact_match, exact_lock, p);
+}
+
+int kobject_set_name(struct kobject * kobj, const char * fmt, ...)
+{
+        int error = 0;
+        int limit;
+        int need;
+        va_list args;
+        char *name;
+
+        /* find out how big a buffer we need */
+        name = kmalloc(1024, GFP_KERNEL);
+        if (!name) {
+                error = -ENOMEM;
+                goto done;
+        }
+        va_start(args, fmt);
+        need = vsnprintf(name, 1024, fmt, args);
+        va_end(args);
+        kfree(name);
+
+        /* Allocate the new space and copy the string in */
+        limit = need + 1;
+        name = kmalloc(limit, GFP_KERNEL);
+        if (!name) {
+                error = -ENOMEM;
+                goto done;
+        }
+        va_start(args, fmt);
+        need = vsnprintf(name, limit, fmt, args);
+        va_end(args);
+
+        /* something wrong with the string we copied? */
+        if (need >= limit) {
+                kfree(name);
+                error = -EFAULT;
+                goto done;
+        }
+
+        /* Free the old name, if necessary. */
+        kfree(kobj->k_name);
+
+        /* Now, set the new name */
+        kobj->k_name = name;
+done:
+        return error;
+}
+EXPORT_SYMBOL(kobject_set_name);
+
+
+struct kobj_map {
+        struct probe {
+                struct probe *next;
+                dev_t dev;
+                unsigned long range;
+                struct module *owner;
+                kobj_probe_t *get;
+                int (*lock)(dev_t, void *);
+                void *data;
+        } *probes[255];
+        struct mutex *lock;
+};
+
+int kobj_map(struct kobj_map *domain, dev_t dev, unsigned long range,
+             struct module *module, kobj_probe_t *probe,
+             int (*lock)(dev_t, void *), void *data)
+{
+        unsigned n = MAJOR(dev + range - 1) - MAJOR(dev) + 1;
+        unsigned index = MAJOR(dev);
+        unsigned i;
+        struct probe *p;
+
+        if (n > 255)
+                n = 255;
+
+        p = kmalloc(sizeof(struct probe) * n, GFP_KERNEL);
+
+        if (p == NULL)
+                return -ENOMEM;
+
+        for (i = 0; i < n; i++, p++) {
+                p->owner = module;
+                p->get = probe;
+                p->lock = lock;
+                p->dev = dev;
+                p->range = range;
+                p->data = data;
+        }
+        mutex_lock(domain->lock);
+        for (i = 0, p -= n; i < n; i++, p++, index++) {
+                struct probe **s = &domain->probes[index % 255];
+                while (*s && (*s)->range < range)
+                        s = &(*s)->next;
+                p->next = *s;
+                *s = p;
+        }
+        mutex_unlock(domain->lock);
+        return 0;
+}
+
+
+static struct kobject *exact_match(dev_t dev, int *part, void *data)
+{
+        struct cdev *p = data;
+        return &p->kobj;
+}
+                
+static int exact_lock(dev_t dev, void *data)
+{       
+        struct cdev *p = data;
+        return cdev_get(p) ? 0 : -1;
+}
+typedef struct kobject *kobj_probe_t(dev_t, int *, void *);
+
+
+
+
+

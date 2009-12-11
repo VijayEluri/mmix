@@ -1,0 +1,7 @@
+To test the instruction implementation, 100% coverage is impossible because of
+combinational explosion. My idea is to use random number to generate random case
+to test it.
+
+For most instruciton, I already implemented it. Now majoy piece left is the 
+Floating point instruciton, I plan to just port it from C to Java. If time permitted
+I will also try to use java library, such as BigInteger to reimplement it.

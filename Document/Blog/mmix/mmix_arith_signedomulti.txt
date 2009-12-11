@@ -1,0 +1,26 @@
+@ Signed multiplication has the same lower half product as unsigned
+multiplication. The signed upper half product is obtained with at most two
+further subtractions, after which the result has overflowed if and only if
+the upper half is unequal to 64 copies of the sign bit in the lower half.
+
+octa signed_omult @,@,@[ARGS((octa,octa))@];@+@t}\6{@>
+octa signed_omult(y,z)
+  octa y,z;
+{
+  octa acc;
+  acc=omult(y,z);
+  if (y.h&sign_bit) aux=ominus(aux,z);
+  if (z.h&sign_bit) aux=ominus(aux,y);
+  overflow=(aux.h!=aux.l || (aux.h^(aux.h>>1)^(acc.h&sign_bit)));
+  return acc;
+}
+
+Notes:
+case 1: y >= 0 and z >= 0; simple!
+case 2: y > 0 and z < 0;
+we treat z as unsigned integer and get the result yz;
+but z actually represent opposite value of power(2,m) - z
+the correct value should be opposite value of (power(2,m) - z) * y.
+which is (power(2,m)*y - y*z) 
+the correct pattern to represent this value is power(2,2m)-(power(2,m)*y - y*z)
+it is power(2,m)((power(2,m)-y) + y*z

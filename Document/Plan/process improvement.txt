@@ -1,0 +1,22 @@
+1. UT/IT is done by developer in implementation phase.
+a. Author can not be reviewer and UTer, ITer. that means usually
+there are at least three developers who know the detail of a task.
+(Good way to ensure the knowledge sharing.)
+
+b. Track the process with the execution log.
+c. Tester also get involved when they choose the cases for Integration test.
+
+Need to convert Developer's attitude. Through testing.
+
+currently, only tester themself can not ensure the quality.
+Developer have to do UT/IT to ensure we have enough resource on testing.
+(In current model, only test can ensure the quality)
+
+2. To reveal the capability of the group.
+
+we have enhanced code review, it can majorly to prevent silly mistake,
+but can not contribute too much on detecting UI/Functional defects.
+ 
+3. how about QA review/Release and Test Leader review.
+
+4. 

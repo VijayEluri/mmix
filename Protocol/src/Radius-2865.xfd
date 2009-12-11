@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fdl:document xmlns:fdl="http://ov.hp.com/ium/namespace/fdl"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://ov.hp.com/ium/namespace/fdl fdl.xsd "
+	import="Radius-Attribute.xfd">
+	<root name="RadiusMsg" type="RadiusType" snmeNamespace="Radius" />
+
+	<!--  Radius message -->
+	<sequence name="RadiusType" endOfRecord="true">
+		<raw size="length" />
+		<field name="code" type="Octet_1" />
+		<field name="identifier" type="Octet_1" />
+		<field name="length" type="Octet_2" />
+		<field name="authenticator" type="String_16" />
+		<field name="body" type="BodyType" />
+	</sequence>
+
+	<!-- Radius body -->
+	<set name="BodyType">
+
+		<raw />
+
+		<field name="userName" type="User_Name_Type" />
+		<field name="userPassword" type="User_Password_Type" />
+		<field name="chapPassword" type="Chap_Password_Type" />
+		<field name="nasIpAddress" type="Nas_Ip_Address_Type" />
+		<field name="nasPort" type="Nas_Port_Type" />
+		<field name="serviceType" type="Service_Type_Type" />
+		<field name="framedProtocol" type="Framed_Protocol_Type" />
+		<field name="framedIpAddress" type="Framed_Ip_Address_Type" />
+		<field name="framedIpNetmask" type="Framed_Ip_Netmask_Type" />		
+		<field name="framedRouting" type="Framed_Routing_Type" />
+		<field name="filterId" type="Filter_Id_Type" />
+		<field name="framedMtu" type="Framed_MTU_Type" />
+		<field name="framedCompression" type="Framed_Compression_Type" />
+		<field name="loginIpHost" type="Login_IP_Host_Type" />
+		<field name="loginService" type="Login_Service_Type" />
+		<field name="loginTcpPort" type="Login_TCP_Port_Type" />
+		
+		<field name="replyMessage" type="Reply_Message_Array_Type" />
+		
+		<field name="callbackNumber" type="Callback_Number_Type" />
+		<field name="callbackId" type="Callback_Id_Type" />
+		<field name="framedRoute" type="Framed_Route_Type" />
+		<field name="framedIPXNetwork" type="Framed_IPX_Network_Type" />
+		<field name="state" type="State_Type" />
+		<field name="class" type="Class_Type" />
+		
+		<field name="vendorSpecific" type="Vendor_Specific_Array_Type" />
+		
+		<field name="sessionTimeout" type="Session_Timeout_Type" />
+		<field name="idleTimeout" type="Idle_Timeout_Type" />
+		<field name="terminationAction" type="Termination_Action_Type" />
+		<field name="calledStationId" type="Called_Station_Id_Type" />
+		<field name="callingStationId" type="Calling_Station_Id_Type" />
+		<field name="nasIdentifier" type="NAS_Identifier_Type" />
+		
+		<field name="proxyState" type="Proxy_State_Array_Type" />
+		
+		<field name="loginLATService" type="Login_LAT_Service_Type" />
+		<field name="loginLATNode" type="Login_LAT_Node_Type" />
+		<field name="loginLATGroup" type="Login_LAT_Group_Type" />
+		<field name="framedAppleTalkLink" type="Framed_AppleTalk_Link_Type" />
+		<field name="framedAppleTalkNetwork" type="Framed_AppleTalk_Network_Type" />
+		<field name="framedAppleTalkZone" type="Framed_AppleTalk_Zone_Type" />
+		<field name="chapChallenge" type="CHAP_Challenge_Type" />
+		<field name="nasPortType" type="NAS_Port_Type_Type" />
+		<field name="portLimit" type="Port_Limit_Type" />
+		<field name="loginLATPort" type="Login_LAT_Port_Type" />
+
+
+		
+	</set>
+
+	<string name="User_Name_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="1" />
+		</tlv>
+	</string>
+
+	<string name="User_Password_Type">
+		<tlv type="Attribute">
+			<field name="attr_type" value="2" />
+		</tlv>
+	</string>
+	
+	<sequence name="Chap_Password_Type">
+		<tlv type="Attribute">
+			<field name="attr_type" value="3" />
+		</tlv>
+		<field name="chapIdent" type="Octet_1" />		
+		<field name="chapResponse" type="String_Chap_Response" />
+	</sequence>
+	
+	<string name="String_Chap_Response" charset="UTF-8">
+		<raw />
+	</string>
+
+
+	<integer name="Nas_Ip_Address_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="4" />
+		</tlv>
+	</integer>
+	
+	<integer name="Nas_Port_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="5" />
+		</tlv>
+	</integer>
+		
+	<integer name="Service_Type_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="6" />
+		</tlv>
+	</integer>
+	
+	 
+  <integer name="Framed_Protocol_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="7" />
+		</tlv>
+	</integer>
+	
+	
+	<integer name="Framed_Ip_Address_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="8" />
+		</tlv>
+	</integer>
+
+	<integer name="Framed_Ip_Netmask_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="9" />
+		</tlv>
+	</integer>	
+	
+	<integer name="Framed_Routing_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="10" />
+		</tlv>
+	</integer>	
+		
+	<string name="Filter_Id_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="11" />
+		</tlv>
+	</string>		
+		
+	<integer name="Framed_MTU_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="12" />
+		</tlv>
+	</integer>	
+	
+	<integer name="Framed_Compression_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="13" />
+		</tlv>
+	</integer>	
+	
+	<integer name="Login_IP_Host_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="14" />
+		</tlv>
+	</integer>	
+	
+	<integer name="Login_Service_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="15" />
+		</tlv>
+	</integer>	
+	
+	<integer name="Login_TCP_Port_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="16" />
+		</tlv>
+	</integer>	
+		
+	<!-- 5.18.  Reply-Message * string -->
+	<array name="Reply_Message_Array_Type"
+		field="Reply_Message_Type">
+		<raw />
+	</array>
+	
+	<string name="Reply_Message_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="18" />
+		</tlv>		
+	</string>
+	
+	<string name="Callback_Number_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="19" />
+		</tlv>
+	</string>		
+	
+	<string name="Callback_Id_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="20" />
+		</tlv>
+	</string>		
+	
+	<string name="Framed_Route_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="22" />
+		</tlv>
+	</string>		
+			
+	<integer name="Framed_IPX_Network_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="23" />
+		</tlv>
+	</integer>	
+	
+	<string name="State_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="24" />
+		</tlv>
+	</string>		
+	
+	<string name="Class_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="25" />
+		</tlv>
+	</string>		
+		
+	<array name="Vendor_Specific_Array_Type"
+		field="Vendor_Specific_Type">
+		<raw />
+	</array>
+	
+	<sequence name="Vendor_Specific_Type">
+		<tlv type="Attribute">
+			<field name="attr_type" value="26" />
+		</tlv>
+		<field name="vendorID" type="Octet_4" />
+		<field name="vendorAttributeArray"
+			type="Vendor_Attribute_Array_Type" />
+	</sequence>
+
+	<array name="Vendor_Attribute_Array_Type"
+		field="Vendor_Attribute_Type">
+		<raw />
+	</array>
+
+	<sequence name="Vendor_Attribute_Type">
+		<raw size="vendorLength" />
+		<field name="vendorType" type="Octet_1" />
+		<field name="vendorLength" type="Octet_1" />
+		<field name="vendorValue" type="String_Vendor" />
+	</sequence>
+
+	<string name="String_Vendor">
+		<raw />
+	</string>
+
+	<integer name="Session_Timeout_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="27" />
+		</tlv>
+	</integer>	
+	
+	<integer name="Idle_Timeout_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="28" />
+		</tlv>
+	</integer>	
+	
+	<integer name="Termination_Action_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="29" />
+		</tlv>
+	</integer>	
+			
+	<string name="Called_Station_Id_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="30" />
+		</tlv>
+	</string>		
+	
+	<string name="Calling_Station_Id_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="31" />
+		</tlv>
+	</string>		
+	
+	<string name="NAS_Identifier_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="32" />
+		</tlv>
+	</string>		
+				
+	<!--		5.33.  Proxy-State *string -->
+	<array name="Proxy_State_Array_Type"
+		field="Proxy_State_Type">
+		<raw />
+	</array>	
+	<string name="Proxy_State_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="33" />
+		</tlv>		
+	</string>			
+			
+	<string name="Login_LAT_Service_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="34" />
+		</tlv>
+	</string>		
+	
+	<string name="Login_LAT_Node_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="35" />
+		</tlv>
+	</string>		
+	
+	<string name="Login_LAT_Group_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="36" />
+		</tlv>
+	</string>		
+							
+	<integer name="Framed_AppleTalk_Link_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="37" />
+		</tlv>
+	</integer>	
+	
+	<integer name="Framed_AppleTalk_Network_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="38" />
+		</tlv>
+	</integer>				
+				
+	<string name="Framed_AppleTalk_Zone_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="39" />
+		</tlv>
+	</string>		
+			
+	<string name="CHAP_Challenge_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="60" />
+		</tlv>
+	</string>		
+	
+	<integer name="NAS_Port_Type_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="61" />
+		</tlv>
+	</integer>				
+	
+	<integer name="Port_Limit_Type">
+		<tlv type="Attribute" size="4">
+			<field name="attr_type" value="62" />
+		</tlv>
+	</integer>				
+	
+	<string name="Login_LAT_Port_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="63" />
+		</tlv>
+	</string>		
+			
+
+	<integer name="Bits_1">
+		<raw size="1" sizeUnits="bits" signed="false" />
+	</integer>
+	<integer name="Bits_2">
+		<raw size="2" sizeUnits="bits" signed="false" />
+	</integer>
+	<integer name="Bits_3">
+		<raw size="3" sizeUnits="bits" signed="false" />
+	</integer>
+	<integer name="Bits_6">
+		<raw size="4" sizeUnits="bits" signed="false" />
+	</integer>
+	<integer name="Octet_1">
+		<raw size="1" signed="false" />
+	</integer>
+	<integer name="Octet_2">
+		<raw size="2" signed="false" />
+	</integer>
+	<integer name="Octet_3">
+		<raw size="3" signed="false" />
+	</integer>
+	<integer name="Octet_4">
+		<raw size="4" signed="false" />
+	</integer>
+	<string name="String_2">
+		<raw size="2" />
+	</string>
+	<string name="String_4">
+		<raw size="4" />
+	</string>
+	<string name="String_6">
+		<raw size="6" />
+	</string>
+	<string name="String_8">
+		<raw size="8" />
+	</string>
+	<string name="String_16">
+		<raw size="16" />
+	</string>
+
+</fdl:document>

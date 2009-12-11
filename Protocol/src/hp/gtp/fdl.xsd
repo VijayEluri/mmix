@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://ov.hp.com/ium/namespace/fdl"
+	targetNamespace="http://ov.hp.com/ium/namespace/fdl">
+	<xs:element name="document">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="root" type="RootType" minOccurs="0" />
+				<xs:choice maxOccurs="unbounded">
+					<xs:element name="integer" type="IntegerType" />
+					<xs:element name="string" type="StringType" />
+					<xs:element name="sequence" type="SequenceType">
+						<xs:unique name="sequenceUniqueness">
+							<xs:selector xpath="./field" />
+							<xs:field xpath="@name" />
+						</xs:unique>
+					</xs:element>
+					<xs:element name="choice" type="ChoiceType">
+						<xs:unique name="choiceUniqueness">
+							<xs:selector xpath="./field" />
+							<xs:field xpath="@name" />
+						</xs:unique>
+					</xs:element>
+					<xs:element name="array" type="ArrayType" />
+					<xs:element name="set" type="SetType">
+						<xs:unique name="setUniqueness">
+							<xs:selector xpath="./field" />
+							<xs:field xpath="@name" />
+						</xs:unique>
+					</xs:element>
+					<xs:element name="long" type="LongType"></xs:element>
+					<xs:element name="tlv" type="TLVType"></xs:element>
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="import" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>a document can import another document to get
+						its type definition, but they can have only one Root element
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+		<xs:unique name="typeUniqueness">
+			<xs:selector xpath="./*" />
+			<xs:field xpath="@name" />
+		</xs:unique>
+	</xs:element>
+	<xs:complexType name="NamedType">
+		<xs:attribute name="name" type="xs:string" use="required">
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="TypedType">
+		<xs:complexContent>
+			<xs:extension base="NamedType">
+				<xs:attribute name="type" type="xs:string" use="optional">
+					<xs:annotation>
+						<xs:documentation>Name of a data type defined in this
+							document.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RootType">
+		<xs:complexContent>
+			<xs:extension base="TypedType">
+				<xs:attribute name="snmeNamespace" type="xs:string"
+					use="required">
+					<xs:annotation>
+						<xs:documentation>SNME Namespace that will be mapped to data
+							types in this document.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="FieldType">
+		<xs:complexContent>
+			<xs:extension base="TypedType">
+				<xs:sequence>
+					<xs:choice minOccurs="0">
+						<xs:element name="raw" type="RawFieldType" />
+						<xs:element name="ber" type="BERTagType" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>
+									List of tags that will select this
+									field.
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:choice>
+				</xs:sequence>
+				<xs:attribute name="value" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>
+							Field with value means it is a meta data.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="usage">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="required"></xs:enumeration>
+							<xs:enumeration value="optional"></xs:enumeration>
+							<xs:enumeration value="prohibited"></xs:enumeration>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RawFieldType">
+		<xs:complexContent>
+			<xs:extension base="OptionalCondition">
+				<xs:attribute name="availableIfConditionSucceeds" type="xs:boolean"
+					default="true">
+					<xs:annotation>
+						<xs:documentation>Specifies when this field will be
+							optional.
+							This field will be visible if the condition is true.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="OptionalCondition">
+		<xs:choice minOccurs="0">
+			<xs:element name="and" type="LogicalCondition" />
+			<xs:element name="or" type="LogicalCondition" />
+		</xs:choice>
+		<xs:attribute name="reference" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>
+					Name of field whose value should be checked.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="value" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>
+					Value to which the reference field will be checked
+					for the condition to succeed.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="selectif" type="xs:string">
+			<xs:annotation>
+				<xs:documentation></xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="LogicalCondition">
+		<xs:sequence>
+			<xs:element name="left" type="OptionalCondition" />
+			<xs:element name="right" type="OptionalCondition" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BERTagType">
+		<xs:attribute name="tagNumber" type="xs:integer" />
+		<xs:attribute name="tagClass" default="context">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="universal" />
+					<xs:enumeration value="application" />
+					<xs:enumeration value="context" />
+					<xs:enumeration value="private" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="IntegerType">
+		<xs:complexContent>
+			<xs:extension base="TypeType">
+				<xs:choice>
+					<xs:element name="raw" type="RawIntegerType" />
+					<xs:element name="ber" type="BERIntegerType" />
+					<xs:element name="tlv" type="TLVMetaDataType"></xs:element>
+				</xs:choice>
+				<xs:attribute name="default" type="xs:integer" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RawIntegerType">
+		<xs:complexContent>
+			<xs:extension base="RawType">
+				<xs:attribute name="bigendian" type="xs:boolean"
+					default="true" />
+				<xs:attribute name="signed" type="xs:boolean" default="true" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="BERIntegerType">
+		<xs:complexContent>
+			<xs:extension base="BERType">
+				<xs:attribute name="signed" type="xs:boolean" default="true" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="StringType">
+		<xs:complexContent>
+			<xs:extension base="TypeType">
+				<xs:choice>
+					<xs:element name="raw" type="RawStringType" />
+					<xs:element name="ber" type="BERStringType" />
+					<xs:element name="tlv" type="TLVMetaDataType"></xs:element>
+				</xs:choice>
+				<xs:attribute name="default" type="xs:string" />
+				<xs:attribute name="charset" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>
+							The encoding of the underlying data.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RawStringType">
+		<xs:complexContent>
+			<xs:extension base="RawType">
+				<xs:attribute name="paddingChar" type="xs:integer"
+					default="255">
+					<xs:annotation>
+						<xs:documentation>The padding octet. Should be within 0 - 255.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="rightPadding" type="xs:boolean"
+					default="true">
+					<xs:annotation>
+						<xs:documentation>The alignment of the padding characters.
+							True
+							means padding characters appear to the right of the data.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="BERStringType">
+		<xs:complexContent>
+			<xs:extension base="BERType">
+				<xs:attribute name="paddingChar" type="xs:integer"
+					default="255">
+					<xs:annotation>
+						<xs:documentation>The padding octet. Should be within 0 - 255.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="rightPadding" type="xs:boolean"
+					default="true">
+					<xs:annotation>
+						<xs:documentation>The alignment of the padding characters.
+							True
+							means padding characters appear to the right of the data.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ConstructedType">
+		<xs:complexContent>
+			<xs:extension base="TypeType">
+				<xs:attribute name="endOfRecord" type="xs:boolean"
+					default="false">
+					<xs:annotation>
+						<xs:documentation>
+							Specifies whether an NME should be generated
+							after processing all the fields under this
+							type.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="TaggedType">
+		<xs:complexContent>
+			<xs:extension base="ConstructedType">
+				<xs:attribute name="default" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Unimplemented yet.
+							The tag to behave
+							like when an unknown tag is encountered.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="unknownTag" default="fail">
+					<xs:annotation>
+						<xs:documentation>Unimplemented yet. Behavior when an
+							unknown tag is encountered.
+							Fail with an error, skip that field or
+							behave like the tag specified
+							in default.</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="fail" />
+							<xs:enumeration value="skip" />
+							<xs:enumeration value="default" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="SequenceType">
+		<xs:complexContent>
+			<xs:extension base="ConstructedType">
+				<xs:sequence>
+					<xs:choice>
+						<xs:element name="raw" type="RawType" />
+						<xs:element name="ber" type="BERType" />
+						<xs:element name="tlv" type="TLVMetaDataType">
+						</xs:element>
+					</xs:choice>
+					<xs:element name="field" type="FieldType" maxOccurs="unbounded" />
+				</xs:sequence>
+				<xs:attribute name="riseup" type="xs:boolean"></xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="SetType">
+		<xs:complexContent>
+			<xs:extension base="TaggedType">
+				<xs:sequence>
+					<xs:choice>
+						<xs:element name="raw" type="RawType" />
+						<xs:element name="ber" type="BERType" />
+						<xs:element name="tlv" type="TLVMetaDataType">
+						</xs:element>
+					</xs:choice>
+					<xs:element name="field" type="FieldType" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ChoiceType">
+		<xs:complexContent>
+			<xs:extension base="TaggedType">
+				<xs:sequence>
+					<xs:element name="raw" type="RawType" minOccurs="0" />
+					<xs:element name="tlv" type="TLVMetaDataType" maxOccurs="1"
+						minOccurs="0"></xs:element>
+					<xs:element name="field" type="FieldType" minOccurs="2"
+						maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ArrayType">
+		<xs:complexContent>
+			<xs:extension base="ConstructedType">
+				<xs:sequence>
+					<xs:choice>
+						<xs:element name="raw" type="RawType" />
+						<xs:element name="ber" type="BERType" />
+						<xs:element name="tlv" type="TLVMetaDataType">
+						</xs:element>
+					</xs:choice>
+				</xs:sequence>
+				<xs:attribute name="field" type="xs:string" use="required">
+					<xs:annotation>
+						<xs:documentation>Name of a data type in this document which
+							will be items of this array.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!--Raw binary format artifacts-->
+	<xs:complexType name="RawType">
+		<xs:attribute name="size" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Size of this data type. Could be a static
+					integer or
+					the name of a field that will contain the size at
+					runtime.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="sizeUnits" default="bytes">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="bytes" />
+					<xs:enumeration value="bits" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="BERType">
+		<xs:sequence>
+			<xs:element name="tag" type="BERTagType" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>List of tags for this data type.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="indefiniteLength" type="xs:boolean"
+			default="false" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeType">
+		<xs:complexContent>
+			<xs:extension base="NamedType">
+				<xs:attribute name="extends" type="xs:string"></xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+
+	<xs:complexType name="TLVType">
+		<xs:complexContent>
+			<xs:extension base="NamedType">
+				<xs:sequence maxOccurs="unbounded" minOccurs="1">
+					<xs:element name="field" type="TLVFieldType"></xs:element>
+				</xs:sequence>
+				<xs:attribute name="tag" type="xs:string" use="required">
+				</xs:attribute>
+				<xs:attribute name="length" type="xs:string" use="required">
+				</xs:attribute>
+				<xs:attribute name="startLength" type="xs:string"></xs:attribute>
+				<xs:attribute name="padding" type="xs:int"></xs:attribute>
+				<xs:attribute name="class" type="xs:string"></xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="TLVFieldType">
+		<xs:complexContent>
+			<xs:extension base="NamedType">
+				<xs:sequence maxOccurs="1" minOccurs="0">
+					<xs:element name="raw" type="RawFieldType" maxOccurs="1"
+						minOccurs="0"></xs:element>
+				</xs:sequence>
+				<xs:attribute name="size" type="xs:int" use="required">
+				</xs:attribute>
+				<xs:attribute name="sizeUnits" default="bytes">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="bytes"></xs:enumeration>
+							<xs:enumeration value="bits"></xs:enumeration>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="TLVMetaDataType">
+		<xs:sequence maxOccurs="unbounded" minOccurs="1">
+			<xs:element name="field" type="TLVMetaDataFieldType"></xs:element>
+		</xs:sequence>
+		<xs:attribute name="type" type="xs:string" use="required"></xs:attribute>
+
+		<xs:attribute name="size" type="xs:int"></xs:attribute>
+		<xs:attribute name="sizeUnits" default="bytes">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="bytes"></xs:enumeration>
+					<xs:enumeration value="bits"></xs:enumeration>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="TLVMetaDataFieldType">
+		<xs:complexContent>
+			<xs:extension base="NamedType">
+				<xs:attribute name="value" type="xs:string"></xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="LongType">
+		<xs:complexContent>
+			<xs:extension base="TypedType">
+				<xs:choice>
+					<xs:element name="raw" type="RawIntegerType"></xs:element>
+					<xs:element name="tlv" type="TLVMetaDataType"></xs:element>
+				</xs:choice>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

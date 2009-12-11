@@ -1,0 +1,77 @@
+ The analysis of MOR(MXOR) instruction implementation in MMIXWare
+ 
+ -- Stupid way to understand the source code.
+ 
+ in file: mmix-arith.w
+ 436 octa bool_mult(y,z,xor)
+ 437   octa y,z; /* the operands */
+ 438   bool xor; /* do we do xor instead of or? */
+ 439 {
+ 440   octa o,x;
+ 441   register tetra a,b,c;
+ 442   register int k;
+ 443   for (k=0,o=y,x=zero_octa;o.h||o.l;k++,o=shift_right(o,8,1))
+ 444     if (o.l&0xff) {
+ 445       a=((z.h>>k)&0x01010101)*0xff;
+ 446       b=((z.l>>k)&0x01010101)*0xff;
+ 447       c=(o.l&0xff)*0x01010101;
+ 448       if (xor) x.h^=a&c, x.l^=b&c;
+ 449       else x.h|=a&c, x.l|=b&c;
+ 450     }
+ 451   return x;
+ 452 }
+ 
+ It takes me several hours to understand the details. 
+ 
+ If we treat each octabyte as a matrix, each row corresponds to a byte, then 
+ y MOR z = z (matrix_mulitiply) y
+ 
+ For a=((z.h>>k)&0x01010101)*0xff;
+ (z.h>>k)&0x01010101 will get the four last bit in (z.h>>k). depends on the bit in last row,
+ ((z.h>>k)&0x01010101)*0xff will expand the bit (either 0 or 1) into the whole row.
+ e.g.
+ 			ff
+ * 	0x01010101	
+ ---------------
+ =   		ff
+ 		  ff
+ 		ff
+ 	  ff
+ ----------------
+ =    ffffffff 	  
+(depending on the last bit in each row of z, the result could be #ff00ff00. #ff0000ff, etc.)
+
+similarily, b=((z.l>>k)&0x01010101)*0xff; will expand the last bit in each byte into the 
+whole byte.
+
+over all, after these two step, the z becomes the replication of it's last row, since k vary
+from 0 to 7, it will loop on all the rows actually.
+
+
+ For c=(o.l&0xff)*0x01010101, it will get the last byte in o.l and populate it to other three byte.
+ since it will not only or/xor h but also l. it is not necessary populate it to o.h.
+ 
+ one example,
+ let (z.h>>k)&0x01010101 = 0x01000101, then a= 0xff00ffff;
+ let (z.l>>k)&0x01010101 = 0x01010001, then b= 0xffff00ff;
+ let (o.l&0xff)=0xuv, then c= 0xuvuvuvuv;
+  then a&c=0xuv00uvuv;
+ 	   b&c=0xuvuv00uv;
+ 	   
+ consider the elements [i,j] in result x.  in this round, what value was accumalated in by operation
+ or(xor).
+ it is the jth bit in last byte of o.l & ith bit in last column of z.(do not consider looping now.)
+ in this round, the 64 combination of i and j, contirbute the value to the 64 bits in z.
+ 
+ Noticed that o loop on y from last byte to first byte. There are 8 loop/rounds, in another round.
+ say kth round.
+ the elements[i,j] will accumuate the jth bit in last (k + 1)th row & the jth bit in last (k+1)th 
+ column.
+ that means the jth column in y multiply the ith row in z. it conform to the definiton for 
+ z matrix_multiply y.
+ 
+ 
+   	   
+ 	   
+ 	   
+ 

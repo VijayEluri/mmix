@@ -1,0 +1,8 @@
+exercise 6:
+True:
+if general distributive law is correct, then we set y=0, we got 
+0=f(0...).
+
+consider general distributive law is alwary correct when  y=1.
+so it is correct if and only if it is true when y=0. it means
+0 = f(0...) 

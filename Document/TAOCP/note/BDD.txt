@@ -1,0 +1,111 @@
+The idea to build the BDD for independent set and maximum independent set.
+
+build a node. boolean value is unknown. lable++
+
+level=1;
+Node root = new Node();
+root = level;
+
+root.left = makeChild(root, true, level+1);
+root.right = makeChild(root, false, level+1);
+
+(suppose n>3, the case is simple for n=1 and n=2;)
+
+Node makeChild(Node parent, boolean left, int level, boolean ll){
+    Node node = new Node();
+    Node node = new Node();
+    node.i = level;
+    if(level=numOfVar){
+        
+        node.i=level;
+        if(left){
+            //left
+            node.lo = trueNode;
+            //right
+            if(ll){
+                node.hi = trueNode;
+            }else{
+                node.hi = falseNode;
+            }
+        }else{//previous step is right
+             //left
+            node.lo = trueNode;
+            //right            
+            node.hi = falseNode;           
+        }
+        /**if(left){
+            parent.left=node;
+        }else{
+            parent.right=node;
+        }*/
+        return node;
+    }
+
+    if(left){        
+        node.lo = makeChild(node, true, level+1, ll);
+        node.hi = makeChild(node, false, level+1, ll);
+    }else{
+        node.hi=falseNode;
+        node.lo = makeChild(node, true, level+1, ll);
+    }
+
+    
+}
+
+Node left = new Node();
+
+
+build two child. label++
+isLeft()=true;
+isRight()=true;
+
+For the label=n node, also need to know from root,
+inLeft() or inRight()
+
+in recurssion.
+if inLeft(), 
+continue
+
+if inRight(),
+then the right of current node point to falseNode.
+fot the left part. continue.
+
+if(isLastLevel())
+extra check. any conflict with first boolean variable.
+
+for two children we get. if they both don't have value and 
+
+consider to reduce the BDD after we create it.
+from root.
+check whether two child are same.
+label value same
+left and right child are same.
+
+terminate point.
+1. two childer are either false or true node.
+compare and terminate 
+
+2. one child are false or true node.
+continue on next branch.
+then compare and return.
+
+maintain status of node, whether it have known value is important.
+isTerminator(){
+    if((lo==falseNode || lo == trueNode) && (hi==falseNode || hi == trueNode)){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+reduce(Node node){
+    Node left= node.lo;
+    Node right = node.hi;
+    if(node.isTerminator){
+    }
+}
+
+
+check with the case C_6 for each step.
+
+

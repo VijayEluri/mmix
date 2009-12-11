@@ -1,0 +1,53 @@
+There are not too much grammar. here is just the incomplete summary for the future reference.
+meta-character
+.								any character
+|								or
+()								grouping
+[]								character class
+[^]								negative character class
+
+Greedy Quantifier 
+?								optional
+*								any amount
++								at least one
+lazy quantifier
+??								
+*?
++?
+possessing quantifier
+?+
+*+
+++
+
+position related
+^								start ot the line
+\A								
+$								end of the line
+\Z
+\<								start of the word
+\>								end of the word
+\b								start or end of the word
+
+non-capturing group				(?:Expression)
+non-capturing atomic group		(?>Expression)
+positive lookahead				(?=Expression)
+negative lookahead				(?!Expression)
+positive lookbehind				(?<=Expression)
+negative lookbehind 			(?<!Expression)
+
+\Q start quoting
+\E end quoting
+
+mode modifier
+(?modifier)Expression(?-modifier)
+valid modifier 
+i			case insensitive match mode
+x 			free spacing 
+s			dot matches all match mode
+m			enhanced line-anchor match mode
+(?modifier:Expression)
+
+comments:
+(?#Comments)
+
+

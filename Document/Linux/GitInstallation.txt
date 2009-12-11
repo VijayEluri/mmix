@@ -1,0 +1,248 @@
+http://repo.or.cz/m/regproj.cgi
+eddie
+111111
+
+Initialized empty shared Git repository in /srv/git/eddie.git/
+
+Project eddie successfuly set up.
+
+The push URL for the project is git+ssh://repo.or.cz/srv/git/eddie.git.
+
+You can assign users now (use project name (without .git) as username, admin password as password)
+ - don't forget to assign yourself as a user as well if you want to push! Everyone who wants 
+ to push must register himself as a user first. (One user can have push access to multiple
+  projects and multiple users can have push access to one project.)
+
+Note that you cannot clone an empty repository since it contains no branches;
+ you need to make the first push from an existing repository.
+
+You may experience permission problems if you try to push right now. 
+If so, that should get fixed automagically in few minutes, please be patient.
+
+Enjoy yourself!
+
+
+ueddieu/{simple}
+nitialized empty shared Git repository in /srv/git/ueddieu.git/
+
+Project ueddieu successfuly set up.
+
+The push URL for the project is git+ssh://repo.or.cz/srv/git/ueddieu.git.
+
+You can assign users now (use project name (without .git) as username, admin password as password) - don't forget to assign yourself as a user as well if you want to push! Everyone who wants to push must register himself as a user first. (One user can have push access to multiple projects and multiple users can have push access to one project.)
+
+Note that you cannot clone an empty repository since it contains no branches; you need to make the first push from an existing repository.
+
+You may experience permission problems if you try to push right now. If so, that should get fixed automagically in few minutes, please be patient.
+
+Enjoy yourself!
+
+
+
+
+
+
+
+
+4/8/2008 9:25AM
+[oracle@ora10gapp1 linux-2.6]$ git branch -r
+  origin/HEAD
+  origin/master
+You have new mail in /var/spool/mail/oracle
+[oracle@ora10gapp1 linux-2.6]$ git branch -a
+  master
+* new
+  origin/HEAD
+  origin/master
+[oracle@ora10gapp1 linux-2.6]$ git branch -v
+  master d384e35 Makefile: Change typoed 'behavour' to 'behaviour'
+* new    02b3e4e Linux v2.6.13
+
+[oracle@ora10gapp2 gitsource]$git checkout v1.5.3.8
+Note: moving to "v1.5.3.8" which isn't a local branch
+If you want to create a new branch from this checkout, you may do so
+(now or later) by using -b with the checkout command again. Example:
+  git checkout -b <new_branch_name>
+HEAD is now at aadd4ef... GIT 1.5.3.8
+[oracle@ora10gapp2 gitsource]$git branch -v
+* (no branch) aadd4ef GIT 1.5.3.8
+  master      cfa5823 Merge git://192.168.2.99/home/oracle/eddie/man
+[oracle@ora10gapp2 gitsource]$
+
+[oracle@ora10gapp2 gitsource]$git checkout -b test 1.5.3.8
+git checkout: updating paths is incompatible with switching branches/forcing
+Did you intend to checkout '1.5.3.8' which can not be resolved as commit?
+[oracle@ora10gapp2 gitsource]$git checkout -b test v1.5.3.8
+Switched to a new branch "test"
+[oracle@ora10gapp2 gitsource]$git branch -v
+  master cfa5823 Merge git://192.168.2.99/home/oracle/eddie/man
+* test   aadd4ef GIT 1.5.3.8
+[oracle@ora10gapp2 gitsource]$git checkout master
+Switched to branch "master"
+[oracle@ora10gapp2 gitsource]$
+
+[oracle@ora10gapp1 linux-2.6]$ git branch -v
+  master d384e35 Makefile: Change typoed 'behavour' to 'behaviour'
+* new    d37fa4d commit
+[oracle@ora10gapp1 linux-2.6]$ git branch -d new
+error: Cannot delete the branch 'new' which you are currently on.
+[oracle@ora10gapp1 linux-2.6]$ git checkout master
+fatal: Untracked working tree file '.gitignore' would be overwritten by merge.
+[oracle@ora10gapp1 linux-2.6]$ git branch -v
+  master d384e35 Makefile: Change typoed 'behavour' to 'behaviour'
+* new    d37fa4d commit
+[oracle@ora10gapp1 linux-2.6]$ git checkout master
+fatal: Untracked working tree file '.gitignore' would be overwritten by merge.
+[oracle@ora10gapp1 linux-2.6]$ git checkout -f master
+Checking 16736 files out...
+ 100% (16736/16736) done
+Switched to branch "master"
+
+[oracle@ora10gapp1 linux-2.6]$ git checkout -b code_reading_2.6.24 v2.6.24
+Switched to a new branch "code_reading_2.6.24"
+[oracle@ora10gapp1 linux-2.6]$ git branch -v
+* code_reading_2.6.24 4991408 Linux 2.6.24
+  master              d384e35 Makefile: Change typoed 'behavour' to 'behaviour'
+  new                 d37fa4d commit  
+
+
+
+
+
+
+
+
+
+
+register on http://repo.or.cz/m/regproj.cgi
+
+Initialized empty shared Git repository in /srv/git/eddie.git/
+
+Project eddie successfuly set up.
+
+The push URL for the project is git+ssh://repo.or.cz/srv/git/eddie.git.
+
+You can assign users now (use project name (without .git) as username, admin password as password) - don't forget to assign yourself as a user as well if you want to push! Everyone who wants to push must register himself as a user first. (One user can have push access to multiple projects and multiple users can have push access to one project.)
+
+Note that you cannot clone an empty repository since it contains no branches; you need to make the first push from an existing repository.
+
+You may experience permission problems if you try to push right now. If so, that should get fixed automagically in few minutes, please be patient.
+
+Enjoy yourself!
+
+
+repo.or.cz,62.24.64.27 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAs7JJacVNc1wk/6RZqMHin5RwR/LdIcMGGeG6WG4Sl/wETY9KYUVd126Yb2MV7vBT/8dW0iE6u6+sRVM3Xn5MG9K2PvQ57SbIQ53FvR4qBCqYkSn5sKs2wt9GpXh2MFN5TuXth2d1BABSR2a1u461K8SKbhclPVeFCeligaI4lGc=
+
+URL
+http://repo.or.cz/m/editproj.cgi?name=eddie
+
+Description	exploit git
+
+Repository URL	git://repo.or.cz/srv/git/eddie.git
+
+Owner	eddie.wu@bleum.com
+
+Mirror URL	git://repo.or.cz/eddie.git
+
+	http://repo.or.cz/r/eddie.git
+
+Push URL	git+ssh://repo.or.cz/srv/git/eddie.git
+
+ssh -l eddie repo.or.cz
+
+ssh-keygen
+
+ssh-keygen �Cd
+[oracle@ora10gapp1 test-project]$ ssh-keygen -d
+Generating public/private dsa key pair.
+Enter file in which to save the key (/home/oracle/.ssh/id_dsa):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/oracle/.ssh/id_dsa.
+Your public key has been saved in /home/oracle/.ssh/id_dsa.pub.
+The key fingerprint is:
+39:f9:e7:8b:78:c6:06:fb:e8:4e:5f:05:0e:74:67:f6 oracle@ora10gapp1.cn.bleum.com
+
+c7HW0M9hE309n82beP8p3/zUBaKVyh5Hlfs2/QT9o/wKH4ROPBdA4cluCGdp21HRmAelBpFHJD5SEI+BF+DhZbT001ZP52Yq+of++ApLZLcJSBRrabjyK0AXvjNBoJwUhox6bN/LQ7p2fzfrm1X0uretDriFdJfIZuaNU8NDsCp4dIgFMVxSkJ62BJOs/iV5nf92bce/J5ly7OsnTBbsCkhsF5PIXjAPNHpSsf0eUvzQmxqt2Pae6oXGb4jVQx8x+HdWwxPKAhD5Cl7sZuR7NYu92cFu+Z8lgx8PAKrvJzD6W4dpDB338/s3BYP3g8IfM98cGu4FVt5OIlOdWmiuNmjxmrWiDZcVGa1kCLeflJXnJtrbvikBODeXIrkC2mLsxLRMis/f2Xhjj+Mub8l1ljo/cSbhdx9or2ooxIUi9+6bhMwiMpWKGqCC3MBz3iozpAROIp5YucwzQ1CUG7jLNuiBj+MIwlKfIv6YDqnIvwOUSreIjtkJD17yztUAdOkQ7ySROx+Vmu/cyqCX6EuKsUNZIU8m7VdW125eqfinDtQzYSL1MzQK3erX/iDCH/Em
+
+ssh-dss AAAAB3NzaC1kc3MAAACBALV/SqWm/TO8nP6TlsuvfSxMNzfqmPE0RHlL/gzxs7G91LZE86blpiG7X8MnjkO0e6pRELpPlicEj+IrnrRNNtDHFQHvwXmHyZuLsWtQxYArBDfJiTas8KA6c8eUBALIc4f40q1KBV19KqOhi/xm08n2AS45+NAFMyFpcCI9QXOVAAAAFQCOpNlGhgrxTPOgQfW1SPVWFc/qewAAAIBVMfx+ftgiA/obQsd5lSCe9c5ndkTAmPkaCES2U0vTnwllqXYz2LEFfp9rynTfB00SEP0s3Rq6BNa9ldOPyjfdrFR36vGCX3ZHrCMQYCviDshvw4DNxsO9fqd1aJLZHauL5srjj99sGNIJjFfc/KgRfZIX5+PWrOdnRAz4z8K0JAAAAIBDsooFsNZKAS4MTWbnFb2bTQ1p1BeMtRJB/4VAVLWcSYiqpV2UNfPRKVmUMguvkaILFdIp6ztF8r9X2HTzthNeaoKR7ta4JfrffBjwKpE59zmif92DarkiiIgiQQZWfmm3IuuKs6qLu84cq+f6ThnmYYU+GYLUzV3rqjhwTIYLmA== oracle@ora10gapp1.cn.bleum.com
+
+eddie2 on 99
+ssh-dss AAAAB3NzaC1kc3MAAACBANotZYSxHN1dH6bWr8N03HOJ/RqReGueM9qcT+ULWUf2AOREK1amt2/8SAwttnjy89dYw3DbjAv5WCsgPBfRGcBQiZE63/ga0Xc72c6zC51yyMZ64s6V6w3/3cjr3ASVqViu2Kn9J8YF5uLiFISdkcVdhL63SHPjp2mR8D8EJp3AAAAFQDnIAz4/ghX9118XFssEE4/Gc24cwAAAIBG/2tOCWhtG0RXDaYZcq5Hit1hW/zh3puA9cXn008wgQVlp5q85UUaSRvkAB7kwVVx4WOuOpui1xl/wI58KkCUnXVbevKqbt3lM6cFQJYKDGcIpmoVHdZLAvlpQsNhxq8H2qxK+pAxLI/UIZSt3sc1CzNYDVLE7iK4xioQ7zPkQAAAIBJSMEH0kNb4g8IQ2R+LVWCLsN+ke7cth7ZksycHnq+678WdidLUkaEyjXxQdZtg6NDRdWVNmK23DVbs26pcNwqCdQzUoVVT8P2lUlBMQCiC/b8nDmir6fUUu+daWdnn88Q/bL+3L+b7FrcnyKqaMnjRshPXJ+GHqk+ViH8o9B2Q== eddie2@ora10gapp1.cn.bleum.com
+[eddie2@ora10gapp1 eddie2]$
+
+
+
+
+http://repo.or.cz/m/editproj.cgi?name=ueddieu
+
+su ueddieu
+ssh repo.or.cz
+
+
+
+
+
+7/10/2008 10:33AM
+have a look at how people make a book.
+http://git2.kernel.org/git/?p=linux/kernel/git/gregkh/lkn.git
+git clone git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/lkn.git
+
+git clone git://repo.or.cz/eddie.git
+git clone git+ssh://repo.opo.or.cz/srv/git/eddie.git
+
+git-push  git+ssh://repo.or.cz/srv/git/ueddieu.git
+git-push --all git+ssh://repo.or.cz/srv/git/ueddieu.git
+
+
+
+create repo in /home/eddie/C with command
+git init
+git add .
+git commit -a -m " init commit"
+(ensure the repo is not too big)
+
+test to clone it to ueddieu home
+
+in order to work around user issue. I create user ueddieu in repo.or.cz with dsa public key.
+and chown to ueddieu:eddie.
+(it failed when I use sudo, but I succedd later when I use su first and execute chown later on.)
+
+
+
+sudo chown also failed, I try su and chown again.
+
+ueddieu@eddie-desktop:/home/eddie/workspace/C/APUE/src$ git-push --all git+ssh://repo.or.cz/srv/git/ueddieu.git -v
+Pushing to git+ssh://repo.or.cz/srv/git/ueddieu.git
+Counting objects: 10, done.
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (6/6), 451 bytes, done.
+Total 6 (delta 3), reused 0 (delta 0)
+To git+ssh://repo.or.cz/srv/git/ueddieu.git
+   a7d3e27..671c671  master -> master
+ueddieu@eddie-desktop:/home/eddie/workspace/C/APUE/src$ 
+
+
+It seems the Arrays.copyOfRange is new API in JDK 1.6. JDK 1.5 will report error when compiling.
+so try to download JDK 1.6 for Linux, first choice I make to down load rpm.bin for linux, 
+it does not work , so I tried again with another version.
+It is not so user friendly for LInux user.
+
+ubuntu is based on Debian. is not suitable to use rpm package.
+
+
+Hello,
+
+somebody asked for the password for project ueddieu to be reset. Since you are
+the project admin, you get to know the new password:
+
+   git+ssh://repo.or.cz/srv/git/ueddieu.git QBCc.hQZZ6.
+
+In case you didn't request the password to be reset, we apologize. Nevertheless,
+you have to use the reset password now (possibly to change it back).
+
+Quick-link to the edit project page:
+
+    http://repo.or.cz/m/editproj.cgi?name=ueddieu
+
+Have fun!

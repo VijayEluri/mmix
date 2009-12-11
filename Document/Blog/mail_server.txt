@@ -1,0 +1,15 @@
+Yesterday, we found that the application can not send mail successfully, I suspect it caused by that the mail server host name can not be resolved in the application server.
+
+execute the following command
+host <mail server host name>
+It 
+
+man host 
+It tell me to resort to /etc/resolv.conf 
+open it with 
+vi /etc/resolv.conf 
+nameserver <name server 1>
+nameserver <name server 2>
+update the config with correct DNS server IP.
+
+Everything is OK.

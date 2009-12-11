@@ -1,0 +1,392 @@
+\hsize=29pc
+\vsize=42pc
+\topglue 0.5in
+
+\def\userA{Honestor: }
+\def\userB{Alan: }
+\def\MO{Male Officer: }
+\def\FO{Female Officer: }
+
+\centerline{\bf Pass Security Check Learning Notes}
+\smallskip
+\centerline{4/22/2009 5:23PM}
+\bigskip
+
+\beginsection 0. Advertisement
+
+Business English Pod is turning 3, and to celebrate, we will give away a new iPhone to new lucky man.
+ all you have to do 
+is to sign up with premier member or renew existing membership before July $11^th$.  just head over to
+www.businessenglishpod.com 
+
+\beginsection 1. Background introduction
+    
+In recent years, getting throug the security check at the airport has become a chore. 
+In some cities, the whole process
+can takes 15-20 minutes or more, this includes standing in line, 
+sending you bag through X-ray machine, and walking through the mental detector, which detects or finds
+find any mental you might have hidden on your body. 
+Most security check thus require passengers to take metal items out of their pockets, and put tem on a tray (little flat
+container ) and send through the X-ray machine. In some countries, notably the U.S., 
+they even insist that passengers remove their coats and shoes. 
+
+And of course, not just airport that have high security, more and more tourist attraction are beefing up 
+(increasing) their security too.  So negotiating security check is a good skill to practice.
+
+In this episode, when Honestor and Alan are on the way home, they arrived at the airport late, 
+they are axcious for missing their filight. when the 
+dailogure begins, they checked in to get their boarding passes.  Now they need to go through the security.
+
+When you listen, try to answer the following quesiton.
+
+1. At the beginning of the dialogure, what does security officer ask the passengers to do?
+
+2. What problem does security find with Alan's bagage?
+
+3. Alan have to laeave a item behind at the security check, what is it?
+
+\beginsection 2. Scenario 1
+
+\noindent 
+
+\userA ``we are cutting kind of close.''
+
+\userB ``Don't worry, the line is short.''
+
+\MO ``Ok everyone, laptop ouf of your bags, put them on the tray.
+take you shoes off, coats off, any items in your pocker, please reomve them,
+ coins,  keys, nailfolds, put them on the tray. 
+
+\userA ``Security , sure it is tight,'' 
+
+\userB ``Good thing is I changes my socks.''
+
+\userA ``Damn, I always set off in metal detector.''
+
+\MO ``Please step through again, Sir. Keys, coins, any item in your pocket?''
+
+\userA ``I don't think so. Oh, wait, I got a gum here.''
+
+\MO ``Gum  wrapped in alluminium. That's probably it.''
+
+\userA ``I made it.''
+
+\userB ``Yeah, they should call it dummy detector instead of metal detector.''
+
+
+
+I alwasy set up in the metal detecton. that's probably 
+dummy detector instead of metal detector.
+put them on the tray
+ 
+
+\beginsection 3. Scenario 2
+\noindent
+\FO ``Excuse me, whose bag is this?''
+
+\userB ``That's mine, Officer.''
+
+\FO ``Could you pelase open it up for me?''
+
+\userB ``Sure.''
+
+\FO ``These toilet articles,  should be enclosed in a quarter sized, zip-lockeded bag.''
+
+\userB ``Oh, Sorry, I didn't know.''
+
+\FO ``Please be more carefull next time. And I am sorry, but this bottle of moisturizing motion is too large.''
+
+\userB ``Oh, Really.''
+
+\FO ``You are not allowed to take anything over 3 aunces.''
+
+\userB ``What should I do?''
+
+\FO ``You can return to departure hall or you just leave it here.''
+
+\userB ``I guess I'll just leave it here.''
+
+\userA  ``moisturizing motion''
+
+\userB ``Well, My skin get so dry in the airplane, anyways, what's it matter?''
+
+
+\beginsection 3. Exam the detail of scenario 1
+
+Alan and Honestor has made trought the security, but not without incident.
+Let's examine the detail how they handle the check, how does the dialogue start off.
+\medskip
+\userA ``we are cutting kind of close.''
+
+\userB ``Don't worry, the line is quite short.''
+\medskip
+``To cut it close'' means ``to be short on time''. Honestor is worried they might miss the flight.
+what are some other idiomatic expressions refer to be in a hurry.
+
+1. we are getting short of time, let is try to keep it up a notch .
+ 
+3. we are really presssed for time, try not to drag your feet.
+ 
+4. we made it with seconds to spare. 
+
+5. We arrive not a moment too soon.
+
+6. We made it just in the nick of the time.
+  
+7. Take you time, we got a edges.
+
+   ``to be short of time, is same as ``to be pressed for time'', both mean ``to be in a hurry.''
+   
+``let's kick it upa notch.'' the first to  making a big effort, in this context, it is same as 
+``try not to drag your feet'', they both mean ``try to hurry up.''
+   
+  `` to make it the seconds to spare '' is similar to ``to make it just in the nick of time''
+  
+both mean  to arrive not a moment too soon, mean to arrive when,  for examle,  a plane is leaving  or a movie is beginning. 
+  
+  ``take you time'' means ``don't hurry.'' is same as "we got aches",  In another words, we have plenty of time.
+
+  
+  
+what are actios the officer give the Honestor and Alan as they approach the check.
+ \medskip 
+  \MO ``Ok everyone, laptop ouf of your bags. put them on the tray.
+take you shoes off, coats off, any items in your pocker, please reomve them, coins, keys,nailfolds and put hem on the tray.''
+
+ 
+
+
+\userA ``security , sure it is tight, ''
+
+\userB ``good thing is I chagen my socks.''
+  \medskip
+\userA and \userB  have to take off their shoes, so when Honestor is glad he is wearing clean socks. said  Noe clean socks. when Alan said security is tight, he means it is strict.
+  
+ THE OFFICER WILL CHAECK PASSENGER STRICKLY. he is perhaps surprised do you get throught the security withoup problem.
+  
+ No, of course not, Honestor sets off in the metal detector.
+ \medskip 
+\userA ``Damn, I always set off in metal detector.''
+
+\MO ``Please step through again, Sir. Keys, coins, any item in your pocket?''
+
+\userA ``I don't think so. Oh, wait, I got a gum here.''
+
+\MO ``Gum  wrapped in alluminium. That's probably it.''
+  \medskip
+ Honestor almost forget him gum in his pocket, he is perhaps suprise such a small 
+ thing  can set off a detector, 
+ use such courtesy language can help you go throuth the security
+  quickly and smoothly.
+  
+ But when , Oh, use such courtesy language, let's look at the some phrases we can use
+when security officer asked to check again.
+
+ 1. Let me see, oops, I almost forget to take off my watch. 
+ 
+ 2. I am sorry, it's probably my (belk baco), let me take it off.
+ 
+ 3. Sorry about that, I must misses a couple of coins in my pocket. 
+  
+ 4. Silly me, I did not take off my keys. 
+ 
+ What happens next when Honestor step through the metal detector the second time. but Alan can 
+ not help teasing him. 
+ \medskip
+ \userB ``I made it.''
+
+\userA ``Yeah, they should call it dummy detector instead of metal detector.''
+ 
+ \MO ``''
+ \medskip
+ A dummy is slang for dummy person. Alan said the machine has detected Honextor's gum ,but rather
+  it is lack of brains.
+ 
+Now it's goint to be Alan's turn to track attention from secuity
+
+
+
+
+\beginsection 4. Exam the detail of scenario 2
+
+\noindent
+\FO ``Excuse me, whose bag is this?''
+
+\userB ``That's mine, Officer.''
+
+\medskip
+you should notice despite Alan's surprise. He address the officer politely and properly
+
+Listen again.
+
+\medskip
+\FO ``Could you pelase open it up for me?''
+
+\userB ``Sure.''
+
+\FO ``These toilet articles,  should be enclosed in a quarter sized, zip-lockeded bag.''
+
+\userB ``Oh, Sorry, I didn't know.''
+
+\medskip
+The security officer is instruct the Alan to mus b epalnce in a quarter-size, zip-locked bug. 
+which is small plastic bag,
+when security officer
+It is important to respond politely. Alan respond " sorrry, I don't know" is both politely and
+ honestly.
+
+1. Exexuse me, officer, can I just ask a few question?
+
+2. Officer, do we need to move our shoes as well?
+
+3. I am sorry, I have no idea about that.
+
+4. I forget that was in there, I am sorry.
+
+before they left throught the check, Alan has one more suprise to wait for him.
+\medskip
+\FO ``Please be more carefull next time. And I am sorry, but this bottle of moisturizing motion is too large.''
+
+\userB ``Oh, Really''
+
+\FO ``You are not allowed to take anything over 3 aunces. Sir.''
+
+\medskip
+
+For your reference, a fluid aunces is about 35 milli-litres, it is good to check each time you travel, the rules change.
+
+ currently allow 3 fluid aunces.
+
+listen again, how Alan response?
+\medskip
+\userB ``What should I do?''
+
+\FO ``You can return to departure hall or you just leave it here.''
+
+\userB ``I guess I'll just leave it here. ''
+\medskip
+If security officer inform you some .. can not pass security check, 
+do not hesitate to ask for options.
+anyting left behind the security  will usually be destroied.
+ often, however, where you maybe politly ask you options.
+ check into as bagges
+ there, you are able to checked in as a gagger.
+ 
+ 
+ Let's practice polity language to ask for options. 
+ 
+ 1. What are my options.?
+ 
+ 2. what would you advise doing?
+ 
+ 3. Is there any other option?
+ 
+ 4. If I take it back to the departrure hall, can I go to the head of the line when I come back?
+ 
+
+ 
+ The last phrase may be particularly useful, when you are hurry to catch a plane, many security check will allow 
+ you 
+ they will not ask you to stand in the line again. may be you have to take some item back to the departure hall.
+ 
+ How does the dialogure finish?
+ \medskip
+ \userA  ``moisturizing motion, now ''
+
+\userB ``Wow, My skin get so dry in the airplane, anyways, what's it matter?''
+ \medskip
+ My skin get so dry in airplane, ( make fun of Alan), since Alan have been just teasing him.
+ 
+
+\beginsection 5. Idioms question and answer.
+
+ Now let's try to practice what we've learned. First we will review some time idioms, you 
+ will hear a series of sentences, in each sentence,
+ one word is blanked our with the beep, repeat the sentence and say the missing words.
+ 
+ For example, if you hear:
+ 
+ ``were  (beep) it kind of close ''
+ 
+ You can say: ``were cutting it kind of close.''
+ 
+ The correct answer will follow each quesiton, let's give it a try. 
+ 
+ 1. we are getting ($\ldots$) of time.
+ 
+ 1. Answer: we are getting (short) of time.
+ 
+ 2. Let's try to kick it up. ($\ldots$)
+ 
+ 2. Let's try to kick it up. (nontch?)
+ 
+ 3. We are really ($\ldots$) for time.
+ 
+ 3. We are really (pressed) for time.
+ 
+ 4. Try not to ($\ldots$) your feet.
+ 
+ 4. Try not to (drag) your feet.
+ 
+ 5. We make it with ($\ldots$) to spare.
+ 
+ 5. We make it with (seconds) to spare.
+ 
+ 6. We make it just in the ($\ldots$)  of time.
+ 
+ 6. Answer: We make it just in the (nick)  of time.
+ 
+ 7. we arrive not a ($\ldots$) too soon.
+ 
+ 7. Answer: we arrive not a (moment) too soon.
+
+ 8. Take you time, we got ($\ldots$).
+ 
+ 8. Answer: Take you time, we got aches.
+
+\medskip
+Now let's practice reponding to a security officer.
+You will hear security office ask you questions, after each beap, respond politly and properly.
+
+Question:
+
+1. "Excuse me, man, is this your bag,"
+
+2. " Could you please open it?" 
+
+3. "I am sorry, but you are not allowed to bring any toilet article over 3 aunces."
+
+4. "I'am afraid you have to leave it here"
+
+How did you do? listen to some example answers.
+
+1. "Excuse me, man, is this your bag?"
+
+1.  "yes, Officer."
+
+2. "Could you please open it?"
+
+2. "Certainly, no problem."
+
+3. "I am sorry, but you are not allowed to bring any toilet article over 3 fluid aunces.
+
+3.  "oops, I forgot that was in there."
+
+4. "I'am afraid you have to leave it here."
+
+4. "Is there any other option?" 
+
+That's all for this episode on ariport security checks.
+We study time idiom and responding politely and properly to security officers, 
+including asking for options and checking again.
+
+For more practice, podcast script, complete vocabulary definitions, head over to the website (www.businessenglishpod.com).
+
+Thanks for listening , and see you next time.
+
+\beginsection End Advertisement.
+
+Want to get more out of Business English Pod, go to www.businessenglishpod.com and sign up with a premium member. Premium member 
+can access detail study notes and new phrase cast to practice all the useful language new features today. 
+
+\bye

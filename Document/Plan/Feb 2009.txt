@@ -1,0 +1,35 @@
+\def\OS{Operating System}
+2008 Feb. 19
+Personal objective:
+a. Important and long-term---on regular basis 
+0. Enjoy the journey and coach my son on self-study capability.
+	lookup word in dictionary---ongoing
+	3/13/2009 2:21PM doing bad
+1. Improve English(especially fluency and pronunciation)
+	listen to yappr -- ongoing
+	3/13/2009 2:21PM doing bad
+2. Exercise physically to keep healthy.
+	more than 30 push up yesterday¡£
+	3/13/2009 2:21PM doing bad
+	
+b. Short term
+1. Algorithm - Fascicle 0 - 4. 
+    f0b - hard!
+
+2. \OS Kernel - Linux -- already pending for a long time 
+.
+.
+.
+MMIX	:Pending on Floating point Instruction.
+CWEB	:Read the manual, but did not start to use it writting any program.
+SGB		:Interesting, but also hard to understand, because it is about graph algorithm.
+
+Team Objective: (it is keeping changing according to Theory Of Constraint)
+1. Full Productivity on Ajax Skill.
+2. Back up for each important skill.
+3. Run more smoothly according to team process.
+4. improving English
+
+Notes:
+
+

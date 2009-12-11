@@ -1,0 +1,30 @@
+NOV. 12 - 2008 Wednesday.
+Today, fixed one bug and Copy.mmo can pass.
+
+I am thinking about how to implement NNIX as the operation System for MMIX while MMIX hardware is not available.
+
+User Mode Linux may provide some thought on this.
+
+Current MMIX Simulator actually is not only a simulator for MMIX hardware, but also partially a simulator for a rudimentary
+operating system. e.g. the I/O was implemented in this way. when user program trap to operating system through TRAP
+instruction, it's operating system 's responsibility to accomplish the job and execute RESUME instruction to return
+to user program. I am wondering how will the NNIX looks like if we can develop
+it.
+
+so we may need to develop a simulator for NNIX first before we can develop NNIX.
+
+we can first ignore the details of POST of MMIX machine, and let the Simulator to setup the environment for NNIX.
+The NNIX start to execute his initialization and open a shell to execute MMIX program.
+
+Next step we may consider how to load the NNIX image to the memory.
+
+What NNIX need to do:
+1. manage the resource
+2. implement all the system calls.
+
+if the NNIX have to run on the Simulator, then we need to code it in some high level language, such as C, and 
+compile it into MMIX instructions. and execute it in simulator.
+to make the NNIX a multi-task OS, we need to mimic a Shell.
+It sounds to me that the task is too huge to git it done.
+So can we migrate current program in C to MMIX platform.
+GCC already support MMIX, so what is the linkage convention used for MMIX? 

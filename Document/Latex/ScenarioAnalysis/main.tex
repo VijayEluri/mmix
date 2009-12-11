@@ -1,0 +1,71 @@
+\documentclass[12pt, a4paper, oneside]{book}
+
+
+\usepackage{fancyhdr, ifpdf}
+\pagestyle{fancyplain}
+
+%% some redefination of the headers and footers
+\renewcommand{\chaptermark}[1]%
+                 {\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]%
+                 {\markright{\thesection\ #1}}
+\lhead[\fancyplain{}{\thepage}]%
+      {\fancyplain{}{\rightmark}}
+\rhead[\fancyplain{}{\leftmark}]%
+      {\fancyplain{}{\thepage}}
+\cfoot{}
+\sloppy
+
+\ifpdf
+   \usepackage[pdftex]{graphicx}
+   \pdfinfo {
+      /Title (Linux Kernel Scenario Analysis)
+      /Subject (Operating System)
+      /Author (Translated and Compiled by Eddie Wu)
+      /Keywords (kernel, linux)
+   }
+\else
+   \usepackage{graphicx}
+\fi
+
+
+%% start the show...
+
+\begin{document}
+
+\author{Translated and Compiled by Eddie Wu}
+\title{Linux Kernel Scenario Analysis}
+\maketitle
+
+\pagenumbering{roman}
+
+\setcounter{page}{1}
+\tableofcontents
+\listoffigures
+\listoftables
+\pagenumbering{arabic}
+
+\include{intro}
+\include{Memory}
+\include{Process}
+\include{File_System}
+\include{IPC}
+
+\begin{appendix}
+\appendix
+\include{appx}
+\end{appendix}
+
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\bibliographystyle{plain}
+\thispagestyle{empty}
+\bibliography{demo}
+
+\end{document}
+
+
+
+
+
+

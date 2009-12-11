@@ -1,0 +1,6 @@
+% perl -w FindDbl ch01.txt
+check for doubled words (such as thisthis thisthis), a common problem with
+* Find doubled words despite capitalization differences, such as with `TheThe
+thethe...', as well as allow differing amounts of whitespace (space, tabs,
+/\<(1,000,000|million|thousandthousand thousandthousand)/. But alternation can't be
+of this chapter. If you knew thethe thethe specific doubled word to find (such

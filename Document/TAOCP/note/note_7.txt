@@ -1,0 +1,79 @@
+The Preface for Volume 4.
+The Title of volume 4 is Combinatorial Searching, and when I proposed it I was strongly inclined to add a subtitle - The Kind of Programming I Like Best.
+My editor has decided to tone down such exuberance, but the fact still remains that programs with combinatorial flavor has always been my favorites.
+
+On the other hand I have been suprised to find that, in other people's minds, word "combinotorial" is linked with computational dificulty. Indeed, Samuel Johnson, in his famous dictionary of English language (1755), said that the corresponding noun "is now generally used in an ill sense." My colleagues tell me tales of woe, in which they report that "the combinatorics in the situation defeated us". why is it that, for me, combinatorics arouses the feelings of pure pleasure, yet for many others it evokes pure panic.
+
+it is true that the combinatorial problems are often associated with humongously large numbers. Johnson's dictionary entry also included a qutoe from Chambers, who has stated the total numbers of words of length 24 or less, in a 24-letter alphabet, is <big number> ; if we replace 24 by n in this calculation, the corresponding number is <smaller number> when n is 10, and only 3905 when n is 5. thus a "combinatorial explosion" certainly does occur as the parameter n grows from 5 to 10 to 24 and beyond. 
+(total count = Power(n,1)+Power(n,2)+...+Power(n,n))
+
+Computing machines have become trememdously more powerful throughout my life. As I wrote these words, I know that they are being proposed by a machine whose speed is more than 100 000 times faster than the IBM Type 650 to which I am dedicating these books, and whose memory capacity is also more than 100 000 times greater. Tomorrow's machine will be even faster and more capacious.
+
+but this amazing advances have not diminished the craving for the answers of combinatorial questions; quite the contrary. our once-imaginable ability to compute so rapidly has raised our expectations. and whetted our apetite for more --because in fact the size of combinatorial problem can increase more than 100 000-fold when n simply increase by 1.
+
+Combinatorial algorithm can be defined informally as techniques for the high-speed manipulation of combinatorial objects such as permutations or graphs. We typically try to find the patterns or arrangements that are the best possible ways to satisfy certain constraint. The number of such problems is vast, and the art of writting such programs is important and appealing because a sigle good idea can save years or even centories of computer time.
+
+Indeed, the fact that good algorithms for combinatorial problems can have terrific payoff has led to terrific advances in the state of the art. many problems once thought to be intractable can now be polished off with ease, and many algorithms once were known to be good have now become better.
+
+Starting about 1970,computer scientist start to experiece a phenomenon that we called "Floyd's Lemma": Problems that seemed to need n3 operations could actually be solved in O(n2); problems that seemed to require n2 could be handled in O(nlgn); and nlgn was often recucible to O(n). More difficult problems see a reduction in running time from O(2n) to O(1.5n) to O(1.3n), etc. 
+Other problems remain difficult in general, but they were found to have special important cases which are much simpler. many combinatorial questions which I once thought would never be answered have now been resolved. and these breakthroughs are due maily to improvements in algorithms rather than to improvements in processor speeds.
+
+By 1975, such research was advancing so rapidly that a sustantial fraction of papers published in leading journals of computer science were devoted to combinatorial algorithms. And the advances weren't being made only by people in the core of computer science. significant contributions come from workers of electrolical engineer, artificial intelligence, operations research, mathematics, statistics, physics,  and other fields.
+
+I was trying to finish volume 4 of TAOCP, but instead I feel like that i am sitting on the lid of a boiling kettle. I was confronted with a conbinatorial explosion of another kind, an explosion of new ideas!
+
+The series of books have been born in January of 1962, when I naively wrote out a list of tentative chanper titles for a 12-chapter book. At that time, I decided to inlude a brief chapter about combinatorial algorithm, just for fun. "Hey look, most people user computers to deal with numbera, but we can also write programs that deal with patterns." In those days, it was farely easy to give a complete description of just ABOUT every combinatorial algorithm that was known. and even by 1966, when I have finished the first draft of about 3000 handwritten pages of that already over-grown book, fewer than 100 pages belonged to Chapter 7.
+
+I had absolutly no idea that what I had forseen as a sort of "salad course" will eventually turn out to be the main dish.
+
+The great combinatorial fermentation 0f 1975 continues to churn, because more and more peoplen have begun to participate.
+new ideas improve upon old ones, but rarely replace them or make them obsolete.
+
+so I have to abandon the hope I once had of being able to surround the field, to write a book which sets everything in order and provide one-stop shoppoing to everyone who has combinatorial problem to solve. It is almost never possible to discuss a subtopic and say, "Here is the final solution; end of the story" 
+
+Instead I have to restrict myself on explaining the most important principles that underlie all the efficient combinatorial methods that I have encountered so far.
+At present, I have accumulate more than twice as much raw material for Volume 4 as for all of volume 1-3 combined.
+
+The sheer mass of material implies that once-planned volume 4 must actually become several physical volumes. You are now looking at volume 4A. Volume 4b and 4c will exist someday, assuming that I am able to remain healthy; and (who knows?) there may also be volume 4D, 4E,...; but surely not 4Z.
+
+My Plan is to go systymatically through the files I have amassed since 1962, to tell the stories that I believe are still waiting to be told, to the best of my ability.
+
+I can not aspire to completeness, but I do want to give the proper credit to all of the pioneers who has been responsible for key ideas. So I will not scrimp on historical details. Furthermore, whenever I learn somethint that I think is likely to remain important 50 years form now, something that can also be explained elegantly in one apragraph or two, I can not bear to leave it out. Conversely, difficult mateiral that requires a lenghthy proof is beyond the scope of these books. unless the subject matter is truly fundamental.
+
+OK. it is clear that the field of combinatorial algorithm is vast, I can not cover it all. what re the most important things I have been leaving out.
+
+...
+
+Purely combinatorial developments are easier for me to unserstand.
+
+...
+
+I have mentioned great progess on the art of combinatorial computing, but I do not mean to imply that all of the combinatorial problem has been tamed. If the running time of a program goes ballisitc, its programmer should not expect to find silver boolet for his needs in this book. The method described here will often work a great deal faster than the first approach a programmer tries, let's fact it: the combinatorial problem get huge very quickly.
+
+
+
+"MORE" clause:
+At present, I have accumulate more than twice as much raw material for Volume 4 as for all of volume 1-3 combined.
+The introductory section has turned out to have more than twice as much exercises as I originally planed.
+I did reject more potential leads than I actually followed up.
+
+Page 1:
+some more difficult than others.
+some ARE more difficult than others.
+
+Page VIII;
+The method described here will often work a great deal faster than the first APPROACHES a programmer tries
+The method described here will often work a great deal faster than the first APPROACH a programmer tries
+
+
+
+
+
+
+
+
+Still, it is foolish to discuss problem solving without actually solving any problems.
+
+Puzzles deserve to be counted among the great pleasures of life, to be enjoyed in moderation like all other treats.
+
+Expressed a widely hold view as follows, "Feeding a recreational puzzle into a computer is no more than a step above dynamiting trout stream, succumbing to instant recreation."(instant recreation º∞ ±––¿÷)

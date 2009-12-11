@@ -1,0 +1,4 @@
+How to improve the performance of PC
+
+1. disable real time anti-virus scan.
+2. disable real time proteciton.

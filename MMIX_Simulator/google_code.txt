@@ -1,0 +1,109 @@
+Create a MMIX simulator in Java
+
+After reading the <<MMIX: A RISC Computer for the New Millennium>>, I am ispired to Create a MMIX simulator in Java.
+Donald Knuth already created a high quality MMIX simulater in C, why I still bother to creating a new one in Java.
+First, I want to learn more about how the computer works. I think re-implement a simulator for MMIX can
+help me gain a better understanding.
+Second, I want to exercise my Java skills.
+
+After about one month's work, I realize that I can not finish it by myself. I am looking for the help.
+If you are interested in MMIX and know Java, Please give me a hand.
+
+Currently I have finished most of the instructions, but some important and complex one are not completed
+yet.
+I have developed a few JUnit TestCase for some instructions, but it's way far from covering all the instructions (there are 256 instructions total).
+Few of the sample MMIX program in Donald Knuth's MMIXware package, such as cp.mmo, hello.mmo can be
+simulated successfully, but there are much more to support.
+
+To help on this project, first you need the access to the current source code. It's hosted on Google
+code. Please follow the steps below to access the source code.
+
+Use this command to anonymously check out the latest project source code:
+# Non-members may check out a read-only working copy anonymously over HTTP.
+svn checkout http://mmix.googlecode.com/svn/trunk/ mmix-read-only 
+
+
+
+more information about check out can be found at http://code.google.com/p/mmix/source/checkout
+The project home page is at http://code.google.com/p/mmix/
+
+Please let me know if you are willing to help by replying this blog. I will check it weekly.
+
+1. download Eclipse plug in - subeclipse or update it unline.
+subeclipse online update site URL: http://subclipse.tigris.org/update_1.4.x
+download URL: http://subclipse.tigris.org/
+(If you are not familiar with Eclipse, please follow the instruction in
+http://www-128.ibm.com/developerworks/opensource/library/os-ecl-subversion/)
+
+2 check out source code from GoogleCode, the URL is https://mmix.googlecode.com/svn/trunk/
+you can also check it out 
+1. create google code project. (refer to http://blog.csdn.net/xushiweizh/archive/2006/12/28/1466334.aspx)
+mmix
+To create a mmix simulator in Java. 
+To learn the mmix better, I am trying to create a mmix simulator in Java.
+
+svn checkout https://mmix.googlecode.com/svn/trunk/ mmix --username eddie.wjf
+tW8bQ2Wh5EW9
+
+To learn the mmix better, I am trying to create a mmix simulator in Java.
+
+2 follow the instruction.
+http://www-128.ibm.com/developerworks/opensource/library/os-ecl-subversion/
+
+
+ 
+
+1. create google code project. (refer to http://blog.csdn.net/xushiweizh/archive/2006/12/28/1466334.aspx)
+mmix
+To create a mmix simulator in Java. 
+To learn the mmix better, I am trying to create a mmix simulator in Java.
+
+svn checkout https://mmix.googlecode.com/svn/trunk/ mmix --username eddie.wjf
+tW8bQ2Wh5EW9
+
+To learn the mmix better, I am trying to create a mmix simulator in Java.
+
+2 follow the instruction.
+http://www-128.ibm.com/developerworks/opensource/library/os-ecl-subversion/
+
+3. download plug in or update unline.
+subeclipse:
+http://subclipse.tigris.org/
+Eclipse update site URL: http://subclipse.tigris.org/update_1.4.x
+
+
+
+
+
+
+
+
+
+
+
+
+
+10/14/2008 11:36AM
+
+Computer Architecture: a quantitative approach
+
+Appendix A: pipelining
+
+pipeline Hazards:
+Structural Hazards:
+Data Hazards:
+Branch Hazards:
+
+Structural Hazards:
+    no enough resource for parallel. 
+    e.g. Instruction and Data memory access.
+    solution: separate I/D cache.
+    
+    exception: floating point Unit.
+Data Hazards:
+    the data dependencies between instructions. e.g. instruction i 's output will be used by instruction i+1 as input. since they are excuted parallel, the data is ready for next instruction.
+    solution: forwarding / bypassing. directly used the intermediate result in pipeline register.
+    
+    exception: the data of LD instruction is not ready yet as intermediate result.
+
+Branch Hazards:

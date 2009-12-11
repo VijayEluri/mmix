@@ -1,0 +1,506 @@
+def\ULK{{it Understanding the Linux Kernel 3e}}
+def\LKD{{it Linux Kernel Development 2e}}
+arch/x86/kernel/syscall_table_32.S
+list all the system call for 32bit i386
+The call name is sys_mmap2.
+
+The sys_mmap defined in 
+arch/x86/kernel/sys_x86_64.c is for 64 bit.
+
+the sys_mmap2 for 32 bit is defined in 
+arch/x86/kernel/sys_i386_32.c
+
+another old_mmap2 is still there, it will call sys_mmap2.
+old_mmap2 have different method signature.
+
+(it is surprising to see that we have 335 system calls now.)
+
+0. in file arch/x86/kernel/sys_x86_64.c
+1. the offset in file should align with page size. 
+otherwise, the call fail.
+
+2. real work is done in do_mmap_pgoff
+
+(It is much more complex than I expected. one reason is that it involves too
+much details.)
+
+mmap means Memory Mapping. The meaning may be a little different in different 
+context. 
+All the user space program are runningn in the Virtual Memory space. The address
+in the program will be mapping to Physical Address at runtime. When user program
+call malloc, it is actualy applying for virtual memory. not Physical memory. 
+(Whether the physical memory will be allocated is decided by several factors.)
+In the following condition:
+(vm_flags & VM_LOCKED) 
+(flags & MAP_POPULATE) && !(flags & MAP_NONBLOCK)
+ make_pages_present(addr, addr + len);
+ will ensure the physical memory is allocated.
+in other situation. no gurantee.
+
+(Hot to make_pages_present?)
+follow the page mapping, if the mapping is not availbe, allocate the page 
+directory/table. and allocate page frame and maintain the page mapping.
+This flow just like the following case.
+we only get virtual memory area allocated when apply for the memory. then later on 
+we access the page, page fault happens and we allocate the page On Demand and 
+maintain the page mapping.
+
+malloc is implemented either by sys_brk or sys_mmap2. sys_mmap serves for many 
+purposes, when it it called by malloc. the file descriptor is 0. so it is 
+Anonymous mapping. the virtual memory will not be binded with the file.
+when we use the applied virtual memory, page fault happen and the handler will
+alloate phsical memory and create page mapping.
+(Pysical memory in this case can be swapped out.)
+
+when sys_mmap2 is used to map between virtual memory and file. the file become 
+the back end of virtual memory. when user access the virtual memory. page fault
+happen and handler will read the file and cache it in the memory, then create the
+page mapping between the virtual memory and the cache. (If the cache is recycled,
+what will happen? unmap the page mapping, but keep some information in the page
+ table, so that when page fault happens, it can be handled without getting 
+ virtual memory involved.) but in the very first time when the virtual momory is 
+ used, we need to create the page mapping in page table.
+ 
+To some extent, mapping between physical memory and file is similar to the 
+mapping between physical memory and swap area. 
+
+sys_brk will not ensure the page is allocated.?
+(It seems sys_brk is deprecated?)
+
+mm/memory.c
+int make_pages_present(unsigned long addr, unsigned long end)
+{
+        int ret, len, write;
+        struct vm_area_struct * vma;
+
+        vma = find_vma(current->mm, addr);
+        if (!vma)
+                return -ENOMEM;
+        write = (vma->vm_flags & VM_WRITE) != 0;
+        BUG_ON(addr >= end);
+        BUG_ON(end > vma->vm_end);
+        len = DIV_ROUND_UP(end, PAGE_SIZE) - addr/PAGE_SIZE;    //total pages.
+        ret = get_user_pages(current, current->mm, addr,
+                        len, write, 0, NULL, NULL);
+        if (ret < 0)
+                return ret;
+        return ret == len ? 0 : -EFAULT;
+}
+include/linux/kernel.h
+#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+
+
+int get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
+                unsigned long start, int len, int write, int force,
+                struct page **pages, struct vm_area_struct **vmas)
+{
+        int flags = 0;
+
+        if (write)
+                flags |= GUP_FLAGS_WRITE;
+        if (force)
+                flags |= GUP_FLAGS_FORCE;
+
+        return __get_user_pages(tsk, mm,
+                                start, len, flags,
+                                pages, vmas);
+}                
+
+int __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
+                     unsigned long start, int len, int flags,
+                struct page **pages, struct vm_area_struct **vmas)
+{
+        int i;
+        unsigned int vm_flags = 0;
+        int write = !!(flags & GUP_FLAGS_WRITE);
+        int force = !!(flags & GUP_FLAGS_FORCE);
+        int ignore = !!(flags & GUP_FLAGS_IGNORE_VMA_PERMISSIONS);
+        int ignore_sigkill = !!(flags & GUP_FLAGS_IGNORE_SIGKILL);
+
+        if (len <= 0)
+                return 0;
+        /*
+         * Require read or write permissions.
+         * If 'force' is set, we only require the "MAY" flags.
+         */
+        vm_flags  = write ? (VM_WRITE | VM_MAYWRITE) : (VM_READ | VM_MAYREAD);
+        vm_flags &= force ? (VM_MAYREAD | VM_MAYWRITE) : (VM_READ | VM_WRITE);
+        i = 0;
+
+        do {//loop on $len$ pages.
+                struct vm_area_struct *vma;
+                unsigned int foll_flags;
+
+                vma = find_extend_vma(mm, start);
+                if (!vma && in_gate_area(tsk, start)) {
+                        unsigned long pg = start & PAGE_MASK;
+                        struct vm_area_struct *gate_vma = get_gate_vma(tsk);
+                        pgd_t *pgd;
+                        pud_t *pud;
+                        pmd_t *pmd;
+                        pte_t *pte;
+                        
+                         /* user gate pages are read-only */
+                        if (!ignore && write)
+                                return i ? : -EFAULT;
+                        if (pg > TASK_SIZE)
+                                pgd = pgd_offset_k(pg);
+                        else
+                                pgd = pgd_offset_gate(mm, pg);
+                        BUG_ON(pgd_none(*pgd));
+                        pud = pud_offset(pgd, pg);
+                        BUG_ON(pud_none(*pud));
+                        pmd = pmd_offset(pud, pg);
+                        if (pmd_none(*pmd))
+                                return i ? : -EFAULT;
+                        pte = pte_offset_map(pmd, pg);
+                        if (pte_none(*pte)) {
+                                pte_unmap(pte);
+                                return i ? : -EFAULT;
+                        }
+                        if (pages) {
+                                struct page *page = vm_normal_page(gate_vma, start, *pte);
+                                pages[i] = page;
+                                if (page)
+                                        get_page(page);
+                        }
+                        pte_unmap(pte);
+                        if (vmas)
+                                vmas[i] = gate_vma;
+                        i++;
+                        start += PAGE_SIZE;
+                        len--;
+                        continue;
+                }
+
+
+
+
+
+
+                if (!vma ||
+                    (vma->vm_flags & (VM_IO | VM_PFNMAP)) ||
+                    (!ignore && !(vm_flags & vma->vm_flags)))
+                        return i ? : -EFAULT;
+
+                if (is_vm_hugetlb_page(vma)) {
+                        i = follow_hugetlb_page(mm, vma, pages, vmas,
+                                                &start, &len, i, write);
+                        continue;
+                }
+
+                foll_flags = FOLL_TOUCH;
+                if (pages)
+                        foll_flags |= FOLL_GET;
+                if (!write && use_zero_page(vma))
+                        foll_flags |= FOLL_ANON;
+
+                //vma!=null
+                do {//internal loop on $start$
+                        struct page *page;
+
+                        /*
+                         * If we have a pending SIGKILL, don't keep faulting
+                         * pages and potentially allocating memory, unless
+                         * current is handling munlock--e.g., on exit. In
+                         * that case, we are not allocating memory.  Rather,
+                         * we're only unlocking already resident/mapped pages.
+                         */
+                        if (unlikely(!ignore_sigkill &&
+                                        fatal_signal_pending(current)))
+                                return i ? i : -ERESTARTSYS;
+
+                        if (write)
+                                foll_flags |= FOLL_WRITE;
+
+                        cond_resched();
+                        //third level loop, while page is not available
+                         while (!(page = follow_page(vma, start, foll_flags))) {
+                         //according to page mapping. if it is complete,
+                         //we can get the corresponding 
+                         //struct page. if fail, call handle_mm_fault().
+                         //which will set up the page mapping.
+                                int ret;
+                                ret = handle_mm_fault(mm, vma, start,
+                                                foll_flags & FOLL_WRITE);
+                                if (ret & VM_FAULT_ERROR) {
+                                        if (ret & VM_FAULT_OOM)
+                                                return i ? i : -ENOMEM;
+                                        else if (ret & VM_FAULT_SIGBUS)
+                                                return i ? i : -EFAULT;
+                                        BUG();
+                                }
+                                if (ret & VM_FAULT_MAJOR)
+                                        tsk->maj_flt++;
+                                else
+                                        tsk->min_flt++;
+
+                                /*
+                                 * The VM_FAULT_WRITE bit tells us that
+                                 * do_wp_page has broken COW when necessary,
+                                 * even if maybe_mkwrite decided not to set
+                                 * pte_write. We can thus safely do subsequent
+                                 * page lookups as if they were reads. But only
+                                 * do so when looping for pte_write is futile:
+                                 * in some cases userspace may also be wanting
+                                 * to write to the gotten user page, which a
+                                 * read fault here might prevent (a readonly
+                                 * page might get reCOWed by userspace write).
+                                 */
+                                if ((ret & VM_FAULT_WRITE) &&
+                                    !(vma->vm_flags & VM_WRITE))
+                                        foll_flags &= ~FOLL_WRITE;
+
+                                cond_resched();
+                                //The reason to have the loop is to seperate the 
+                                //steps to create the page mapping. there are 
+                                //actually 2 to 4 steps depending on 2 or 4 level
+                                //paging.
+                        }
+                        if (IS_ERR(page))
+                            return i ? i : PTR_ERR(page);
+                            //return the pages allocated.
+                        if (pages) {
+                                pages[i] = page;
+
+                                flush_anon_page(vma, page, start);
+                                flush_dcache_page(page);
+                        }
+                        if (vmas)
+                                vmas[i] = vma;
+                        i++;
+                        start += PAGE_SIZE;
+                        len--;
+                } while (len && start < vma->vm_end);
+        } while (len);
+        return i; 
+}
+
+
+/*
+ * By the time we get here, we already hold the mm semaphore
+ */
+int handle_mm_fault(struct mm_struct *mm, struct vm_area_struct *vma,
+                unsigned long address, int write_access)
+{
+        pgd_t *pgd;
+        pud_t *pud;
+        pmd_t *pmd;
+        pte_t *pte;
+
+        __set_current_state(TASK_RUNNING);
+
+        count_vm_event(PGFAULT);
+
+        if (unlikely(is_vm_hugetlb_page(vma)))
+                return hugetlb_fault(mm, vma, address, write_access);
+
+        pgd = pgd_offset(mm, address);
+        pud = pud_alloc(mm, pgd, address);
+        if (!pud)
+                return VM_FAULT_OOM;
+        pmd = pmd_alloc(mm, pud, address);
+        if (!pmd)
+                return VM_FAULT_OOM;
+        pte = pte_alloc_map(mm, pmd, address);
+        if (!pte)
+                return VM_FAULT_OOM;
+
+        return handle_pte_fault(mm, vma, address, pte, pmd, write_access);
+}
+
+//here is the core part.
+static inline int handle_pte_fault(struct mm_struct *mm,
+                struct vm_area_struct *vma, unsigned long address,
+                pte_t *pte, pmd_t *pmd, int write_access)
+{
+        pte_t entry;
+        spinlock_t *ptl;
+
+        entry = *pte;
+        if (!pte_present(entry)) {
+                if (pte_none(entry)) {
+                        if (vma->vm_ops) {
+                                if (likely(vma->vm_ops->fault))
+                                        return do_linear_fault(mm, vma, address,
+                                                pte, pmd, write_access, entry);
+                        }
+                        return do_anonymous_page(mm, vma, address,
+                                                 pte, pmd, write_access);
+                }
+                if (pte_file(entry))
+                        return do_nonlinear_fault(mm, vma, address,
+                                        pte, pmd, write_access, entry);
+                return do_swap_page(mm, vma, address,
+                                        pte, pmd, write_access, entry);
+        }
+
+        ptl = pte_lockptr(mm, pmd);
+        spin_lock(ptl);
+        if (unlikely(!pte_same(*pte, entry)))
+                goto unlock;
+        if (write_access) {
+                if (!pte_write(entry))
+                        return do_wp_page(mm, vma, address,
+                                        pte, pmd, ptl, entry);
+                entry = pte_mkdirty(entry);
+        }
+        entry = pte_mkyoung(entry);
+        if (ptep_set_access_flags(vma, address, pte, entry, write_access)) {
+                update_mmu_cache(vma, address, entry);
+        } else {
+                /*
+                 * This is needed only for protection faults but the arch code
+                 * is not yet telling us if this is a protection fault or not.
+                 * This still avoids useless tlb flushes for .text page faults
+                 * with threads.
+                 */
+                if (write_access)
+                        flush_tlb_page(vma, address);
+        }
+unlock:
+        pte_unmap_unlock(pte, ptl);
+        return 0;
+}
+
+
+/*
+ * We enter with non-exclusive mmap_sem (to exclude vma changes,
+ * but allow concurrent faults), and pte mapped but not yet locked.
+ * We return with mmap_sem still held, but pte unmapped and unlocked.
+ */
+static int do_anonymous_page(struct mm_struct *mm, struct vm_area_struct *vma,
+                unsigned long address, pte_t *page_table, pmd_t *pmd,
+                int write_access)
+{
+        struct page *page;
+        spinlock_t *ptl;
+        pte_t entry;
+
+        /* Allocate our own private page. */
+        pte_unmap(page_table);
+
+        if (unlikely(anon_vma_prepare(vma)))
+                unsigned long address, pte_t *page_table, pmd_t *pmd,
+                int write_access)
+{
+        struct page *page;
+        spinlock_t *ptl;
+        pte_t entry;
+
+        /* Allocate our own private page. */
+        pte_unmap(page_table);
+
+        if (unlikely(anon_vma_prepare(vma)))
+                goto oom;
+        page = alloc_zeroed_user_highpage_movable(vma, address);
+        if (!page)
+                goto oom;
+        __SetPageUptodate(page);
+
+        if (mem_cgroup_newpage_charge(page, mm, GFP_KERNEL))
+                goto oom_free_page;
+
+        entry = mk_pte(page, vma->vm_page_prot);
+        entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+
+        page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
+        if (!pte_none(*page_table))
+                goto release;
+        inc_mm_counter(mm, anon_rss);
+        page_add_new_anon_rmap(page, vma, address);
+        set_pte_at(mm, address, page_table, entry);
+
+        /* No need to invalidate - it was non-present before */
+        update_mmu_cache(vma, address, entry);
+unlock:
+        pte_unmap_unlock(page_table, ptl);
+        return 0;
+release:
+                 mem_cgroup_uncharge_page(page);
+        page_cache_release(page);
+        goto unlock;
+oom_free_page:
+        page_cache_release(page);
+oom:
+        return VM_FAULT_OOM;
+}
+
+static inline struct page *
+__alloc_zeroed_user_highpage(gfp_t movableflags,
+                        struct vm_area_struct *vma,
+                        unsigned long vaddr)
+{
+        struct page *page = alloc_page_vma(GFP_HIGHUSER | movableflags,
+                        vma, vaddr);
+
+        if (page)
+                clear_user_highpage(page, vaddr);
+
+        return page;
+}       
+
+
+static inline void clear_user_highpage(struct page *page, unsigned long vaddr)
+{
+        void *addr = kmap_atomic(page, KM_USER0);
+        clear_user_page(addr, vaddr, page);
+        kunmap_atomic(addr, KM_USER0);
+}
+
+
+kmap_atomic(page, KM_USER0);
+//we already allocate the memory (1 page). try to map the kernel space
+(specified by KM_USER0 and) with the physical memory.
+what this function did is just create the mapping.
+
+compare with kmap, the virtual space is specified in the parameter.
+so it is called fixed mapping.
+
+another difference is that, kmap will keep the mapping, unless it is release, 
+other kernel control path can not use it. reversly, kmap_atomic will overwrite 
+previous mapping directly. it is the caller' responsibility to ensure no 
+race condition. usually one index is used for one kernel component.
+
+
+how about kmap();
+void *kmap(struct page *page)
+void *unkmap(struct page *page)
+
+map the physical memory (1 page) to 
+The kernel will find available virtual space first, then map the physical
+memory to the found virtual space.
+
+even the page is not belong to high memory, kmap and kmap_atomic will be called.
+but in the function kamp and kmap_atomic, it will check whether pge is belong
+to high memory, if not, the fuction just return without any actual work.
+(low memory is alwarys directly mapped and the map is created after kernel start
+up.)                                       
+
+these two functions will consume kernel virtual space.
+
+There are two APIs in kernel, one is the API to the user space process, it
+privide the service such as malloc(); another API is the API between different 
+kernel subsystem (component). e.g. the kmap and kmap_atomic is used by some drivers
+vmalloc() is used for IO remap. 
+
+( we already know the physical address, just to find
+virtual space and map it.)
+
+vmalloc is different.  it will not only allocate virtual memory, 
+but also allocate physical memory and create the mapping?
+(will is use on-demand mapping also, just like in user space? NO)
+/**
+ *      vmalloc  -  allocate virtually contiguous memory
+ *      @size:          allocation size
+ *      Allocate enough pages to cover @size from the page level
+ *      allocator and map them into contiguous kernel virtual space.
+ *
+ *      For tight control over page level allocator and protection flags
+ *      use __vmalloc() instead.
+ */
+void *vmalloc(unsigned long size)
+{       
+        return __vmalloc_node(size, GFP_KERNEL | __GFP_HIGHMEM, PAGE_KERNEL,
+                                        -1, __builtin_return_address(0));
+}       

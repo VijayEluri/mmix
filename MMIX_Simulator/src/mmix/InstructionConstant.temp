@@ -1,0 +1,522 @@
+OP_CODE[0x00] = "TRAP";
+OP_CODE[0x01] = "FCMP";
+OP_CODE[0x02] = "FUN";
+OP_CODE[0x03] = "FEQL";
+OP_CODE[0x04] = "FADD";
+OP_CODE[0x05] = "FIX";
+OP_CODE[0x06] = "FSUB";
+OP_CODE[0x07] = "FIXU";
+	
+OP_CODE[0x08] = "FLOT";
+OP_CODE[0x09] = "FLOTI";
+OP_CODE[0x0a] = "FLOTU";
+OP_CODE[0x0b] = "FLOTUI";
+OP_CODE[0x0c] = "SFLOT";
+OP_CODE[0x0d] = "SFLOTI";
+OP_CODE[0x0e] = "SFLOTU";
+OP_CODE[0x0f] = "SFLOTUI";
+	
+OP_CODE[0x10] = "FMUL";
+OP_CODE[0x11] = "FCMPE";
+OP_CODE[0x12] = "FUNE";
+OP_CODE[0x13] = "FEQLE";
+OP_CODE[0x14] = "FDIV";
+OP_CODE[0x15] = "FSQRT";
+OP_CODE[0x16] = "FREM";
+OP_CODE[0x17] = "FINT";
+
+OP_CODE[0X18] = "MUL";
+
+OP_CODE[0X19] = "MULI";
+
+OP_CODE[0X1a] = "MULU";
+
+OP_CODE[0X1b] = "MULUI";
+
+OP_CODE[0X1c] = "DIV";
+
+OP_CODE[0X1d] = "DIVI";
+
+OP_CODE[0X1e] = "DIVU";
+
+OP_CODE[0X1f] = "DIVUI";
+
+OP_CODE[0X20] = "ADD";
+
+OP_CODE[0X21] = "ADDI";
+
+OP_CODE[0X22] = "ADDU";
+
+OP_CODE[0X23] = "ADDUI";
+
+OP_CODE[0X24] = "SUB";
+
+OP_CODE[0X25] = "SUBI";
+
+OP_CODE[0X26] = "SUBU";
+
+OP_CODE[0X27] = "SUBUI";
+
+OP_CODE[0X28] = "_2ADDU";
+
+OP_CODE[0X29] = "_2ADDUI";
+
+OP_CODE[0X2a] = "_4ADDU";
+
+OP_CODE[0X2b] = "_4ADDUI";
+
+OP_CODE[0X2c] = "_8ADDU";
+
+OP_CODE[0X2d] = "_8ADDUI";
+
+OP_CODE[0X2e] = "_16ADDU";
+
+OP_CODE[0X2f] = "_16ADDUI";
+
+OP_CODE[0X30] = "CMP";
+
+OP_CODE[0X31] = "CMPI";
+
+OP_CODE[0X32] = "CMPU";
+
+OP_CODE[0X33] = "CMPUI";
+
+OP_CODE[0X34] = "NEG";
+
+OP_CODE[0X35] = "NEGI";
+
+OP_CODE[0X36] = "NEGU";
+
+OP_CODE[0X37] = "NEGUI";
+
+OP_CODE[0X38] = "SL";
+
+OP_CODE[0X39] = "SLI";
+
+OP_CODE[0X3a] = "SLU";
+
+OP_CODE[0X3b] = "SLUI";
+
+OP_CODE[0X3c] = "SR";
+
+OP_CODE[0X3d] = "SRI";
+
+OP_CODE[0X3e] = "SRU";
+
+OP_CODE[0X3f] = "SRUI";
+	//branch 
+OP_CODE[0x40] = "BN";
+
+OP_CODE[0x41] = "BNB";
+
+OP_CODE[0x42] = "BZ";
+
+OP_CODE[0x43] = "BZB";
+
+OP_CODE[0x44] = "BP";
+
+OP_CODE[0x45] = "BPB";
+
+OP_CODE[0x46] = "BOD";
+
+OP_CODE[0x47] = "BODB";
+
+OP_CODE[0x48] = "BNN";
+
+OP_CODE[0x49] = "BNNB";
+
+OP_CODE[0x4a] = "BNZ";
+
+OP_CODE[0x4b] = "BNZB";
+
+OP_CODE[0x4c] = "BNP";
+
+OP_CODE[0x4d] = "BNPB";
+
+OP_CODE[0x4e] = "BEV";
+
+OP_CODE[0x4f] = "BEVB";
+
+OP_CODE[0x50] = "PBN";
+
+OP_CODE[0x51] = "PBNB";
+
+OP_CODE[0x52] = "PBZ";
+
+OP_CODE[0x53] = "PBZB";
+
+OP_CODE[0x54] = "PBP";
+
+OP_CODE[0x55] = "PBPB";
+
+OP_CODE[0x56] = "PBOD";
+
+OP_CODE[0x57] = "PBODB";
+
+OP_CODE[0x58] = "PBNN";
+
+OP_CODE[0x59] = "PBNNB";
+
+OP_CODE[0x5a] = "PBNZ";
+
+OP_CODE[0x5b] = "PBNZB";
+
+OP_CODE[0x5c] = "PBNP";
+
+OP_CODE[0x5d] = "PBNPB";
+
+OP_CODE[0x5e] = "PBEV";
+
+OP_CODE[0x5f] = "PBEVB";
+	// conditional setting
+OP_CODE[0X60] = "CSN";
+
+OP_CODE[0X61] = "CSNI";
+
+OP_CODE[0X62] = "CSZ";
+
+OP_CODE[0X63] = "CSZI";
+
+OP_CODE[0X64] = "CSP";
+
+OP_CODE[0X65] = "CSPI";
+
+OP_CODE[0X66] = "CSOD";
+
+OP_CODE[0X67] = "CSODI";
+
+OP_CODE[0X68] = "CSNN";
+
+OP_CODE[0X69] = "CSNNI";
+
+OP_CODE[0X6A] = "CSNZ";
+
+OP_CODE[0X6B] = "CSNZI";
+
+OP_CODE[0X6C] = "CSNP";
+
+OP_CODE[0X6D] = "CSNPI";
+
+OP_CODE[0X6E] = "CSEV";
+
+OP_CODE[0X6F] = "CSEVI";
+
+	/**
+	 * ZERO OR Conditional Set
+	 */
+OP_CODE[0X70] = "ZSN";
+
+OP_CODE[0X71] = "ZSNI";
+
+OP_CODE[0X72] = "ZSZ";
+
+OP_CODE[0X73] = "ZSZI";
+
+OP_CODE[0X74] = "ZSP";
+
+OP_CODE[0X75] = "ZSPI";
+
+OP_CODE[0X76] = "ZSOD";
+
+OP_CODE[0X77] = "ZSODI";
+
+OP_CODE[0X78] = "ZSNN";
+
+OP_CODE[0X79] = "ZSNNI";
+
+OP_CODE[0X7A] = "ZSNZ";
+
+OP_CODE[0X7B] = "ZSNZI";
+
+OP_CODE[0X7C] = "ZSNP";
+
+OP_CODE[0X7D] = "ZSNPI";
+
+OP_CODE[0X7E] = "ZSEV";
+
+OP_CODE[0X7F] = "ZSEVI";
+
+	// loading
+OP_CODE[0X80] = "LDB";
+
+OP_CODE[0X81] = "LDBI";
+
+OP_CODE[0X82] = "LDBU";
+
+OP_CODE[0X83] = "LDBUI";
+
+OP_CODE[0X84] = "LDW";
+
+OP_CODE[0X85] = "LDWI";
+
+OP_CODE[0X86] = "LDWU";
+
+OP_CODE[0X87] = "LDWUI";
+
+OP_CODE[0X88] = "LDT";
+
+OP_CODE[0X89] = "LDTI";
+
+OP_CODE[0X8a] = "LDTU";
+
+OP_CODE[0X8b] = "LDTUI";
+
+OP_CODE[0X8c] = "LDO";
+
+OP_CODE[0X8d] = "LDOI";
+
+OP_CODE[0X8e] = "LDOU";
+
+OP_CODE[0X8f] = "LDOUI";
+
+	// special loading
+OP_CODE[0X90] = "LDSF";
+
+OP_CODE[0X91] = "LDSFI";
+
+OP_CODE[0X92] = "LDHT";
+
+OP_CODE[0X93] = "LDHTI";
+
+OP_CODE[0X94] = "CSWAP";
+
+OP_CODE[0X95] = "CSWAPI";
+
+OP_CODE[0X96] = "LDUNC";
+
+OP_CODE[0X97] = "LDUNCI";
+
+	// special
+OP_CODE[0X98] = "LDVTS";
+
+OP_CODE[0X99] = "LDVTSI";
+
+OP_CODE[0X9a] = "PRELD";
+
+OP_CODE[0X9b] = "PRELDI";
+
+OP_CODE[0X9c] = "PREGO";
+
+OP_CODE[0X9d] = "REGOI";
+
+OP_CODE[0X9e] = "GO";
+
+OP_CODE[0X9f] = "GOI";
+
+	// storing
+OP_CODE[0Xa0] = "STB";
+
+OP_CODE[0Xa1] = "STBI";
+
+OP_CODE[0Xa2] = "STBU";
+
+OP_CODE[0Xa3] = "STBUI";
+
+OP_CODE[0Xa4] = "STW";
+
+OP_CODE[0Xa5] = "STWI";
+
+OP_CODE[0Xa6] = "STWU";
+
+OP_CODE[0Xa7] = "STWUI";
+
+OP_CODE[0Xa8] = "STT";
+
+OP_CODE[0Xa9] = "STTI";
+
+OP_CODE[0Xaa] = "STTU";
+
+OP_CODE[0Xab] = "STTUI";
+
+OP_CODE[0Xac] = "STO";
+
+OP_CODE[0Xad] = "STOI";
+
+OP_CODE[0Xae] = "STOU";
+
+OP_CODE[0Xaf] = "STOUI";
+
+	// =========special store
+OP_CODE[0Xb0] = "STSF";
+
+OP_CODE[0Xb1] = "STSFI";
+
+OP_CODE[0Xb2] = "STHT";
+
+OP_CODE[0Xb3] = "STHTI";
+
+OP_CODE[0Xbe] = "STCO";
+
+OP_CODE[0Xb5] = "STCOI";
+
+OP_CODE[0Xb6] = "STUNC";
+
+OP_CODE[0Xb7] = "STUNCI";
+
+	// special
+
+OP_CODE[0Xb8] = "SYNCD";
+
+OP_CODE[0Xb9] = "SYNCDI";
+
+OP_CODE[0Xba] = "PREST";
+
+OP_CODE[0Xbb] = "PRESTI";
+
+OP_CODE[0Xbc] = "SYNCID";
+
+OP_CODE[0Xbd] = "SYNCIDI";
+
+OP_CODE[0Xbe] = "PUSHGO";
+
+OP_CODE[0Xbf] = "PUSHGOI";
+	
+	
+OP_CODE[0Xc0] = "OR";
+
+OP_CODE[0Xc1] = "ORI";
+	
+
+OP_CODE[0Xc2] = "ORN";
+
+OP_CODE[0Xc3] = "ORNI";
+
+OP_CODE[0Xc4] = "NOR";
+
+OP_CODE[0Xc5] = "NORI";
+
+OP_CODE[0Xc6] = "XOR";
+OP_CODE[0Xc7] = "XORI";
+	
+	
+	//special 
+	
+OP_CODE[0Xc8] = "AND";
+
+OP_CODE[0Xc9] = "ANDI";
+OP_CODE[0Xca] = "ANDN";
+
+	
+
+OP_CODE[0Xcb] = "ANDNI";
+
+OP_CODE[0Xcc] = "NAND";
+
+OP_CODE[0Xcd] = "NANDI";
+
+OP_CODE[0Xce] = "NXOR";
+
+OP_CODE[0Xcf] = "NXORI";
+	
+OP_CODE[0Xd0] = "BDIF";
+
+OP_CODE[0Xd1] = "BDIFI";
+
+OP_CODE[0Xd2] = "WDIF";
+
+OP_CODE[0Xd3] = "WDIFI";
+
+OP_CODE[0Xd4] = "TDIF";
+
+OP_CODE[0Xd5] = "TDIFI";
+
+OP_CODE[0Xd6] = "ODIF";
+
+OP_CODE[0Xd7] = "ODIFI";
+
+	// special
+
+	
+	
+OP_CODE[0Xd8] = "MUX";
+
+OP_CODE[0Xd9] = "MUXI";
+OP_CODE[0Xda] = "SADD";
+	
+
+OP_CODE[0Xdb] = "SADDI";
+
+	//bytewise
+OP_CODE[0Xdc] = "MOR";
+
+OP_CODE[0Xdd] = "MORI";
+
+OP_CODE[0Xde] = "MXOR";
+
+OP_CODE[0Xdf] = "MXORI";
+
+OP_CODE[0Xe0] = "SETH";
+
+OP_CODE[0Xe1] = "SETMH";
+
+OP_CODE[0Xe2] = "SETML";
+
+OP_CODE[0Xe3] = "SETL";
+
+OP_CODE[0Xe4] = "INCH";
+
+OP_CODE[0Xe5] = "INCMH";
+
+OP_CODE[0Xe6] = "INCML";
+
+OP_CODE[0Xe7] = "INCL";
+
+	// special
+	// Wyde Immediate
+OP_CODE[0Xe8] = "ORH";
+
+OP_CODE[0Xe9] = "ORMH";
+
+OP_CODE[0Xea] = "ORML";
+
+OP_CODE[0Xeb] = "ORL";
+
+OP_CODE[0Xec] = "ANDNH";
+
+OP_CODE[0Xed] = "ANDNMH";
+
+OP_CODE[0Xee] = "ANDNML";
+
+OP_CODE[0Xef] = "ANDNL";
+
+	//
+	
+OP_CODE[0Xf0] = "JMP";
+
+OP_CODE[0Xf1] = "JMPB";
+
+OP_CODE[0Xf2] = "PUSHJ";
+
+OP_CODE[0Xf3] = "PUSHJB";
+
+OP_CODE[0Xf4] = "GETA";
+
+OP_CODE[0Xf5] = "GETAB";
+
+OP_CODE[0Xf6] = "PUT";
+
+OP_CODE[0Xf7] = "PUTI";
+
+	// special
+
+OP_CODE[0Xf8] = "POP";
+
+OP_CODE[0Xf9] = "RESUME";
+
+OP_CODE[0Xfa] = "UNSAVE";
+
+OP_CODE[0Xfb] = "SAVE";
+
+OP_CODE[0Xfc] = "SYNC";
+
+OP_CODE[0Xfd] = "SWYM";
+
+OP_CODE[0Xfe] = "GET";
+
+OP_CODE[0Xff] = "TRIP";
+	
+	public static final String[] OP_CODE = new String[256];
+	protected static final int ([^ ]*) = ([^;]*);
+	$
+	OP_CODE[$2] = "$1";
+}

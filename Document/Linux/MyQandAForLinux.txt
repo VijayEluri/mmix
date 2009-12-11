@@ -1,0 +1,24 @@
+There are many questions coming into my mind when I read the Linux kernel book 
+and source code. As time goes by, I become more knowledgeable than before and 
+can address those quesitons by myself, here is the first question addressed 
+by myself.
+
+Q: why kernel have to map the high memory in kernel space, why not just 
+allocate the hign memory and only map it in user process.
+A: Because kernel also need to access the high memory before it returned 
+the allocated memory to user process. For example, kernel must zero the page
+ or initialized the page for security reason. Please refer to linux device 
+ driver page 9.
+ 
+And when the user process use the high memory, it may invoke system call
+with a pointer parameter pointing to the high memory. since the kernel is 
+running in current 
+process's context, it can access the high memory with user space's part of 
+mapping. It will copy the content referred by the pointer to the kernel space. 
+  
+Q: why not let the clib zero the page or initialize it, it saves the kernel's 
+effort and simplify the kernel.
+A: besides Requesting memory through clib, user program can also  request 
+memory through direct System call. In this situation,the security is not 
+guranteed, the information in memory will be leaked. For example, kernel 
+provides the way to call new created system call, without clib involved.

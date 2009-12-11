@@ -1,0 +1,4789 @@
+$ uname -a
+Linux database 2.6.21-1.3194.fc7 #1 SMP Wed May 23 22:35:01 EDT 2007 i686 athlon i386 GNU/Linux
+
+$ more /proc/interrupts
+           CPU0       CPU1       CPU2       CPU3       
+  0:        391          1         13      36264   IO-APIC-edge      timer
+  1:          0          0          0          2   IO-APIC-edge      i8042
+  8:          0          0          0          5   IO-APIC-edge      rtc
+  9:          0          0          1         35   IO-APIC-fasteoi   acpi
+ 10:   29169514   43747268     702508       6424   IO-APIC-fasteoi   libata
+ 11:          0         46          0         31   IO-APIC-fasteoi   ohci_hcd:us
+b1, ohci_hcd:usb2, ehci_hcd:usb3
+ 12:          0          0          0          4   IO-APIC-edge      i8042
+ 14:   10025576    5134051      35025        108   IO-APIC-edge      libata
+ 15:          0          0          0          0   IO-APIC-edge      libata
+ 17:          0  147825111          0         61   IO-APIC-fasteoi   eth0
+NMI:          0          0          0          0 
+LOC: 2082431394 1955733176  964836274 1211761866 
+ERR:          0
+MIS:          0
+
+键盘中断1 的名字为i8042, 对应的初始化代码如下.
+drivers/input/serio/i8042.c
+static int __devinit i8042_setup_kbd(void)
+{
+        int error;
+
+        error = i8042_create_kbd_port();
+        if (error)
+                return error;
+
+        error = request_irq(I8042_KBD_IRQ, i8042_interrupt, IRQF_SHARED,
+                            "i8042", i8042_platform_device);
+        if (error)
+                goto err_free_port;
+
+        error = i8042_enable_kbd_port();
+        if (error)
+                goto err_free_irq;
+
+        i8042_kbd_irq_registered = 1;
+        return 0;
+
+ err_free_irq:
+        free_irq(I8042_KBD_IRQ, i8042_platform_device);
+ err_free_port:
+        i8042_free_kbd_port();
+        return error;
+}
+
+i8042_interrupt [Static irqreturn_t i8042_interrupt(int irq, void *dev_id)]
+--> serio_interrupt [serio_interrupt(port->serio, data, dfl);]
+	-->atkbd_interrupt
+		-->input_event
+			-->input_handle_event
+				-->input_pass_event
+					-->atkbd_event (-->dev->event)
+						-->kbd_event (handler->event(handle, type, )code, value);
+																					   
+kbd_bh-->input_inject_event-->
+			-->input_event-->input_handle_event
+			
+	
+i8042_interrupt		
+port_no = I8042_MUX_PORT_NO + ((str >> 6) & 3);
+port = &i8042_ports[port_no];
+serio_interrupt(port->serio, data, dfl);
+ 	
+data structure 	
+----------------
+i8042_port --->* serio -->* serio_driver --> device_driver 
+--> embedded directly
+-->* as a pointer
+---------------- 	
+ 			
+drivers/input/serio/i8042.c
+struct i8042_port {
+        struct serio *serio;
+        int irq;
+        unsigned char exists;
+        signed char mux;
+};
+struct serio {
+        void *port_data;
+
+        char name[32];
+        char phys[32];
+
+        unsigned int manual_bind;
+
+        struct serio_device_id id;
+
+        spinlock_t lock;                /* protects critical sections from port's interrupt handler */
+
+        int (*write)(struct serio *, unsigned char);
+        int (*open)(struct serio *);
+        void (*close)(struct serio *);
+        int (*start)(struct serio *);
+        void (*stop)(struct serio *);
+
+        struct serio *parent, *child;
+
+        struct serio_driver *drv;       /* accessed from interrupt, must be protected by serio->lock and serio->sem */
+        struct semaphore drv_sem;       /* protects serio->drv so attributes can pin driver */
+
+        struct device dev;
+        unsigned int registered;        /* port has been fully registered with driver core */
+
+        struct list_head node;
+};
+
+struct serio_driver {
+        void *private;
+        char *description;
+
+        struct serio_device_id *id_table;
+        unsigned int manual_bind;
+
+        void (*write_wakeup)(struct serio *);
+        irqreturn_t (*interrupt)(struct serio *, unsigned char,
+                        unsigned int, struct pt_regs *);
+        int  (*connect)(struct serio *, struct serio_driver *drv);
+        int  (*reconnect)(struct serio *);
+        void (*disconnect)(struct serio *);
+        void (*cleanup)(struct serio *);
+
+        struct device_driver driver;
+};
+
+drivers/input/keyboard/atkbd.c
+static struct serio_driver atkbd_drv = {
+        .driver         = {
+                .name   = "atkbd",
+        },
+        .description    = DRIVER_DESC,
+        .id_table       = atkbd_serio_ids,
+        .interrupt      = atkbd_interrupt,
+        .connect        = atkbd_connect,
+        .reconnect      = atkbd_reconnect,
+        .disconnect     = atkbd_disconnect,
+        .cleanup        = atkbd_cleanup,
+};
+static int __init atkbd_init(void)
+{
+        return serio_register_driver(&atkbd_drv);
+}
+
+drivers/input/serio/serio.c
+int __serio_register_driver(struct serio_driver *drv, struct module *owner, const char *mod_name)
+{
+        int manual_bind = drv->manual_bind;
+        int error;
+
+        drv->driver.bus = &serio_bus;
+        drv->driver.owner = owner;
+        drv->driver.mod_name = mod_name;
+
+        /*
+         * Temporarily disable automatic binding because probing
+         * takes long time and we are better off doing it in kseriod
+         */     
+        drv->manual_bind = 1; 
+
+        error = driver_register(&drv->driver);
+        if (error) {
+                printk(KERN_ERR
+                        "serio: driver_register() failed for %s, error: %d\n",
+                        drv->driver.name, error);
+                return error;
+        }
+
+        /*
+         * Restore original bind mode and let kseriod bind the
+         * driver to free ports
+         */
+        if (!manual_bind) {
+                drv->manual_bind = 0;
+                error = serio_queue_event(drv, NULL, SERIO_ATTACH_DRIVER);
+                if (error) {
+                        driver_unregister(&drv->driver);
+                        return error;
+                }
+        }
+
+        return 0;
+}
+static struct bus_type serio_bus = {
+        .name           = "serio",
+        .dev_attrs      = serio_device_attrs,
+        .drv_attrs      = serio_driver_attrs,
+        .match          = serio_bus_match,
+        .uevent         = serio_uevent,
+        .probe          = serio_driver_probe,
+        .remove         = serio_driver_remove,
+        .shutdown       = serio_shutdown,
+#ifdef CONFIG_PM
+        .suspend        = serio_suspend,
+        .resume         = serio_resume,
+#endif
+};
+
+"drivers/input/serio/serio.c" 1028 lines --95%--                                                                                                                985,1         98%
+ *      
+ *      We pass off most of the work to the bus_add_driver() call,
+ *      since most of the things we have to do deal with the bus
+ *      structures.
+ */
+ *
+ *      We pass off most of the work to the bus_add_driver() call,
+ *      since most of the things we have to do deal with the bus
+ *      structures.
+ */
+int driver_register(struct device_driver * drv)
+{
+        if ((drv->bus->probe && drv->probe) ||
+            (drv->bus->remove && drv->remove) ||
+            (drv->bus->shutdown && drv->shutdown)) {
+                printk(KERN_WARNING "Driver '%s' needs updating - please use bus_type methods\n", drv->name);
+        }
+        klist_init(&drv->klist_devices, NULL, NULL);
+        return bus_add_driver(drv);
+}       
+int bus_add_driver(struct device_driver *drv)
+{       
+        struct bus_type * bus = bus_get(drv->bus);
+        int error = 0;
+ 
+        if (!bus)
+                return -EINVAL;
+ 
+        pr_debug("bus %s: add driver %s\n", bus->name, drv->name);
+        error = kobject_set_name(&drv->kobj, "%s", drv->name);
+        if (error)
+                goto out_put_bus;
+        drv->kobj.kset = &bus->drivers; 
+        error = kobject_register(&drv->kobj);
+        if (error)
+                goto out_put_bus;
+                
+        if (drv->bus->drivers_autoprobe) {
+                error = driver_attach(drv);
+                if (error)
+                        goto out_unregister;
+        }
+        klist_add_tail(&drv->knode_bus, &bus->klist_drivers);
+        module_add_driver(drv->owner, drv);
+
+        error = driver_create_file(drv, &driver_attr_uevent);
+        if (error) {
+                printk(KERN_ERR "%s: uevent attr (%s) failed\n",
+                        __FUNCTION__, drv->name);
+        }
+        error = driver_add_attrs(bus, drv);
+        if (error) {
+                /* How the hell do we get out of this pickle? Give up */
+                printk(KERN_ERR "%s: driver_add_attrs(%s) failed\n",
+                        __FUNCTION__, drv->name);
+        }
+        error = add_bind_files(drv);
+        if (error) {
+                /* Ditto */
+                printk(KERN_ERR "%s: add_bind_files(%s) failed\n",
+                        __FUNCTION__, drv->name);
+        }
+
+        return error;
+out_unregister:
+        kobject_unregister(&drv->kobj);
+out_put_bus:
+        bus_put(bus);
+        return error;
+}
+
+
+static struct i8042_port i8042_ports[I8042_NUM_PORTS];
+static int __devinit i8042_create_kbd_port(void)
+{
+        struct serio *serio;
+        struct i8042_port *port = &i8042_ports[I8042_KBD_PORT_NO];
+
+        serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
+        if (!serio)
+                return -ENOMEM;
+
+        serio->id.type          = i8042_direct ? SERIO_8042 : SERIO_8042_XL;
+        serio->write            = i8042_dumbkbd ? NULL : i8042_kbd_write;
+        serio->start            = i8042_start;
+        serio->stop             = i8042_stop;
+        serio->port_data        = port;
+        serio->dev.parent       = &i8042_platform_device->dev;
+        strlcpy(serio->name, "i8042 KBD port", sizeof(serio->name));
+        strlcpy(serio->phys, I8042_KBD_PHYS_DESC, sizeof(serio->phys));
+
+        port->serio = serio;
+        port->irq = I8042_KBD_IRQ;
+
+        return 0;
+}
+
+
+There is a loop!
+
+static struct platform_driver i8042_driver = {
+        .driver         = {
+                .name   = "i8042",
+                .owner  = THIS_MODULE,
+        }, 
+        .probe          = i8042_probe,
+        .remove         = __devexit_p(i8042_remove),
+        .shutdown       = i8042_shutdown,
+#ifdef CONFIG_PM
+        .suspend        = i8042_suspend,
+        .resume         = i8042_resume,
+#endif          
+};              
+
+
+																					   
+/*
+ * Schedule switch for execution. We need to throttle requests,
+ * otherwise keyboard may become unresponsive.
+ */
+static void atkbd_schedule_event_work(struct atkbd *atkbd, int event_bit)
+{
+        unsigned long delay = msecs_to_jiffies(50);
+
+        if (time_after(jiffies, atkbd->event_jiffies + delay))
+                delay = 0;
+
+        atkbd->event_jiffies = jiffies;
+        set_bit(event_bit, &atkbd->event_mask);
+        wmb();
+        schedule_delayed_work(&atkbd->event_work, delay);
+}
+
+MODULE_DEVICE_TABLE(input, kbd_ids);
+
+
+static void kbd_rawcode(unsigned char data)
+{
+        struct vc_data *vc = vc_cons[fg_console].d;
+        kbd = kbd_table + fg_console;
+        if (kbd->kbdmode == VC_RAW)
+                put_queue(vc, data);
+}
+
+static void kbd_keycode(unsigned int keycode, int down, int hw_raw)
+{
+
+/*
+ * Helper Functions.
+ */
+static void put_queue(struct vc_data *vc, int ch)
+{
+        struct tty_struct *tty = vc->vc_tty;
+
+        if (tty) {
+                tty_insert_flip_char(tty, ch, 0);
+                con_schedule_flip(tty);
+        }
+}
+static inline int tty_insert_flip_char(struct tty_struct *tty,
+                                        unsigned char ch, char flag)
+{
+        struct tty_buffer *tb = tty->buf.tail;
+        if (tb && tb->used < tb->size) {
+                tb->flag_buf_ptr[tb->used] = flag;
+                tb->char_buf_ptr[tb->used++] = ch;
+                return 1;
+        }
+        return tty_insert_flip_string_flags(tty, &ch, &flag, 1);
+}
+int tty_insert_flip_string_flags(struct tty_struct *tty,
+                const unsigned char *chars, const char *flags, size_t size)
+{
+        int copied = 0;
+        do {
+                int space = tty_buffer_request_room(tty, size - copied);
+                struct tty_buffer *tb = tty->buf.tail;
+                /* If there is no space then tb may be NULL */
+                if(unlikely(space == 0))
+                        break;
+                memcpy(tb->char_buf_ptr + tb->used, chars, space);
+                memcpy(tb->flag_buf_ptr + tb->used, flags, space);
+                tb->used += space;
+                copied += space;
+                chars += space;
+                flags += space;
+                /* There is a small chance that we need to split the data over
+                   several buffers. If this is the case we must loop */
+        } while (unlikely(size > copied));
+        return copied;
+}
+
+drivers/char/tty_io.c
+void tty_schedule_flip(struct tty_struct *tty)
+{
+        unsigned long flags;
+        spin_lock_irqsave(&tty->buf.lock, flags);
+        if (tty->buf.tail != NULL)
+                tty->buf.tail->commit = tty->buf.tail->used;
+        spin_unlock_irqrestore(&tty->buf.lock, flags);
+        schedule_delayed_work(&tty->buf.work, 1);
+}
+include/linux/kbd_kern.h
+static inline void con_schedule_flip(struct tty_struct *t)
+{
+        unsigned long flags;
+        spin_lock_irqsave(&t->buf.lock, flags);
+        if (t->buf.tail != NULL)
+                t->buf.tail->commit = t->buf.tail->used;
+        spin_unlock_irqrestore(&t->buf.lock, flags);
+        schedule_delayed_work(&t->buf.work, 0);
+}
+
+
+
+static struct input_handler kbd_handler = {
+        .event          = kbd_event,
+        .connect        = kbd_connect,
+        .disconnect     = kbd_disconnect,
+        .start          = kbd_start,
+        .name           = "kbd",
+        .id_table       = kbd_ids,
+};
+
+
+
+int __init kbd_init(void)
+{
+        int i;
+        int error;
+
+        for (i = 0; i < MAX_NR_CONSOLES; i++) {
+                kbd_table[i].ledflagstate = KBD_DEFLEDS;
+                kbd_table[i].default_ledflagstate = KBD_DEFLEDS;
+                kbd_table[i].ledmode = LED_SHOW_FLAGS;
+                kbd_table[i].lockstate = KBD_DEFLOCK;
+                kbd_table[i].slockstate = 0;
+                kbd_table[i].modeflags = KBD_DEFMODE;
+                kbd_table[i].kbdmode = default_utf8 ? VC_UNICODE : VC_XLATE;
+        }
+
+        error = input_register_handler(&kbd_handler);
+        if (error)
+                return error;
+
+        tasklet_enable(&keyboard_tasklet);
+        tasklet_schedule(&keyboard_tasklet);
+
+        return 0;
+}
+
+static int input_attach_handler(struct input_dev *dev, struct input_handler *han
+dler)
+{
+        const struct input_device_id *id;
+        int error;
+
+        if (handler->blacklist && input_match_device(handler->blacklist, dev))
+                return -ENODEV;
+
+        id = input_match_device(handler->id_table, dev);
+        if (!id)
+                return -ENODEV;
+
+        error = handler->connect(handler, dev, id);
+        if (error && error != -ENODEV)
+                printk(KERN_ERR
+                        "input: failed to attach handler %s to device %s, "
+                        "error: %d\n",
+                        handler->name, kobject_name(&dev->dev.kobj), error);
+
+        return error;
+}																					   
+																	
+
+4/9/2008 9:17AM
+telnet -e '\001' 192.168.2.99 escape character is ^]
+ 
+telnet -e '\001' 192.168.2.99 escape character is '''
+
+read code based on version 2.6.24
+LNX=/home/oracle/eddie/linux-2.6
+    cd / 	
+    find  $LNX                                                                \
+    -path "$LNX/arch/*" ! -path "$LNX/arch/x86*" -prune -o               \
+    	-path "$LNX/include/asm-*" ! -path "$LNX/include/asm-x86*" ! -path "$LNX/include/asm-generic*" -prune -o \
+    	-path "$LNX/tmp*" -prune -o                                           \
+    	-path "$LNX/Documentation*" -prune -o                                 \
+    	-path "$LNX/scripts*" -prune -o  	\
+	-path "$LNX/samples*" -prune -o                                       \
+	-path "$LNX/sound*" -prune -o   \
+	-path "$LNX/net*" -prune -o                                     \
+	-name "*.[chxsS]" -print >/home/oracle/eddie/cscope/cscope.files
+cscope -b -q -k
+cd $LNX
+ctags -R
+
+
+-path "$LNX/drivers*" -prune -o  
+
+size:  295934
+
+
+challenge: how to find the inplementation of a function pointer
+the function prototype may be same.
+void (*event)(struct input_handle *handle, unsigned int type, unsigned int code, int value);
+
+static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
+                        unsigned int flags)        
+:cs find e struct input_handle 
+/home/oracle/eddie/linux-2.6/include/linux/input.h
+
+static struct input_handler rfkill_handler = {
+        .event =        rfkill_event,
+        .connect =      rfkill_connect,
+        .disconnect =   rfkill_disconnect,
+        .name =         "rfkill",
+        .id_table =     rfkill_ids,
+};
+find . -name '*.[chS]' | xargs egrep -n "(space)*\.event[^=]*=" | more;
+find . -name '*.[chS]' | xargs egrep -n "\(struct input_handle \*" | more;
+
+
+
+./drivers/char/keyboard.c:1295:static void kbd_event(struct input_handle *handle, unsigned int event_type,
+./drivers/char/keyboard.c:1363:static void kbd_start(struct input_handle *handle
+./drivers/char/keyboard.c:1295:static void kbd_event(struct input_handle *handle, unsigned int event_type,
+
+
+./drivers/input/evbug.c:41:static void evbug_event(struct input_handle *handle,unsigned int type, unsigned int code, int value)
+
+./drivers/input/evdev.c:68:static void evdev_event(struct input_handle *handle,
+
+
+./drivers/input/input.c:291:void input_inject_event(struct input_handle *handle,
+
+
+
+./drivers/input/joydev.c:119:static void joydev_event(struct input_handle *handle,
+
+./drivers/input/mousedev.c:346:static void mousedev_event(struct input_handle *handle,
+
+
+./include/linux/input.h:1180:   void (*event)(struct input_handle *handle, unsigned int type, unsigned int code, int value);
+./include/linux/input.h:1268:	void input_inject_event(struct input_handle *handle, unsigned int type, unsigned int code, int value);
+
+./net/rfkill/rfkill-input.c:88:static void rfkill_event(struct input_handle *handle, unsigned int type,
+
+
+:cs find i linux/input.h
+   1     74  /home/oracle/eddie/linux-2.6/include/linux/hid.h <<GLOBAL>>
+             #include <linux/input.h>
+   2     12  /home/oracle/eddie/linux-2.6/include/linux/input-polldev.h
+             <<GLOBAL>>
+             #include <linux/input.h>
+   3     33  /home/oracle/eddie/linux-2.6/include/linux/joystick.h <<GLOBAL>>
+             #include <linux/input.h>
+   4     35  /home/oracle/eddie/linux-2.6/include/linux/uinput.h <<GLOBAL>>
+             #include <linux/input.h>
+   5     13  /home/oracle/eddie/linux-2.6/include/linux/usb/input.h <<GLOBAL>>
+             #include <linux/input.h>
+   6     26  /home/oracle/eddie/linux-2.6/include/media/ir-common.h <<GLOBAL>>
+             #include <linux/input.h>
+   7     41  /home/oracle/eddie/linux-2.6/net/bluetooth/hidp/core.c <<GLOBAL>>
+             #include <linux/input.h>
+   8     14  /home/oracle/eddie/linux-2.6/net/rfkill/rfkill-input.c <<GLOBAL>>
+             #include <linux/input.h>
+   9     26  /home/oracle/eddie/linux-2.6/sound/ppc/beep.c <<GLOBAL>>
+             #include <linux/input.h>
+  10     31  /home/oracle/eddie/linux-2.6/sound/usb/caiaq/caiaq-audio.c
+             <<GLOBAL>>
+             #include <linux/input.h>
+  11     27  /home/oracle/eddie/linux-2.6/sound/usb/caiaq/caiaq-device.c
+             <<GLOBAL>>
+             #include <linux/input.h>
+  12     22  /home/oracle/eddie/linux-2.6/sound/usb/caiaq/caiaq-input.c
+             <<GLOBAL>>
+             #include <linux/input.h>
+  13     24  /home/oracle/eddie/linux-2.6/sound/usb/caiaq/caiaq-midi.c
+
+
+find . -name '*.[chS]' | xargs egrep -n "kbd_event" | more;
+./drivers/hid/usbhid/usbkbd.c:133:static int usb_kbd_event(struct input_dev *dev, unsigned int type,
+./drivers/hid/usbhid/usbkbd.c:287:      input_dev->event = usb_kbd_event;
+
+./drivers/char/keyboard.c:1295:static void kbd_event(struct input_handle *handle, unsigned int event_type,
+./drivers/char/keyboard.c:1394: .event          = kbd_event,
+./drivers/input/keyboard/atkbd.c:563: * atkbd_event_work() is used to complete processing of events that
+./drivers/input/keyboard/atkbd.c:568:static void atkbd_event_work(struct work_struct *work)
+./drivers/input/keyboard/atkbd.c:603: * interrupt context it is offloaded to atkbd_event_work.
+./drivers/input/keyboard/atkbd.c:606:static int atkbd_event(struct input_dev *dev,
+./drivers/input/keyboard/atkbd.c:898:   input_dev->event = atkbd_event;
+./drivers/input/keyboard/atkbd.c:961:   INIT_DELAYED_WORK(&atkbd->event_work, atkbd_event_work);
+
+./drivers/input/keyboard/lkkbd.c:512: * lkkbd_event() handles events from the input module.
+./drivers/input/keyboard/lkkbd.c:515:lkkbd_event (struct input_dev *dev, unsigned int type, unsigned int code,
+./drivers/input/keyboard/lkkbd.c:670:   input_dev->event = lkkbd_event;
+
+./drivers/input/keyboard/sunkbd.c:144: * sunkbd_event() handles events from theinput module.
+./drivers/input/keyboard/sunkbd.c:147:static int sunkbd_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
+./drivers/input/keyboard/sunkbd.c:278:  input_dev->event = sunkbd_event;
+
+
+./drivers/macintosh/adbhid.c:667:static int adbhid_kbd_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
+./drivers/macintosh/adbhid.c:799:               input_dev->event = adbhid_kbd_event;
+
+
+find . -name '*.[chS]' | xargs egrep -n "atkbd_set_device_attrs" | more;
+/*
+ * atkbd_connect() is called when the serio module finds an interface
+ * that isn't handled yet by an appropriate device driver. We check if
+ * there is an AT keyboard out there and if yes, we register ourselves
+ * to the input module.
+ */
+
+static int atkbd_connect(struct serio *serio, struct serio_driver *drv)
+{
+        struct atkbd *atkbd;
+        struct input_dev *dev;
+        int err = -ENOMEM;
+
+        atkbd = kzalloc(sizeof(struct atkbd), GFP_KERNEL);
+        dev = input_allocate_device();
+        if (!atkbd || !dev)
+                goto fail1;
+
+        atkbd->dev = dev;
+        ps2_init(&atkbd->ps2dev, serio);
+        INIT_DELAYED_WORK(&atkbd->event_work, atkbd_event_work);
+        mutex_init(&atkbd->event_mutex);
+
+        switch (serio->id.type) {
+
+                case SERIO_8042_XL:
+                        atkbd->translated = 1;
+                case SERIO_8042:
+                        if (serio->write)
+                                atkbd->write = 1;
+                        break;
+        }
+
+        atkbd->softraw = atkbd_softraw;
+        atkbd->softrepeat = atkbd_softrepeat;
+        atkbd->scroll = atkbd_scroll;
+
+
+        if (atkbd->softrepeat)
+                atkbd->softraw = 1;
+
+        serio_set_drvdata(serio, atkbd);
+
+        err = serio_open(serio, drv);
+        if (err)
+                goto fail2;
+
+        if (atkbd->write) {
+
+                if (atkbd_probe(atkbd)) {
+                        err = -ENODEV;
+                        goto fail3;
+                }
+
+                atkbd->set = atkbd_select_set(atkbd, atkbd_set, atkbd_extra);
+                atkbd_activate(atkbd);
+
+        } else {
+                atkbd->set = 2;
+                atkbd->id = 0xab00;
+        }
+
+        atkbd_set_keycode_table(atkbd);
+        atkbd_set_device_attrs(atkbd);
+
+        err = sysfs_create_group(&serio->dev.kobj, &atkbd_attribute_group);
+        if (err)
+                goto fail3;
+
+        atkbd_enable(atkbd);
+
+        err = input_register_device(atkbd->dev);
+        if (err)
+                goto fail4;
+
+        return 0;
+
+ fail4: sysfs_remove_group(&serio->dev.kobj, &atkbd_attribute_group);
+ fail3: serio_close(serio);
+ fail2: serio_set_drvdata(serio, NULL);
+ fail1: input_free_device(dev);
+        kfree(atkbd);
+        return err;
+}
+:cs find c atkbd_connect
+no result, but get it in the same file by vi search. 
+the root cause is that it is never directly accessed, it is accessed through a function pointer.
+static struct serio_driver atkbd_drv = {
+        .driver         = {
+                .name   = "atkbd",
+        },
+        .description    = DRIVER_DESC,
+        .id_table       = atkbd_serio_ids,
+        .interrupt      = atkbd_interrupt,
+        .connect        = atkbd_connect,
+        .reconnect      = atkbd_reconnect,
+        .disconnect     = atkbd_disconnect,
+        .cleanup        = atkbd_cleanup,
+};
+
+cs find t atkbd_drv
+no result, reason is that the atkbd_drv is register to other struct, it is only accessed through pointer.
+static int __init atkbd_init(void)
+{
+        return serio_register_driver(&atkbd_drv);
+}
+
+static void __exit atkbd_exit(void)
+{
+        serio_unregister_driver(&atkbd_drv);
+}
+
+int __serio_register_driver(struct serio_driver *drv, struct module *owner, cons
+t char *mod_name)
+{
+        int manual_bind = drv->manual_bind;
+        int error;
+
+        drv->driver.bus = &serio_bus;
+        drv->driver.owner = owner;
+        drv->driver.mod_name = mod_name;
+
+        /*
+         * Temporarily disable automatic binding because probing
+         * takes long time and we are better off doing it in kseriod
+         */
+        drv->manual_bind = 1;
+
+        error = driver_register(&drv->driver);
+        if (error) {
+                printk(KERN_ERR
+                        "serio: driver_register() failed for %s, error: %d\n",
+                        drv->driver.name, error);
+                return error;
+        }
+
+        /*
+         * Restore original bind mode and let kseriod bind the
+         * driver to free ports
+         */
+        if (!manual_bind) {
+                drv->manual_bind = 0;
+                error = serio_queue_event(drv, NULL, SERIO_ATTACH_DRIVER);
+                if (error) {
+                        driver_unregister(&drv->driver);
+                        return error;
+                }
+        }
+
+        return 0;
+}
+
+
+static void atkbd_set_device_attrs(struct atkbd *atkbd)
+{
+        struct input_dev *input_dev = atkbd->dev;
+        int i;
+
+        if (atkbd->extra)
+                snprintf(atkbd->name, sizeof(atkbd->name),
+                         "AT Set 2 Extra keyboard");
+        else
+                snprintf(atkbd->name, sizeof(atkbd->name),
+                         "AT %s Set %d keyboard",
+                         atkbd->translated ? "Translated" : "Raw", atkbd->set);
+
+        snprintf(atkbd->phys, sizeof(atkbd->phys),
+                 "%s/input0", atkbd->ps2dev.serio->phys);
+
+        input_dev->name = atkbd->name;
+        input_dev->phys = atkbd->phys;
+        input_dev->id.bustype = BUS_I8042;
+        input_dev->id.vendor = 0x0001;
+        input_dev->id.product = atkbd->translated ? 1 : atkbd->set;
+        input_dev->id.version = atkbd->id;
+        input_dev->event = atkbd_event;
+        input_dev->dev.parent = &atkbd->ps2dev.serio->dev;
+
+        input_set_drvdata(input_dev, atkbd);
+
+        input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
+                BIT_MASK(EV_MSC);
+
+        if (atkbd->write) {
+                input_dev->evbit[0] |= BIT_MASK(EV_LED);
+                input_dev->ledbit[0] = BIT_MASK(LED_NUML) |
+                        BIT_MASK(LED_CAPSL) | BIT_MASK(LED_SCROLLL);
+        }
+
+        if (atkbd->extra)
+                input_dev->ledbit[0] |= BIT_MASK(LED_COMPOSE) |
+                        BIT_MASK(LED_SUSPEND) | BIT_MASK(LED_SLEEP) |
+                        BIT_MASK(LED_MUTE) | BIT_MASK(LED_MISC);
+
+        if (!atkbd->softrepeat) {
+                input_dev->rep[REP_DELAY] = 250;
+                input_dev->rep[REP_PERIOD] = 33;
+        }
+
+        input_dev->mscbit[0] = atkbd->softraw ? BIT_MASK(MSC_SCAN) :
+                BIT_MASK(MSC_RAW) | BIT_MASK(MSC_SCAN);
+
+        if (atkbd->scroll) {
+                input_dev->evbit[0] |= BIT_MASK(EV_REL);
+                input_dev->relbit[0] = BIT_MASK(REL_WHEEL) |
+                        BIT_MASK(REL_HWHEEL);
+                set_bit(BTN_MIDDLE, input_dev->keybit);
+        }
+
+        input_dev->keycode = atkbd->keycode;
+        input_dev->keycodesize = sizeof(unsigned char);
+        input_dev->keycodemax = ARRAY_SIZE(atkbd_set2_keycode);
+
+        for (i = 0; i < 512; i++)
+                if (atkbd->keycode[i] && atkbd->keycode[i] < ATKBD_SPECIAL)
+                        set_bit(atkbd->keycode[i], input_dev->keybit);
+}
+
+
+
+
+/**
+ * input_inject_event() - send input event from input handler
+ * @handle: input handle to send event through
+ * @type: type of the event
+ * @code: event code
+ * @value: value of the event
+ *
+ * Similar to input_event() but will ignore event if device is
+ * "grabbed" and handle injecting event is not the one that owns
+ * the device.
+ */
+void input_inject_event(struct input_handle *handle,
+                        unsigned int type, unsigned int code, int value)
+{
+        struct input_dev *dev = handle->dev;
+        struct input_handle *grab;
+        unsigned long flags;
+
+        if (is_event_supported(type, dev->evbit, EV_MAX)) {
+                spin_lock_irqsave(&dev->event_lock, flags);
+
+                rcu_read_lock();
+                grab = rcu_dereference(dev->grab);
+                if (!grab || grab == handle)
+                        input_handle_event(dev, type, code, value);
+                rcu_read_unlock();
+
+                spin_unlock_irqrestore(&dev->event_lock, flags);
+        }
+}
+EXPORT_SYMBOL(input_inject_event);
+
+
+static void kbd_event(struct input_handle *handle, unsigned int event_type,
+                      unsigned int event_code, int value)
+{
+        if (event_type == EV_MSC && event_code == MSC_RAW && HW_RAW(handle->dev)
+)
+                kbd_rawcode(value);
+        if (event_type == EV_KEY)
+                kbd_keycode(event_code, value, HW_RAW(handle->dev));
+        tasklet_schedule(&keyboard_tasklet);
+        do_poke_blanked_console = 1;
+        schedule_console_callback();
+}
+
+/*
+ * Event callback from the input module. Events that change the state of
+ * the hardware are processed here. If action can not be performed in
+ * interrupt context it is offloaded to atkbd_event_work.
+ */
+
+static int atkbd_event(struct input_dev *dev,
+                        unsigned int type, unsigned int code, int value)
+{
+        struct atkbd *atkbd = input_get_drvdata(dev);
+
+        if (!atkbd->write)
+                return -1;
+
+        switch (type) {
+
+                case EV_LED:
+                        atkbd_schedule_event_work(atkbd, ATKBD_LED_EVENT_BIT);
+                        return 0;
+
+                case EV_REP:
+                        if (!atkbd->softrepeat)
+                                atkbd_schedule_event_work(atkbd, ATKBD_REP_EVENT
+_BIT);
+                        return 0;
+        }
+
+        return -1;
+}
+
+DECLARE_TASKLET_DISABLED(keyboard_tasklet, kbd_bh, 0);
+
+void input_inject_event(struct input_handle *handle,
+                        unsigned int type, unsigned int code, int value)
+{
+        struct input_dev *dev = handle->dev;
+        struct input_handle *grab;
+        unsigned long flags;
+
+        if (is_event_supported(type, dev->evbit, EV_MAX)) {
+                spin_lock_irqsave(&dev->event_lock, flags);
+
+                rcu_read_lock();
+                grab = rcu_dereference(dev->grab);
+                if (!grab || grab == handle)
+                        input_handle_event(dev, type, code, value);
+                rcu_read_unlock();
+
+                spin_unlock_irqrestore(&dev->event_lock, flags);
+        }
+}
+EXPORT_SYMBOL(input_inject_event);
+
+static void input_handle_event(struct input_dev *dev,
+                               unsigned int type, unsigned int code, int value)
+{
+
+
+
+/*
+ * This routine is the bottom half of the keyboard interrupt
+ * routine, and runs with all interrupts enabled. It does
+ * console changing, led setting and copy_to_cooked, which can
+ * take a reasonably long time.
+ *
+ * Aside from timing (which isn't really that important for
+ * keyboard interrupts as they happen often), using the software
+ * interrupt routines for this thing allows us to easily mask
+ * this when we don't want any of the above to happen.
+ * This allows for easy and efficient race-condition prevention
+ * for kbd_start => input_inject_event(dev, EV_LED, ...) => ...
+ */
+
+static void kbd_bh(unsigned long dummy)
+{
+        struct list_head *node;
+        unsigned char leds = getleds();
+
+        if (leds != ledstate) {
+                list_for_each(node, &kbd_handler.h_list) {
+                        struct input_handle *handle = to_handle_h(node);
+                        input_inject_event(handle, EV_LED, LED_SCROLLL, !!(leds & 0x01));
+                        input_inject_event(handle, EV_LED, LED_NUML,    !!(leds & 0x02));
+                        input_inject_event(handle, EV_LED, LED_CAPSL,   !!(leds & 0x04));
+                        input_inject_event(handle, EV_SYN, SYN_REPORT, 0);
+                }
+        }
+
+        ledstate = leds;
+}
+
+
+
+static inline void tasklet_schedule(struct tasklet_struct *t)
+{
+        if (!test_and_set_bit(TASKLET_STATE_SCHED, &t->state))
+                __tasklet_schedule(t);
+}
+void fastcall __tasklet_schedule(struct tasklet_struct *t)
+{
+        unsigned long flags;
+
+        local_irq_save(flags);
+        t->next = __get_cpu_var(tasklet_vec).list;
+        __get_cpu_var(tasklet_vec).list = t;
+        raise_softirq_irqoff(TASKLET_SOFTIRQ);
+        local_irq_restore(flags);
+}
+/*
+ * This function must run with irqs disabled!
+ */
+inline fastcall void raise_softirq_irqoff(unsigned int nr)
+{
+        __raise_softirq_irqoff(nr);
+
+        /*
+         * If we're in an interrupt or softirq, we're done
+         * (this also catches softirq-disabled code). We will
+         * actually run the softirq once we return from
+         * the irq or softirq.
+         *
+         * Otherwise we wake up ksoftirqd to make sure we
+         * schedule the softirq soon.
+         */
+        if (!in_interrupt())
+                wakeup_softirqd();
+}
+#define __raise_softirq_irqoff(nr) do { or_softirq_pending(1UL << (nr)); } while (0)
+#define or_softirq_pending(x)  (local_softirq_pending() |= (x))
+#define local_softirq_pending()         (local_cpu_data->softirq_pending)
+#define local_cpu_data          (&__ia64_per_cpu_var(cpu_info))
+#define __ia64_per_cpu_var(var) (per_cpu__##var)
+per_cpu__cpu_info
+/*
+ * we cannot loop indefinitely here to avoid userspace starvation,
+ * but we also don't want to introduce a worst case 1/HZ latency
+ * to the pending events, so lets the scheduler to balance
+ * the softirq load for us.
+ */
+static inline void wakeup_softirqd(void)
+{
+        /* Interrupts are disabled: no need to stop preemption */
+        struct task_struct *tsk = __get_cpu_var(ksoftirqd);
+
+        if (tsk && tsk->state != TASK_RUNNING)
+                wake_up_process(tsk);
+}
+
+int fastcall wake_up_process(struct task_struct *p)
+{
+        return try_to_wake_up(p, TASK_STOPPED | TASK_TRACED |
+                                 TASK_INTERRUPTIBLE | TASK_UNINTERRUPTIBLE, 0);
+}
+EXPORT_SYMBOL(wake_up_process);
+
+/***
+ * try_to_wake_up - wake up a thread
+ * @p: the to-be-woken-up thread
+ * @state: the mask of task states that can be woken
+ * @sync: do a synchronous wakeup?
+ *
+ * Put it on the run-queue if it's not already there. The "current"
+ * thread is always on the run-queue (except when the actual
+ * re-schedule is in progress), and as such you're allowed to do
+ * the simpler "current->state = TASK_RUNNING" to mark yourself
+ * runnable without the overhead of this.
+ *
+ * returns failure only if the task is already active.
+ */
+static int try_to_wake_up(struct task_struct *p, unsigned int state, int sync)
+{
+        int cpu, orig_cpu, this_cpu, success = 0;
+        unsigned long flags;
+        long old_state;
+        struct rq *rq;
+#ifdef CONFIG_SMP
+        struct sched_domain *sd, *this_sd = NULL;
+        unsigned long load, this_load;
+        int new_cpu;
+#endif
+
+        rq = task_rq_lock(p, &flags);
+        old_state = p->state;
+        if (!(old_state & state))
+                goto out;
+
+        if (p->se.on_rq)
+                goto out_running;
+
+        cpu = task_cpu(p);
+        orig_cpu = cpu;
+        this_cpu = smp_processor_id();
+
+
+
+
+static void kbd_rawcode(unsigned char data)
+{
+        struct vc_data *vc = vc_cons[fg_console].d;
+        kbd = kbd_table + fg_console;
+        if (kbd->kbdmode == VC_RAW)
+                put_queue(vc, data);
+}
+
+/*
+ * Helper Functions.
+ */
+static void put_queue(struct vc_data *vc, int ch)
+{
+        struct tty_struct *tty = vc->vc_tty;
+
+        if (tty) {
+                tty_insert_flip_char(tty, ch, 0);
+                con_schedule_flip(tty);
+        }
+}
+
+static void kbd_event(struct input_handle *handle, unsigned int event_type,
+                      unsigned int event_code, int value)
+{
+        if (event_type == EV_MSC && event_code == MSC_RAW && HW_RAW(handle->dev)
+)
+                kbd_rawcode(value);
+        if (event_type == EV_KEY)
+                kbd_keycode(event_code, value, HW_RAW(handle->dev));
+        tasklet_schedule(&keyboard_tasklet);
+        do_poke_blanked_console = 1;
+        schedule_console_callback();
+}
+
+
+
+int __init kbd_init(void)
+{
+        int i;
+        int error;
+
+        for (i = 0; i < MAX_NR_CONSOLES; i++) {
+                kbd_table[i].ledflagstate = KBD_DEFLEDS;
+                kbd_table[i].default_ledflagstate = KBD_DEFLEDS;
+                kbd_table[i].ledmode = LED_SHOW_FLAGS;
+                kbd_table[i].lockstate = KBD_DEFLOCK;
+                kbd_table[i].slockstate = 0;
+                kbd_table[i].modeflags = KBD_DEFMODE;
+                kbd_table[i].kbdmode = default_utf8 ? VC_UNICODE : VC_XLATE;
+        }
+
+        error = input_register_handler(&kbd_handler);
+        if (error)
+                return error;
+
+        tasklet_enable(&keyboard_tasklet);
+        tasklet_schedule(&keyboard_tasklet);
+
+        return 0;
+}
+
+
+void schedule_console_callback(void)
+{
+        schedule_work(&console_work);
+}
+kernel/workqueue.c -- put into work queue! no delay
+
+/**
+ * schedule_work - put work task in global workqueue
+ * @work: job to be done
+ *
+ * This puts a job in the kernel-global workqueue.
+ */
+int fastcall schedule_work(struct work_struct *work)
+{
+        return queue_work(keventd_wq, work);
+}
+EXPORT_SYMBOL(schedule_work);
+
+static DECLARE_WORK(console_work, console_callback);
+
+
+static void console_callback(struct work_struct *ignored)
+{
+        acquire_console_sem();
+
+        if (want_console >= 0) {
+                if (want_console != fg_console &&
+                    vc_cons_allocated(want_console)) {
+                        hide_cursor(vc_cons[fg_console].d);
+                        change_console(vc_cons[want_console].d);
+                        /* we only changed when the console had already
+                           been allocated - a new console is not created
+                           in an interrupt routine */
+                }
+                want_console = -1;
+        }
+        if (do_poke_blanked_console) { /* do not unblank for a LED change */
+                do_poke_blanked_console = 0;
+                poke_blanked_console();
+        }
+        if (scrollback_delta) {
+                struct vc_data *vc = vc_cons[fg_console].d;
+                clear_selection();
+                if (vc->vc_mode == KD_TEXT)
+                        vc->vc_sw->con_scrolldelta(vc, scrollback_delta);
+                scrollback_delta = 0;
+        }
+        if (blank_timer_expired) {
+                do_blank_screen(0);
+                blank_timer_expired = 0;
+        }
+        notify_update(vc_cons[fg_console].d);
+
+        release_console_sem();
+}
+
+
+:cs find e event =
+:cs find t .event
+:cs find t \.event
+:cs find t struct input_handler *
+
+14     88  /home/oracle/eddie/linux-2.6/net/rfkill/rfkill-input.c
+           <<<unknown>>>
+           static void rfkill_event(struct ...ndle *handle, unsigned int type,
+ 7   1256  /home/oracle/eddie/linux-2.6/include/linux/input.h <<<unknown>>>
+           int input_register_handle(struct input_handle *);
+
+3/28/2008 8:59AM
+!/bin/sh
+LNX=/home/oracle/eddie/linux-2.6
+echo    "LNX=/home/oracle/eddie/linux-2.6" 	
+cd /
+    find  $LNX -path "$LNX/arch/*" ! -path "$LNX/arch/x86*" -prune -o -name "*.[chxsS]" -print | grep x86
+	find  $LNX ! -path "$LNX/arch/*"  -path "$LNX/arch/i386*"  -o -name "*.[chxsS]" -print | grep i386
+	
+	! -path "$LNX/arch/i386*" -o \
+	-path "$LNX/include/asm-*" ! -path "$LNX/include/asm-i386*" -prune -o \
+	-path "$LNX/tmp*" -prune -o                                           \
+	-path "$LNX/Documentation*" -prune -o                                 \
+	-path "$LNX/scripts*" -prune -o    
+cscope -b -q -k
+
+find  $LNX                                                                \
+	-path "$LNX/arch/*"  -prune -o               \
+	-path "$LNX/include/asm-*"  -prune -o \
+	-path "$LNX/tmp*" -prune -o                                           \
+	-path "$LNX/Documentation*" -prune -o                                 \
+	-path "$LNX/scripts*" -prune -o                                       \
+	-path "$LNX/drivers*" -prune -o                                       \
+        -name "*.[chxsS]" -print >/home/oracle/eddie/cscope/cscope.files
+
+find  $LNX
+	-path "$LNX/arch/i386*"		-o				\
+	-path "$LNX/include/asm-i386*"		-o		\
+	-name "*.[chxsS]" -print >/home/oracle/eddie/cscope/cscope2.files
+
+find  $LNX/arch/x86 -name "*.[chxsS]" -print | more
+	-path "$LNX/arch/i386*"		-o				\
+	-path "$LNX/include/asm-i386*"		-o		\
+	-name "*.[chxsS]" -print | more
+	
+ctags -R
+
+LNX=/home/jru/linux-2.4.18
+    cd / 	
+    find  $LNX                                                                \
+	-path "$LNX/arch/*" ! -path "$LNX/arch/x86*" -prune -o               \
+	-path "$LNX/include/asm-*" ! -path "$LNX/include/asm-x86*" -prune -o \
+	-path "$LNX/tmp*" -prune -o                                           \
+	-path "$LNX/Documentation*" -prune -o                                 \
+	-path "$LNX/scripts*" -prune -o                                       \
+	-path "$LNX/drivers*" -prune -o                                       \
+    -name "*.[chxsS]" -print >/home/jru/cscope/cscope.files
+*******************
+faint to death: the root cause is that the i386 and x86_64 folder were merged 
+into x86 folder.
+
+
+
+database:
+select dbms_flashback.get_system_change_number from dual;
+commit;
+select dbms_flashback.get_system_change_number from dual;
+commit;
+commit;
+select dbms_flashback.get_system_change_number from dual;
+
+
+
+
+
+1.
+file ./drivers/char/tty_io.c
+tty_read
+
+2.
+./drivers/char/pc_key.c		--no more existed
+find . -name pc_key.c		--no
+find . -name '*.[chS]' | xargs egrep -n "keyboard_interrupt\(\)" | more;
+keyboard_interrupt()
+find . -name '*.[c]' | xargs egrep -n "_interrupt" | more;
+
+3.
+console_softint
+find . -name '*.[c]' | xargs egrep -n "console_softint" | more;
+find . -name '*.[c]' | xargs egrep -n "get_sb" | grep ext3;
+
+--no
+file ./drivers/char/console.c	-- no more existed
+find . -name console.c
+./arch/alpha/kernel/console.c
+./arch/m68k/sun3/prom/console.c
+./arch/mips/dec/prom/console.c
+./arch/mips/sibyte/cfe/console.c
+./arch/mips/arc/console.c
+./arch/sparc/prom/console.c
+./arch/sparc64/prom/console.c
+./arch/xtensa/platform-iss/console.c
+./drivers/usb/serial/console.c
+
+./kernel/power/console.c
+
+4.
+file ./include/linux/kbd_kern.h
+
+5.
+file ./include/linux/tty_flip.h
+
+6.wake_up(&keypress_wait)
+find . -name '*.[chS]' | xargs egrep -n "keypress_wait" | more;
+
+./drivers/serial/68328serial.c:84:extern wait_queue_head_t keypress_wait;
+./drivers/serial/68328serial.c:325:                     wake_up(&keypress_wait);
+			
+tasklet_schedule
+find . -name '*.[c]' | xargs egrep -n "tasklet_schedule" | more;
+./drivers/char/ec3104_keyb.c:223:       tasklet_schedule(&keyboard_tasklet);
+./drivers/char/keyboard.c:1165: tasklet_schedule(&keyboard_tasklet);
+./drivers/char/keyboard.c:1252: tasklet_schedule(&keyboard_tasklet);
+./drivers/char/qtronix.c:421:   tasklet_schedule(&keyboard_tasklet);
+./drivers/char/scan_keyb.c:63:          tasklet_schedule(&keyboard_tasklet);
+./drivers/tc/lk201.c:396:       tasklet_schedule(&keyboard_tasklet);
+find . -name '*.[h]' | xargs egrep -n "tasklet_schedule" | more;
+./include/linux/interrupt.h:195:extern void FASTCALL(__tasklet_schedule(struct tasklet_struct *t));
+./include/linux/interrupt.h:197:static inline void tasklet_schedule(struct tasklet_struct *t)
+
+keyboard_tasklet
+find . -name '*.[chS]' | xargs egrep -n "keyboard_tasklet" | more;
+./drivers/char/keyboard.c:914:DECLARE_TASKLET_DISABLED(keyboard_tasklet, kbd_bh, 0);
+./include/linux/kbd_kern.h:8:extern struct tasklet_struct keyboard_tasklet;
+./include/linux/kbd_kern.h:83:  tasklet_schedule(&keyboard_tasklet);
+/*
+ * This routine is the bottom half of the keyboard interrupt
+ * routine, and runs with all interrupts enabled. It does
+ * console changing, led setting and copy_to_cooked, which can
+ * take a reasonably long time.
+ *
+ * Aside from timing (which isn't really that important for
+ * keyboard interrupts as they happen often), using the software
+ * interrupt routines for this thing allows us to easily mask
+ * this when we don't want any of the above to happen.
+ * This allows for easy and efficient race-condition prevention
+ * for kbd_refresh_leds => input_event(dev, EV_LED, ...) => ...
+ */
+
+static void kbd_bh(unsigned long dummy)
+{
+        struct list_head * node;
+        unsigned char leds = getleds();
+
+        if (leds != ledstate) {
+                list_for_each(node,&kbd_handler.h_list) {
+                        struct input_handle * handle = to_handle_h(node);
+                        input_event(handle->dev, EV_LED, LED_SCROLLL, !!(leds &0x01));
+                        input_event(handle->dev, EV_LED, LED_NUML,    !!(leds &0x02));
+                        input_event(handle->dev, EV_LED, LED_CAPSL,   !!(leds &0x04));
+                        input_sync(handle->dev);
+                }
+        }
+
+        ledstate = leds;
+}
+
+
+
+DECLARE_TASKLET_DISABLED(keyboard_tasklet, kbd_bh, 0);
+find . -name '*.[h]' | xargs egrep -n "define DECLARE_TASKLET_DISABLED" | more;
+#define DECLARE_TASKLET_DISABLED(name, func, data) \
+struct tasklet_struct name = { NULL, 0, ATOMIC_INIT(1), func, data }
+
+
+> 1 F   d    container_of      include/asm-frv/ptrace.h
+               71
+  2 F   d    container_of      include/linux/kernel.h
+               275
+struct input_handle
+struct input_handle {
+
+        void *private;
+
+        int open;
+        char *name;
+
+        struct input_dev *dev;
+        struct input_handler *handler;
+
+        struct list_head        d_node;
+        struct list_head        h_node;
+};
+struct input_handler {
+
+        void *private;
+
+        void (*event)(struct input_handle *handle, unsigned int type, unsigned i
+nt code, int value);
+        struct input_handle* (*connect)(struct input_handler *handler, struct in
+put_dev *dev, struct input_device_id *id);
+        void (*disconnect)(struct input_handle *handle);
+
+        struct file_operations *fops;
+        int minor;
+        char *name;
+
+        struct input_device_id *id_table;
+        struct input_device_id *blacklist;
+
+        struct list_head        h_list;
+        struct list_head        node;
+};
+struct input_dev {
+
+        void *private;
+
+        const char *name;
+        const char *phys;
+        const char *uniq;
+        struct input_id id;
+
+        unsigned long evbit[NBITS(EV_MAX)];
+        unsigned long keybit[NBITS(KEY_MAX)];
+        unsigned long relbit[NBITS(REL_MAX)];
+        unsigned long absbit[NBITS(ABS_MAX)];
+        unsigned long mscbit[NBITS(MSC_MAX)];
+        unsigned long ledbit[NBITS(LED_MAX)];
+        unsigned long sndbit[NBITS(SND_MAX)];
+        unsigned long ffbit[NBITS(FF_MAX)];
+        int ff_effects_max;
+
+        unsigned int keycodemax;
+        unsigned int keycodesize;
+        void *keycode;
+
+        unsigned int repeat_key;
+        struct timer_list timer;
+
+        struct pt_regs *regs;
+        int state;
+
+        int sync;
+
+        int abs[ABS_MAX + 1];
+        int rep[REP_MAX + 1];
+
+        unsigned long key[NBITS(KEY_MAX)];
+        unsigned long led[NBITS(LED_MAX)];
+        unsigned long snd[NBITS(SND_MAX)];
+
+        int absmax[ABS_MAX + 1];
+        int absmin[ABS_MAX + 1];
+        int absfuzz[ABS_MAX + 1];
+        int absflat[ABS_MAX + 1];
+
+        int (*open)(struct input_dev *dev); void (*close)(struct input_dev 
+        *dev); int (*accept)(struct input_dev *dev, struct file *file); int 
+        (*flush)(struct input_dev *dev, struct file *file); int (*event)(struct 
+        input_dev *dev, unsigned int type, unsigned int code , int value); int 
+        (*upload_effect)(struct input_dev *dev, struct ff_effect *effect); int 
+        (*erase_effect)(struct input_dev *dev, int effect_id);
+
+        struct input_handle *grab;
+
+        struct semaphore sem;   /* serializes open and close operations */
+        unsigned int users;
+
+        struct device *dev;
+
+        struct list_head        h_list;
+        struct list_head        node;
+};
+
+find . -name '*.[ch]' | xargs egrep -n "kbd_interrupt" | more;
+./drivers/input/keyboard/lkkbd.c:413:
+find . -name '*.[ch]' | xargs egrep -n "kbd_interrupt" | grep request_irq               
+find . -name '*.[ch]' | xargs egrep -n "request_irq" | grep kbd_interrupt            
+./drivers/input/keyboard/amikbd.c:217:  request_irq(IRQ_AMIGA_CIAA_SP, amikbd_in
+
+terrupt, 0, "amikbd", amikbd_interrupt);
+./drivers/input/keyboard/corgikbd.c:307:                if (request_irq(CORGI_IRQ_GPIO_KEY_SENSE(i), corgikbd_interrupt,
+./drivers/input/keyboard/locomokbd.c:250:       ret = request_irq(dev->irq[0], locomokbd_interrupt, 0, "locomokbd", locomokbd);
+/*
+ * LoCoMo keyboard interrupt handler.
+ */
+static irqreturn_t locomokbd_interrupt(int irq, void *dev_id, struct pt_regs *r
+gs)
+{
+        struct locomokbd *locomokbd = dev_id;
+        /** wait chattering delay **/
+        udelay(100);
+
+        locomokbd_scankeyboard(locomokbd, regs);
+
+        return IRQ_HANDLED;
+}
+
+
+
+./drivers/input/serio/q40kbd.c:97:      if (request_irq(Q40_IRQ_KEYBOARD, q40kbd_interrupt, 0, "q40kbd", NULL)) {
+
+
+find . -name '*.[ch]' | xargs egrep -n '"i8042"' | more;
+./drivers/input/serio/i8042.c:973:      .name           = "i8042",
+
+
+
+ 
+:cs find e \.interrupt
+[oracle@ora10gapp1 keyboard]$ find . -name '*.[c]' | xargs egrep -n "\.interrupt[^=]*=" | more;
+./atkbd.c:945:  .interrupt      		= atkbd_interrupt,
+/*
+ * AT and PS/2 keyboard driver
+ *
+ * Copyright (c) 1999-2002 Vojtech Pavlik
+ */
+
+/*
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 as published by
+ * the Free Software Foundation.
+ */
+
+/*
+ * This driver can handle standard AT keyboards and PS/2 keyboards in
+ * Translated and Raw Set 2 and Set 3, as well as AT keyboards on dumb
+ * input-only controllers and AT keyboards connected over a one way RS232
+ * converter.
+ */
+static struct serio_driver atkbd_drv = {
+        .driver         = {
+                .name   = "atkbd",
+        },
+        .description    = DRIVER_DESC,
+        .id_table       = atkbd_serio_ids,
+        .interrupt      = atkbd_interrupt,
+        .connect        = atkbd_connect,
+        .reconnect      = atkbd_reconnect,
+        .disconnect     = atkbd_disconnect,
+        .cleanup        = atkbd_cleanup,
+};
+
+./hil_kbd.c:360:        .interrupt      = hil_kbd_interrupt
+/*
+ * Generic linux-input device driver for keyboard devices
+ *
+ static struct serio_driver lkkbd_drv = {
+        .driver         = {
+                .name   = "lkkbd",
+        },
+        .description    = DRIVER_DESC,
+        .id_table       = lkkbd_serio_ids,
+        .connect        = lkkbd_connect,
+        .disconnect     = lkkbd_disconnect,
+        .interrupt      = lkkbd_interrupt,
+};
+ 
+./lkkbd.c:731:  .interrupt      		= lkkbd_interrupt,
+/*
+ * DEC LK201 and LK401 keyboard driver for Linux (primary for DECstations
+ * and VAXstations, but can also be used on any standard RS232 with an
+ * adaptor).
+ *
+
+
+./newtonkbd.c:167:      .interrupt      = nkbd_interrupt,
+/*
+ * Newton keyboard driver for Linux
+ */
+ 
+./sunkbd.c:332: .interrupt      		= sunkbd_interrupt,
+/*
+ * Sun keyboard driver for Linux
+ */
+ 
+./xtkbd.c:171:  .interrupt      		= xtkbd_interrupt,
+/*
+ * XT keyboard driver for Linux
+ */
+ 
+./lkkbd.c:731
+struct serio_driver hil_kbd_serio_drv = {
+        .driver         = {
+                .name   = "hil_kbd",
+        },
+        .description    = "HP HIL keyboard driver",
+        .connect        = hil_kbd_connect,
+        .disconnect     = hil_kbd_disconnect,
+        .interrupt      = hil_kbd_interrupt
+};
+
+
+
+atkbd_interrupt
+
+
+  
+  
+struct serio_driver {
+        void *private;
+        char *description;
+
+        struct serio_device_id *id_table;
+        unsigned int manual_bind;
+
+        void (*write_wakeup)(struct serio *);
+        irqreturn_t (*interrupt)(struct serio *, unsigned char,
+                        unsigned int, struct pt_regs *);
+        int  (*connect)(struct serio *, struct serio_driver *drv);
+        int  (*reconnect)(struct serio *);
+        void (*disconnect)(struct serio *);
+        void (*cleanup)(struct serio *);
+
+        struct device_driver driver;
+};
+static void serio_queue_event(void *object, struct module *owner,
+                              enum serio_event_type event_type)
+{
+        unsigned long flags;
+        struct serio_event *event;
+
+        spin_lock_irqsave(&serio_event_lock, flags);
+
+        /*
+         * Scan event list for the other events for the same serio port,
+         * starting with the most recent one. If event is the same we
+         * do not need add new one. If event is of different type we
+         * need to add this event and should not look further because
+         * we need to preseve sequence of distinct events.
+         */
+        list_for_each_entry_reverse(event, &serio_event_list, node) {
+                if (event->object == object) {
+                        if (event->type == event_type)
+                                goto out;
+                        break;
+                }
+        }
+
+        if ((event = kmalloc(sizeof(struct serio_event), GFP_ATOMIC))) {
+                if (!try_module_get(owner)) {
+                        printk(KERN_WARNING "serio: Can't get module reference, dropping event %d\n", event_type);
+                        goto out;
+                }
+
+                event->type = event_type;
+                event->object = object;
+                event->owner = owner;
+
+                list_add_tail(&event->node, &serio_event_list);
+                wake_up(&serio_wait);
+        } else {
+                printk(KERN_ERR "serio: Not enough memory to queue event %d\n", event_type);
+        }
+out:
+        spin_unlock_irqrestore(&serio_event_lock, flags);
+}
+
+
+
+find . -name '*.[ch]' | xargs egrep -n "serio_event_list" | more;
+find . -name '*.[ch]' | xargs egrep -n "serio_wait" | more;
+
+find . -name '*.[ch]' | xargs egrep -n "_IRQ" | more;
+
+:!find . -name irq.c | grep 386
+./arch/i386/kernel/irq.c
+./arch/i386/pci/irq.c
+
+kernel/irq/handle.c"
+
+find . -name '*.[ch]' | xargs egrep -n '" 1 "' | more; 
+INTR_CHAR
+QUIT_CHAR
+SIGINT
+SIGQUIT
+
+find . -name '*.[ch]' | xargs egrep -n "INTR_CHAR" | more;
+./drivers/char/n_tty.c:729:             if (c == INTR_CHAR(tty))
+./drivers/char/n_tty.c:1038:                    set_bit(INTR_CHAR(tty), tty->process_char_map);
+./drivers/s390/char/ctrlchar.c:68:              return INTR_CHAR(tty) | CTRLCHAR_CTRL;
+./include/linux/tty.h:149:#define INTR_CHAR(tty) ((tty)->termios->c_cc[VINTR])
+
+finally it send signal to the process - should be the current process.
+./drivers/char/n_tty.c
+./kernel/signal.c
+
+find . -name '*.[c]' | xargs egrep -n "n_tty_receive_char" | more;
+
+
+
+
+find . -name '*.[ch]' | xargs egrep -n "QUIT_CHAR" | more;
+
+
+
+
+"kernel/softirq.c" 496 lines, 11357 characters
+file list:
+include/linux/input.h
+
+The most commonly used git commands are:
+   add           Add file contents to the index
+   apply         Apply a patch on a git index file and a working tree
+   archive       Create an archive of files from a named tree
+   bisect        Find the change that introduced a bug by binary search
+   branch        List, create, or delete branches
+   checkout      Checkout and switch to a branch
+   cherry-pick   Apply the change introduced by an existing commit
+   clone         Clone a repository into a new directory
+   commit        Record changes to the repository
+   diff          Show changes between commits, commit and working tree, etc
+   fetch         Download objects and refs from another repository
+   grep          Print lines matching a pattern
+   init          Create an empty git repository or reinitialize an existing one
+   log           Show commit logs
+   merge         Join two or more development histories together
+   mv            Move or rename a file, a directory, or a symlink
+   prune         Prune all unreachable objects from the object database
+   pull          Fetch from and merge with another repository or a local branch
+   push          Update remote refs along with associated objects
+   rebase        Forward-port local commits to the updated upstream head
+   reset         Reset current HEAD to the specified state
+   revert        Revert an existing commit
+   rm            Remove files from the working tree and from the index
+   show          Show various types of objects
+   show-branch   Show branches and their commits
+   status        Show the working tree status
+   tag           Create, list, delete or verify a tag object signed with GPG
+(use 'git help -a' to get a list of all installed git commands)
+
+--most comprehensive one.
+find . -name '*.[chS]' | xargs egrep -n "myregularexpression" | more;
+
+/searching code.
+--1
+find . -name '*.[chS]' | xargs egrep -n "myregularexpression";
+example:
+find . -name '*.[chS]' | xargs egrep -n "schedule\(\)"
+find . -name '*.c' | xargs egrep -n "sys_read"
+
+find . -iname entry.S | grep 386
+vim ` find . -iname entry.S | grep 386`
+./arch/i386/kernel/syscall_table.S
+
+--2
+egrep -r --include "*.[chS]" "myregularexpression"
+example:
+egrep -r --include "*.[chS]" "myregularexpression"
+egrep -r -w --include "*.[chS]" "myregularexpression"
+semicolon is optional as a command terminator.
+
+--3
+find . -exec grep --with-filename schedule() '{}' \;
+The grammar is a little tricky, you need to close the command with "\;"
+
+--4 get familiar with each System call one by one.
+--no need to be greedy, first, just get familiar one of them.
+all the system call are defined in 
+./arch/i386/kernel/syscall_table.S
+.long sys_exit
+.long sys_fork
+.long sys_read
+.long sys_write
+.long sys_open          /* 5 */
+.long sys_close
+.long sys_waitpid
+.long sys_creat
+.long sys_link
+.long sys_unlink        /* 10 */
+.long sys_execve
+.long sys_chdir
+.long sys_time
+.long sys_mknod
+.long sys_chmod         /* 15 */	
+
+3/26/2008 9:46AM
+.long sys_sync
+--5.
+choose sys_read to explore.
+3/26/2008 9:46AM
+.long sys_sync
+
+--6
+egrep -r --include "*.[c]" "sys_read()"
+find . -name '*.c' | xargs egrep -n "vfs_read\(" | more
+
+egrep -r --include "*.[c]" "sys_sync\("
+find . -name '*.[ch]' | xargs egrep -n "sys_sync\(\){" | more
+
+
+./include/linux/syscalls.h:200:asmlinkage long sys_sync(void);
+asmlinkage long sys_sync(void);
+
+./fs/buffer.c:294:asmlinkage long sys_sync(void)
+asmlinkage long sys_sync(void)
+{
+        do_sync(1);
+        return 0;
+}
+/*
+ * sync everything.  Start out by waking pdflush, because that writes back
+ * all queues in parallel.
+ */
+static void do_sync(unsigned long wait)
+{
+        wakeup_pdflush(0);
+        sync_inodes(0);         /* All mappings, inodes and their blockdevs */
+        DQUOT_SYNC(NULL);
+        sync_supers();          /* Write the superblocks */
+        sync_filesystems(0);    /* Start syncing the filesystems */
+        sync_filesystems(wait); /* Waitingly sync the filesystems */
+        sync_inodes(wait);      /* Mappings, inodes and blockdevs, again. */
+        if (!wait)
+                printk("Emergency Sync complete\n");
+        if (unlikely(laptop_mode))
+                laptop_sync_completion();
+}
+find . -name '*.[ch]' | xargs egrep -n "sync_filesystems\(" | more
+./fs/super.c:379:void sync_filesystems(int wait)
+ sb->s_op->sync_fs(sb, wait);
+
+find . -name '*.[ch]' | xargs egrep -n "struct super_block \{" | more 
+./include/linux/fs.h:766:struct super_block {
+struct super_block {
+        struct list_head        s_list;         /* Keep this first */
+        dev_t                   s_dev;          /* search index; _not_ kdev_t */
+        unsigned long           s_blocksize;
+        unsigned long           s_old_blocksize;
+        unsigned char           s_blocksize_bits;
+        unsigned char           s_dirt;
+        unsigned long long      s_maxbytes;     /* Max file size */
+        struct file_system_type *s_type;
+        struct super_operations *s_op;
+        struct dquot_operations *dq_op;
+        struct quotactl_ops     *s_qcop;
+        struct export_operations *s_export_op;
+        unsigned long           s_flags;
+        unsigned long           s_magic;
+        struct dentry           *s_root;
+        struct rw_semaphore     s_umount;
+        struct semaphore        s_lock;
+        int                     s_count;
+        int                     s_syncing;
+        int                     s_need_sync_fs;
+        atomic_t                s_active;
+        void                    *s_security;
+        struct xattr_handler    **s_xattr;
+
+        struct list_head        s_inodes;       /* all inodes */
+        struct list_head        s_dirty;        /* dirty inodes */
+        struct list_head        s_io;           /* parked for writeback */
+        struct hlist_head       s_anon;         /* anonymous dentries for (nfs)
+exporting */
+        struct list_head        s_files;
+
+        struct block_device     *s_bdev;
+        struct list_head        s_instances;
+        struct quota_info       s_dquot;        /* Diskquota specific options */
+
+        int                     s_frozen;
+        wait_queue_head_t       s_wait_unfrozen;
+
+        char s_id[32];                          /* Informational name */
+
+        void                    *s_fs_info;     /* Filesystem private info */
+
+        /*
+         * The next field is for VFS *only*. No filesystems have any business
+         * even looking at it. You had been warned.
+         */
+        struct semaphore s_vfs_rename_sem;      /* Kludge */
+
+        /* Granuality of c/m/atime in ns.
+           Cannot be worse than a second */
+        u32                s_time_gran;
+};
+
+
+find . -name '*.[ch]' | xargs egrep -n "\->s_op=" | more
+./fs/ext2/super.c:835:  sb->s_op = &ext2_sops;
+./fs/ext3/super.c:1542: sb->s_op = &ext3_sops;
+
+find . -name '*.[ch]' | xargs egrep -n "\->s_op=" | more
+
+ sb->s_op->sync_fs(sb, wait); 
+find . -name '*.[ch]' | xargs egrep -n "ext3_sops" | more
+./fs/ext3/super.c:557:static struct super_operations ext3_sops = {
+./fs/ext3/super.c:1542: sb->s_op = &ext3_sops;
+static struct super_operations ext3_sops = {
+        .alloc_inode    = ext3_alloc_inode,
+        .destroy_inode  = ext3_destroy_inode,
+        .read_inode     = ext3_read_inode,
+        .write_inode    = ext3_write_inode,
+        .dirty_inode    = ext3_dirty_inode,
+        .delete_inode   = ext3_delete_inode,
+        .put_super      = ext3_put_super,
+        .write_super    = ext3_write_super,
+        .sync_fs        = ext3_sync_fs,
+        .write_super_lockfs = ext3_write_super_lockfs,
+        .unlockfs       = ext3_unlockfs,
+        .statfs         = ext3_statfs,
+        .remount_fs     = ext3_remount,
+        .clear_inode    = ext3_clear_inode,
+#ifdef CONFIG_QUOTA
+        .quota_read     = ext3_quota_read,
+        .quota_write    = ext3_quota_write,
+#endif
+};
+
+
+static int ext3_sync_fs(struct super_block *sb, int wait)
+{
+        tid_t target;
+
+        sb->s_dirt = 0;
+        if (journal_start_commit(EXT3_SB(sb)->s_journal, &target)) {
+                if (wait)
+                        log_wait_commit(EXT3_SB(sb)->s_journal, target);
+        }
+        return 0;
+}
+find . -name '*.[ch]' | xargs egrep -n "define EXT3_SB" | more
+./include/linux/ext3_fs.h:499:#define EXT3_SB(sb)       (sb)
+
+find . -name '*.[ch]' | xargs egrep -n "journal_start_commit" | more
+./fs/jbd/journal.c:506:int journal_start_commit(journal_t *journal, tid_t *ptid)
+./include/linux/jbd.h:977:int journal_start_commit(journal_t *journal, tid_t *tid);
+/*
+ * Start a commit of the current running transaction (if any).  Returns true
+ * if a transaction was started, and fills its tid in at *ptid
+ */
+int journal_start_commit(journal_t *journal, tid_t *ptid)
+{
+        int ret = 0;
+
+        spin_lock(&journal->j_state_lock);
+        if (journal->j_running_transaction) {
+                tid_t tid = journal->j_running_transaction->t_tid;
+
+                ret = __log_start_commit(journal, tid);
+                if (ret && ptid)
+                        *ptid = tid;
+        } else if (journal->j_committing_transaction && ptid) {
+                /*
+                 * If ext3_write_super() recently started a commit, then we
+                 * have to wait for completion of that transaction
+                 */
+                *ptid = journal->j_committing_transaction->t_tid;
+                ret = 1;
+        }
+        spin_unlock(&journal->j_state_lock);
+        return ret;
+}
+
+find . -name '*.[ch]' | xargs egrep -n "log_wait_commit" | more
+./fs/jbd/journal.c
+/*
+ * Wait for a specified commit to complete.
+ * The caller may not hold the journal lock.
+ */
+int log_wait_commit(journal_t *journal, tid_t tid)
+{
+        int err = 0;
+
+#ifdef CONFIG_JBD_DEBUG
+        spin_lock(&journal->j_state_lock);
+        if (!tid_geq(journal->j_commit_request, tid)) {
+                printk(KERN_EMERG
+                       "%s: error: j_commit_request=%d, tid=%d\n",
+                       __FUNCTION__, journal->j_commit_request, tid);
+        }
+        spin_unlock(&journal->j_state_lock);
+#endif
+        spin_lock(&journal->j_state_lock);
+        while (tid_gt(tid, journal->j_commit_sequence)) {
+                jbd_debug(1, "JBD: want %d, j_commit_sequence=%d\n",
+                                  tid, journal->j_commit_sequence);
+                wake_up(&journal->j_wait_commit);																//-->
+                spin_unlock(&journal->j_state_lock);
+                wait_event(journal->j_wait_done_commit,													//-->
+                                !tid_gt(tid, journal->j_commit_sequence));
+                spin_lock(&journal->j_state_lock);
+        }
+        spin_unlock(&journal->j_state_lock);
+
+        if (unlikely(is_journal_aborted(journal))) {
+                printk(KERN_EMERG "journal commit I/O error\n");
+                err = -EIO;
+        }
+        return err;
+}
+
+find . -name '*.[ch]' | xargs egrep -n "wake_up" | more
+find . -name '*.[ch]' | xargs egrep -n "wait_event" | more
+find . -name '*.[ch]' | xargs egrep -n "define wait_event" | more
+find . -name '*.[h]' | xargs egrep -n "j_wait_commit" | more
+./fs/jbd/journal.c:188:         prepare_to_wait(&journal->j_wait_commit, &wait,
+./fs/jbd/journal.c:201:         finish_wait(&journal->j_wait_commit, &wait);
+./fs/jbd/journal.c:237:         wake_up(&journal->j_wait_commit);
+./fs/jbd/journal.c:453:         wake_up(&journal->j_wait_commit);
+./fs/jbd/journal.c:550:         wake_up(&journal->j_wait_commit);
+./fs/jbd/journal.c:672: init_waitqueue_head(&journal->j_wait_commit);
+./include/linux/jbd.h:577: * @j_wait_commit: Wait queue to trigger commit
+./include/linux/jbd.h:681:      wait_queue_head_t       j_wait_commit;
+find . -name '*.[h]' | xargs egrep -n "j_wait_done_commit" | more
+
+
+./include/linux/wait.h:184:#define wait_event(wq, condition)
+
+#define wait_event(wq, condition)                                       \
+do {                                                                    \
+        if (condition)                                                  \
+                break;                                                  \
+        __wait_event(wq, condition);                                    \
+} while (0)
+
+/**
+ * wait_event - sleep until a condition gets true
+ * @wq: the waitqueue to wait on
+ * @condition: a C expression for the event to wait for
+ *
+ * The process is put to sleep (TASK_UNINTERRUPTIBLE) until the
+ * @condition evaluates to true. The @condition is checked each time
+ * the waitqueue @wq is woken up.
+ *
+ * wake_up() has to be called after changing any variable that could
+ * change the result of the wait condition.
+ */
+#define __wait_event(wq, condition)                                     \
+do {                                                                    \
+        DEFINE_WAIT(__wait);                                            \
+                                                                        \
+        for (;;) {                                                      \
+                prepare_to_wait(&wq, &__wait, TASK_UNINTERRUPTIBLE);    \
+                if (condition)                                          \
+                        break;                                          \
+                schedule();                                             \
+        }                                                               \
+        finish_wait(&wq, &__wait);                                      \
+} while (0)
+
+---wait.c
+/*
+ * Note: we use "set_current_state()" _after_ the wait-queue add,
+ * because we need a memory barrier there on SMP, so that any
+ * wake-function that tests for the wait-queue being active
+ * will be guaranteed to see waitqueue addition _or_ subsequent
+ * tests in this thread will see the wakeup having taken place.
+ *
+ * The spin_unlock() itself is semi-permeable and only protects
+ * one way (it only protects stuff inside the critical region and
+ * stops them from bleeding out - it would still allow subsequent
+ * loads to move into the the critical region).
+ */
+void fastcall
+prepare_to_wait(wait_queue_head_t *q, wait_queue_t *wait, int state)
+{
+        unsigned long flags;
+
+        wait->flags &= ~WQ_FLAG_EXCLUSIVE;
+        spin_lock_irqsave(&q->lock, flags);
+        if (list_empty(&wait->task_list))
+                __add_wait_queue(q, wait);
+        /*
+         * don't alter the task state if this is just going to
+         * queue an async wait queue callback
+         */
+        if (is_sync_wait(wait))
+                set_current_state(state);
+        spin_unlock_irqrestore(&q->lock, flags);
+}
+EXPORT_SYMBOL(prepare_to_wait);
+
+find . -name '*.[ch]' | xargs egrep -n "journal_t" | more
+./include/linux/jbd.h:112:typedef struct journal_s      journal_t;
+find . -name '*.[ch]' | xargs egrep -n "struct journal_s \{" | more
+./include/linux/jbd.h:616:struct journal_s
+ /* Wait queue for waiting for commit to complete */
+ wait_queue_head_t       j_wait_done_commit;
+
+ /* Wait queue to trigger checkpointing */
+ wait_queue_head_t       j_wait_checkpoint;
+
+ /* Wait queue to trigger commit */
+ wait_queue_head_t       j_wait_commit;
+
+ /* Wait queue to wait for updates to complete */
+ wait_queue_head_t       j_wait_updates;
+ 
+ 
+sync_filesystems
+sync_inodes
+--7
+
+
+
+
+sys_read flow.
+
+
+sys_read in ./fs/read_write.c
+asmlinkage ssize_t sys_read(unsigned int fd, char __user * buf, size_t count)
+{
+        struct file *file;
+        ssize_t ret = -EBADF;
+        int fput_needed;
+
+        file = fget_light(fd, &fput_needed);
+        if (file) {
+                loff_t pos = file_pos_read(file);
+                ret = vfs_read(file, buf, count, &pos);
+                file_pos_write(file, pos);
+                fput_light(file, fput_needed);
+        }
+
+        return ret;
+}
+EXPORT_SYMBOL_GPL(sys_read);
+
+--8
+./fs/read_write.c
+sys_read-->vfs_read
+ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
+{
+        ssize_t ret;
+
+        if (!(file->f_mode & FMODE_READ))
+                return -EBADF;
+        if (!file->f_op || (!file->f_op->read && !file->f_op->aio_read))
+                return -EINVAL;
+        if (unlikely(!access_ok(VERIFY_WRITE, buf, count)))
+                return -EFAULT;
+
+        ret = rw_verify_area(READ, file, pos, count);
+        if (!ret) {
+                ret = security_file_permission (file, MAY_READ);
+                if (!ret) {
+                        if (file->f_op->read)
+                                ret = file->f_op->read(file, buf, count, pos);
+                        else
+                                ret = do_sync_read(file, buf, count, pos);
+                        if (ret > 0) {
+                                fsnotify_access(file->f_dentry);
+                                current->rchar += ret;
+                        }
+                        current->syscr++; //count how many read system call are raised?
+                }
+        }
+
+        return ret;
+}
+
+EXPORT_SYMBOL(vfs_read);
+
+--8.0
+./fs/ext3/inode.c:2533:         inode->i_fop = &ext3_file_operations;
+const struct file_operations ext3_file_operations = {
+        .llseek         = generic_file_llseek,
+        .read           = do_sync_read,
+        .write          = do_sync_write,
+        .aio_read       = generic_file_aio_read,
+        .aio_write      = ext3_file_write,
+        .ioctl          = ext3_ioctl,
+#ifdef CONFIG_COMPAT
+        .compat_ioctl   = ext3_compat_ioctl,
+#endif
+        .mmap           = generic_file_mmap,
+        .open           = generic_file_open,
+        .release        = ext3_release_file,
+        .fsync          = ext3_sync_file,
+        .splice_read    = generic_file_splice_read,
+        .splice_write   = generic_file_splice_write,
+};
+--ext2_file_operations
+/*
+ * We have mostly NULL's here: the current defaults are ok for
+ * the ext2 filesystem.
+ */
+const struct file_operations ext2_file_operations = {
+        .llseek         = generic_file_llseek,
+        .read           = do_sync_read,
+        .write          = do_sync_write,
+        .aio_read       = generic_file_aio_read,
+        .aio_write      = generic_file_aio_write,
+        .ioctl          = ext2_ioctl,
+#ifdef CONFIG_COMPAT
+        .compat_ioctl   = ext2_compat_ioctl,
+#endif
+        .mmap           = generic_file_mmap,
+        .open           = generic_file_open,
+        .release        = ext2_release_file,
+        .fsync          = ext2_sync_file,
+        .splice_read    = generic_file_splice_read,
+        .splice_write   = generic_file_splice_write,
+};
+
+so 
+
+--8.1
+sys_read-->vfs_read-->do_sync_read
+./fs/read_write.c
+ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *pp
+os)
+{
+          struct iovec iov = { .iov_base = buf, .iov_len = len };
+		  struct kiocb kiocb;
+		  ssize_t ret;
+		
+		  init_sync_kiocb(&kiocb, filp);
+		  kiocb.ki_pos = *ppos;
+		  kiocb.ki_left = len;
+		
+		  for (;;) {
+		          ret = filp->f_op->aio_read(&kiocb, &iov, 1, kiocb.ki_pos);
+		          if (ret != -EIOCBRETRY)
+		                  break;
+		          wait_on_retry_sync_kiocb(&kiocb);
+		  }
+		
+		  if (-EIOCBQUEUED == ret)
+		          ret = wait_on_sync_kiocb(&kiocb);
+		  *ppos = kiocb.ki_pos;
+		  return ret;
+
+}
+
+--> do_generic_file_read --> do_generic_mapping_read(filp->f_mapping,
+                         &filp->f_ra,
+                         filp,
+                         ppos,
+                         desc,
+                         actor);
+                         
+error = mapping->a_ops->readpage(filp, page);
+
+                         
+do_generic_file_read(filp,ppos,&desc,file_read_actor);
+
+int file_read_actor(read_descriptor_t *desc, struct page *page,
+                        unsigned long offset, unsigned long size)
+{
+        char *kaddr;
+        unsigned long left, count = desc->count;
+
+        if (size > count)
+                size = count;
+
+        /*
+         * Faults on the destination of a read are common, so do it before
+         * taking the kmap.
+         */
+        if (!fault_in_pages_writeable(desc->arg.buf, size)) {
+                kaddr = kmap_atomic(page, KM_USER0);
+                left = __copy_to_user_inatomic(desc->arg.buf,
+                                                kaddr + offset, size);
+                kunmap_atomic(kaddr, KM_USER0);
+                if (left == 0)
+                        goto success;
+        }
+
+        /* Do it the slow way */
+        kaddr = kmap(page);
+        left = __copy_to_user(desc->arg.buf, kaddr + offset, size);
+        kunmap(page);
+
+        if (left) {
+                size -= left;
+                desc->error = -EFAULT;
+        }
+success:
+        desc->count = count - size;
+        desc->written += size;
+        desc->arg.buf += size;
+        return size;
+}
+
+EXPORT_SYMBOL(do_sync_read);
+//make use of aio internally?
+//seems kernel did not sloop on the waitqueue of kiocb.
+/**
+sys_read-->vfs_read-->do_sync_read-->generic_file_aio_read->do_generic_file_read->do_generic_mapping_read
+
+asmlinkage ssize_t sys_read(unsigned int fd, char __user * buf, size_t count)
+-->vfs_read(file, buf, count, &pos);
+		-->ret = file->f_op->read(file, buf, count, pos);
+		or
+  	-->ret = do_sync_read(file, buf, count, pos);
+  	 	 -->wait_on_retry_sync_kiocb(&kiocb)
+				static void wait_on_retry_sync_kiocb(struct kiocb *iocb)
+				{
+				        set_current_state(TASK_UNINTERRUPTIBLE);
+				        if (!kiocbIsKicked(iocb))
+				                schedule();
+				        else
+				                kiocbClearKicked(iocb);
+				        __set_current_state(TASK_RUNNING);
+				}
+				./include/linux/aio.h:43:#define kiocbIsKicked(iocb)    test_bit(KIF_KICKED, &(iocb)->ki_flags)
+				./include/linux/aio.h:39:#define kiocbClearKicked(iocb) clear_bit(KIF_KICKED, &(iocb)->ki_flags)
+  	 -->ret = filp->f_op->aio_read(&kiocb, buf, len, kiocb.ki_pos))
+
+*/
+  	 
+--struct file  	
+struct file {
+find . -name '*.h' | xargs egrep -n "struct file \{" | more 
+./include/linux/fs.h
+struct file {
+        struct list_head        f_list;
+        struct dentry           *f_dentry;
+        struct vfsmount         *f_vfsmnt;
+        struct file_operations  *f_op;
+        atomic_t                f_count;
+        unsigned int            f_flags;
+        mode_t                  f_mode;
+        loff_t                  f_pos;
+        struct fown_struct      f_owner;
+        unsigned int            f_uid, f_gid;
+        struct file_ra_state    f_ra;
+
+        size_t                  f_maxcount;
+        unsigned long           f_version;
+        void                    *f_security;
+
+        /* needed for tty driver, and maybe others */
+        void                    *private_data;
+
+#ifdef CONFIG_EPOLL
+        /* Used by fs/eventpoll.c to link all the hooks to this file */
+        struct list_head        f_ep_links;
+        spinlock_t              f_ep_lock;
+#endif /* #ifdef CONFIG_EPOLL */
+        struct address_space    *f_mapping;
+};
+
+when and how it is initialized?
+find . -name '*.[chS]' | xargs egrep -n "\->f_op = " | more 
+./fs/open.c:797:        
+f->f_op = fops_get(inode->i_fop);
+f->f_mapping = inode->i_mapping;
+ 
+struct file *dentry_open()...
+	 f->f_op = fops_get(inode->i_fop);
+find . -name '*.h' | xargs egrep -n "struct inode \{" | more 	 
+find . -name '*.h' | xargs egrep -n "\->i_fop = " | more 
+--output
+./fs/ext3/inode.c:2533:         inode->i_fop = &ext3_file_operations;
+void ext3_read_inode(struct inode * inode)
+	if (S_ISREG(inode->i_mode)) {
+        inode->i_op = &ext3_file_inode_operations;
+        inode->i_fop = &ext3_file_operations;
+        ext3_set_aops(inode);
+} else if (S_ISDIR(inode->i_mode)) {
+        inode->i_op = &ext3_dir_inode_operations;
+        inode->i_fop = &ext3_dir_operations;
+} else if (S_ISLNK(inode->i_mode)) {
+        if (ext3_inode_is_fast_symlink(inode))
+                inode->i_op = &ext3_fast_symlink_inode_operations;
+        else {
+                inode->i_op = &ext3_symlink_inode_operations;
+                ext3_set_aops(inode);
+        }
+} else {
+        inode->i_op = &ext3_special_inode_operations;
+        if (raw_inode->i_block[0])
+                init_special_inode(inode, inode->i_mode,
+                   old_decode_dev(le32_to_cpu(raw_inode->i_block[0])));
+        else
+                init_special_inode(inode, inode->i_mode,
+                   new_decode_dev(le32_to_cpu(raw_inode->i_block[1])));
+}
+
+void ext3_set_aops(struct inode *inode)
+{
+        if (ext3_should_order_data(inode))
+                inode->i_mapping->a_ops = &ext3_ordered_aops;
+        else if (ext3_should_writeback_data(inode))
+                inode->i_mapping->a_ops = &ext3_writeback_aops;
+        else
+                inode->i_mapping->a_ops = &ext3_journalled_aops;
+}	
+find . -name '*.[ch]' | xargs egrep -n "ext3_should_order_data" | more 
+./include/linux/ext3_jbd.h:246:static inline int ext3_should_order_data(struct inode *inode)
+	
+find . -name '*.[ch]' | xargs egrep -n "ext3_ordered_aops" | more 	
+./fs/ext3/inode.c:1540:static struct address_space_operations ext3_ordered_aops= {
+	static struct address_space_operations ext3_ordered_aops = {
+        .readpage       = ext3_readpage,
+        .readpages      = ext3_readpages,
+        .writepage      = ext3_ordered_writepage,
+        .sync_page      = block_sync_page,
+        .prepare_write  = ext3_prepare_write,
+        .commit_write   = ext3_ordered_commit_write,
+        .bmap           = ext3_bmap,
+        .invalidatepage = ext3_invalidatepage,
+        .releasepage    = ext3_releasepage,
+        .direct_IO      = ext3_direct_IO,
+};
+
+ret = blockdev_direct_IO(rw, iocb, inode, inode->i_sb->s_bdev, iov,
+                         offset, nr_segs,
+                         ext3_direct_io_get_blocks, NULL);
+
+find . -name '*.c' | xargs egrep -n "blockdev_direct_IO" | more 	
+./fs/direct-io.c:1162:__blockdev_direct_IO(int rw, struct kiocb *iocb, struct in
+
+-->__blockdev_direct_IO
+retval = direct_io_worker(rw, iocb, inode, iov, offset, nr_segs, blkbits, get_blocks, end_io, dio);
+-->ret = do_direct_IO(dio);
+struct dio {
+        /* BIO submission state */
+        struct bio *bio;                /* bio under assembly */
+        struct inode *inode;
+        int rw;
+        loff_t i_size;                  /* i_size when submitted */
+        int lock_type;                  /* doesn't change */
+        unsigned blkbits;               /* doesn't change */
+        unsigned blkfactor;             /* When we're using an alignment which
+                                           is finer than the filesystem's soft
+                                           blocksize, this specifies how much
+                                           finer.  blkfactor=2 means 1/4-block
+                                           alignment.  Does not change */
+        unsigned start_zero_done;       /* flag: sub-blocksize zeroing has
+                                           been performed at the start of a
+                                           write */
+        int pages_in_io;                /* approximate total IO pages */
+        size_t  size;                   /* total request size (doesn't change)*/
+        sector_t block_in_file;         /* Current offset into the underlying
+                                           file in dio_block units. */
+        unsigned blocks_available;      /* At block_in_file.  changes */
+        sector_t final_block_in_request;/* doesn't change */
+        unsigned first_block_in_page;   /* doesn't change, Used only once */
+        int boundary;                   /* prev block is at a boundary */
+        int reap_counter;               /* rate limit reaping */
+        get_blocks_t *get_blocks;       /* block mapping function */
+        dio_iodone_t *end_io;           /* IO completion function */
+        sector_t final_block_in_bio;    /* current final block in bio + 1 */
+        sector_t next_block_for_io;     /* next block to be put under IO,
+                                           in dio_blocks units */
+        struct buffer_head map_bh;      /* last get_blocks() result */
+
+        /*
+         * Deferred addition of a page to the dio.  These variables are
+         * private to dio_send_cur_page(), submit_page_section() and
+         * dio_bio_add_page().
+         */
+        struct page *cur_page;          /* The page */
+        unsigned cur_page_offset;       /* Offset into it, in bytes */
+        unsigned cur_page_len;          /* Nr of bytes at cur_page_offset */
+        sector_t cur_page_block;        /* Where it starts */
+
+        /*
+         * Page fetching state. These variables belong to dio_refill_pages().
+         */
+        int curr_page;                  /* changes */
+        int total_pages;                /* doesn't change */
+        unsigned long curr_user_address;/* changes */
+
+        /*
+         * Page queue.  These variables belong to dio_refill_pages() and
+         * dio_get_page().
+         */
+        struct page *pages[DIO_PAGES];  /* page buffer */
+        unsigned head;                  /* next page to process */
+        unsigned tail;                  /* last valid page + 1 */
+        int page_errors;                /* errno from get_user_pages() */
+
+        /* BIO completion state */
+        spinlock_t bio_lock;            /* protects BIO fields below */
+        int bio_count;                  /* nr bios to be completed */
+        int bios_in_flight;             /* nr bios in flight */
+        struct bio *bio_list;           /* singly linked via bi_private */
+        struct task_struct *waiter;     /* waiting task (NULL if none) */
+
+        /* AIO related stuff */
+        struct kiocb *iocb;             /* kiocb */
+        int is_async;                   /* is IO async ? */
+        ssize_t result;                 /* IO result */
+};
+
+-->do_direct_IO
+ ret = submit_page_section(dio, page, offset_in_page,
+         this_chunk_bytes, dio->next_block_for_io);
+-->ret = dio_send_cur_page(dio);
+static void dio_bio_submit(struct dio *dio)
+{
+        struct bio *bio = dio->bio;
+        unsigned long flags;
+
+        bio->bi_private = dio;
+        spin_lock_irqsave(&dio->bio_lock, flags);
+        dio->bio_count++;
+        dio->bios_in_flight++;
+        spin_unlock_irqrestore(&dio->bio_lock, flags);
+        if (dio->is_async && dio->rw == READ)
+                bio_set_pages_dirty(bio);
+        submit_bio(dio->rw, bio);
+
+        dio->bio = NULL;
+        dio->boundary = 0;
+}
+
+bio_set_pages_dirty
+submit_bio
+find . -name '*.[ch]' | xargs egrep -n "bio_set_pages_dirty" | more 
+./fs/bio.c:728
+
+find . -name '*.[ch]' | xargs egrep -n "submit_bio" | more 
+
+void submit_bio(int rw, struct bio *bio)
+{
+        int count = bio_sectors(bio);
+
+        BIO_BUG_ON(!bio->bi_size);
+        BIO_BUG_ON(!bio->bi_io_vec);
+        bio->bi_rw |= rw;
+        if (rw & WRITE)
+                mod_page_state(pgpgout, count);
+        else
+                mod_page_state(pgpgin, count);
+
+        if (unlikely(block_dump)) {
+                char b[BDEVNAME_SIZE];
+                printk(KERN_DEBUG "%s(%d): %s block %Lu on %s\n",
+                        current->comm, current->pid,
+                        (rw & WRITE) ? "WRITE" : "READ",
+                        (unsigned long long)bio->bi_sector,
+                        bdevname(bio->bi_bdev,b));
+        }
+
+        generic_make_request(bio);
+}
+
+--vi ./drivers/block/ll_rw_blk.c
+void generic_make_request(struct bio *bio)
+{
+        request_queue_t *q;
+        sector_t maxsector;
+        int ret, nr_sectors = bio_sectors(bio);
+
+        might_sleep();
+        /* Test device or partition size, when known. */
+        maxsector = bio->bi_bdev->bd_inode->i_size >> 9;
+        if (maxsector) {
+                sector_t sector = bio->bi_sector;
+
+                if (maxsector < nr_sectors || maxsector - nr_sectors < sector) {
+                        /*
+                         * This may well happen - the kernel calls bread()
+                         * without checking the size of the device, e.g., when
+                         * mounting a device.
+                         */
+                        handle_bad_sector(bio);
+                        goto end_io;
+                }
+        }
+
+        /*
+         * Resolve the mapping until finished. (drivers are
+         * still free to implement/resolve their own stacking
+         * by explicitly returning 0)
+         *
+         * NOTE: we don't repeat the blk_size check for each new device.
+         * Stacking drivers are expected to know what they are doing.
+         */
+        do {
+                char b[BDEVNAME_SIZE];
+
+                q = bdev_get_queue(bio->bi_bdev);
+                if (!q) {
+                        printk(KERN_ERR
+                               "generic_make_request: Trying to access "
+                                "nonexistent block-device %s (%Lu)\n",
+                                bdevname(bio->bi_bdev, b),
+                                (long long) bio->bi_sector);
+end_io:
+                        bio_endio(bio, bio->bi_size, -EIO);
+                        break;
+                }
+
+                if (unlikely(bio_sectors(bio) > q->max_hw_sectors)) {
+                        printk("bio too big device %s (%u > %u)\n",
+                                bdevname(bio->bi_bdev, b),
+                                bio_sectors(bio),
+                                q->max_hw_sectors);
+                        goto end_io;
+                }
+
+                if (unlikely(test_bit(QUEUE_FLAG_DEAD, &q->queue_flags)))
+                        goto end_io;
+
+                block_wait_queue_running(q);
+
+                /*
+                 * If this device has partitions, remap block n
+                 * of partition p to block n+start(p) of the disk.
+                 */
+                blk_partition_remap(bio);
+
+                ret = q->make_request_fn(q, bio);
+        } while (ret);
+}
+
+EXPORT_SYMBOL(generic_make_request);
+
+--> might_sleep();
+-->block_wait_queue_running(q);
+/*
+ * block waiting for the io scheduler being started again.
+ */
+static inline void block_wait_queue_running(request_queue_t *q)
+{
+        DEFINE_WAIT(wait);
+
+        while (unlikely(test_bit(QUEUE_FLAG_DRAIN, &q->queue_flags))) {
+                struct request_list *rl = &q->rq;
+
+                prepare_to_wait_exclusive(&rl->drain, &wait,
+                                TASK_UNINTERRUPTIBLE);
+
+                /*
+                 * re-check the condition. avoids using prepare_to_wait()
+                 * in the fast path (queue is running)
+                 */
+                if (test_bit(QUEUE_FLAG_DRAIN, &q->queue_flags))
+                        io_schedule();
+
+                finish_wait(&rl->drain, &wait);
+        }
+}
+DEFINE_WAIT
+find . -name '*.[h]' | xargs egrep -n "define DEFINE_WAIT" | more 
+./include/linux/wait.h:385:#define DEFINE_WAIT(name)
+                \
+./include/linux/wait.h:392:#define DEFINE_WAIT_BIT(name, word, bit)
+find . -name '*.[ch]' | xargs egrep -n "prepare_to_wait_exclusive" | more 
+./kernel/wait.c:95:EXPORT_SYMBOL(prepare_to_wait_exclusive);
+void fastcall
+prepare_to_wait_exclusive(wait_queue_head_t *q, wait_queue_t *wait, int state)
+{
+        unsigned long flags;
+
+        wait->flags |= WQ_FLAG_EXCLUSIVE;
+        spin_lock_irqsave(&q->lock, flags);
+        if (list_empty(&wait->task_list))
+                __add_wait_queue_tail(q, wait);
+        /*
+         * don't alter the task state if this is just going to
+         * queue an async wait queue callback
+         */
+        if (is_sync_wait(wait))
+                set_current_state(state);
+        spin_unlock_irqrestore(&q->lock, flags);
+}
+EXPORT_SYMBOL(prepare_to_wait_exclusive);
+
+void fastcall finish_wait(wait_queue_head_t *q, wait_queue_t *wait)
+{
+        unsigned long flags;
+
+        __set_current_state(TASK_RUNNING);
+        /*
+         * We can check for list emptiness outside the lock
+         * IFF:
+         *  - we use the "careful" check that verifies both
+         *    the next and prev pointers, so that there cannot
+         *    be any half-pending updates in progress on other
+         *    CPU's that we haven't seen yet (and that might
+         *    still change the stack area.
+         * and
+         *  - all other users take the lock (ie we can only
+         *    have _one_ other CPU that looks at or modifies
+         *    the list).
+         */
+        if (!list_empty_careful(&wait->task_list)) {
+                spin_lock_irqsave(&q->lock, flags);
+                list_del_init(&wait->task_list);
+                spin_unlock_irqrestore(&q->lock, flags);
+        }
+}
+EXPORT_SYMBOL(finish_wait);
+
+
+find . -name '*.[ch]' | xargs egrep -n "finish_wait" | more 
+
+
+
+
+
+
+find . -name '*.[ch]' | xargs egrep -n "might_sleep" | more 
+./include/linux/kernel.h:73
+# define might_sleep() do { might_resched(); } while (0)
+find . -name '*.[ch]' | xargs egrep -n "might_resched\(\)[^;]" | more
+#ifdef CONFIG_PREEMPT_VOLUNTARY
+extern int cond_resched(void);
+# define might_resched() cond_resched()
+#else
+# define might_resched() do { } while (0)
+#endif
+
+
+find . -name '*.[h]' | xargs egrep -n "struct dio \(" | more 
+
+-->dio_complete(dio, offset, transferred);
+-->io_schedule();
+find . -name '*.[ch]' | xargs egrep -n "dio_complete \(" | more 
+find . -name '*.[ch]' | xargs egrep -n "io_schedule" | more 
+./include/linux/sched.h:171:void io_schedule(void);
+./kernel/sched.c:3974:void __sched io_schedule(void)
+/*
+ * This task is about to go to sleep on IO.  Increment rq->nr_iowait so
+ * that process accounting knows that this is a task in IO wait state.
+ *
+ * But don't do that if it is a deliberate, throttling IO wait (this task
+ * has set its backing_dev_info: the queue against which it should throttle)
+ */
+void __sched io_schedule(void)
+{
+        struct runqueue *rq = &per_cpu(runqueues, raw_smp_processor_id());
+
+        atomic_inc(&rq->nr_iowait);
+        schedule();
+        atomic_dec(&rq->nr_iowait);
+}
+
+
+
+[oracle@ora10gapp1 linux-2.6]$ find . -name '*.h' | xargs egrep -n "blockdev_direct_IO" | more
+./include/linux/fs.h:1571:static inline ssize_t blockdev_direct_IO(int rw, struc
+static inline ssize_t blockdev_direct_IO(int rw, struct kiocb *iocb,
+        struct inode *inode, struct block_device *bdev, const struct iovec *iov,
+        loff_t offset, unsigned long nr_segs, get_blocks_t get_blocks,
+        dio_iodone_t end_io)
+{
+        return __blockdev_direct_IO(rw, iocb, inode, bdev, iov, offset,
+                                nr_segs, get_blocks, end_io, DIO_LOCKING);
+}
+
+
+./fs/ext3/inode.c:2537:         inode->i_fop = &ext3_dir_operations;
+./fs/ext3/namei.c:1661:         inode->i_fop = &ext3_file_operations;
+./fs/ext3/namei.c:1733: 				inode->i_fop = &ext3_dir_operations;
+
+find . -name '*.[ch]' | xargs egrep -n "ext3_file_operations" | more 
+./fs/ext3/file.c:108:struct file_operations ext3_file_operations = {
+struct file_operations ext3_file_operations = {
+        .llseek         = generic_file_llseek,
+        .read           = do_sync_read,
+        .write          = do_sync_write,
+        .aio_read       = generic_file_aio_read,
+        .aio_write      = ext3_file_write,
+        .readv          = generic_file_readv,
+        .writev         = generic_file_writev,
+        .ioctl          = ext3_ioctl,
+        .mmap           = generic_file_mmap,
+        .open           = generic_file_open,
+        .release        = ext3_release_file,
+        .fsync          = ext3_sync_file,
+        .sendfile       = generic_file_sendfile,
+};
+--conclusion. so finally only do_sync_read will be invoked.
+
+
+find . -name '*.[ch]' | xargs egrep -n "do_sync_read" | more 
+./fs/read_write.c:233:EXPORT_SYMBOL(do_sync_read);
+ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *pp
+os)
+{
+        struct kiocb kiocb;
+        ssize_t ret;
+
+        init_sync_kiocb(&kiocb, filp);
+        kiocb.ki_pos = *ppos;
+        while (-EIOCBRETRY ==
+                (ret = filp->f_op->aio_read(&kiocb, buf, len, kiocb.ki_pos)))
+                wait_on_retry_sync_kiocb(&kiocb);
+
+        if (-EIOCBQUEUED == ret)
+                ret = wait_on_sync_kiocb(&kiocb);
+        *ppos = kiocb.ki_pos;
+        return ret;
+}
+
+EXPORT_SYMBOL(do_sync_read); --intend to be used by module which is dynamically loaded into kernel at runtime.
+find . -name '*.[ch]' | xargs egrep -n "EXPORT_SYMBOL" | more 
+find . -name '*.[ch]' | xargs egrep -n "generic_file_aio_read" | more 
+./mm/filemap.c:1043:generic_file_aio_read(struct kiocb *iocb, char __user *buf,
+ssize_t
+__generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
+                unsigned long nr_segs, loff_t *ppos)
+{
+        struct file *filp = iocb->ki_filp;
+        ssize_t retval;
+        unsigned long seg;
+        size_t count;
+
+        count = 0;
+	  if (filp->f_flags & O_DIRECT) {
+          loff_t pos = *ppos, size;
+          struct address_space *mapping;
+          struct inode *inode;
+
+          mapping = filp->f_mapping;
+          inode = mapping->host;
+          retval = 0;
+          if (!count)
+                  goto out; /* skip atime */
+          size = i_size_read(inode);
+          if (pos < size) {
+                  retval = generic_file_direct_IO(READ, iocb,
+                                          iov, pos, nr_segs);
+                  if (retval > 0 && !is_sync_kiocb(iocb))
+                          retval = -EIOCBQUEUED;
+                  if (retval > 0)
+                          *ppos = pos + retval;
+          }
+          file_accessed(filp);
+          goto out;
+  }
+
+  retval = 0;
+  if (count) {
+          for (seg = 0; seg < nr_segs; seg++) {
+                  read_descriptor_t desc;
+
+                  desc.written = 0;
+                  desc.arg.buf = iov[seg].iov_base;
+                  desc.count = iov[seg].iov_len;
+                  if (desc.count == 0)
+                          continue;
+                  desc.error = 0;
+                  do_generic_file_read(filp,ppos,&desc,file_read_actor);
+                  retval += desc.written;
+                  if (!retval) {
+                          retval = desc.error;
+                          break;
+                  }
+          }
+  }
+
+-->retval = generic_file_direct_IO(READ, iocb,iov, pos, nr_segs);
+ retval = filemap_write_and_wait(mapping);
+ if (retval == 0) {
+         retval = mapping->a_ops->direct_IO(rw, iocb, iov,
+                                         offset, nr_segs);
+         if (rw == WRITE && mapping->nrpages) {
+                 pgoff_t end = (offset + write_len - 1)
+                                         >> PAGE_CACHE_SHIFT;
+                 int err = invalidate_inode_pages2_range(mapping,
+                                 offset >> PAGE_CACHE_SHIFT, end);
+                 if (err)
+                         retval = err;
+         }
+ }
+-->do_generic_file_read(filp,ppos,&desc,file_read_actor);
+
+find . -name '*.h' | xargs egrep -n "kiocbIsKicked\(" | more 
+find . -name '*.h' | xargs egrep -n "kiocbClearKicked\(" | more 
+find . -name '*.h' | xargs egrep -n "kiocbClearKicked\(" | more 
+find . -name '*.h' | xargs egrep -n "init_sync_kiocb\(" | more 
+./include/linux/aio.h
+struct kiocb {
+        struct list_head        ki_run_list;
+        long                    ki_flags;
+        int                     ki_users;
+        unsigned                ki_key;         /* id of this request */
+
+        struct file             *ki_filp;
+        struct kioctx           *ki_ctx;        /* may be NULL for sync ops */
+        int                     (*ki_cancel)(struct kiocb *, struct io_event *);
+        ssize_t                 (*ki_retry)(struct kiocb *);
+        void                    (*ki_dtor)(struct kiocb *);
+
+        struct list_head        ki_list;        /* the aio core uses this
+                                                 * for cancellation */
+
+        union {
+                void __user             *user;
+                struct task_struct      *tsk;
+        } ki_obj;
+        __u64                   ki_user_data;   /* user's data for completion */
+        loff_t                  ki_pos;
+        /* State that we remember to be able to restart/retry  */
+        unsigned short          ki_opcode;
+        size_t                  ki_nbytes;      /* copy of iocb->aio_nbytes */
+        char                    __user *ki_buf; /* remaining iocb->aio_buf */
+        size_t                  ki_left;        /* remaining bytes */
+        wait_queue_t            ki_wait;
+        long                    ki_retried;     /* just for testing */
+        long                    ki_kicked;      /* just for testing */
+        long                    ki_queued;      /* just for testing */
+
+        void                    *private;
+};
+
+struct __wait_queue {
+        unsigned int flags;
+#define WQ_FLAG_EXCLUSIVE       0x01
+        void *private;
+        wait_queue_func_t func;
+        struct list_head task_list;
+};
+
+struct __wait_queue_head {
+        spinlock_t lock;
+        struct list_head task_list;
+};
+typedef struct __wait_queue_head wait_queue_head_t;
+
+--init_sync_kiocb
+#define init_sync_kiocb(x, filp)                        \
+        do {                                            \
+                struct task_struct *tsk = current;      \
+                (x)->ki_flags = 0;                      \
+                (x)->ki_users = 1;                      \
+                (x)->ki_key = KIOCB_SYNC_KEY;           \
+                (x)->ki_filp = (filp);                  \
+                (x)->ki_ctx = &tsk->active_mm->default_kioctx;  \
+                (x)->ki_cancel = NULL;                  \
+                (x)->ki_dtor = NULL;                    \
+                (x)->ki_obj.tsk = tsk;                  \
+                (x)->ki_user_data = 0;                  \
+                init_wait((&(x)->ki_wait));             \
+        } while (0)
+
+init_sync_kiocb-->init_wait((&(x)->ki_wait)); 
+find . -name '*.h' | xargs egrep -n "init_wait\(" | more 
+./include/linux/wait.h:403:#define init_wait(wait)
+#define init_wait(wait)                                                 \
+        do {                                                            \
+                (wait)->private = current;                              \
+                (wait)->func = autoremove_wake_function;                \
+                INIT_LIST_HEAD(&(wait)->task_list);                     \
+        } while (0)
+
+static inline void init_waitqueue_head(wait_queue_head_t *q)
+{
+        spin_lock_init(&q->lock);
+        INIT_LIST_HEAD(&q->task_list);
+}
+
+after kiocb is initialized, 
+sys_read-->vfs_read-->do_sync_read-->generic_file_aio_read
+-->
+
+
+
+
+3/27/2008 9:35AM
+./include/linux/syscalls.h
+./arch/i386/kernel/syscall_table.S
+
+get deeper understanding on the output of TOP, vmstat, and ??
+
+ 11:49:43  up 42 days, 20:02,  2 users,  load average: 0.00, 0.00, 0.04
+386 processes: 385 sleeping, 1 running, 0 zombie, 0 stopped
+CPU states:  cpu    user    nice  system    irq  softirq  iowait    idle
+           total    1.9%    0.0%    1.9%   0.0%     0.0%    0.0%   96.1%
+Mem:  1027376k av,  973656k used,   53720k free,       0k shrd,  136036k buff
+                    745000k actv,  137252k in_d,   13552k in_c
+Swap: 2096472k av,  199252k used, 1897220k free                  441968k cached
+
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME CPU COMMAND
+14743 oracle    20   0  1616 1616   904 R     2.8  0.1   0:00   0 top
+13361 oracle    15   0  190M 190M 25528 S     0.9 18.9   0:00   0 java
+    1 root      15   0   420  380   356 S     0.0  0.0   0:04   0 init
+    2 root      15   0     0    0     0 SW    0.0  0.0   0:00   0 keventd
+    3 root      34  19     0    0     0 SWN   0.0  0.0   0:00   0 ksoftirqd/0
+    6 root      25   0     0    0     0 SW    0.0  0.0   0:00   0 bdflush
+    4 root      15   0     0    0     0 SW    0.0  0.0   0:20   0 kswapd
+    5 root      15   0     0    0     0 SW    0.0  0.0   0:51   0 kscand
+    7 root      15   0     0    0     0 SW    0.0  0.0   0:00   0 kupdated
+    8 root      25   0     0    0     0 SW    0.0  0.0   0:00   0 mdrecoveryd
+   18 root      15   0     0    0     0 SW    0.0  0.0   0:27   0 kjournald
+   82 root      25   0     0    0     0 SW    0.0  0.0   0:00   0 khubd
+  786 root      15   0     0    0     0 SW    0.0  0.0   0:00   0 kjournald
+  787 root      15   0     0    0     0 SW    0.0  0.0   0:01   0 kjournald
+  788 root      15   0     0    0     0 SW    0.0  0.0   0:00   0 kjournald
+ 1123 root      15   0   460  420   376 S     0.0  0.0   0:00   0 syslogd
+ 
+ 
+ --another way is to have a look at all the kernel thread.
+ pdflush 
+ find . -name '*.[ch]' | xargs egrep -n "pdflush" | more;
+ ./mm/pdflush.c:31:static void start_one_pdflush_thread(void);
+/*
+ * Of course, my_work wants to be just a local in __pdflush().  It is
+ * separated out in this manner to hopefully prevent the compiler from
+ * performing unfortunate optimisations against the auto variables.  Because
+ * these are visible to other tasks and CPUs.  (No problem has actually
+ * been observed.  This is just paranoia).
+ */
+static int pdflush(void *dummy)
+{
+        struct pdflush_work my_work;
+
+        /*
+         * pdflush can spend a lot of time doing encryption via dm-crypt.  We
+         * don't want to do that at keventd's priority.
+         */
+        set_user_nice(current, 0);
+        return __pdflush(&my_work);
+} 
+
+static int __pdflush(struct pdflush_work *my_work)
+{
+        current->flags |= PF_FLUSHER;
+        my_work->fn = NULL;
+        my_work->who = current;
+        INIT_LIST_HEAD(&my_work->list);
+
+        spin_lock_irq(&pdflush_lock);
+        nr_pdflush_threads++;
+        for ( ; ; ) {
+                struct pdflush_work *pdf;
+
+                set_current_state(TASK_INTERRUPTIBLE);
+                list_move(&my_work->list, &pdflush_list);
+                my_work->when_i_went_to_sleep = jiffies;
+                spin_unlock_irq(&pdflush_lock);
+
+                schedule();
+                if (try_to_freeze()) {
+                        spin_lock_irq(&pdflush_lock);
+                        continue;
+                }
+
+                spin_lock_irq(&pdflush_lock);
+                if (!list_empty(&my_work->list)) {
+                        printk("pdflush: bogus wakeup!\n");
+                        my_work->fn = NULL;
+                        continue;
+                }
+                if (my_work->fn == NULL) {
+                        printk("pdflush: NULL work function\n");
+                        continue;
+                }
+                spin_unlock_irq(&pdflush_lock);
+
+                (*my_work->fn)(my_work->arg0);
+
+                /*
+                 * Thread creation: For how long have there been zero
+                 * available threads?
+                 */
+                if (jiffies - last_empty_jifs > 1 * HZ) {
+                        /* unlocked list_empty() test is OK here */
+                        if (list_empty(&pdflush_list)) {
+                                /* unlocked test is OK here */
+                                if (nr_pdflush_threads < MAX_PDFLUSH_THREADS)
+                                        start_one_pdflush_thread();
+                        }
+                }
+
+                spin_lock_irq(&pdflush_lock);
+                my_work->fn = NULL;
+
+                /*
+                 * Thread destruction: For how long has the sleepiest
+                 * thread slept?
+                 */
+                if (list_empty(&pdflush_list))
+                        continue;
+                if (nr_pdflush_threads <= MIN_PDFLUSH_THREADS)
+                        continue;
+                pdf = list_entry(pdflush_list.prev, struct pdflush_work, list);
+                if (jiffies - pdf->when_i_went_to_sleep > 1 * HZ) {
+                        /* Limit exit rate */
+                        pdf->when_i_went_to_sleep = jiffies;
+                        break;                                  /* exeunt */
+                }
+        }
+        nr_pdflush_threads--;
+        spin_unlock_irq(&pdflush_lock);
+        return 0;
+} 
+/*
+ * A structure for passing work to a pdflush thread.  Also for passing
+ * state information between pdflush threads.  Protected by pdflush_lock.
+ */
+struct pdflush_work {
+        struct task_struct *who;        /* The thread */
+        void (*fn)(unsigned long);      /* A callback function */
+        unsigned long arg0;             /* An argument to the callback */
+        struct list_head list;          /* On pdflush_list, when idle */
+        unsigned long when_i_went_to_sleep;
+};
+
+./include/linux/list.h
+
+
+ 
+int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+find . -name '*.[ch]' | xargs egrep -n "kernel_thread" | more;
+./arch/i386/kernel/process.c
+/*
+ * Create a kernel thread
+ */
+int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+{
+        struct pt_regs regs;
+
+        memset(&regs, 0, sizeof(regs));
+
+        regs.ebx = (unsigned long) fn;
+        regs.edx = (unsigned long) arg;
+
+        regs.xds = __USER_DS;
+        regs.xes = __USER_DS;
+        regs.orig_eax = -1;
+        regs.eip = (unsigned long) kernel_thread_helper;
+        regs.xcs = __KERNEL_CS;
+        regs.eflags = X86_EFLAGS_IF | X86_EFLAGS_SF | X86_EFLAGS_PF | 0x2;
+
+        /* Ok, create the new process.. */
+        return do_fork(flags | CLONE_VM | CLONE_UNTRACED, 0, &regs, 0, NULL, NULL);
+}
+EXPORT_SYMBOL(kernel_thread);
+/*
+ * This gets run with %ebx containing the
+ * function to call, and %edx containing
+ * the "args".
+ */
+extern void kernel_thread_helper(void);
+__asm__(".section .text\n"
+        ".align 4\n"
+        "kernel_thread_helper:\n\t"
+        "movl %edx,%eax\n\t"
+        "pushl %edx\n\t"
+        "call *%ebx\n\t"
+        "pushl %eax\n\t"
+        "call do_exit\n"
+        ".previous");
+        
+       
+   find . -name '*.[ch]' | xargs egrep -n "kernel_thread\(pdflush " | more;     
+        
+ --another way is to have a look at all the exception handler.
+ --another way is to have a look at all the Interrupt service routine.
+ --another way is to have a look at all the signal handling.
+ 
+ 
+ case study (research)
+How does CTRL-c work ?
+
+/* request_irq: allocate a given interrupt line */
+int request_irq(unsigned int irq,
+                irqreturn_t (*handler)(int, void *, struct pt_regs *),
+                unsigned long irqflags,
+                const char *devname,
+                void *dev_id)
+find . -name '*.[chS]' | xargs egrep -n "request_irq\(" | more;
+
+find . -name '*.[chS]' | xargs egrep -n "keyboard" | more;
+./arch/i386/boot/setup.S
+
+find . -name keyboard.c
+./drivers/char/keyboard.c
+./drivers/s390/char/keyboard.c
+sequence diagram
+find . -name '*.[chS]' | xargs egrep -n 'request_irq*' | more;
+find . -name '*.[chS]' | xargs egrep -n 'board_interrupt' | more;
+rd"' | grep 386
+./arch/i386/kernel/setup.c:262: .name   = "keyboard",
+ []
+ find . -name '*.[ch]' | xargs egrep -n 'standard_io_resources' | more
+ find . -name '*.[ch]' | xargs egrep -n 'request_irq' | grep standard_io_resources
+ 
+[oracle@ora10gapp1 drivers]$ find . -name '*.[ch]' | xargs egrep -n '"keyboard"' | grep request_irq
+./char/ec3104_keyb.c:458:       request_irq(EC3104_IRQ_SER4, ec3104_keyb_interrupt, 0, "keyboard", NULL);
+[oracle@ora10gapp1 drivers]$ 
+find . -name '*.[h]' | xargs egrep -n 'define EC3104_IRQ_SER4'
+./include/asm-sh/ec3104/ec3104.h:41:#define EC3104_IRQ_SER4     EC3104_IRQBASE +
+ 10
+find . -name '*.[h]' | xargs egrep -n 'define EC3104_IRQBASE' 
+[oracle@ora10gapp1 drivers]$ find . -name '*.[ch]' | xargs egrep -n 'ec3104_keyb_interrupt'
+
+find . -name '*.[chS]' | xargs egrep -n "define RTC_IRQ" | more;
+
+./include/asm-i386/mc146818rtc.h:92:#define RTC_IRQ 8
+
+[oracle@ora10gapp1 char]$ more /proc/interrupts
+           CPU0
+  0:  371716371          XT-PIC  timer
+  1:          6          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  5:         29          XT-PIC  ioc1
+  7:   80397848          XT-PIC  ioc0, eth0
+  8:          1          XT-PIC  rtc
+ 11:          0          XT-PIC  usb-ohci
+ 12:        127          XT-PIC  PS/2 Mouse
+ 15:          1          XT-PIC  ide1
+NMI:          0
+ERR:          0
+
+1. 
+How does CTRL-z work ?
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ :set tag=tag_file_path
+ :tag fuction_name
+ ctrl = ] conflict with the short cut key for telnet in Windows. so I switch to SSH Secure Shell
+ 
+1. ctrol + ] will use the word in current curson as tagname and jump to it.
+2. ctrol + t will return to previous tag, you can also add a number before ctrl + t, it means the number of levels you jump back. 
+ 另外，ctrl + ]命令会把当前光标下的单词作为tag的名字，并直接跳转。
+用ctrl + t命令可以回到前一个tag，你可以在ctrl + t前面加一个数字,表示往回跳的层数。
+
+
+3/31/2008 9:15AM
+TODO list: 1. sys_open  1 hour
+./fs/open.c
+asmlinkage long sys_open(const char __user * filename, int flags, int mode)
+{
+        char * tmp;
+        int fd;
+                                                                                 
+        if (force_o_largefile())
+                flags |= O_LARGEFILE;
+                                                                                 
+        tmp = getname(filename);
+        fd = PTR_ERR(tmp);
+        if (!IS_ERR(tmp)) {
+                fd = get_unused_fd();
+                if (fd >= 0) {
+                        struct file *f = filp_open(tmp, flags, mode);
+                        if (IS_ERR(f)) {
+                                put_unused_fd(fd);
+                                fd = PTR_ERR(f);
+                        } else {
+                                fsnotify_open(f->f_dentry);
+                                fd_install(fd, f);
+                        }
+                }
+                putname(tmp);
+        }
+        return fd;
+}
+EXPORT_SYMBOL_GPL(sys_open);
+
+
+struct file *filp_open(const char * filename, int flags, int mode)
+{
+        int namei_flags, error;
+        struct nameidata nd;
+                                                                                 
+        namei_flags = flags;
+        if ((namei_flags+1) & O_ACCMODE)
+                namei_flags++;
+        if (namei_flags & O_TRUNC)
+                namei_flags |= 2;
+                                                                                 
+        error = open_namei(filename, namei_flags, mode, &nd);//--make use of side effect
+        if (!error)
+                return dentry_open(nd.dentry, nd.mnt, flags);
+                                                                                          return ERR_PTR(error);
+} 
+
+struct nameidata {
+        struct dentry   *dentry;
+        struct vfsmount *mnt;
+        struct qstr     last;
+        unsigned int    flags;
+        int             last_type;
+        unsigned        depth;
+        char *saved_names[MAX_NESTED_LINKS + 1];
+                                                                                 
+        /* Intent data */
+        union {
+                struct open_intent open;
+        } intent;
+}; 
+
+struct path is part of nameidata. -- both of them are Value Object.
+struct path {
+        struct vfsmount *mnt;
+        struct dentry *dentry;
+};
+
+
+
+4/1/2008 11:07AM
+sys_mount.
+it include part of the file system dynamic initialization. such as ini
+
+fs/filesystems.c
+static struct file_system_type *file_systems;
+static DEFINE_RWLOCK(file_systems_lock);
+
+struct file_system_type {
+        const char *name;
+        int fs_flags;
+        struct super_block *(*get_sb) (struct file_system_type *, int,
+                                       const char *, void *);
+        void (*kill_sb) (struct super_block *);
+        struct module *owner;
+        struct file_system_type * next;
+        struct list_head fs_supers;
+};
+
+static struct file_system_type **find_filesystem(const char *name)
+{
+        struct file_system_type **p;
+        for (p=&file_systems; *p; p=&(*p)->next)
+                if (strcmp((*p)->name,name) == 0)
+                        break;
+        return p;
+}
+
+
+struct vfsmount *lookup_mnt(struct vfsmount *mnt, struct dentry *dentry)
+{
+        struct list_head * head = mount_hashtable + hash(mnt, dentry);
+        struct list_head * tmp = head;
+        struct vfsmount *p, *found = NULL;
+
+        spin_lock(&vfsmount_lock);
+        for (;;) {
+                tmp = tmp->next;
+                p = NULL;
+                if (tmp == head)
+                        break;
+                p = list_entry(tmp, struct vfsmount, mnt_hash);
+                if (p->mnt_parent == mnt && p->mnt_mountpoint == dentry) {
+                        found = mntget(p);
+                        break;
+                }
+        }
+        spin_unlock(&vfsmount_lock);
+        return found;
+}
+static struct list_head *mount_hashtable;
+static int hash_mask, hash_bits;
+static kmem_cache_t *mnt_cache;
+
+#define IS_ROOT(x) ((x) == (x)->d_parent)
+
+static void attach_mnt(struct vfsmount *mnt, struct nameidata *nd)
+{
+        mnt->mnt_parent = mntget(nd->mnt);
+        mnt->mnt_mountpoint = dget(nd->dentry);
+        list_add(&mnt->mnt_hash, mount_hashtable+hash(nd->mnt, nd->dentry))
+        list_add_tail(&mnt->mnt_child, &nd->mnt->mnt_mounts);
+        nd->dentry->d_mounted++;
+}
+
+struct vfsmount {
+        struct list_head   mnt_hash;        /* hash table list */
+        struct vfsmount    *mnt_parent;     /* parent filesystem */
+        struct dentry      *mnt_mountpoint; /* dentry of this mount point */
+        struct dentry      *mnt_root;       /* dentry of root of this fs */
+        struct super_block *mnt_sb;         /* superblock of this filesystem */
+        struct list_head   mnt_mounts;      /* list of children */
+        struct list_head   mnt_child;       /* list of children */
+        atomic_t           mnt_count;       /* usage count */
+        int                mnt_flags;       /* mount flags */
+        char               *mnt_devname;    /* device file name */
+        struct list_head   mnt_list;        /* list of descriptors */
+        struct list_head   mnt_fslink;      /* fs-specific expiry list */
+        struct namespace   *mnt_namespace   /* associated namespace */
+};
+/**
+	in command
+	mount [-fnrsvw] [-t vfstype] [-o options] device dir
+	mount -t ext3 /dev/hda /mnt/a
+	
+	dev_name	/dev/hda
+	dir_name	/mnt/a
+	type		ext3
+	flags		0
+	data		0
+*/
+
+asmlinkage long sys_mount(char __user * dev_name, char __user * dir_name,
+                          char __user * type, unsigned long flags,
+                          void __user * data)
+{
+        int retval;
+        unsigned long data_page;
+        unsigned long type_page;
+        unsigned long dev_page;
+        char *dir_page;
+
+        retval = copy_mount_options (type, &type_page);
+        if (retval < 0)
+                return retval;
+
+        dir_page = getname(dir_name);
+        retval = PTR_ERR(dir_page);
+        if (IS_ERR(dir_page))
+                goto out1;
+
+        retval = copy_mount_options (dev_name, &dev_page);
+        if (retval < 0)
+                goto out2;
+
+        retval = copy_mount_options (data, &data_page);
+        if (retval < 0)
+                goto out3;
+
+        lock_kernel();
+        retval = do_mount((char*)dev_page, dir_page, (char*)type_page,
+                          flags, (void*)data_page);
+        unlock_kernel();
+        free_page(data_page);
+
+out3:
+        free_page(dev_page);
+out2:
+        putname(dir_page);
+out1:
+        free_page(type_page);
+        return retval;
+}
+
+
+/**
+dev_name	/dev/hda
+dir_name	/mnt/a
+type_page	ext3
+flags
+data_page
+*/
+long do_mount(char * dev_name, char * dir_name, char *type_page,
+                  unsigned long flags, void *data_page)
+{
+        struct nameidata nd;
+        int retval = 0;
+        int mnt_flags = 0;
+
+        /* Discard magic */
+        if ((flags & MS_MGC_MSK) == MS_MGC_VAL)
+                flags &= ~MS_MGC_MSK;
+
+        /* Basic sanity checks */
+
+        if (!dir_name || !*dir_name || !memchr(dir_name, 0, PAGE_SIZE))
+                return -EINVAL;
+        if (dev_name && !memchr(dev_name, 0, PAGE_SIZE))
+                return -EINVAL;
+
+        if (data_page)
+                ((char *)data_page)[PAGE_SIZE - 1] = 0;
+
+        /* Separate the per-mountpoint flags */
+        if (flags & MS_NOSUID)
+                mnt_flags |= MNT_NOSUID;
+        if (flags & MS_NODEV)
+                mnt_flags |= MNT_NODEV;
+        if (flags & MS_NOEXEC)
+                mnt_flags |= MNT_NOEXEC;
+        flags &= ~(MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_ACTIVE);
+
+                ((char *)data_page)[PAGE_SIZE - 1] = 0;
+
+        /* Separate the per-mountpoint flags */
+        if (flags & MS_NOSUID)
+                mnt_flags |= MNT_NOSUID;
+        if (flags & MS_NODEV)
+                mnt_flags |= MNT_NODEV;
+        if (flags & MS_NOEXEC)
+                mnt_flags |= MNT_NOEXEC;
+        flags &= ~(MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_ACTIVE);
+
+        /* ... and get the mountpoint */
+        retval = path_lookup(dir_name, LOOKUP_FOLLOW, &nd);
+        if (retval)
+                return retval;
+
+        retval = security_sb_mount(dev_name, &nd, type_page, flags, data_page);
+        if (retval)
+                goto dput_out;
+
+        if (flags & MS_REMOUNT)
+                retval = do_remount(&nd, flags & ~MS_REMOUNT, mnt_flags,
+                                    data_page);
+        else if (flags & MS_BIND)
+                retval = do_loopback(&nd, dev_name, flags & MS_REC);
+        else if (flags & MS_MOVE)
+                retval = do_move_mount(&nd, dev_name);
+        else
+                retval = do_new_mount(&nd, type_page, flags, mnt_flags,
+                                      dev_name, data_page);
+dput_out:
+        path_release(&nd);
+        return retval;
+}
+
+/*
+ * create a new mount for userspace and request it to be added into the
+ * namespace's tree
+ 	type	ext3
+ 	name	/dev/hda
+ */
+static int do_new_mount(struct nameidata *nd, char *type, int flags,
+                        int mnt_flags, char *name, void *data)
+{
+        struct vfsmount *mnt;
+
+        if (!type || !memchr(type, 0, PAGE_SIZE))
+                return -EINVAL;
+
+        /* we need capabilities... */
+        if (!capable(CAP_SYS_ADMIN))
+                return -EPERM;
+
+        mnt = do_kern_mount(type, flags, name, data);
+        if (IS_ERR(mnt))
+                return PTR_ERR(mnt);
+
+        return do_add_mount(mnt, nd, mnt_flags, NULL);
+}
+
+/**
+	fstype	ext3
+	name	/dev/had
+*/
+struct vfsmount *
+do_kern_mount(const char *fstype, int flags, const char *name, void *data)
+{
+        struct file_system_type *type = get_fs_type(fstype);
+        struct super_block *sb = ERR_PTR(-ENOMEM);
+        struct vfsmount *mnt;
+        int error;
+        char *secdata = NULL;
+
+        if (!type)
+                return ERR_PTR(-ENODEV);
+
+        mnt = alloc_vfsmnt(name);
+        if (!mnt)
+                goto out;
+
+        if (data) {
+                secdata = alloc_secdata();
+                if (!secdata) {
+                        sb = ERR_PTR(-ENOMEM);
+                        goto out_mnt;
+                }
+
+                error = security_sb_copy_data(type, data, secdata);
+                if (error) {
+                        sb = ERR_PTR(error);
+                        goto out_free_secdata;
+                }
+        }
+
+        sb = type->get_sb(type, flags, name, data);
+        if (IS_ERR(sb))
+                goto out_free_secdata;
+        error = security_sb_kern_mount(sb, secdata);
+        if (error)
+                goto out_sb;
+        mnt->mnt_sb = sb;
+        mnt->mnt_root = dget(sb->s_root);
+        mnt->mnt_mountpoint = sb->s_root;
+        mnt->mnt_parent = mnt;
+        up_write(&sb->s_umount);
+        free_secdata(secdata);
+        put_filesystem(type);
+        return mnt;
+out_sb:
+        up_write(&sb->s_umount);
+        deactivate_super(sb);
+        sb = ERR_PTR(error);
+out_free_secdata:
+        free_secdata(secdata);
+out_mnt:
+        free_vfsmnt(mnt);
+out:
+        put_filesystem(type);
+        return (struct vfsmount *)sb;
+}
+
+int do_add_mount(struct vfsmount *newmnt, struct nameidata *nd,
+                 int mnt_flags, struct list_head *fslist)
+{
+        int err;
+
+        down_write(&current->namespace->sem);
+        /* Something was mounted here while we slept */
+        while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
+                ;
+        err = -EINVAL;
+        if (!check_mnt(nd->mnt))
+                goto unlock;
+
+        /* Refuse the same filesystem on the same mount point */
+        err = -EBUSY;
+        if (nd->mnt->mnt_sb == newmnt->mnt_sb &&
+            nd->mnt->mnt_root == nd->dentry)
+                goto unlock;
+
+        err = -EINVAL;
+        if (S_ISLNK(newmnt->mnt_root->d_inode->i_mode))
+                goto unlock;
+
+        newmnt->mnt_flags = mnt_flags;
+        newmnt->mnt_namespace = current->namespace;
+        err = graft_tree(newmnt, nd);
+
+        if (err == 0 && fslist) {
+                /* add to the specified expiration list */
+                spin_lock(&vfsmount_lock);
+                list_add_tail(&newmnt->mnt_expire, fslist);
+                spin_unlock(&vfsmount_lock);
+        }
+
+unlock:
+        up_write(&current->namespace->sem);
+        mntput(newmnt);
+        return err;
+}
+//
+	mnt 	mount point
+	dentry 	mount ponit
+int follow_down(struct vfsmount **mnt, struct dentry **dentry)
+{
+        struct vfsmount *mounted;
+
+        mounted = lookup_mnt(*mnt, *dentry);
+        if (mounted) {
+                dput(*dentry);
+                mntput(*mnt);
+                *mnt = mounted;
+                *dentry = dget(mounted->mnt_root);
+                return 1;
+        }
+        return 0;
+}
+
+static inline int d_mountpoint(struct dentry *dentry)
+{
+        return dentry->d_mounted;
+}
+
+/*
+ * Now, lookup_mnt increments the ref count before returning
+ * the vfsmount struct.
+ */
+struct vfsmount *lookup_mnt(struct vfsmount *mnt, struct dentry *dentry)
+{
+        struct list_head * head = mount_hashtable + hash(mnt, dentry);
+        struct list_head * tmp = head;
+        struct vfsmount *p, *found = NULL;
+
+        spin_lock(&vfsmount_lock);
+        for (;;) {
+                tmp = tmp->next;
+                p = NULL;
+                if (tmp == head)
+                        break;
+                p = list_entry(tmp, struct vfsmount, mnt_hash);
+                if (p->mnt_parent == mnt && p->mnt_mountpoint == dentry) {
+                        found = mntget(p);
+                        break;
+                }
+        }
+        spin_unlock(&vfsmount_lock);
+        return found;
+}
+//key point
+static int graft_tree(struct vfsmount *mnt, struct nameidata *nd)
+{
+        int err;
+        if (mnt->mnt_sb->s_flags & MS_NOUSER)
+                return -EINVAL;
+
+        if (S_ISDIR(nd->dentry->d_inode->i_mode) !=
+              S_ISDIR(mnt->mnt_root->d_inode->i_mode))
+                return -ENOTDIR;
+
+        err = -ENOENT;
+        down(&nd->dentry->d_inode->i_sem);
+        if (IS_DEADDIR(nd->dentry->d_inode))
+                goto out_unlock;
+
+        err = security_sb_check_sb(mnt, nd);
+        if (err)
+                goto out_unlock;
+
+        err = -ENOENT;
+        spin_lock(&vfsmount_lock);
+        if (IS_ROOT(nd->dentry) || !d_unhashed(nd->dentry)) {
+                struct list_head head;
+
+                attach_mnt(mnt, nd);
+                list_add_tail(&head, &mnt->mnt_list);
+                list_splice(&head, current->namespace->list.prev);
+                mntget(mnt);
+                err = 0;
+        }
+        spin_unlock(&vfsmount_lock);
+out_unlock:
+        up(&nd->dentry->d_inode->i_sem);
+        if (!err)
+                security_sb_post_addmount(mnt, nd);
+        return err;
+}
+
+static void attach_mnt(struct vfsmount *mnt, struct nameidata *nd)
+{
+        mnt->mnt_parent = mntget(nd->mnt);
+        mnt->mnt_mountpoint = dget(nd->dentry);
+        list_add(&mnt->mnt_hash, mount_hashtable+hash(nd->mnt, nd->dentry));
+        list_add_tail(&mnt->mnt_child, &nd->mnt->mnt_mounts);
+        nd->dentry->d_mounted++;
+}                                                                                                                                                                                                                                                                                                                                                                                  
+
+/**
+
+struct super_block {
+        struct list_head        s_list;         /* Keep this first */
+        dev_t                   s_dev;          /* search index; _not_ kdev_t */
+        unsigned long           s_blocksize;
+        unsigned long           s_old_blocksize;
+        unsigned char           s_blocksize_bits;
+        unsigned char           s_dirt;
+        unsigned long long      s_maxbytes;     /* Max file size */
+        struct file_system_type *s_type;
+        struct super_operations *s_op;
+        struct dquot_operations *dq_op;
+        struct quotactl_ops     *s_qcop;
+        struct export_operations *s_export_op;
+        unsigned long           s_flags;
+        unsigned long           s_magic;
+        struct dentry           *s_root;
+        struct rw_semaphore     s_umount;
+        struct semaphore        s_lock;
+        int                     s_count;
+        int                     s_syncing;
+        int                     s_need_sync_fs;
+        atomic_t                s_active;
+        void                    *s_security;
+        struct xattr_handler    **s_xattr;
+
+        struct list_head        s_inodes;       /* all inodes */
+        struct list_head        s_dirty;        /* dirty inodes */
+        struct list_head        s_io;           /* parked for writeback */
+        struct hlist_head       s_anon;         /* anonymous dentries for (nfs)
+exporting */
+        struct list_head        s_files;
+
+        struct block_device     *s_bdev;
+        struct list_head        s_instances;
+        struct quota_info       s_dquot;        /* Diskquota specific options */
+
+        int                     s_frozen;
+        wait_queue_head_t       s_wait_unfrozen;
+
+        char s_id[32];                          /* Informational name */
+
+        void                    *s_fs_info;     /* Filesystem private info */
+
+        /*
+         * The next field is for VFS *only*. No filesystems have any business
+         * even looking at it. You had been warned.
+         */
+        struct semaphore s_vfs_rename_sem;      /* Kludge */
+
+        /* Granuality of c/m/atime in ns.
+           Cannot be worse than a second */
+        u32                s_time_gran;
+};
+
+
+
+One challenge is that you need to know when and how some function pointer is initialized. otherwise you do not know which function is invoked at runtime.
+
+:!find . -name '*.[c]' | xargs egrep -n "get_sb" | grep ext3;
+./fs/ext3/super.c:646:static unsigned long get_sb_block(void **data)
+./fs/ext3/super.c:712:                  /* handled by get_sb_block() instead ofhere */
+./fs/ext3/super.c:1268: unsigned long sb_block = get_sb_block(&data);
+./fs/ext3/super.c:2557:static struct super_block *ext3_get_sb(struct file_system_type *fs_type,
+./fs/ext3/super.c:2560: return get_sb_bdev(fs_type, flags, dev_name, data, ext3_fill_super);
+./fs/ext3/super.c:2566: .get_sb         = ext3_get_sb,
+
+static struct file_system_type ext3_fs_type = {
+        .owner          = THIS_MODULE,
+        .name           = "ext3",
+        .get_sb         = ext3_get_sb,
+        .kill_sb        = kill_block_super,
+        .fs_flags       = FS_REQUIRES_DEV,
+};
+
+static int __init init_ext3_fs(void)
+{
+        int err = init_ext3_xattr();
+        if (err)
+                return err;
+        err = init_inodecache();
+        if (err)
+                goto out1;
+        err = register_filesystem(&ext3_fs_type);
+        if (err)
+                goto out;
+        return 0;
+out:
+        destroy_inodecache();
+out1:
+        exit_ext3_xattr();
+        return err;
+}
+
+include/linux/module.h
+extern struct module __this_module;
+#define THIS_MODULE (&__this_module)
+
+static struct super_block *ext3_get_sb(struct file_system_type *fs_type,
+        int flags, const char *dev_name, void *data)
+{
+        return get_sb_bdev(fs_type, flags, dev_name, data, ext3_fill_super);
+}
+
+struct super_block *get_sb_bdev(struct file_system_type *fs_type,
+        int flags, const char *dev_name, void *data,
+        int (*fill_super)(struct super_block *, void *, int))
+{
+        struct block_device *bdev;
+        struct super_block *s;
+        int error = 0;
+
+        bdev = open_bdev_excl(dev_name, flags, fs_type);
+        if (IS_ERR(bdev))
+                return (struct super_block *)bdev;
+
+        /*
+         * once the super is inserted into the list by sget, s_umount
+         * will protect the lockfs code from trying to start a snapshot
+         * while we are mounting
+         */
+        down(&bdev->bd_mount_sem);
+        s = sget(fs_type, test_bdev_super, set_bdev_super, bdev);
+        up(&bdev->bd_mount_sem);
+        if (IS_ERR(s))
+                goto out;
+
+        if (s->s_root) {
+                if ((flags ^ s->s_flags) & MS_RDONLY) {
+                        up_write(&s->s_umount);
+                        deactivate_super(s);
+                        s = ERR_PTR(-EBUSY);
+                }
+                goto out;
+        } else {
+                char b[BDEVNAME_SIZE];
+
+                s->s_flags = flags;
+                strlcpy(s->s_id, bdevname(bdev, b), sizeof(s->s_id));
+                s->s_old_blocksize = block_size(bdev);
+                sb_set_blocksize(s, s->s_old_blocksize);
+                error = fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
+                if (error) {
+                        up_write(&s->s_umount);
+                        deactivate_super(s);
+                        s = ERR_PTR(error);
+                } else {
+                        s->s_flags |= MS_ACTIVE;
+                        bdev_uevent(bdev, KOBJ_MOUNT);
+                }
+        }
+
+        return s;
+
+out:
+        close_bdev_excl(bdev);
+        return s;
+}
+
+struct block_device *open_bdev_excl(const char *path, int flags, void *holder)
+{
+        struct block_device *bdev;
+        mode_t mode = FMODE_READ;
+        int error = 0;
+
+        bdev = lookup_bdev(path);
+        if (IS_ERR(bdev))
+                return bdev;
+
+        if (!(flags & MS_RDONLY))
+                mode |= FMODE_WRITE;
+        error = blkdev_get(bdev, mode, 0);
+        if (error)
+                return ERR_PTR(error);
+        error = -EACCES;
+        if (!(flags & MS_RDONLY) && bdev_read_only(bdev))
+                goto blkdev_put;
+        error = bd_claim(bdev, holder);
+        if (error)
+                goto blkdev_put;
+
+        return bdev;
+
+blkdev_put:
+        blkdev_put(bdev);
+        return ERR_PTR(error);
+}
+
+fs/block_dev.c
+/**
+ * lookup_bdev  - lookup a struct block_device by name
+ *
+ * @path:       special file representing the block device
+ *
+ * Get a reference to the blockdevice at @path in the current
+ * namespace if possible and return it.  Return ERR_PTR(error)
+ * otherwise.
+ */
+struct block_device *lookup_bdev(const char *path)
+{
+        struct block_device *bdev;
+        struct inode *inode;
+        struct nameidata nd;
+        int error;
+
+        if (!path || !*path)
+                return ERR_PTR(-EINVAL);
+
+        error = path_lookup(path, LOOKUP_FOLLOW, &nd);
+        if (error)
+                return ERR_PTR(error);
+
+        inode = nd.dentry->d_inode;
+        error = -ENOTBLK;
+        if (!S_ISBLK(inode->i_mode))
+                goto fail;
+        error = -EACCES;
+        if (nd.mnt->mnt_flags & MNT_NODEV)
+                goto fail;
+        error = -ENOMEM;
+        bdev = bd_acquire(inode);
+        if (!bdev)
+                goto fail;
+out:
+        path_release(&nd);
+        return bdev;
+fail:
+        bdev = ERR_PTR(error);
+        goto out;
+}
+
+static struct block_device *bd_acquire(struct inode *inode)
+{
+        struct block_device *bdev;
+        spin_lock(&bdev_lock);
+        bdev = inode->i_bdev;	// the i_bdev is initialized in path look up.
+        if (bdev && igrab(bdev->bd_inode)) {
+                spin_unlock(&bdev_lock);
+                return bdev;
+        }
+        spin_unlock(&bdev_lock);
+        bdev = bdget(inode->i_rdev);//? difference?
+        if (bdev) {
+                spin_lock(&bdev_lock);
+                if (inode->i_bdev)
+                        __bd_forget(inode);
+                inode->i_bdev = bdev;
+                inode->i_mapping = bdev->bd_inode->i_mapping;
+                list_add(&inode->i_devices, &bdev->bd_inodes);
+                spin_unlock(&bdev_lock);
+        }
+        return bdev;
+}
+struct block_device *bdget(dev_t dev)
+{
+        struct block_device *bdev;
+        struct inode *inode;
+
+        inode = iget5_locked(bd_mnt->mnt_sb, hash(dev),
+                        bdev_test, bdev_set, &dev);
+
+        if (!inode)
+                return NULL;
+
+        bdev = &BDEV_I(inode)->bdev;
+
+        if (inode->i_state & I_NEW) {
+                bdev->bd_contains = NULL;
+                bdev->bd_inode = inode;
+                bdev->bd_block_size = (1 << inode->i_blkbits);
+                bdev->bd_part_count = 0;
+                bdev->bd_invalidated = 0;
+                inode->i_mode = S_IFBLK;
+                inode->i_rdev = dev;
+                inode->i_bdev = bdev;
+                inode->i_data.a_ops = &def_blk_aops;
+                mapping_set_gfp_mask(&inode->i_data, GFP_USER);
+                inode->i_data.backing_dev_info = &default_backing_dev_info;
+                spin_lock(&bdev_lock);
+                list_add(&bdev->bd_list, &all_bdevs);
+                spin_unlock(&bdev_lock);
+                unlock_new_inode(inode);
+        }
+        return bdev;
+}
+
+static inline struct bdev_inode *BDEV_I(struct inode *inode)
+{
+        return container_of(inode, struct bdev_inode, vfs_inode);
+}
+
+find . -name '*.[c]' | xargs egrep -n "kern_mount" | more;
+./fs/hugetlbfs/inode.c:832:     vfsmount = kern_mount(&hugetlbfs_fs_type);
+./fs/namespace.c:776:   mnt = do_kern_mount(type, flags, name, data);
+./fs/namespace.c:1384:  mnt = do_kern_mount("rootfs", 0, "rootfs", NULL);
+./fs/nfsctl.c:28:       nd.mnt = do_kern_mount("nfsd", 0, "nfsd", NULL);
+./fs/pipe.c:819:                pipe_mnt = kern_mount(&pipe_fs_type);
+./fs/super.c:804:do_kern_mount(const char *fstype, int flags, const char *name,
+void *data)
+
+struct vfsmount *kern_mount(struct file_system_type *type)
+{
+        return do_kern_mount(type->name, 0, type->name, NULL);
+}
+
+struct vfsmount *
+do_kern_mount(const char *fstype, int flags, const char *name, void *data)
+{
+        struct file_system_type *type = get_fs_type(fstype);
+        struct super_block *sb = ERR_PTR(-ENOMEM);
+        struct vfsmount *mnt;
+        int error;
+        char *secdata = NULL;
+
+        if (!type)
+                return ERR_PTR(-ENODEV);
+
+        mnt = alloc_vfsmnt(name);
+        if (!mnt)
+                goto out;
+
+        if (data) {
+                secdata = alloc_secdata();
+                if (!secdata) {
+                        sb = ERR_PTR(-ENOMEM);
+                        goto out_mnt;
+                }
+
+                error = security_sb_copy_data(type, data, secdata);
+                if (error) {
+                        sb = ERR_PTR(error);
+                        goto out_free_secdata;
+                }
+        }
+
+        sb = type->get_sb(type, flags, name, data);
+        if (IS_ERR(sb))
+                goto out_free_secdata;
+        error = security_sb_kern_mount(sb, secdata);
+        if (error)
+                goto out_sb;
+        mnt->mnt_sb = sb;
+        mnt->mnt_root = dget(sb->s_root);
+        mnt->mnt_mountpoint = sb->s_root;
+        mnt->mnt_parent = mnt;
+        up_write(&sb->s_umount);
+        free_secdata(secdata);
+        put_filesystem(type);
+        return mnt;
+out_sb:
+        up_write(&sb->s_umount);
+        deactivate_super(sb);
+        sb = ERR_PTR(error);
+out_free_secdata:
+        free_secdata(secdata);
+out_mnt:
+        free_vfsmnt(mnt);
+out:
+        put_filesystem(type);
+        return (struct vfsmount *)sb;
+}
+
+--4/2/2008 1:50PM
+in fs/char_dev.c
+
+cdev_map
+chrdevs_lock
+
+void __init chrdev_init(void)
+{
+        cdev_map = kobj_map_init(base_probe, &chrdevs_lock);
+}
+
+struct kobj_map *kobj_map_init(kobj_probe_t *base_probe, struct semaphore *sem)
+{
+        struct kobj_map *p = kmalloc(sizeof(struct kobj_map), GFP_KERNEL);
+        struct probe *base = kmalloc(sizeof(struct probe), GFP_KERNEL);
+        int i;
+
+        if ((p == NULL) || (base == NULL)) {
+                kfree(p);
+                kfree(base);
+                return NULL;
+        }
+
+        memset(base, 0, sizeof(struct probe));
+        base->dev = 1;
+        base->range = ~0;
+        base->get = base_probe;
+        for (i = 0; i < 255; i++)
+                p->probes[i] = base;
+        p->sem = sem;
+        return p;
+}
+
+struct kobj_map {
+        struct probe {
+                struct probe *next;
+                dev_t dev;
+                unsigned long range;
+                struct module *owner;
+                kobj_probe_t *get;
+                int (*lock)(dev_t, void *);
+                void *data;
+        } *probes[255];
+        struct semaphore *sem;
+};
+
+typedef struct kobject *kobj_probe_t(dev_t, int *, void *);
+
+
+-- how does one application get the data from termical/console!
+void init_special_inode(struct inode *inode, umode_t mode, dev_t rdev)
+{
+        inode->i_mode = mode;
+        if (S_ISCHR(mode)) {
+                inode->i_fop = &def_chr_fops;
+                inode->i_rdev = rdev;
+        } else if (S_ISBLK(mode)) {
+                inode->i_fop = &def_blk_fops;
+                inode->i_rdev = rdev;
+        } else if (S_ISFIFO(mode))
+                inode->i_fop = &def_fifo_fops;
+        else if (S_ISSOCK(mode))
+                inode->i_fop = &bad_sock_fops;
+        else
+                printk(KERN_DEBUG "init_special_inode: bogus i_mode (%o)\n",
+                       mode);
+}
+
+
+/*
+ * Dummy default file-operations: the only thing this does
+ * is contain the open that then fills in the correct operations
+ * depending on the special file...
+ */
+struct file_operations def_chr_fops = {
+        .open = chrdev_open,
+};
+
+/*
+ * Called every time a character special file is opened
+ */
+int chrdev_open(struct inode * inode, struct file * filp)
+{
+        struct cdev *p;
+        struct cdev *new = NULL;
+        int ret = 0;
+
+        spin_lock(&cdev_lock);
+        p = inode->i_cdev;
+        if (!p) {
+                struct kobject *kobj;
+                int idx;
+                spin_unlock(&cdev_lock);
+                kobj = kobj_lookup(cdev_map, inode->i_rdev, &idx);
+                if (!kobj)
+                        return -ENXIO;
+                new = container_of(kobj, struct cdev, kobj);
+                spin_lock(&cdev_lock);
+                p = inode->i_cdev;
+                if (!p) {
+                        inode->i_cdev = p = new;
+                        inode->i_cindex = idx;
+                        list_add(&inode->i_devices, &p->list);
+                        new = NULL;
+                } else if (!cdev_get(p))
+                        ret = -ENXIO;
+        } else if (!cdev_get(p))
+                ret = -ENXIO;
+        spin_unlock(&cdev_lock);
+        cdev_put(new);
+        if (ret)
+                return ret;
+        filp->f_op = fops_get(p->ops);
+        if (!filp->f_op) {
+                cdev_put(p);
+                return -ENXIO;
+        }
+        if (filp->f_op->open) {
+                lock_kernel();
+                ret = filp->f_op->open(inode,filp);
+                unlock_kernel();
+        }
+        if (ret)
+                cdev_put(p);
+        return ret;
+}
+
+cdev_map
+find . -name '*.c' | xargs egrep -n 'cdev_map'
+we did we get cdev_map real initialized?
+./fs/char_dev.c:27:static struct kobj_map *cdev_map;
+./fs/char_dev.c:301:            kobj = kobj_lookup(cdev_map, inode->i_rdev, &idx);
+./fs/char_dev.c:380:    return kobj_map(cdev_map, dev, count, NULL, exact_match, exact_lock, p);
+./fs/char_dev.c:385:    kobj_unmap(cdev_map, dev, count);
+./fs/char_dev.c:447:    cdev_map = kobj_map_init(base_probe, &chrdevs_lock);
+
+int cdev_add(struct cdev *p, dev_t dev, unsigned count)
+{
+        p->dev = dev;
+        p->count = count;
+        return kobj_map(cdev_map, dev, count, NULL, exact_match, exact_lock, p);
+}
+
+find . -name '*.c' | xargs egrep -n 'cdev_add'
+./drivers/char/raw.c:297:       if (cdev_add(&raw_cdev, dev, MAX_RAW_MINORS)) {
+./drivers/char/snsc.c:431:                      if (cdev_add(&scd->scd_cdev, dev, 1)) {
+./drivers/char/tty_io.c:2821:   error = cdev_add(&driver->cdev, dev, driver->num);
+./drivers/char/tty_io.c:2957:   if (cdev_add(&tty_cdev, MKDEV(TTYAUX_MAJOR, 0),1) ||
+./drivers/char/tty_io.c:2964:   if (cdev_add(&console_cdev, MKDEV(TTYAUX_MAJOR,1), 1) ||
+./drivers/char/tty_io.c:2972:   if (cdev_add(&ptmx_cdev, MKDEV(TTYAUX_MAJOR, 2), 1) ||
+./drivers/char/tty_io.c:2981:   if (cdev_add(&vc0_cdev, MKDEV(TTY_MAJOR, 0), 1)||
+./drivers/ieee1394/dv1394.c:2639:       ret = cdev_add(&dv1394_cdev, IEEE1394_DV1394_DEV, 16);
+./drivers/ieee1394/raw1394.c:2921:      ret = cdev_add(&raw1394_cdev, IEEE1394_RAW1394_DEV, 1);
+./drivers/ieee1394/video1394.c:1548:    ret = cdev_add(&video1394_cdev, IEEE1394_VIDEO1394_DEV, 16);
+./drivers/ieee1394/amdtp.c:1275:        if (cdev_add(&amdtp_cdev, IEEE1394_AMDTP_DEV, 16)) {
+./drivers/infiniband/core/ucm.c:1351:   result = cdev_add(&ib_ucm_cdev, IB_UCM_DEV, 1);
+./drivers/infiniband/core/user_mad.c:759:       if (cdev_add(&port->dev, base_dev + port->devnum, 1))
+./drivers/infiniband/core/user_mad.c:783:       if (cdev_add(&port->sm_dev, base_dev + port->sm_devnum, 1))
+./drivers/infiniband/core/uverbs_main.c:586:    if (cdev_add(&uverbs_dev->dev, IB_UVERBS_BASE_DEV + uverbs_dev->devnum, 1))
+./drivers/media/dvb/dvb-core/dvbdev.c:407:      if ((retval = cdev_add(&dvb_device_cdev, dev, MAX_DVB_MINORS)) != 0) {
+./drivers/s390/char/tape_class.c:69:    rc = cdev_add(tcd->char_device, tcd->char_device->dev, 1);
+./drivers/s390/char/vmlogrdr.c:829:     rc = cdev_add(vmlogrdr_cdev, vmlogrdr_cdev->dev, MAXMINOR);
+./drivers/scsi/sg.c:1545:       error = cdev_add(cdev, MKDEV(SCSI_GENERIC_MAJOR, k), 1);
+./drivers/scsi/st.c:3979:                       error = cdev_add(cdev,
+./fs/char_dev.c:225:    err = cdev_add(cdev, MKDEV(cd->major, 0), 256);
+./fs/char_dev.c:376:int cdev_add(struct cdev *p, dev_t dev, unsigned count)
+./fs/char_dev.c:458:EXPORT_SYMBOL(cdev_add);
+
+
+int register_chrdev(unsigned int major, const char *name,
+                    struct file_operations *fops)
+{
+        struct char_device_struct *cd;
+        struct cdev *cdev;
+        char *s;
+        int err = -ENOMEM;
+
+        cd = __register_chrdev_region(major, 0, 256, name);
+        if (IS_ERR(cd))
+                return PTR_ERR(cd);
+
+        cdev = cdev_alloc();
+        if (!cdev)
+                goto out2;
+
+        cdev->owner = fops->owner;
+        cdev->ops = fops;
+        kobject_set_name(&cdev->kobj, "%s", name);
+        for (s = strchr(kobject_name(&cdev->kobj),'/'); s; s = strchr(s, '/'))
+                *s = '!';
+
+        err = cdev_add(cdev, MKDEV(cd->major, 0), 256);
+        if (err)
+                goto out;
+
+        cd->cdev = cdev;
+
+        return major ? 0 : cd->major;
+out:
+        kobject_put(&cdev->kobj);
+out2:
+        kfree(__unregister_chrdev_region(cd->major, 0, 256));
+        return err;
+}
+
+
+int tty_register_driver(struct tty_driver *driver)
+{
+        int error;
+        int i;
+        dev_t dev;
+        void **p = NULL;
+
+        if (driver->flags & TTY_DRIVER_INSTALLED)
+                return 0;
+
+        if (!(driver->flags & TTY_DRIVER_DEVPTS_MEM)) {
+                p = kmalloc(driver->num * 3 * sizeof(void *), GFP_KERNEL);
+                if (!p)
+                        return -ENOMEM;
+                memset(p, 0, driver->num * 3 * sizeof(void *));
+        }
+
+        if (!driver->major) {
+                error = alloc_chrdev_region(&dev, driver->minor_start, driver->n
+um,
+                                                (char*)driver->name);
+                if (!error) {
+                        driver->major = MAJOR(dev);
+                        driver->minor_start = MINOR(dev);
+                }
+        } else {
+                dev = MKDEV(driver->major, driver->minor_start);
+                error = register_chrdev_region(dev, driver->num,
+                                                (char*)driver->name);
+        }
+        if (error < 0) {
+                kfree(p);
+                return error;
+        }
+
+        if (p) {
+                driver->ttys = (struct tty_struct **)p;
+                driver->termios = (struct termios **)(p + driver->num);
+                driver->termios_locked = (struct termios **)(p + driver->num * 2
+);
+        } else {
+                driver->ttys = NULL;
+                driver->termios = NULL;
+                driver->termios_locked = NULL;
+        }
+
+        cdev_init(&driver->cdev, &tty_fops);					//important
+        driver->cdev.owner = driver->owner;
+        error = cdev_add(&driver->cdev, dev, driver->num);
+        if (error) {
+                cdev_del(&driver->cdev);
+                unregister_chrdev_region(dev, driver->num);
+                driver->ttys = NULL;
+                driver->termios = driver->termios_locked = NULL;
+                kfree(p);
+                return error;
+        }
+
+        if (!driver->put_char)
+                driver->put_char = tty_default_put_char;
+
+        list_add(&driver->tty_drivers, &tty_drivers);
+
+        if ( !(driver->flags & TTY_DRIVER_NO_DEVFS) ) {
+                for(i = 0; i < driver->num; i++)
+                    tty_register_device(driver, i, NULL);
+        }
+        proc_tty_register_driver(driver);
+        return 0;
+}      
+
+void cdev_init(struct cdev *cdev, struct file_operations *fops)
+{
+        memset(cdev, 0, sizeof *cdev);
+        INIT_LIST_HEAD(&cdev->list);
+        cdev->kobj.ktype = &ktype_cdev_default;
+        kobject_init(&cdev->kobj);
+        cdev->ops = fops;
+}          
+find . -name '*.c' | xargs egrep -n 'tty_register_driver' | grep 386
+./drivers/char/pty.c:299:       if (tty_register_driver(pty_driver))
+./drivers/char/pty.c:301:       if (tty_register_driver(pty_slave_driver))
+./drivers/char/pty.c:395:       if (tty_register_driver(ptm_driver))
+./drivers/char/pty.c:397:       if (tty_register_driver(pts_driver))
+./drivers/serial/68328serial.c:1445:    if (tty_register_driver(serial_driver)){
+./drivers/serial/68360serial.c:2511:    if (tty_register_driver(serial_driver))
+
+int rs_360_init(void)
+{
+        struct serial_state * state;
+        ser_info_t      *info;
+        void       *mem_addr;
+        uint            dp_addr, iobits;
+        int                 i, j, idx;
+        ushort          chan;
+        QUICC_BD        *bdp;
+        volatile        QUICC           *cp;
+        volatile        struct smc_regs *sp;
+        volatile        struct smc_uart_pram    *up;
+        volatile        struct scc_regs *scp;
+        volatile        struct uart_pram        *sup;
+        /* volatile     immap_t         *immap; */
+
+        serial_driver = alloc_tty_driver(NR_PORTS);
+        if (!serial_driver)
+                return -1;
+
+        show_serial_version();
+
+        serial_driver->name = "ttyS";
+        serial_driver->major = TTY_MAJOR;
+        serial_driver->minor_start = 64;
+        serial_driver->type = TTY_DRIVER_TYPE_SERIAL;
+        serial_driver->subtype = SERIAL_TYPE_NORMAL;
+        serial_driver->init_termios = tty_std_termios;
+        serial_driver->init_termios.c_cflag =
+                baud_idx | CS8 | CREAD | HUPCL | CLOCAL;
+        serial_driver->flags = TTY_DRIVER_REAL_RAW;
+        tty_set_operations(serial_driver, &rs_360_ops);
+
+        if (tty_register_driver(serial_driver))
+                panic("Couldn't register serial driver\n");
+
+        cp = pquicc;    /* Get pointer to Communication Processor */
+        /* immap = (immap_t *)IMAP_ADDR; */     /* and to internal registers */
+
+
+        /* Configure SCC2, SCC3, and SCC4 instead of port A parallel I/O.
+         */
+        /* The "standard" configuration through the 860.
+        */
+/*      immap->im_ioport.iop_papar |= 0x00fc; */
+/*      immap->im_ioport.iop_padir &= ~0x00fc; */
+/*      immap->im_ioport.iop_paodr &= ~0x00fc; */
+        cp->pio_papar |= 0x00fc;
+        cp->pio_padir &= ~0x00fc;
+        /* cp->pio_paodr &= ~0x00fc; */
+    /* cp->pio_paodr &= ~0x00fc; */
+
+
+    /* Since we don't yet do modem control, connect the port C pins
+     * as general purpose I/O.  This will assert CTS and CD for the
+     * SCC ports.
+     */
+    /* FIXME: see 360um p.7-365 and 860um p.34-12
+     * I can't make sense of these bits - mleslie*/
+    immap->im_ioport.iop_pcdir |= 0x03c6; */
+    immap->im_ioport.iop_pcpar &= ~0x03c6; */
+
+    cp->pio_pcdir |= 0x03c6; */
+    cp->pio_pcpar &= ~0x03c6; */
+
+
+
+    /* Connect SCC2 and SCC3 to NMSI.  Connect BRG3 to SCC2 and
+     * BRG4 to SCC3.
+     */
+    cp->si_sicr &= ~0x00ffff00;
+    cp->si_sicr |=  0x001b1200;
+
+ef CONFIG_PP04
+    /* Frequentis PP04 forced to RS-232 until we know better.
+     * Port C 12 and 13 low enables RS-232 on SCC3 and SCC4.
+     */
+    immap->im_ioport.iop_pcdir |= 0x000c;
+    immap->im_ioport.iop_pcpar &= ~0x000c;
+    immap->im_ioport.iop_pcdat &= ~0x000c;
+
+    /* This enables the TX driver.
+    */
+    cp->cp_pbpar &= ~0x6000;
+    cp->cp_pbdat &= ~0x6000;
+if
+
+    for (i = 0, state = rs_table; i < NR_PORTS; i++,state++) {
+            state->magic = SSTATE_MAGIC;
+            state->line = i;
+            state->type = PORT_UNKNOWN;
+            state->custom_divisor = 0;
+            state->close_delay = 5*HZ/10;
+            state->closing_wait = 30*HZ;
+            state->icount.cts = state->icount.dsr =
+                    state->icount.rng = state->icount.dcd = 0;
+            state->icount.rx = state->icount.tx = 0;
+            state->icount.frame = state->icount.parity = 0;
+            state->icount.overrun = state->icount.brk = 0;
+            printk(KERN_INFO "ttyS%d at irq 0x%02x is an %s\n",
+                   i, (unsigned int)(state->irq),
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+static struct tty_operations rs_360_ops = {
+        .owner = THIS_MODULE,
+        .open = rs_360_open,
+        .close = rs_360_close,
+        .write = rs_360_write,
+        .put_char = rs_360_put_char,
+        .write_room = rs_360_write_room,
+        .chars_in_buffer = rs_360_chars_in_buffer,
+        .flush_buffer = rs_360_flush_buffer,
+        .ioctl = rs_360_ioctl,
+        .throttle = rs_360_throttle,
+        .unthrottle = rs_360_unthrottle,
+        /* .send_xchar = rs_360_send_xchar, */
+        .set_termios = rs_360_set_termios,
+        .stop = rs_360_stop,
+        .start = rs_360_start,
+        .hangup = rs_360_hangup,
+        /* .wait_until_sent = rs_360_wait_until_sent, */
+        /* .read_proc = rs_360_read_proc, */
+        .tiocmget = rs_360_tiocmget,
+        .tiocmset = rs_360_tiocmset,
+};                   
+
+"./drivers/char/tty_io.c
+static struct file_operations tty_fops = {
+        .llseek         = no_llseek,
+        .read           = tty_read,
+        .write          = tty_write,
+        .poll           = tty_poll,
+        .ioctl          = tty_ioctl,
+        .open           = tty_open,
+        .release        = tty_release,
+        .fasync         = tty_fasync,
+};
+
+static ssize_t tty_read(struct file * file, char __user * buf, size_t count,
+                        loff_t *ppos)
+{
+        int i;
+        struct tty_struct * tty;
+        struct inode *inode;
+        struct tty_ldisc *ld;
+
+        tty = (struct tty_struct *)file->private_data;
+        inode = file->f_dentry->d_inode;
+        if (tty_paranoia_check(tty, inode, "tty_read"))
+                return -EIO;
+        if (!tty || (test_bit(TTY_IO_ERROR, &tty->flags)))
+                return -EIO;
+
+        /* We want to wait for the line discipline to sort out in this
+           situation */
+        ld = tty_ldisc_ref_wait(tty);
+        lock_kernel();
+        if (ld->read)
+                i = (ld->read)(tty,file,buf,count);
+        else
+                i = -EIO;
+        tty_ldisc_deref(ld);
+        unlock_kernel();
+        if (i > 0)
+                inode->i_atime = current_fs_time(inode->i_sb);
+        return i;
+}
+
+"include/linux/major.h"
+#define TTY_MAJOR
+
+struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty)
+{
+        /* wait_event is a macro */
+        wait_event(tty_ldisc_wait, tty_ldisc_try(tty)); //is the key point, someone wait on it. someone will inform accrording to this central point.
+        if(tty->ldisc.refcount == 0)
+                printk(KERN_ERR "tty_ldisc_ref_wait\n");
+        return &tty->ldisc;
+}
+
+find . -name '*.c' | xargs egrep -n 'tty_ldisc_wait'
+
+/*
+ *      This guards the refcounted line discipline lists. The lock
+ *      must be taken with irqs off because there are hangup path
+ *      callers who will do ldisc lookups and cannot sleep.
+ */
+
+static DEFINE_SPINLOCK(tty_ldisc_lock);
+static DECLARE_WAIT_QUEUE_HEAD(tty_ldisc_wait);
+static struct tty_ldisc tty_ldiscs[NR_LDISCS];  /* line disc dispatch table */
+
+--check who refer to tty_ldisc_wait
+/**
+ *      tty_ldisc_deref         -       free a tty ldisc reference
+ *      @ld: reference to free up
+ *
+ *      Undoes the effect of tty_ldisc_ref or tty_ldisc_ref_wait. May
+ *      be called in IRQ context.
+ */
+
+void tty_ldisc_deref(struct tty_ldisc *ld)
+{
+        unsigned long flags;
+
+        if(ld == NULL)
+                BUG();
+
+        spin_lock_irqsave(&tty_ldisc_lock, flags);
+        if(ld->refcount == 0)
+                printk(KERN_ERR "tty_ldisc_deref: no references.\n");
+        else
+                ld->refcount--;
+        if(ld->refcount == 0)
+                wake_up(&tty_ldisc_wait);
+        spin_unlock_irqrestore(&tty_ldisc_lock, flags);
+}
+
+we can use both ctags and cscope together, most of the time, ctags is enough. 
+but 
+in some cased, we still need cscope, for example, to find out who are 
+calling a function
+we are interested on.
+
+to disable the ^] escape key, it works.
+telnet -E q 192.168.2.99
+telnet -e 192.168.2.99 
+
+vi ~/.vimrc
+add following line.
+:cs add /home/oracle/eddie/cscope/cscope.out
+:set tags=/home/oracle/eddie/linux-2.6/tags
+
+find . -name '*.[c]' | xargs egrep -n "\.interrupt[^=]*=" | more;
+
+--5/2/2008 4:09PM
+sys_read flow.
+sys_read in ./fs/read_write.c
+asmlinkage ssize_t sys_read(unsigned int fd, char __user * buf, size_t count)
+{
+        struct file *file;
+        ssize_t ret = -EBADF;
+        int fput_needed;
+
+        file = fget_light(fd, &fput_needed);
+        if (file) {
+                loff_t pos = file_pos_read(file);
+                ret = vfs_read(file, buf, count, &pos);
+                file_pos_write(file, pos);
+                fput_light(file, fput_needed);
+        }
+
+        return ret;
+}
+EXPORT_UNUSED_SYMBOL_GPL(sys_read); /* to be deleted for 2.6.25 */
+
+
+ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
+{
+        ssize_t ret;
+
+        if (!(file->f_mode & FMODE_READ))
+                return -EBADF;
+        if (!file->f_op || (!file->f_op->read && !file->f_op->aio_read))
+                return -EINVAL;
+        if (unlikely(!access_ok(VERIFY_WRITE, buf, count)))
+                return -EFAULT;
+
+        ret = rw_verify_area(READ, file, pos, count);
+        if (ret >= 0) {
+                count = ret;
+                ret = security_file_permission (file, MAY_READ);
+                if (!ret) {
+                        if (file->f_op->read)
+                                ret = file->f_op->read(file, buf, count, pos);
+                        else
+                                ret = do_sync_read(file, buf, count, pos);
+                        if (ret > 0) {
+                                fsnotify_access(file->f_path.dentry);
+                                add_rchar(current, ret);
+                        }
+                        inc_syscr(current);
+                }
+        }
+
+        return ret;
+}
+
+EXPORT_SYMBOL(vfs_read);
+
+./fs/ext3/inode.c:2533:         inode->i_fop = &ext3_file_operations;
+const struct file_operations ext3_file_operations = {
+        .llseek         = generic_file_llseek,
+        .read           = do_sync_read,
+        .write          = do_sync_write,
+        .aio_read       = generic_file_aio_read,
+        .aio_write      = ext3_file_write,
+        .ioctl          = ext3_ioctl,
+#ifdef CONFIG_COMPAT
+        .compat_ioctl   = ext3_compat_ioctl,
+#endif
+        .mmap           = generic_file_mmap,
+        .open           = generic_file_open,
+        .release        = ext3_release_file,
+        .fsync          = ext3_sync_file,
+        .splice_read    = generic_file_splice_read,
+        .splice_write   = generic_file_splice_write,
+};
+--ext2_file_operations
+/*
+ * We have mostly NULL's here: the current defaults are ok for
+ * the ext2 filesystem.
+ */
+const struct file_operations ext2_file_operations = {
+        .llseek         = generic_file_llseek,
+        .read           = do_sync_read,
+        .write          = do_sync_write,
+        .aio_read       = generic_file_aio_read,
+        .aio_write      = generic_file_aio_write,
+        .ioctl          = ext2_ioctl,
+#ifdef CONFIG_COMPAT
+        .compat_ioctl   = ext2_compat_ioctl,
+#endif
+        .mmap           = generic_file_mmap,
+        .open           = generic_file_open,
+        .release        = ext2_release_file,
+        .fsync          = ext2_sync_file,
+        .splice_read    = generic_file_splice_read,
+        .splice_write   = generic_file_splice_write,
+};
+
+#define init_sync_kiocb(x, filp)                        \
+        do {                                            \
+                struct task_struct *tsk = current;      \
+                (x)->ki_flags = 0;                      \
+                (x)->ki_users = 1;                      \
+                (x)->ki_key = KIOCB_SYNC_KEY;           \
+                (x)->ki_filp = (filp);                  \
+                (x)->ki_ctx = NULL;                     \
+                (x)->ki_cancel = NULL;                  \
+                (x)->ki_retry = NULL;                   \
+                (x)->ki_dtor = NULL;                    \
+                (x)->ki_obj.tsk = tsk;                  \
+                (x)->ki_user_data = 0;                  \
+                init_wait((&(x)->ki_wait));             \
+        } while (0)
+
+ki_wait should be used when ?
+
+
+--5/2/2008 4:09PM
+read write lock
+in include/linux/spinlock.h
+#define write_lock(lock)                _write_lock(lock)
+#define read_lock(lock)                 _read_lock(lock)
+
+in kernel/spinlock.c
+void __lockfunc _read_lock(rwlock_t *lock)      
+{
+        preempt_disable();
+        rwlock_acquire_read(&lock->dep_map, 0, 0, _RET_IP_);
+        LOCK_CONTENDED(lock, _raw_read_trylock, _raw_read_lock);
+}
+EXPORT_SYMBOL(_read_lock);
+
+in include/linux/lockdep.h
+#ifdef CONFIG_DEBUG_LOCK_ALLOC
+# ifdef CONFIG_PROVE_LOCKING
+#  define rwlock_acquire(l, s, t, i)            lock_acquire(l, s, t, 0, 2, i)
+#  define rwlock_acquire_read(l, s, t, i)       lock_acquire(l, s, t, 2, 2, i)
+# else
+#  define rwlock_acquire(l, s, t, i)            lock_acquire(l, s, t, 0, 1, i)
+#  define rwlock_acquire_read(l, s, t, i)       lock_acquire(l, s, t, 2, 1, i)
+# endif 
+# define rwlock_release(l, n, i)                lock_release(l, n, i)
+#else
+# define rwlock_acquire(l, s, t, i)             do { } while (0)
+# define rwlock_acquire_read(l, s, t, i)        do { } while (0)
+# define rwlock_release(l, n, i)                do { } while (0)
+#endif
+
+in include/linux/lockdep.h
+#define LOCK_CONTENDED(_lock, try, lock) \
+        lock(_lock)
+
+#define LOCK_CONTENDED(_lock, try, lock)                        \
+do {                                                            \
+        if (!try(_lock)) {                                      \
+                lock_contended(&(_lock)->dep_map, _RET_IP_);    \
+                lock(_lock);                                    \
+        }                                                       \
+        lock_acquired(&(_lock)->dep_map);                       \
+} while (0)
+
+in include/linux/spinlock.h
+# define _raw_read_lock(rwlock)         __raw_read_lock(&(rwlock)->raw_lock)
+
+include/asm-x86/spinlock_32.h
+static inline void __raw_read_lock(raw_rwlock_t *rw)
+{
+        asm volatile(LOCK_PREFIX " subl $1,(%0)\n\t"
+                     "jns 1f\n"
+                     "call __read_lock_failed\n\t"
+                     "1:\n"
+                     ::"a" (rw) : "memory");
+}
+
+static inline void __raw_write_lock(raw_rwlock_t *rw)
+{       
+        asm volatile(LOCK_PREFIX " subl $" RW_LOCK_BIAS_STR ",(%0)\n\t"
+                     "jz 1f\n"
+                     "call __write_lock_failed\n\t"
+                     "1:\n"
+                     ::"a" (rw) : "memory");
+}       

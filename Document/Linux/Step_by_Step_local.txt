@@ -1,0 +1,189 @@
+1. Download Git 
+http://git-scm.com/#download
+
+2. upload the installation file to the target directory and unzipped it as 
+follows.
+tar -zxvf file.name
+
+3. 	./configure
+ 	make
+ 	sudo make install
+ 	
+4. create file prepare.txt with the following content.
+	echo $PATH;
+	export PATH=$PATH:/home/oracle/exer/git-1.6.3.3/git-1.6.3.3/:
+	echo $PATH;
+ 	
+5. execute the command to set the path every time.
+	. ./prepare.txt
+	
+6. execute command below to get the source code of linux.
+	git-clone \
+	git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git \
+	linux-2.6
+
+6.1  git is blocked by firewall, instead I download the source code from 
+http://www.kernel.org/  click the "F" link, which stands for Full Source Code.
+
+6.2 install ctags. and add /usr/local/bin into the PATH
+
+6.3 install cscope failed.
+
+7. 4/3/2008 3:33PM
+cscope 
+
+cd /home/oracle/exer/linux/linux-2.6.30.1;
+cd /home/oracle/exer/linux/linux-2.6.24.3;
+
+cd /home/eddie/linux/linux.git
+CSCOPE=/home/eddie/linux/cscope_linux_git
+
+LNX=`pwd`;
+echo $LNX;
+find  $LNX                                                                \
+-path "$LNX/arch/*" ! -path "$LNX/arch/x86*" -prune -o               \
+-path "$LNX/include/asm-*" ! -path "$LNX/include/asm-x86*" -prune -o     \
+-path "$LNX/fs/*" ! -path "$LNX/fs/ext3*" -prune -o \
+-path "$LNX/firmware*" -prune -o                                           \
+-path "$LNX/Documentation*" -prune -o                                 \
+-path "$LNX/scripts*" -prune -o                                       \
+-path "$LNX/debian*" -prune -o                                       \
+-path "$LNX/drivers*" -prune -o                                       \
+-path "$LNX/samples*" -prune -o                                       \
+-path "$LNX/sound*" -prune -o                                       \
+-path "$LNX/net*" -prune -o                                       \
+-name "*.[chxsS]" -print > $CSCOPE/cscope.files
+
+cd fs
+find "$LNX/fs" -maxdepth 1 -name  "*.[chxsS]" -print >> $CSCOPE/cscope.files
+
+-name "*.[chxsS]" -print >/home/oracle/exer/linux/cscope.files
+
+IT succeed. but very quick and there is no output. So I do not realize 
+that it actually succeed.
+
+ctags [options] [file(s)]
+ctags -L <file>
+ctags -L /home/oracle/exer/linux/cscope.files
+at home:
+ctags -L $CSCOPE/cscope.files
+
+vi 
+:tag do_brk;
+
+:ts can show you all the options. then you can choose from the list of options.
+
+Ctrl-] go to the definition 
+Ctrl-t return to last place.
+
+
+linux-2.6.30.1
+change 1:
+the asm for different arch are put into corresponding arch, it is no longer
+in the inlcude folder.    
+
+So all the includes are relative to too possible path, one is relative to 
+./include folder, another is arhc-specific, e.g. ./arch/x86/include/, later 
+folder only have a sub-folder called asm.	
+    
+    
+Documentation/kbuild/makefiles.txt explain all the details of the Kbuild 
+system.    
+    
+    
+    
+    
+    
+reinstall vim
+configure --enable-cscope
+check
+[oracle@ora10gapp1 vim71]$ vim --version | grep cscope
++cryptv +cscope +cursorshape +dialog_con +diff +digraphs -dnd -ebcdic
+    
+ :cscope add /home/oracle/eddie/cscope.out
+ 
+find  : Query cscope.  All cscope query options are available
+        except option #5 ("Change this grep pattern").
+
+    USAGE   :cs find {querytype} {name}
+
+        {querytype} corresponds to the actual cscope line
+        interface numbers as well as default nvi commands:
+
+            0 or s: Find this C symbol
+            1 or g: Find this definition
+            2 or d: Find functions called by this function
+            3 or c: Find functions calling this function
+            4 or t: Find this text string
+            6 or e: Find this egrep pattern
+            7 or f: Find this file
+            8 or i: Find files #including this file
+need to manually add the following config in ~/.vimrc
+:cscope add /home/oracle/eddie/cscope/cscope.out        
+
+example usage in vim:
+:cs find c tty_ldisc_deref             
+:cs find s      tty_ldisc_wait
+  
+  
+  
+  
+  
+  7/27/2009 3:44PM
+Trouble shooting when installing the cscope
+The error message says
+"line 52 in build.c can not find the referece to curse.h"
+
+Root cause is that ncurses library is not installed in the system.
+
+1. download ncurses-5.7 from
+http://ftp.gnu.org/pub/gnu/ncurses/  
+
+intall it 
+./configure
+make
+sudo make install
+
+2. Then it is easy to install cscope.
+
+3. next step is to install vim from source code (it is already done)
+ora10gapp2> vim --version | grep scope
++cryptv +cscope +cursorshape +dialog_con +diff +digraphs -dnd -ebcdic 
+
+ora10gapp2> ls -l `which vim`
+-rwxr-xr-x 1 root root 1704148 2008-02-12 03:00 /usr/bin/vim
+ora10gapp2> ls -l `which vi` 
+-rwxr-xr-x 1 root root 660564 2008-02-12 03:00 /bin/vi
+
+/home/oracle/exer/linux/     # the directory with 'cscope.files'
+cscope -b -q -k    
+add the following in .vimrc
+:cscope add /home/oracle/exer/linux/cscope.out 
+:cscope add /home/eddie/linux/cscope_linux_git/cscope.out 
+
+start vim again.
+:cs find c sys_mmap2
+
+If there are many candidate options and you do not go through them all.
+just use "q" to exit from the choices list and input the number you 
+choosed.
+
+
+Surprising enough, no head file ever include the auto.conf.
+  
+Today, the source code of linux 2.6.24.3 is removed without any intentional
+operation. I have to check out latest code by git and rebuild all the tags
+file and cscope file and set up .vimrc  again. 
+git pull 
+git branch my2.6.30 v_2.6.30
+git checkout v_2.6.30
+make kernelversion
+make allnoconfig
+make 
+git tree did not include the latest official kernel 2.6.30.1. seems git tree
+only consider the development. the stable release is maintained in another way.
+
+:cscope add /home/eddie/linux/cscope_linux_git/cscope.out 
+:set tags=/home/eddie/linux/cscope_linux_git/tags
+  
+  

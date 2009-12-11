@@ -1,0 +1,47 @@
+\hsize=29pc
+\vsize=42pc
+
+\topglue .5in
+\centerline{\bf Learning Notes---Typing Math Formulas (Chapter 16)}
+\centerline{4/22/2009 9:30AM}
+
+\beginsection Exercise  16.4
+
+$$x^2_3$$
+$$x_3^2$$
+$$x_3^2 + \pi$$
+$$P_3^2 + \pi$$
+$$P{}_3^2 + \pi$$
+$$x_{z^c_d}^{y^a_b}$$
+
+\beginsection Exercise 16.11
+
+$$K_n^+, K_n^-$$
+$$K{}_n^+, K{}_n^-$$
+$$z_{ij}^*$$
+$$g^\circ \mapsto g^\bullet$$
+$$g^o\mapsto g^\bullet$$
+
+$$z^{*2}$$
+$$h'_*(z)$$
+
+
+\beginsection Example in chapter 17---More about Math
+
+$$1 \over 2$$
+$${n+1} \over 3$$
+$${n+1} \choose 3$$
+$$\sum_{n=1}^3 z_n^2$$
+$$\sum_{n=1}^3z_n^2$$
+$$\Sigma_{n=1}^3 z_n^2$$
+$$\Sigma_{n=1}^3 z_n^2$$
+
+$${a \over b} \over 2$$
+$$a \over {b \over 2}$$
+$$a/b \over 2$$
+$$a \over b/2$$
+
+\bye
+
+
+

@@ -1,0 +1,61 @@
+3/13/2009 2:22PM
+New technology and business model
+1. Face Book
+2. Google Adsense 
+3. Amazon aStore
+  
+  
+3/19/2009 3:23PM
+TODO: read <<elements of style>>, introduce it to team for improving English. 
+also borrow it next time.
+
+The idea getting from web.
+1. Algorithm is important, from KaiFu Li's point of view.
+    parallel algorithm is more important. I remember Knuth have different idea than this.
+2. The category of Google's strength
+
+? algorithms
+? artificial intelligence
+? compiler optimization
+? computer architecture
+? computer graphics 	  	
+? data compression
+? data mining
+? file system design
+? genetic algorithms
+? information retrieval 	  	
+? machine learning
+? natural language processing
+
+? operating systems
+
+? profiling
+? robotics
+? text processing
+? user interface design
+? web information retrieval
+? and more! 
+
+3. finished reading GB_WORDS GB_GRAPH
+hope to finish GB_DIJK today.
+GB_WORDS will construct graph with the help of GB_GRAPH
+LADDERS will depends on GB_WORDS and GB_DIJK, which is the core of algorithm.
+
+ 
+
+3/20/2009 1:03PM
+How to make my son like to learn?
+Each bog or girl have a lot of energy, they always like to learn new and 
+interesting things. The thing we need to do is to find out those 
+interesting thing and introduce to them in a proper way.
+
+Sometime the kids look like unreasonable, because
+1) They think in a different way than we do.
+2) They have different attitude against different things.
+so it is important to keep cool.
+
+
+
+
+Poker game. let him calculate the sum of two poker cards, he will win the 
+pair of cards if he can calculate correctly. Done!

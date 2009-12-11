@@ -1,0 +1,96 @@
+% This test file generates the output shown on the opposite page.
+% It's a bit complex because it tries to illustrate lots of stuff.
+% TeX ignores commentary (like this) that follows a `%' sign.
+% First the standard output style is changed slightly:
+\hsize=29pc % The lines in this book are 29 picas wide.
+\vsize=42pc % The page body is 42 picas (not counting footlines).
+\footline={\tenrm Footline\quad\dotfill\quad Page \folio}
+\pageno=1009 % This is the starting page number (don't ask why).
+% See Chapter 23 for the way to make other page format changes via
+% \hoffset, \voffset, \nopagenumbers, \headline, or \raggedbottom.
+
+\topglue 1in % This makes an inch of blank space (1in=2.54cm).
+\centerline{\bf My Answer to Exercises in \TeX book}
+\smallskip % This puts a little extra space after the title line.
+\rightline{\it Eddie Wu (5/13/2009)}
+
+% Now we use \beginsection to introduce part 1 of the document.
+
+
+
+
+\beginsection Exercise 1.1.\par
+After you have mastered the material in this book, what will you be: A \TeX pert,
+or a \TeX nician?
+
+Answer: A \TeX nician.
+
+\beginsection Exercise 2.1.\par
+Explain how to type the following sentence to \TeX: Alice said, ``I always use an
+en-dash instead of a hyphen when specifying page numbers like `480--491' in a
+bibliography.''
+
+480--491 v.s. 480$-$491
+
+\beginsection Exercise 2.2.\par
+What do you think happens when you type four hyphens in a row?
+
+Answer: I will get a em-dash and a hyphen as follows.\par
+----
+
+\beginsection Exercise 2.3.\par
+Think of an English word that contains two ligatures.\par
+Answer: fulfill, 
+
+\beginsection Exercise 2.4.\par
+OK, now you know how to produce {''}' and '\thinspace{''}; how do you get {``}\thinspace` and `{``} ?\par
+```\par
+{``}`\par
+`{``}\par
+'''\par
+'{''}\par
+'\thinspace{''}\par
+{''}'\par
+{``}\thinspace`I do'\thinspace{''}\par
+
+%|\+|\<text$_1$>|&|\<text$_2$>|&|$\,\cdots\,$|\cr|
+
+\beginsection Exercise 2.5.\par
+Why do you think the author introduced the control sequence {\tt \char`\\thinspace} to
+solve the adjacent-quotes problem, instead of recommending the trickier construction
+{\tt '\$\char`\\,\$''} (which also works)?
+
+'\thinspace'' v.s. '$\,$''
+
+{\tt '\char`\\thinspace''} v.s. {\tt '\$\char`\\,\$''}
+
+Answer: I guess the reason is that author have not introduce Math mode yet so far.
+
+we can get backslash---{\tt \char`\\} by {\tt \char`\\char`\char`\\\char`\\}.
+
+\beginsection Exercise 4.2.\par
+{\it Explain how to typeset a {\rm roman} word in the midst of an italicized sentence.}\par
+a bold `{\bf f\/}' v.s. a bold `{\bf f}'
+
+\def\ic#1{{\it #1\/}}
+\ic{good} morning!\par
+{\it good} morning.\par
+\rm
+\ic{good} morning!\par
+\rm
+{\it good} morning.\par
+% I get different m.
+\beginsection Exercise 20.2.\par
+\def\a{\b}
+\def\b{A\def\a{B\def\a{C\def\a{\b}}}}
+\def\puzzle{\a\a\a\a\a}
+\puzzle;
+
+\beginsection Exercise 20.3.\par
+%Continuing this example, what is the result of {\tt \$\char`\\row\{\char`\\bf x\}\$}	?
+\def\row#1{(#1_1,\ldots,#1_n)}
+$$\row{x}$$
+$$\row{\bf x}$$
+$$\row{{\bf x}}$$
+
+\bye % This is the way the file ends, not with a \bang but a \bye.

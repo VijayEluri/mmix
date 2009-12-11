@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fdl:document xmlns:fdl="http://ov.hp.com/ium/namespace/fdl"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://ov.hp.com/ium/namespace/fdl fdl.xsd "
+	import="Radius-Attribute.xfd">
+	<root name="RadiusMsg" type="RadiusType" snmeNamespace="Radius" />
+
+	<!--  Radius message -->
+	<sequence name="RadiusType" endOfRecord="true">
+		<raw size="length" />
+		<field name="code" type="Octet_1" />
+		<field name="identifier" type="Octet_1" />
+		<field name="length" type="Octet_2" />
+		<field name="authenticator" type="String_16" />
+		<field name="body" type="BodyType" />
+	</sequence>
+
+	<!-- Radius body -->
+	<set name="BodyType">
+
+		<raw />
+
+		<field name="userName" type="User_Name_Type" />
+		<field name="userPassword" type="User_Password_Type" />
+		
+		
+		<field name="vendorSpecific" type="Vendor_Specific_Array_Type" />
+		
+	</set>
+
+	<string name="User_Name_Type" charset="UTF-8">
+		<tlv type="Attribute">
+			<field name="attr_type" value="1" />
+		</tlv>
+	</string>
+
+	<string name="User_Password_Type">
+		<tlv type="Attribute">
+			<field name="attr_type" value="2" />
+		</tlv>
+	</string>
+	
+	<array name="Vendor_Specific_Array_Type"
+		field="Vendor_Specific_Type">
+		<raw />
+	</array>
+	
+	<sequence name="Vendor_Specific_Type">
+		<tlv type="Attribute">
+			<field name="attr_type" value="26" />
+		</tlv>
+		<field name="vendorID" type="Octet_4" />
+		<field name="vendorAttributeArray"
+			type="Vendor_Attribute_Array_Type" />
+	</sequence>
+
+	<array name="Vendor_Attribute_Array_Type"
+		field="Vendor_Attribute_Type">
+		<raw />
+	</array>
+
+	<sequence name="Vendor_Attribute_Type">
+		<raw size="vendorLength" />
+		<field name="vendorType" type="Octet_1" />
+		<field name="vendorLength" type="Octet_1" />
+		<field name="vendorValue" type="String_Vendor" />
+	</sequence>
+
+	<string name="String_Vendor">
+		<raw />
+	</string>
+
+	<integer name="Bits_1">
+		<raw size="1" sizeUnits="bits" signed="false" />
+	</integer>
+	<integer name="Bits_2">
+		<raw size="2" sizeUnits="bits" signed="false" />
+	</integer>
+	<integer name="Bits_3">
+		<raw size="3" sizeUnits="bits" signed="false" />
+	</integer>
+	<integer name="Bits_6">
+		<raw size="4" sizeUnits="bits" signed="false" />
+	</integer>
+	<integer name="Octet_1">
+		<raw size="1" signed="false" />
+	</integer>
+	<integer name="Octet_2">
+		<raw size="2" signed="false" />
+	</integer>
+	<integer name="Octet_3">
+		<raw size="3" signed="false" />
+	</integer>
+	<integer name="Octet_4">
+		<raw size="4" signed="false" />
+	</integer>
+	<string name="String_2">
+		<raw size="2" />
+	</string>
+	<string name="String_4">
+		<raw size="4" />
+	</string>
+	<string name="String_6">
+		<raw size="6" />
+	</string>
+	<string name="String_8">
+		<raw size="8" />
+	</string>
+	<string name="String_16">
+		<raw size="16" />
+	</string>
+
+</fdl:document>

@@ -1,0 +1,45 @@
+package jsp_servlet; 
+import java.util.*; 
+import java.io.*; 
+import javax.servlet.*; 
+import javax.servlet.http.*; 
+import javax.servlet.jsp.*; 
+import javax.servlet.jsp.tagext.*; 
+import com.foo.bar; 
+//imported as a result of <%@ page import="com.foo.bar" %> 
+import ...
+class _myservlet implements javax.servlet.Servlet, 
+        javax.servlet.jsp.HttpJspPage { 
+    //inserted as a result of <%! int serverInstanceVariable = 1;%> 
+    int serverInstanceVariable = 1; 
+    ... 
+    public void _jspService( 
+            javax.servlet.http.HttpServletRequest request, 
+            javax.servlet.http.HttpServletResponse response ) 
+            throws javax.servlet.ServletException, java.io.IOException { 
+            
+        javax.servlet.ServletConfig config = ...;
+        //get the servlet config Object page = this; 
+        PageContext pageContext = ...;
+        //get the page context for this request 
+        javax.servlet.jsp.JspWriter out = pageContext.getOut(); 
+        HttpSession session = request.getSession( true ); 
+        try { 
+            out.print( "<html>\r\n" ); 
+            out.print( "<head>\r\n" ); ... 
+            //from <%! int localStackBasedVariable = 1; %> 
+            int localStackBasedVariable = 1; 
+            ... 
+            out.print( "<table>\r\n" ); 
+            out.print( " <tr><td>" ); 
+            //from <%= toStringOrBlank( "expanded inline data " + 1 ) %> 
+            out.print( toStringOrBlank( "expanded inline data " + 1 ) ); 
+            out.print( " </td></tr>\r\n" ); 
+            ... 
+        } 
+        catch ( Exception _exception ) { 
+            //clean up and redirect to error page in 
+            //<%@ page errorPage="myerror.jsp" %> 
+        } 
+    } 
+} 

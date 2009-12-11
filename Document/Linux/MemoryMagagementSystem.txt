@@ -1,0 +1,302 @@
+% Tex should be good to typeset the text, such as an article.
+% If it used to typeset source code and/or command line ,
+% it will be quite difficult if you do not approach it
+% systematically.
+\hsize=29pc
+\vsize=42pc
+\topglue 0.5in
+
+\centerline{\bf Memory Management System Notes}
+\smallskip
+\centerline{Eddie Wu}
+\bigskip
+
+\beginsection 1. Background \par
+
+Yesterday, I read the {\it first-fit} and {\it best-fit} algorithm. some notes
+come into my mind.
+
+1. Memory management system may be needed in different level. so memory 
+management may happen in different context.
+
+a. First, the Kernel need to manage the momory.\par
+Kernel need to manage the memory effectively and server the memory request from 
+processes and also serve the memory request from internal code path.
+
+b. Some system software, such as glibc.\par
+To ease the memory mangement of user space program. libc provide malloc() and 
+free() as API. it serve the memory request from user program by applying the 
+memory from kernel and manage those memory by itself. It is a middle man between
+kernle and use space program.
+
+c. Some system software, such as Jave Virtual Machine.\par
+Although it is a user space application, it also need to manage memory 
+by himself. It is like a Middle Man, it need to apply memory from kernel, 
+usually apply many memory in few times. Them will manage those memory by 
+itself and serve the memory request from Java program.
+(JVM may not call kernel directly, it may call kernel through libc.)
+
+d. Some system software, such as C++ environment.\par
+In C++ program, you may create a lot small object, if the memory of these small
+object is always allocatd though malloc() in libc. the efficiency may be a
+problem. so usually the C++ environemnt will have a memory management layer, 
+usually called pool mechanism to serve these kind of small memory request
+efficiently.
+
+e. In the demo/toy application.\par
+You may want to test the memory management 
+algorithm. If you are useing Java, since you can not use pointer, you may need
+to use index of byte array as the alternative of real pointers.
+
+2. The data structure may be stored in the memory pool we are managing, i
+n this way, The memory can be saved to some extent. Sure, you can also use 
+the  memory outside of managed meory to track the usage of managed memory.
+
+3. There is no absolute best algorithm. usually, for diffrent input, the result 
+of comparision between different algorithms may be different. E.g. in one case, 
+{\it first-fit} can beat {\it best-fit}. in another case,  {\it best-fit} can 
+beat {\it first-fit} easily.
+
+4. for page based allocaiton, we can think of page as words. just the minimum 
+allocation unit in the algorithm. The discussion about words based alloation can 
+be applied similarly.
+
+5. in buddy system, there is a rare case, the block maybe divided and combined 
+again and again.
+For example, in the initialized state, you get a block of size 512 and return. 
+do the same thing again and again. it will result the degration of performance.
+
+a. One idea is to postpone the compacting when one block is released. Only when 
+you requeire bigger block and can not get it, we will try to compact the small 
+blocks and check whether we can satisfy the memory request. Sounds godd. 
+whether it works?
+
+In buddy system, we have list for different sizes. we go through smallest size 
+list
+first to see whether we can compact them. and continue the steps for bigger 
+size list 
+until the biggest size list.
+
+6. in the circle list, a dummy elements are helpful when you try to loop on 
+all the elements.
+otherwise, it is a little bit hard to traverse the list. one possibility 
+is to traverse 
+first elements first(if have) then loop on the left list by treat the head 
+as a dummy element/node.
+
+This kind of algorithm (maintain the used/availabe list) is used in many 
+place. e.g. 
+in virtual memory management, the intervals. 
+
+
+
+
+
+\beginsection 2. Linux Kernel Memroy Management System.\par
+
+For an user space process to access it's virtual memory address. There are many 
+intermediate steps involved.
+
+1. Virtual memory area (region) is allocated.
+2. Corresponding Physical memory is allocated and page mapping is created so 
+that virtual memory are mapped to physical memory.
+
+Correspondingly, there are three different status.
+
+1. only virtual memory area is allocated.\par
+2. virtual memory area is allocated and page mapping is created, but the physical
+memory is not allocated or it is allocatd by swapped out.\par
+3. virtual memory is allocated and page mapping is complete.\par
+
+The status in between: page mapping is not complete, it provide the information 
+about where to get the contect for physical memory, the system will allocate
+new physical memory and fetch the content.(it may be blocked.)
+
+To make it simple, we only read the code for anonymous mapping.
+
+how is it realated to page allocation.
+
+
+Different physical memory allocation:
+1. alloc_pages()\par
+Page allocation. the minimum unit is one page.
+
+2. kmalloc();\par
+Kernel memory(cache) allocation: byte-sized. The return memory are contiguous
+both in physical memory space and virtual memory space. 
+
+3. vmalloc();\par
+The memory we get are contiguous in virtual space, but are not contiguous in 
+physical memory space.
+VM allocation: just the cousin of the malloc in user space.
+
+....
+
+
+This morining, I go through the book \ULK . To sum up.
+VM stands for Virtual Memory, sometime it refer to the whole memory management 
+system. some times it just mean the linear/logical address space.
+
+The following name means the same thing.
+memory area \par
+virtual memory area (the variable vma comes from this)\par
+memory region \par
+virtual memory region \par
+Linear address sapce interval \par
+Process Address Space %(used in \LKD .)
+
+
+VM_flags are the attribute of the virtual memory area. some of them are 
+actually
+shared attribute for all the virtual pages in vma.
+
+virtual memory area is the interface between user space program and the kernel.
+
+usually the application 
+
+but still, there are many new concepts in the code, if you dig into the code,
+you will find the knowledge you get from book is not enough, you have a lot
+new concept to learn. So you can see the difference between the perfect design 
+in 
+the book and complicated details in the real implementation.
+
+At the bottom level, you also need to know the segmentation mechanism, since 
+Linux will not really use it, you can forget about it once you know it.
+
+segment selector related instruction will not be used by Linux program, except
+some program such as Wine, which need to emulate the Windows's environment.
+
+another complextity comes from the many flags in many place.
+
+for Page Directory/Table entry. 
+
+fot Virtrual Memory Area :
+
+some pointer in the structure, such as vm_ops.
+
+How can I get a big picture of the whole memory management system?
+
+for a process, the page directory/table looks like this.
+consider 32 bits x86 arch
+PGD in 4K(1 page)
+one non-blank item will need one PT.
+PT  
+one item pointer to one page (physcially)
+
+before VM is introduced, malloc means allocate physical memory. after that,
+malloc just means allocation of physical memory.
+
+Feeling: there are too much detail, it is hard to get a big picture.
+
+Maybe I should find a bug in system and try to fix it. it may help to make
+the things clear.
+
+For the 1G kernel space. 
+the first 896M virtual address [3G, 3G+896M) is directly mapped to the 
+first 896M physical memory [0, 896M). For this piece, no need to manage
+with virtual memory area. because it is homogeneous.
+(If there are less than 896M physical memory, then only the amount of
+existing physical memory is mapped)
+
+The left 128M virtual address space [3G+896M,4G) is used for three different
+intention.\par
+1). Temporary kernel mapping. There are 1024 virtual pages, which can be 
+mapped 
+to high memory. This kind of mapping exist until it is replace by next 
+mapping.
+and it is not blocked in the call. suitable for interrupt handler and 
+deferable 
+function to use.\par
+
+2). Permanent Kernel mapping. There are 4M virtual space to be mapped to hign 
+memory. It will block the caller.
+
+pkmap
+3). Uncontiguous memory mapping. The left space of the 128M virtual space, the 
+virtual memory is managed as virtual memory area, each can be mapping to any 
+physical memory, so the physical memory is not contiguous any more. This is a
+solution to the memory fragment.
+Note in all these three cases, the virtual memory and physical memory as not 
+mapped
+linearly anymore.
+vmalloc
+
+The above looks like the allocation of virtual address space in kernel. they 
+are related to high memory.
+
+Another part is the allocation of physical memory in kernel.
+kmalloc---by bytes 
+slab allocator---by cahce of object
+zone allocator---by page
+
+TODO: 
+1. G
+2. Fing a bug and fix it.
+
+
+
+
+
+
+
+
+consider the {\it first-fit} method.
+
+#define K 1024
+char* head;
+//test 
+int main(char* args[]){
+    
+    int size = 128*K;
+    char* pool = malloc(size);
+    init(pool,size);
+    
+}
+/**
+ * the first two words in the head of the block means
+ * Size of the Block
+ * Pointer to the next Block.
+ * If Size - 2, Size -1, or Size are requested. we will allocate 
+ * this block completely.
+ *
+ * And we use circled list.
+ */
+void init(char* pool,int size){
+    head=pool;
+    int* sizeP=  (int*)pool;
+    *sizeP=size;
+    *(++sizeP)= (int)pool;
+}
+
+void getMem(int size){
+
+}
+
+void returnMem(){
+
+}
+
+
+VMALLOC is for 
+1. IO_REMAP. 
+Because IO device will use some address which should not conflict with the 
+physical memory address. When CPU access these address, it need to use the 
+virtual address, and MMU will convert them to the physical address. Since 
+kernel will access these device, kernel need to provide virtual address 
+space and map them to the physical address.
+
+In this case, the physical memory address is decided. we need to allocate 
+virtual address. and create the mapping between virtual addressa and 
+physical address.
+
+2. another situation is to use high memory. it is called noncontiguous memory
+allocation. since other memory allocated is both physically and virtually 
+contiguous. the mapping between physical address and virtual address is linear.
+
+but for virtual address space allocated from high memory, it can be 
+noncontigous 
+physically, it is one way to use high memory and reduce the memory fragment.
+But not many kernel code path will use this method.
+
+3. 
+

@@ -1,0 +1,139 @@
+1. in the process of open the device file.
+ if (S_ISREG(inode->i_mode)) {
+                inode->i_op = &ext3_file_inode_operations;
+                inode->i_fop = &ext3_file_operations;
+                ext3_set_aops(inode);
+        } else if (S_ISDIR(inode->i_mode)) {
+                inode->i_op = &ext3_dir_inode_operations;
+                inode->i_fop = &ext3_dir_operations;
+        } else if (S_ISLNK(inode->i_mode)) {
+                if (ext3_inode_is_fast_symlink(inode))
+                        inode->i_op = &ext3_fast_symlink_inode_operations;
+                else {
+                        inode->i_op = &ext3_symlink_inode_operations;
+                        ext3_set_aops(inode);
+                }
+        } else {
+                inode->i_op = &ext3_special_inode_operations;
+                if (raw_inode->i_block[0])
+                        init_special_inode(inode, inode->i_mode,
+                           old_decode_dev(le32_to_cpu(raw_inode->i_block[0])));
+                else
+                        init_special_inode(inode, inode->i_mode,
+                           new_decode_dev(le32_to_cpu(raw_inode->i_block[1])));
+        }
+
+2.
+void init_special_inode(struct inode *inode, umode_t mode, dev_t rdev)
+{
+        inode->i_mode = mode;
+        if (S_ISCHR(mode)) {
+                inode->i_fop = &def_chr_fops;
+                inode->i_rdev = rdev;
+        } else if (S_ISBLK(mode)) {
+                inode->i_fop = &def_blk_fops;
+                inode->i_rdev = rdev; 
+        } else if (S_ISFIFO(mode)) 
+                inode->i_fop = &def_fifo_fops;
+        else if (S_ISSOCK(mode))
+                inode->i_fop = &bad_sock_fops;
+        else
+                printk(KERN_DEBUG "init_special_inode: bogus i_mode (%o)\n",
+                       mode);
+}
+
+3.
+const struct file_operations def_chr_fops = {
+        .open = chrdev_open,
+};
+
+4.
+int chrdev_open(struct inode * inode, struct file * filp)
+{
+        struct cdev *p;
+        struct cdev *new = NULL;
+        int ret = 0;
+
+        spin_lock(&cdev_lock);
+        p = inode->i_cdev;
+        if (!p) {
+                struct kobject *kobj;
+                int idx;
+                spin_unlock(&cdev_lock);
+                kobj = kobj_lookup(cdev_map, inode->i_rdev, &idx);
+                if (!kobj)
+                        return -ENXIO;
+                new = container_of(kobj, struct cdev, kobj);
+                spin_lock(&cdev_lock);
+                p = inode->i_cdev;
+                if (!p) {
+                        inode->i_cdev = p = new;
+                        inode->i_cindex = idx;
+                        list_add(&inode->i_devices, &p->list);
+                        new = NULL;
+                } else if (!cdev_get(p))
+                        ret = -ENXIO;
+        } else if (!cdev_get(p))
+                ret = -ENXIO;
+        spin_unlock(&cdev_lock);
+        cdev_put(new);
+        if (ret)
+                return ret;
+        filp->f_op = fops_get(p->ops);
+        if (!filp->f_op) {
+                cdev_put(p);
+                return -ENXIO;
+        }
+        if (filp->f_op->open) {
+                lock_kernel();
+                ret = filp->f_op->open(inode,filp);
+                unlock_kernel();
+        }
+        if (ret)
+                cdev_put(p);
+        return ret;
+}
+
+5. 
+static struct char_device_struct {
+        struct char_device_struct *next;
+        unsigned int major;
+        unsigned int baseminor;
+        int minorct;
+        char name[64];
+        struct file_operations *fops;
+        struct cdev *cdev;              /* will die */
+} *chrdevs[CHRDEV_MAJOR_HASH_SIZE]; //255
+
+./include/linux/cdev.h:13:struct cdev {
+struct cdev { 
+        struct kobject kobj;
+        struct module *owner;
+        const struct file_operations *ops;
+        struct list_head list;
+        dev_t dev;
+        unsigned int count;
+};
+
+6 --./drivers/char/mem.c
+static int __init chr_dev_init(void)
+{
+        int i;
+        int err;
+
+        err = bdi_init(&zero_bdi);
+        if (err)
+                return err;
+
+        if (register_chrdev(MEM_MAJOR,"mem",&memory_fops))
+                printk("unable to get major %d for memory devs\n", MEM_MAJOR);
+
+        mem_class = class_create(THIS_MODULE, "mem");
+        for (i = 0; i < ARRAY_SIZE(devlist); i++)
+                device_create(mem_class, NULL,
+                              MKDEV(MEM_MAJOR, devlist[i].minor),
+                              devlist[i].name);
+
+        return 0;
+}
+

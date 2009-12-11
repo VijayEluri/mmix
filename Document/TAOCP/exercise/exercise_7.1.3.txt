@@ -1,0 +1,29 @@
+From page (57)52: answer is from page 76(71)
+1. my answer is x = x ^ (x & m) ^( y & m)
+				y = y ^ (x & m) ^ (y & m)
+				
+it can be verified by the truth table
+original x=1,y=1; resulted x=1, y=1
+original x=0,y=0; resulted x=0, y=0
+original x=0,y=1; resulted x=m, y=!m
+original x=1,y=0; resulted x=!m, y=m
+
+The net effect is: if m = 0, keep x, y unchanged.
+				   if m = 1, exchange x and y.	
+
+lessons learned is that: in the six combination between |, &, ^. only three of
+them satisfy the distribution law. 
+(x op1 y) op2 z = (x op2 z) op1 (y op1 z)
+
+op1 = &; op2 = |;
+op1 = |; op2 = &;
+op1 = ^; op2 = &;	
+
+2. my answer is that: three statements are all true!
+the third one is a little hard. we suppose that x > y, without consider lending.
+the result are same, but left part need to subtract the value corresponding to
+lending bit.	
+
+3. X(CN) = X(NC) + 1
+
+		

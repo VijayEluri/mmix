@@ -1,0 +1,30 @@
+There are a few cases in which the un-visible blank character will cause
+problem, but it is hard to detect since they are not visible.
+
+One famous case is the '\t' character used by Make file, it is used to mark
+the start of a command. If it is replace by blank space character, it does
+not work, but you can not see the difference if you only look at the make file.
+This kind of problem may get the newbies crazy.
+
+Last week, I have encounter a similar issue, which is also caused by unnecessary
+ blank space.
+ 
+As you may know, '\' is used as line-continuation when you have a very long line, e.g.
+when you configure the class path for Java in a property file, you may have something like this.
+
+classpath=/lib/A.jar;/lib/B.jar;\
+/lib/C.jar;/lib/D.jar;\
+/lib/E.jar;/lib/log4j.jar;\
+/lib/F.jar;/lib/httpclient.jar;
+
+But if you add extra blank space after the '\', then you can not get the complete
+content of classpath. Because only when '\' is followed by a '\n' on Unix or '\r''\n'
+on Windows, it will work as line-continuation ; otherwise, e.g '\' is followed by
+' ''\n', the line is complete after the '\n', the content after that will be the start of
+a new line.
+
+Fortunately, it is easy to check this kind of extra blank space by using vi in Unix.
+use command '$' to go to the end of line, if there is no extra blank space after '\',
+the current position should be '\', if there are any blank space after '\', the current position
+is after the '\'.
+ 

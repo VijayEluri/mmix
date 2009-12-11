@@ -1,0 +1,12 @@
+Google code Jam
+http://code.google.com/codejam/contest/dashboard?c=agdjb2RlamFtcg4LEghjb250ZXN0cxh5DA#
+practice Problem A and succeed. (number conversion between radixes). 2-4hours coding.
+
+1. google app engine
+appid is in-practice
+URL is 
+http://in-practice.appspot.com/
+
+when dubug in local , the URL is
+http://localhost:8080/go
+Here "go" is my project(web application) name.

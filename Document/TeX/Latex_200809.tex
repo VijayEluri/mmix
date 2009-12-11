@@ -1,0 +1,173 @@
+%Latex version of my resume.
+%2008-8-9 10:31 start to convert the resume to Latex.
+%finished on 2008-8-21 20:10
+\documentclass[a4paper,12pt]{article}
+\usepackage{palatino}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[margin=1.5cm,
+    vmargin={12pt,1.5cm},
+    nohead]{geometry}
+
+\title{Resume}
+\author{Eddie Wu 
+%\date{March 9, 2009}
+
+\begin{document}
+
+\maketitle
+
+\section{Profile}
+
+\begin{tabular}{ll}
+Chinese Name         & Wu Jianfeng\\
+Gender               & Male \\
+Degree               & Bachelor\\
+Work Experience      & 5+ years in J2EE Development (10 years total)\\
+Mobile Phone         & 13661788694\\
+Email                & ueddieu@yahoo.com.cn\\
+\end{tabular}
+
+
+\section{Skills Summary}
+
+I am an experienced Software Engineer with outstanding knowledge of J2EE platform, Oracle database, and Linux. 
+
+{bf Java} I am not only good at Java programming, but also familiar with C and C++. 
+I not only have ever read the source code of Struts, Spring and Hibernate etc., but also have ever read the source code of Linux kernel. The kind of background provide me a more practical and pragmatic attitude about technical.
+
+\subsection{J2EE Experience}
+I have more than five years¡¯ experience of developing enterprise application in J2EE platform. I have ever applied the following J2EE technology in my daily work since 2004: JSP, Servlet, JSTL, JDBC. I have 3 -- 5 years experience in using the following frameworks and tools: Struts, Tapestry, Hibernate, Spring, Cactus, Log4J, Axis. I have ever read the source code of Struts, Hibernate, and Spring etc., the knowledge of how those frameworks interally helps when I trouble shooting the produciton issues.
+
+For Application Server, I usually use Tomcat in development environment and use Oracle 10g Application Server in system testing environment. I am also familiar with WebSphere Application Server; I become an IBM certified Solution Developer -- WebSphere Studio, V5.0 since October of 2004.
+
+\subsection{Oracle Database Experience}
+I learn a lot about oracle database when I first time tune the performance of an application, which accesses Oracle database through Hibernate framework and performs bad in high load. I realized the importance of Oracle database knowledge in the J2EE platform and start to learn Oracle Database systematically; I became Oracle Certified Professional DBA on July of 2006. 
+
+\subsection{Design Skills}
+I have good understanding of classic GOF Design Patterns and J2EE patterns. It helps a lot in understanding the architecture of my projects and other frameworks used in projects. I got better understanding of Object Oriented Analysis and Design after I mastered design patterns. Source code reading improve my understanding of design pattern, e.g. Visitor pattern and Interpretor pattern are widly used in javac implementation.
+3
+    
+
+
+\subsection{English Skill}
+I can apply English in daily work fluently as a second language. I not only can read and write technical document fluently in English, but also can communicate with native speaker face to face.
+
+\subsection{Soft Skill}
+I am a good team player. Some keywords I ever got in my 360 degree appraisal is ``Nice'', ``easy to go''; 
+
+\subsection{Certificates}
+\begin{tabular}{llll}
+Date        & Certificate Name                  & Score       & Serial Number\\
+2008/09     & PMP\\
+2006/07     & DBA                               & 92,98,87,91 & \\
+2004/10     & IBM Certified Solution Developer  & 72          & \\
+            & -- WebSphere Studio, V5.0         &             & \\
+2004/09     & SCJP                              & 98          & 409182\\
+2003/01     & Certified Advanced Programmer     & 53 + 61     & 02-81-13-021\\
+2002/03     & Certified Programmer              & 70 + 59     & 0121400294\\
+\end{tabular}
+
+\section{Work Experience}
+
+\subsection{Shanghai Bleum Co., ltd (2004/12 -- now)}
+
+I  worked in Bleum for more than four years, I have ever been developer, technical leader, architect, and project manager in different project. Bleum is a software outsourcing company, our customer is  a retail credit card bank in the USA. All projects in which I have been involved in these years are enterprise applications for this customer; some applications is running on the local area net and providing service to internal operator; other applications are running on internet and providing service to external user -- credit card holder. 
+
+All these projects have similar deployment environment. The applications are deployed on clustered Oracle 9i/10g Application Server on Solaris in server side. The backend database is Oracle 9i/10g DBMS. 
+
+The architecture of these projects is similar. Most of them follow classic three layer architecture. We adopt JSP and Struts in front end layer, Spring in service layer, Hibernate in Data Access layer. 
+
+The following is the details of the projects in which I am involved.
+
+
+
+\subsubsection{Mobile Pay Project}
+This project is to add the mobile phone as the payment channel. After the credit card holder activates this new service, he can not only receive SMS notification before payment is due, but also can query the balance and make payment through mobile phone.
+
+I am the project manager of this project. My major responsibility is to 
+plan and control the schedule, and to communicate with customer.
+
+
+
+
+
+\subsubsection{Data Synchronizing Project}
+This project includes basically three back end procedures, which are scheduled to synchronize data between different databases everyday. These back end procedures can also be started manually if necessary. We are required to re-implement  the existing implementation based on Toplink. For the convenience of performance tuning, we decide to access database through JDBC.
+
+I am the technical leader of this project. My major responsibility is
+designing, performance tuning, and Integration testing of related modules.
+
+
+
+
+\subsubsection{PDF Printing Project}
+This project is to add new feature ¨C- PDF printing for a WEB site, and to change the looking and feel by using more pop up window. The PDF printing is a big challenge for us until we found a tool called PD4ML, which supports convesion from dynamic JSP content to PDF. We also verified that it can works well in the load of about twenty concurrent users. 
+
+I am the technical leader of this project. My major achievement is the PDF printing solution based on PD4ML, which can successful convert the JSP page to PDF document. 
+
+
+
+
+\subsubsection{Performance Optimization Project}
+This project is to optimize performance of an existing application, since customer is not satisfied with the performance of the existing system. We got following lessons and experience about application performance tuning. First, we should consider performance requirement and perform load test in construction phase; Second, the load test should be based on highly-simulated environment, including same amount of data  in database. Third, Hibernate may generate some unnecessary table joins, the solution is to use native SQL instead of HQL in such case. Last but not the least, all the SQL Statement, including the SQL statement generated by Hibernate, should be reviewed to decide whether existing index is enough or not and what new index we need to add. 
+
+I am the technical leader of this project. I not only improved the performance of the application (several SQL query speeds up more than ten times after tuning), but also gain a lot of hand on experience on Oracle database.
+
+
+
+ 
+\subsubsection{Customer Service Project}
+The architecture this project is a little special, the business layer is located in Tibco Bizwork server, and Application server  basically is a client of the web service published by Tibco Bizwork. The major challenge in this project is to resolve the issues in using Axis, for example, memory leak issue. We also developed a mock mechanism to develop and test WEB layer when the business layer is not ready. (Business layer is joint-developed simultaneously by another two teams, one is in America and the other is in Singapore.)
+
+I am the major developer of this project. I researched on Axis and give training about Axis to team members in the design phase. 
+
+\subsubsection{Auto-payment Project}
+
+The major feature of this project is making online payment for credit card account.
+We have successfully resolved the following challenges: concurrently access, resubmit, application level fail over between databases.
+
+As developer, my major responsibility in this project is designing, coding and Unit/Integration testing of related module according to Requirement Specification. I also directly communicate with customer to confirm requirement.
+ 
+
+\subsection{Shanghai Zhongxin Information Technology Co., ltd (2004/03 -- 2004/12) }
+
+The application is deployed on Oracle 9i Application Server in the local area net. It is used to manage all kind of  registry and approve of Shanghai Production Security Administration Bureau. The Project achieved success in the use of Struts Framework, which saves us a lot of work. I am in charge of implementing the Business Flow module and System Manage module. 
+
+My responsibility includes Designing, Coding, Unit/Integration testing of related module. 
+
+\subsection{ Shanghai Zhongxi Pharmaceutical Co., ltd (2001/03 -- 2004/03) }
+
+In this period, I worked in Marketing Department providing academic support for new drugs. In my non-working time, I continually learning Java programming language and other Computer Science subject, and got the certificate of Programmer and Advanced Programmer. Then I started to be involved in the following IT projects in my leisure time.
+
+\subsubsection{  Chinese Chess Game On Internet (2003/09 -- 2003/11    )}
+
+In this project, we need to develop an Chinese Chess Game application of Server/Client architecture. Its main features include negotiating the regulation, playing between a pairs of player through internet, watching other player's game, counting of time, and requesting to regret the step taken. The player's information is stored in the databases, and every game can been scored automatically by application. 
+
+I am in charge of the design and implementation of the client side, implementation of chess rule in the Server side. It took me a lot of time to develop the GUI in client side and to integrate it with the server side. 
+
+\subsubsection{  Go (Weiqi) Game Applet (2002/05 -- 2002/08)}
+
+As an ancient Chinese game, Go is very complex. This program can help the
+GO players to improve their skills especially skills in ``making live'' in the board. With
+the correct strategy stored in the data file, the applet, which is downloaded from internet, can fight against the player, and beat him unless the player has master the skills. This applet improved the interactivity in the teaching and learning of Go related skill. 
+
+I am in charge of design and implementation of the program by myself. I also build a simple  temporary WEB site to test the Applet. 
+
+\subsection{ Suzhou NO.2 Pharmaceutical Factory (1999/07 -- 2001/03)}
+During this period, I worked in R\&D department and took part in the developing of a new chemical drug -- Paroxtine. My major responsibility includes chemical synthesis and chemical analysis. At the same time, I start to learn Java programming language and other Computer Science subject. 
+    
+
+
+
+
+
+
+\section{Education and Training }
+\begin{tabular}{ll}
+1994/09 -- 1999/07      & Shenyang Pharmaceutical University\\
+                        & Pharmaceutical English Major (Five Years, Bachelor)\\
+\end{tabular}
+
+
+\end{document}

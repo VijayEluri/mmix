@@ -1,0 +1,34 @@
+Should we ask customer open question? The short answer is NO.
+
+Since "open question document" is an important document in ODC, you may think 
+we are always asking open question and disagree with me.
+
+First,let me explain what open question is.
+
+closed question v.s. open question.
+A closed question can be answered with either a single word or a short phrase.
+
+An open question is likely to receive a long answer.
+
+should we ask open question or close question?
+
+open question:
+Advantages:
+You may got some extra important information which you never imagine.
+
+Disadvantages:
+Customer need to spend figure out how to deal with it. To some extent, you push 
+the problem to him.
+
+If the question is related to technique, customer may need many time to understand the 
+question and context, they may even raise question about the technical details 
+before they answer the question.
+
+
+close question:
+Advantages:
+Customer only need to make a choice based on his perspective or his personal preference.
+(To some extent, we just want to know customer's preference)
+
+Disadvantages:
+We need spend more effort to develop the solution since we are taking more responsibility.

@@ -1,0 +1,36 @@
+LNX=/home/eddie/linux/linux-2.6
+CSCOPE=/home/eddie/linux/cscope
+cd $LNX
+echo $LNX 	
+find  $LNX                                                           \
+-path "$LNX/arch/*" ! -path "$LNX/arch/x86*" -prune -o               \
+-path "$LNX/include/asm-*" ! -path "$LNX/include/asm-x86*" -prune -o \
+-path "$LNX/tmp*" -prune -o                                           \
+-path "$LNX/Documentation*" -prune -o                                 \
+-path "$LNX/scripts*" -prune -o                                       \
+-path "$LNX/drivers*" -prune -o                                       \
+-name "*.[chxsS]" -print
+
+find  $LNX      \
+-name "*.[chxsS]" -print > $CSCOPE/cscope.files
+
+-path "$LNX/net*" -prune -o                                       \
+-path "$LNX/sound*" -prune -o                                       \
+-path "$LNX/fs/*" ! -path "$LNX/fs/ext3*" -prune -o                                 \
+
+
+{\it dmesg} will show you the startup log.
+ dmesg > dmesg.txt
+
+we can see that the Memory system is initialized in the very beginning of
+system startup.
+
+
+alloc_pages(gfp_t gfp_mask, unsigned int order)
+ *		%GFP_USER   user allocation,
+ *              %GFP_KERNEL kernel allocation,
+ *              %GFP_HIGHMEM highmem allocation,
+ *              %GFP_FS     don't call back into a file system.
+ *              %GFP_ATOMIC don't sleep.
+
+

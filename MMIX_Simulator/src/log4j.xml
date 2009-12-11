@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/"
+	debug="false">
+
+
+	<!-- This appender used in production release	-->
+	<appender name="ALL_INFO" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="Append" value="true"/>
+		<param name="Threshold" value="DEBUG"/>
+		<param name="File" value="log/mmix_simulator.log"/>
+		<!-- relative path is the solution.  -->
+		<!-- param name="File" value="D:/WorkSpace/CS/MMIX_Simulator/log/mmix_simulator.log"/> -->
+		<!-- or
+		<param name="File" value="D:\\WorkSpace\\CS\\MMIX_Simulator\\log\\mmix_simulator.log"/> -->
+		<param name="DatePattern" value="'.'yyyy-MM-dd"/>
+		<layout class="org.apache.log4j.PatternLayout">
+		<param name="ConversionPattern" value="%d %-5p [%c] %m%n"/>
+		</layout>
+		</appender>
+
+	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<param name="Threshold" value="DEBUG" />
+		<!--param name="Threshold" value="INFO" /-->
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %-5p [%c] %m%n" />
+		</layout>
+	</appender>
+
+	<!-- Category defined in Log4jUtil 
+
+	<category name="mmix">
+		<priority value="DEBUG" />
+	</category>
+
+	<category name="mmix.Machine">
+		<priority value="INFO" />
+	</category>
+	
+	<category name="mmix.InterruptInstructionExecutor">
+		<priority value="DEBUG" />
+	</category>
+	-->
+
+	<root>
+		<!-- priority value="DEBUG" /> -->
+		<priority value="DEBUG" />
+		<appender-ref ref="CONSOLE" />
+	</root>
+
+</log4j:configuration>

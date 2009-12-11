@@ -1,0 +1,5 @@
+\contentsline {section}{\numberline {1}Objectives}{1}
+\contentsline {section}{\numberline {2}Module 1 -- WEB application introduction}{2}
+\contentsline {section}{\numberline {3}Module 2 -- How to build a WEB application with Servlet}{3}
+\contentsline {section}{\numberline {4}Module 3 -- How to build a WEB application with JSP }{4}
+\contentsline {section}{\numberline {5}Module 4 -- MVC introduction (If time permits)}{6}

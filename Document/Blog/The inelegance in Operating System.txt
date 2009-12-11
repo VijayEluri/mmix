@@ -1,0 +1,25 @@
+8/6/2008 10:27AM
+The reality is far from the idealism - the inelegance in Operating System
+
+I am interested in Operating System, after I know more and more concepts, know more and more details, I realize that the reality is far from the idealism. The root cause is the history and to some extent, it is the back compatibility. we can not afford to make a brand new thing from scratch, we need to include many old things in any things.
+
+Let me give some example about how the history make the current Operation System become complicated and inelegant.
+1. DMA
+DMA stands for Direct Memory Access, which is a way to improve the parallelism in computer system. Basically, with DMA, peripheral device can access main Memory simultaneously when CPU is running. but for historical reason, in X86 platform, some DMA device only have 24 bit address line. which limit the memory scope to 16M. since X86 platform is also lack of IO-MMU to remap the address, the memory can be used in DMA is [0,16M). It definitely complicated the memory management.
+
+2. High Memory 
+Since  Linux kernel has only 1G linear address space, it can not address all the 4G physical memory in 32 bit machine. This is actual a design issue in Linux for historical reason. it does not predict that some day, the physical memory will become so large. Later in order to support more than 1 G physical memory, CONFIG_HIGHMEM compile option was added. There are also other way to fix this problem, such as 4G kernel space v.s. 4G user space.
+
+3. PAE
+PAE stands for Physical Memory Extension, PAE make it possible to support up to 64G physical memory. but to me, it is just a temporary solution, does not deserve the effort. I even do not want to have a look on the corresponding document. It does not make too much sense. I prefer to directly move to 64 bit platform. 64 bit platform has its own problems though.
+
+the above is just some inelegant in hardware. majorly cause by historical reason. I am wondering how can we keep up the quick development under the burden of history. maybe at some point, we finally need to throw away the history and move on with a brand new start.
+
+
+4. SWAP Area.
+Now a common system will have more than 2 G memory, which is almost the physical
+upper bound for 32 bit system.  So I thought swap is no longer necessary, but when 
+I actually disable swap area on my Windows (1G memory), I found I often 
+encounter "out of memory" issue. so the swap area is still necessary for some 
+reason. which make
+me unconfortable. 

@@ -1,0 +1,182 @@
+Reduce the BDD (ordered BDD --> reduced and ordered BDD).
+
+The algorithm is instructive. before I read the details of the algorithm.
+I have a naive implementation of reducing method, which will generate truth
+table for each node in BDD. that means the string of length $2^n$.
+
+How to understand such a complex algorithm. Once again, I will try "literal 
+Programming", I mean I will try to document the things I am thinking to help
+me get a clear picture of the algorithm.
+
+1. Each node have four field.
+V, LO, HI, AUX
+each stands for 
+V: index of boolean variable, 
+LO: branch if input is false, 
+HI: branch if input is true,
+AUX: to contain Auxiliary data. (non-negative before and after the process)
+(each link field may be used for different intention, it is more efficient,
+but also cause that code is hard to read.)
+
+2. also those Node will be put into an Array,
+0 --> False Node (Sink Node for False) (Nonnegative LO and HI)
+1 --> True Node  (Sink Node for True)  (Nonnegative LO and HI)
+/cdots
+Root --> Root Node
+(Here the Root also means the index in the array, besides the meaning of 
+pointer.)
+(Note some time we index from 1, such as variable index, some time we index from 
+0, such as the Node Array.)
+
+3. The deleted Nodes will be maintained in a stack. (linked with HI field)
+The complement of their LO field is the pointer to equivalent node left in the
+reduced BDD.
+(After node is deleted, the meaning of LO and HI was changed.)
+
+4. We also have an array of pointers which point to the Nodes with the same 
+variable index.
+HEAD[V_max] V_max is number of boolean variables.
+each one is a linked list of Nodes (linked with AUX field, but make it negative).
+(If current value of AUX is negative, it is not dealed with yet.)
+
+5. How to keep the status of Node,
+two status bit is needed, we commplement the LO and AUX field to show
+the status difference.
+a). If LO field is negative, it is removed. that means it is redundant and it's 
+corresponding bead is ~LO.
+b). AUX is also used to show the status.
+
+First Step:
+Initialize: 
+mark node[0], node[1] and node[Root] to be -1.
+Then node[Root] is put into head list. its AUX is -1;
+(AUX's complement is the pointer, so -1 is complement is 0 (Null)).
+
+p point to Root the first time, and s is zero.
+next time, the p 
+for its LO fiels(HI is same).
+if the LO Node itself have non negative AUX field. it is not touched yet,
+we set its AUX to -1.
+
+mark AUX to be nagative for all the nodes.  
+Then every one is not dealed with yet. 
+
+Second Step:
+AUX field of Node[0] and Node[1] is set to 0. means they are bead. 
+
+loop from V_max to V(Root). 
+V(Root) may be large than one.
+This is the core part
+
+inside the loop.
+
+for each list.
+p and p^' are adjacent element.
+q is the next level element, if its LO field is negative, it is removed. and
+the bead one is ~LO(q). we need to update the link of p.
+
+We update the LO and HI field first if necessary.
+
+if LO(p) = HI (p), 
+
+if then p was removed, and put into the AVAIL ( stack of removed nodes).
+and its bean node is q, this information is kept by setting its LO to ~q.
+
+else the node in this level are linked together. 
+(reuse the same link field. it is removed from HEAD list and 
+put into another list)
+
+
+
+
+did not see how bucket sort work.
+when we are dealing with level $v$, the level $v+1$ and above has been handled 
+properly.
+That means all the nodes whose level is level $v+1$ or above has the 
+characteristics
+a) maybe removed, but we know where its peer(bead) is.
+b} maybe not removed, itself is a bead.
+
+At the beginning, the node is not handled yet,
+their AUX field is negative, their complement is the poiter to the next element in 
+the list.
+If they are dealed with already, then the AUX field will be set to 0.
+
+
+
+
+For each level $v$, there are following situations.
+first update the LO and HI field for each Node, let them point to the beads.
+
+
+Node have same LO and HI field, that means current node is not necessary, so 
+it is not a bead, it is marked as removed, and have a corresponding bead.
+
+its AUX should be changed to delink from the list.
+
+The left one are compared to get the beads, and the node which is not a bead 
+is marked as removed and its ~LO refer to corresponding bead.
+
+I have implemented it in Java, which looks very simple, not sure whether it 
+match original algorithm. I will test it with C_100. it seems Java make the
+algorithm simpler because of the support of high level data structure.
+
+TODO:
+1. ensure the code to generate C_100 works, I can judge from the count of 
+nodes.
+2. reduce the BDD get in first step. check whether the count of nodes match
+expected number.
+3. get the result, how many independand set we have. It seems we can not 
+verify it.
+
+8/24/2009 10:24AM
+Kernels:
+
+
+Why BDD is so useful?
+Because for most of the practical boolean functions, the number of ones in the 
+truth table is usually small. although averagely the number of ones in a truth
+table should be propotional to $2^n$, where n is the number of boolean 
+variables.
+
+Since the number of ones are limited, the number of path in BDD,which is from 
+root to terminal node is also limited. That's the reason corresponding BDD
+ can be constructed in reasonable time.
+ 
+when working on constructing the BDD for kernels, I found that it may not
+be easy to ensure the nodes are not extended too much. one idea comes up:
+make the BDD for independent set first, we already know how to get it, then 
+update it accroding to the new rule of Kernels. (but I can not figure it out
+how it works.)
+
+still use old strategy. when extends levels. there is some limitations.
+a) first extends first two levels, then for each node, the first two choice 
+are specific enough to judge whether the new node in lower are duplicate or 
+not.
+
+for each of the three nodes in level 3.
+we extends and found at most there are 3 node in each level. because each node 
+can have three state, from right. from left and left, from left and right.
+
+8/25/2009 3:51PM
+I have gotten the number of kernels for Cycle-100. several things to note:
+when i use recuresive call to loop on the BDD, I did not realize that it is
+not a tree. it cause the endless loop or much bigger loop.
+
+Once i realize what the root cause is, the solution is actually simple, just
+add one flag to mark whether one node has ever been dealed with.
+
+
+
+8/28/2009 1:16PM
+I already understand the algorithm of reducing BDDs. but have not implemented
+it yet. The details may be very complex. also the synthesis of BDD base also
+need to be considered.
+
+For Symmetric functions, the B(f) is O(n^2)
+
+The reason is that the sequence of variable is not relevant so long as
+the number of 1s are same.
+
+BDD base, such as the circuit to add two numbers, have O(n) nodes. which is
+easy to construct.

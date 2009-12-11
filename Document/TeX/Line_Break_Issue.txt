@@ -1,0 +1,41 @@
+1. Ultra Edit can detect the line break type and provide the option to 
+convert it automatically or prompt end user to make a decision.
+
+The menu path Is: 
+File Handling -> DOS/UNIX/MAC Handling
+
+Unix/Mac file type detect and conversion
+	Disable
+	prompt user to change when detecting
+	automatically convert to DOS line break.
+
+2. The tricky thing is that by default, after you convert the line break
+type, when you save it, the Ultra Edit will save in the original line break
+type, so net result is nothing was changed.
+
+The menu path to disable this setting is as follows.
+File Handling -> DOS/UNIX/MAC Handling
+one option is called "Save the file in input format"
+
+With this knowledge, we should be able to fix the line break issue easily.
+
+3. some tine the line break may be more serious, there is no uniform line break
+in the file, then we need to use Regular expression to find/replace.
+
+3.1. need to set perl styple regular expression. the default is Ultra Edit styple
+regular expression, which may not be the one you want to use.
+
+Search -> Regular Expression Engine
+
+3.2. for example
+replace 
+	\r\r
+with 	\r\n
+
+then replace 
+	\r
+with 	\r\n
+
+or do it twice as follows.
+repalce \r([^\n])
+with	\r\m$1

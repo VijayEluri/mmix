@@ -1,0 +1,30 @@
+Currently the tool will focus on functional testing performed by Tester (Not Developer).
+a. For developer's Unit Test, it can be handled by JUnit/TestNG framework easily. If we want
+to automate them, just write some glue code to combine them together.
+b. For performance test, we will use Sea-gull or LoadRunner as basic framework and research on 
+how to extends Sea-gull to support GTPP, or how to develop plug-in of Radius, Diameter and 
+GTPP protocol in LoadRunner.
+c. The actual requirement is automatic functional test, which should be supported by WinRunner(?)
+, since they may not support the Protocol we are using, such as GTPP, it is decided to write
+a home grown framework first.
+
+My Two Cents:
+a. For different objective, we may need different tool/solution. e.g. LoadRunner for performance
+testing, Sea-Gull for functional testing.
+b. Home grown solution may save effort in short term, but will cost much more in long term.
+e.g. the Agent and Server Resource Monitoring feature in LoadRunner.  
+
+The real concern is that the popular tool don't have good support of Protocol we are using.
+
+Task definition:
+The Tool will provide a way for tester to convert Test Case (described in document provided
+by customer according to the Protocol definition). Current design is to use Work-Flow component
+existed in RTP platform.
+
+one or more test cases are defined in one folder with one basic_param.properties and one or more
+test case files, which is actually is a work-flow definition (please follow the 
+name convention XXXX_test_case.xml). 
+
+	basic_param.properties define parameter such as target Server and port.
+	workflow xml will define test cases. 
+	

@@ -1,0 +1,666 @@
+<!-- TLV names
+*	
+IPv4L4Flow 01
+SourceIP I4
+DestinationIP I4
+SourcePort I2
+DestinationPort I2
+TOS I1
+Protocol I1
+Flags I1
+Reserved I1
+
+<sequence name="IPv4L4Flow_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="01" />
+		</tlv>
+		<field name="sourceIP" type="Octet_4"/>
+		<field name="destinationIP" type="Octet_4"/>
+		<field name="sourcePort" type="Octet_2"/>
+		<field name="destinationPort" type="Octet_2"/>
+		<field name="tos" type="Octet_1"/>
+		<field name="protocol" type="Octet_1"/>
+		<field name="flags" type="Octet_1"/>
+		<field name="reserved" type="Octet_1"/>
+</sequence>
+
+*
+IPv4L3Flow
+SourceIP I4
+DestinationIP I4
+TOS I1
+Protocol I1
+Flags I1
+Reserved I1
+
+<sequence name="IPv4L3Flow_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="02" />
+		</tlv>
+		<field name="sourceIP" type="Octet_4"/>
+		<field name="destinationIP" type="Octet_4"/>
+		<field name="tos" type="Octet_1"/>
+		<field name="protocol" type="Octet_1"/>
+		<field name="flags" type="Octet_1"/>
+		<field name="reserved" type="Octet_1"/>
+</sequence>
+
+*
+IPStats 03
+UploadedIP ui4
+DownloadedIP ui4
+	<sequence name="IP_Stats_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="03" />
+		</tlv>
+		<field name="uploadedIP" type="Octet_4"/>
+		<field name="downloadedIP" type="Octet_4"/>
+	</sequence>
+
+*
+Correlator 04
+Correlator I8
+<integer name="Correlator_Type">
+		<tlv type="CSG_TLV" size="8">
+			<field name="type" value="04" />
+		</tlv>
+	</integer>
+	
+*	
+TCPStats 05
+UploadedBytes ui4
+DownloadedBytes ui4
+
+	<sequence name="TCP_Stats_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="05" />
+		</tlv>
+		<field name="uploadedBytes" type="Octet_u4"/>
+		<field name="downloadedBytes" type="Octet_u4"/>
+	</sequence>
+
+*
+Timestamp 06
+StartTime i4
+Duration i4
+
+
+*
+IPPackets 07
+UploadedIPPackets ui4
+DownloadedIPPackets ui4
+
+	<sequence name="IP_Packets_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="07" />
+		</tlv>
+		<field name="uploadedIPPackets" type="Octet_u4"/>
+		<field name="downloadedIPPackets" type="Octet_u4"/>
+	</sequence>
+
+*
+BrowserType 08
+Browser string
+<string name="BrowserType_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="8" />
+		</tlv>
+	</string>
+
+HostName 09
+Hostname string
+<string name="Host_Name_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="09" />
+		</tlv>
+	</string>
+
+URL 10
+URL s
+<string name="URL_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="10" />
+		</tlv>
+	</string>
+
+UserId 11
+UserId s
+
+<string name="User_Id_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="11" />
+		</tlv>
+	</string>
+Customer 12
+Customer s
+<string name="Customer_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="12" />
+		</tlv>
+	</string>
+	
+ServiceType 13
+ServiceType s
+<string name="Service_Type_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="13" />
+		</tlv>
+	</string>
+	
+From 14
+From s
+<string name="From_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="14" />
+		</tlv>
+	</string>
+	
+*	
+Application Return 15
+Application Return i4
+reserved i4
+	<sequence name="Application_Return_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="15" />
+		</tlv>
+		<field name="applicationReturn" type="Octet_4"/>
+		<field name="reserved" type="Octet_4"/>
+	</sequence>
+
+
+*
+BillingPlanId 16
+BillingPlanId s
+<string name="Billing_Plan_Id_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="16" />
+		</tlv>
+</string>
+	
+	
+*		
+Cause 17
+Cause s
+	<string name="Cause_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="17" />
+		</tlv>
+	</string>
+
+*
+Quadran 18
+Quadran i4
+<integer name="Quadran_Type">
+	<tlv type="CSG_TLV" size="4">
+			<field name="type" value="18" />
+	</tlv>
+</integer>
+
+*
+Usage 19
+Quadrans i8
+	<integer name="Usage_Type">
+		<tlv type="CSG_TLV" size="8">
+			<field name="type" value="19" />
+		</tlv>
+	</integer>
+
+*
+UserIndex 20
+
+*
+ServiceId 21
+ServiceId s
+	<string name="Service_Id_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="21" />
+		</tlv>
+	</string>
+
+*
+SessionId 22
+SessionId i8
+<integer name="Session_Id_Type">
+	<tlv type="CSG_TLV" size="4">
+			<field name="type" value="22" />
+	</tlv>
+</integer>
+
+*
+TimeOut 23
+TimeOut s
+	<string name="Time_Out_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="23" />
+		</tlv>
+	</string>
+
+*
+RemainingQuadran 24
+Quadrans i8
+	<integer name="Remaining_Quadran_Type">
+		<tlv type="CSG_TLV" size="8">
+			<field name="type" value="24" />
+		</tlv>
+	</integer>
+	
+
+ServiceList 25
+Array
+
+
+	<sequence name="Service_List_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="25" />
+		</tlv>
+		<field name="numberOfService" type="Octet_2"/>
+		<field name="serviceList" type="Service_List_Array_Type"/>
+	</sequence>
+	
+	<array name="Service_List_Array_Type"
+		field="Service_List_Element_Type">
+		<raw />
+	</array>
+	<sequence name="Service_List_Element_Type">
+		<field name="length" type="Octet_2"/>
+		<field name="serviceID" type="string"/>
+	</sequence>
+*
+FTPUserName 26
+UserName s
+*
+FTPDirectory 27
+FTPRemoteDirectory s
+
+	<string name="FTP_User_Name_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="26" />
+		</tlv>
+	</string>
+	<string name="FTP_Remote_Directory_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="27" />
+		</tlv>
+	</string>
+
+*
+IPv4FTPFlow 28
+DestinationIPAddress
+SourceIPAddress i4
+DestinationPort i2
+FTPFlags i1
+
+	<sequence name="IPv4_FTP_Flow_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="28" />
+		</tlv>
+		<field name="destinationIPAddress" type="Octet_4"/>
+		<field name="sourceIPAddress" type="Octet_4"/>
+		<field name="destinationPort" type="Octet_2"/>
+		<field name="ftpFlags" type="Octet_1"/>		
+	</sequence>
+
+*
+FTPFilename 29
+FTPFilename s
+*
+FTPCommand 30
+FTPCommand s
+	<string name="FTP_File_Name_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="29" />
+		</tlv>
+	</string>
+	<string name="FTP_Command_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="30" />
+		</tlv>
+	</string>
+
+*
+RTSPFlow 31
+ClientIPAddress i4
+ServerIPAddress i4
+CPort1 i2
+CPort2 i2
+ServerPort1 i2
+ServerPort2 i2
+Flags i1
+
+	<sequence name="RTSP_Flow_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="31" />
+		</tlv>
+		<field name="clientIPAddress" type="Octet_4"/>
+		<field name="serverIPAddress" type="Octet_4"/>
+		<field name="clientPort1" type="Octet_2"/>
+		<field name="clientPort2" type="Octet_2"/>
+		<field name="servertPort1" type="Octet_2"/>
+		<field name="serverPort2" type="Octet_2"/>
+		<field name="flags" type="Octet_1"/>		
+	</sequence>
+
+*
+WTPInfo 32
+PDUType i1
+TransactionType i2
+Flags i1
+
+*
+WSPTransactionClass 33
+TransactionClass i1
+	
+	<integer name="WSP_Transaction_Class_Type">
+		<tlv type="CSG_TLV" size="1">
+			<field name="type" value="33" />
+		</tlv>
+	</integer>
+
+*
+WSPPDUType 34
+WSPPDUType i1
+	<integer name="WSP_PDU_Type_Type">
+		<tlv type="CSG_TLV" size="1">
+			<field name="type" value="34" />
+		</tlv>
+	</integer>
+	
+*
+WAPIPStats  35
+BytesUploaded i4
+BytesDownloaded i4
+RetramittedBytesUploaded i4
+RetramittedBytesDownloaded i4
+
+	<sequence name="WAP_IP_Stats_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="35" />
+		</tlv>
+		<field name="byteDownloaded" type="Octet_4"/>
+		<field name="bytesDownloaded" type="Octet_4"/>
+		<field name="retransmittedBytesUploaded" type="Octet_4"/>
+		<field name="retransmittedBytesDownloaded" type="Octet_4"/>		
+	</sequence>
+
+
+*
+WAPTransactionID 36
+TransactionID i1
+	<integer name="WAP_Transaction_ID_Type">
+		<tlv type="CSG_TLV" size="1">
+			<field name="type" value="36" />
+		</tlv>
+	</integer>
+
+*
+WAPContentType 37
+ContentType s
+<string name="WAP_Content_Type_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="37" />
+		</tlv>
+	</string>
+*
+WAPAbort 38
+AbortReason i1
+<integer name="WAP_Abort_Type">
+		<tlv type="CSG_TLV" size="1">
+			<field name="type" value="38" />
+		</tlv>
+	</integer>
+
+*
+Refund 39
+RefundAmount i4
+reason i1
+	<sequence name="Refund_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="39" />
+		</tlv>
+		<field name="refundAmount" type="Octet_4"/>
+		<field name="reason" type="Octet_1"/>
+	</sequence>
+
+*
+HTTPMethod 40
+HTTPMethod s
+	<string name="HTTP_Method_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="40" />
+		</tlv>
+	</string>
+
+*
+ReportString 41
+Flags i1
+LengthOfName i1
+Name s
+LengthOfContent i1
+Content s
+
+*
+RadiusAttribute 48
+RadiusAttribute ??
+
+*
+Continuation 49
+ContinuationNumber i2
+Correlator i8
+	<sequence name="Continuation_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="49" />
+		</tlv>
+		<field name="continuationNumber" type="Octet_2"/>
+		<field name="correlator" type="Octet_8"/>
+	</sequence>
+
+
+*
+Weight 50
+Weight i4
+	<integer name="Weight_Type">
+		<tlv type="CSG_TLV" size="4">
+			<field name="type" value="50" />
+		</tlv>
+	</integer>
+
+*
+Authorization 51
+ActionCode i1
+ActionSpecificData
+  	IPAddress i4
+  	Port i2
+
+	  or 
+	  RedirectionURL???
+	<sequence name="Authorization_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="51" />
+		</tlv>
+		<field name="actionCode" type="Octet_1"/>
+		<field name="actionSpecificData" type="Action_Specific_Data_Type"/>
+	</sequence>
+	
+	<set name="Data_Record_Data_Type">
+		<raw/>
+		<field name="ipAddress" type="Octet_4" />
+		<field name="port" type="Octet_2" />
+		<field name="redirectionURL" type="string" />
+	</set>
+	
+	
+		
+	
+*	
+AuthorizationRequestType 52
+RequestType i1	  
+
+*
+RequestId 53
+RequestId i8
+
+	<integer name="Authorization_Request_Type_Type">
+		<tlv type="CSG_TLV" size="1">
+			<field name="type" value="52" />
+		</tlv>
+	</integer>
+	<integer name="Request_ID_Type">
+		<tlv type="CSG_TLV" size="8">
+			<field name="type" value="53" />
+		</tlv>
+	</integer>
+	
+*	
+SessionType 55
+						i1
+<integer name="Session_Type_Type">
+	<tlv type="CSG_TLV" size="1">
+			<field name="type" value="55" />
+	</tlv>
+</integer>
+
+*					
+Challel 56
+						i1
+*				
+TransportType 57
+							ui1
+*				
+HostName 58
+				s
+*			
+TariffClass 59
+						ui1
+						
+	<integer name="Challel_Type">
+		<tlv type="CSG_TLV" size="1">
+			<field name="type" value="56" />
+		</tlv>
+	</integer>
+	<integer name="Transport_Type_Type">
+		<tlv type="CSG_TLV" size="1" >
+			<field name="type" value="57" />
+		</tlv>
+	</integer>
+	<string name="Host_Name_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="58" />
+		</tlv>
+	</string>
+	<integer name="Tariff_Class_Type">
+		<tlv type="CSG_TLV" size="1" >
+			<field name="type" value="59" />
+		</tlv>
+	</integer>
+							TransportType
+							
+*							
+ContentProvide 60
+NameLength i1
+ProvideName s
+IDLength i1
+ProviderID s
+	<sequence name="Content_Provider_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="60" />
+		</tlv>
+		<field name="providerNameLength"></field>
+		<field name="providerName" type="Provider_Name_Type"></field>
+		<field name="providerIDLength"></field>
+		<field name="providerID" type="provider_ID_Type"></field>
+	</sequence>
+	<string name="Provider_Name_Type">
+		<raw size="providerNameLength" />
+	</string>
+	<string name="provider_ID_Type">
+		<raw size="providerIDLength" />
+	</string>
+
+
+*
+ContentDelivered 61
+Delivered i1
+
+	<integer name="Content_Delivered_Type">
+		<tlv type="CSG_TLV" size="1" >
+			<field name="type" value="61" />
+		</tlv>
+	</integer>
+
+*
+BinaryCodedDecimal 62
+StartTime time???i9
+EndTime time???i9
+	<sequence name="Binary_Coded_Decimal_Timestamp_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="62" />
+		</tlv>
+		<field name="startTime" type="String_9"/>
+		<field name="endTime" type="String_9"/>
+	</sequence>
+*
+LargeURL 63
+URL s
+
+	<string name="Large_URL_Type" charset="UTF-8">
+		<tlv type="CSG_TLV">
+			<field name="type" value="63" />
+		</tlv>
+	</string>
+
+*
+WAPWSPFlag 42
+TransactionFlagL i1
+	
+	<integer name="WAP_WSP_Flag_Type">
+		<tlv type="CSG_TLV" size="1" >
+			<field name="type" value="42" />
+		</tlv>
+	</integer>
+*
+MailRecipients 67
+ValidRecipients i2
+BadRecipients i2
+
+	<sequence name="Mail_Recipients_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="67" />
+		</tlv>
+		<field name="ValidRecipients" type="Octet_2"/>
+		<field name="badRecipients" type="Octet_2"/>
+	</sequence>
+*	
+ServiceVolumeUsage 65
+CumulativeUpload i4
+CumulativeDownload i4
+DeltaUpload i4
+DeltaDownload i4
+
+	<sequence name="Service_Volume_Usage_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="65" />
+		</tlv>
+		<field name="cumulativeUpload" type="Octet_4"/>
+		<field name="cumulativeDownload" type="Octet_4"/>
+		<field name="deltaUpload" type="Octet_4"/>
+		<field name="deltaDownload" type="Octet_4"/>
+	</sequence>
+	
+*
+p101
+ServiceTimeUsage 66
+ServiceStartTimestamp??i9
+CurrentTimestamp time?
+	<sequence name="Service_Time_Usage_Type">
+		<tlv type="CSG_TLV">
+			<field name="type" value="66" />
+		</tlv>
+		<field name="startTimestamp" type="String_9"/>
+		<field name="currentTimestamp" type="String_9"/>
+	</sequence>
+						
+																							
+
+
+-->
+

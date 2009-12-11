@@ -1,0 +1,34 @@
+Permutation is important, usually the permutation is the space for complete 
+searching.
+
+The first point is how to generate all the permutaitons quickly. Manay 
+techniques are revised. 
+
+The second point is actually only a few of the permuation are valid result. In 
+the terms of finding the valid result as quick as possible, different scheme of 
+iterating the 
+problem space may have completely different Efficiency (performance).
+
+N elements have N! kinds of permutations. There are (N!)! kinds of ways to 
+transverse them. only a few of (N!)! ways are considered to have special 
+properties and deserve the attention.
+
+isomorphism: only the label are diffrent, but actually the structure is 
+equivalent with each other.
+There is a one to one mapping. u <--> u', v <--> v' so that 
+u --- v if and only u' --- v' 
+we can either label them as 1,2,3 or 0,1,2.
+
+There are n! isomorphism for graph of order n. each of them may or may not have
+a different(unique) adjacent matrix.
+
+The equivalent one caused by different ways of drawing/labeling is  called 
+isomorphism.
+
+automorphism is different with isomorphism.
+The symmetries of a graph, also known as its automorhpism, are the permutations
+of its vertices that preserve adjacency. The automorphism means that the 
+isomorphism which have the same adjacent matrix.
+
+of or involving the earliest period, stat, etc.; original.
+ 

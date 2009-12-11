@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fdl:definition xmlns:fdl="http://ov.hp.com/ium/namespace/fdl"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://ov.hp.com/ium/namespace/fdl fdl.xsd ">
+  <!-- Definition of a Radius Attribute type -->
+	<tlv name="Attribute" tag="attr_type" length="attr_length" lengthUnits="bytes" class="com.hp.usage.tlv.codec.RadiusUtils">
+		<field name="attr_type" size="1" sizeUnits="bytes"/>
+		<field name="attr_length"  size="1" sizeUnits="bytes"/>
+	</tlv>
+	
+	<!--  
+	<tlv name="Vendor-Attribute" tag="attr_type" length="attr_length" lengthUnits="bytes">
+		<field name="attr_type" size="1" sizeUnits="bytes"/>
+		<field name="attr_length"  size="1" sizeUnits="bytes"/>
+	</tlv>
+	-->
+</fdl:definition>

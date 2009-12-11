@@ -1,0 +1,1638 @@
+                   % Stripped-Down Simulator for MMIX, derived from MMIX-SIM
+                   % To run it on a program like "foo bar"
+                   %   first say "mmix -Dfoo.mmb foo bar"
+                   %   then "mmix <options> sim foo.mmb"
+                   
+                   % I apologize for lack of comments; they're in the book though
+                   
+($255)             t  IS   $255
+(0000000000000100) lring_size IS 256 % octabytes in the local register ring
+                   
+                            LOC Data_Segment
+(2000000000000000) Global   LOC  @+8*256
+($254=#20000000    g        GREG Global  % base of 256 global registers
+         00000000)
+(2000000000000800) Local    LOC  @+8*lring_size
+($253=#20000000    l        GREG Local  % base of lring_size local registers
+         00000800)
+($252=#20000000             GREG @
+         00001000)
+2000000000001000:  IOArgs   OCTA 0,BinaryRead
+ ...000: 00000000
+ ...004: 00000000
+ ...008: 00000000
+ ...00c: 00000002
+(2000000000001010) Chunk0   IS   @
+                   
+                            LOC #100
+                            PREFIX :Mem:
+($251)             head     GREG   % address of first chunk
+($250)             curkey GREG   % KEY(head)
+($249)             alloc    GREG   % address of next chunk to allocate
+(0000000000001000) Chunk    IS   #1000  bytes per chunk, is power of 2
+($000)             addr     IS   $0
+($001)             key    IS   $1
+($002)             test     IS   $2
+($003)             newlink  IS   $3
+($004)             p        IS   $4  % LINK(p)=head
+($255)             t        IS   :t
+                   
+(0000000000000000) KEY    IS   0
+(0000000000000008) LINK     IS   8
+(0000000000000010) DATA     IS   16
+($248=#00000000    nodesize  GREG Chunk+3*8   pad with 8 zero bytes
+         00001018)
+($247=#00000000    mask      GREG Chunk-1
+         00000fff)
+                   
+0000000000000100:  :MemFind ANDN  key,addr,mask
+ ...100: ca0100f7
+ ...104: 32ff01fa           CMPU  t,key,curkey
+ ...108: 52ffxxxx           PBZ   t,4F
+ ...10c: 4000xxxx           BN    addr,:Error
+ ...110: c103fb00           SET   newlink,head
+ ...114: c104fb00  1H       SET   p,head
+ ...118: 8ffb0408           LDOU  head,p,LINK
+ ...11c: 5afbxxxx           PBNZ  head,2F
+ ...120: c1fbf900           SET   head,alloc
+ ...124: af01fb00           STOU  key,head,KEY
+ ...128: 22f9f9f8           ADDU  alloc,alloc,nodesize
+ ...12c: f0xxxxxx           JMP   3F
+ ...130: 8f02fb00  2H       LDOU  test,head,KEY
+ ...134: 32ff0201           CMPU  t,test,key
+ ...138: 4bfffff7           BNZ   t,1B
+ ...13c: 8ffffb08  3H       LDOU  t,head,LINK
+ ...140: af03fb08           STOU  newlink,head,LINK
+ ...144: c1fa0100           SET   curkey,key
+ ...148: afff0408           STOU  t,p,LINK
+ ...14c: 26ff0001  4H       SUBU  t,addr,key
+ ...150: 2300fb10           LDA   $0,head,DATA
+ ...154: 2200ff00           ADDU  $0,t,$0
+ ...158: f8010000           POP   1,0
+                            PREFIX :
+                   
+($002)             res      IS    $2
+($003)             arg      IS    res+1
+                   
+($246)             ss       GREG  % rS
+($245)             oo       GREG  % rO
+($244)             ll       GREG  % 8*rL
+($243)             gg       GREG  % 8*rG
+($242)             aa       GREG  % rA
+($241)             ii       GREG  % rI
+($240)             uu       GREG  % rU
+($239)             cc       GREG  % rC
+                   
+($238=#00000000    lring_mask GREG 8*lring_size-1
+         000007ff)
+ ...15c: 32ff00f3  :GetReg    CMPU   t,$0,gg
+ ...160: 40ffxxxx             BN     t,1F
+ ...164: 8e00fe00             LDOU   $0,g,$0
+ ...168: f8010000             POP    1,0
+ ...16c: 32ff00f4  1H         CMPU   t,$0,ll
+ ...170: 220000f5             ADDU   $0,$0,oo
+ ...174: c80000ee             AND    $0,$0,lring_mask
+ ...178: 8e00fd00             LDOU   $0,l,$0
+ ...17c: 6900ff00             CSNN   $0,t,0
+ ...180: f8010000             POP    1,0
+                   
+ ...184: fe000004  :StackStore GET  $0,rJ
+ ...188: c8fff6ee             AND   t,ss,lring_mask        \S82
+ ...18c: 8e01fdff             LDOU  $1,l,t
+ ...190: c103f600             SET   arg,ss
+ ...194: f302ffdb             PUSHJ res,MemFind
+ ...198: af010200             STOU  $1,res,0       M[rS]<-l[rS]
+ ...19c: 23f6f608             ADDU  ss,ss,8
+ ...1a0: f6040000             PUT   rJ,$0
+ ...1a4: f8000000             POP
+ ...1a8: fe000004  :StackLoad GET   $0,rJ
+ ...1ac: 27f6f608             SUBU  ss,ss,8                \S83
+ ...1b0: c103f600             SET   arg,ss
+ ...1b4: f302ffd3             PUSHJ res,MemFind
+ ...1b8: 8f010200             LDOU  $1,res,0
+ ...1bc: c8fff6ee             AND   t,ss,lring_mask
+ ...1c0: ae01fdff             STOU  $1,l,t
+ ...1c4: f6040000             PUT   rJ,$0
+ ...1c8: f8000000             POP
+ ...1cc: 26fff6f5  :StackRoom SUBU  t,ss,oo   idiom in \S81,\S101,\S102
+ ...1d0: 26fffff4             SUBU  t,t,ll
+ ...1d4: c8ffffee             AND   t,t,lring_mask
+ ...1d8: 5affxxxx             PBNZ  t,1F
+ ...1dc: fe000004             GET   $0,rJ
+ ...1e0: f302ffe9             PUSHJ res,StackStore
+ ...1e4: f6040000             PUT   rJ,$0
+ ...1e8: f8000000  1H         POP
+                   
+                   * The main loop
+($237)             loc        GREG      % where the simulator is at
+($236)             inst_ptr   GREG      % where the simulator will be next
+($235)             inst       GREG      % the current instruction being simulated
+($234)             resuming   GREG      % are we resuming an instruction in rX?
+                   
+ ...1ec: 52eaxxxx  Fetch      PBZ   resuming,1F      \S60 (main simulation loop)
+ ...1f0: 27edec04             SUBU  loc,inst_ptr,4
+ ...1f4: 8bebfecc             LDTU  inst,g,8*rX+4
+ ...1f8: f0xxxxxx             JMP   2F
+ ...1fc: c1edec00  1H         SET   loc,inst_ptr
+ ...200: c103ed00             SET   arg,loc
+ ...204: f302ffbf             PUSHJ res,MemFind
+ ...208: 8beb0200             LDTU  inst,res,0
+ ...20c: 23eced04             ADDU  inst_ptr,loc,4
+ ...210: 32ffedfe  2H         CMPU  t,loc,g
+ ...214: 48ffxxxx             BNN   t,Error   loc>=Data_Segment
+                   
+($233)             op         GREG      % opcode of the current instruction
+($232)             xx         GREG      % X field of the current instruction
+($231)             yy         GREG      % Y field of the current instruction
+($230)             zz         GREG      % Z field of the current instruction
+($229)             yz         GREG      % YZ field of the current instruction
+($228)             f          GREG      % packed information about the current op
+($227)             xxx        GREG      % X field times 8
+($226)             x          GREG      % result, or X operand
+($225)             y          GREG      % Y operand
+($224)             z          GREG      % Z operand
+($223)             xptr       GREG      % location where x should be stored
+($222)             exc        GREG      % arithmetic exceptions
+                   
+(0000000000000001) Z_is_immed_bit  IS #1
+(0000000000000002) Z_is_source_bit IS #2
+(0000000000000004) Y_is_immed_bit  IS #4
+(0000000000000008) Y_is_source_bit IS #8
+(0000000000000010) X_is_source_bit IS #10
+(0000000000000020) X_is_dest_bit   IS #20
+(0000000000000040) Rel_addr_bit    IS #40
+(0000000000000080) Mem_bit         IS #80
+                   
+(0000000000001000) Info IS #1000
+(0000000000001800) Done IS Info+8*256
+($221=#00000000    info       GREG  Info   % base address for master info table
+         00001000)
+($220=#00000000    c255    GREG 8*255
+         000007f8)
+($219=#00000000    c256    GREG 8*256
+         00000800)
+                   
+ ...218: dde9eb08             MOR   op,inst,#8
+ ...21c: dde8eb04             MOR   xx,inst,#4
+ ...220: dde7eb02             MOR   yy,inst,#2
+ ...224: dde6eb01             MOR   zz,inst,#1
+($218=#ffffffff    0H  GREG  -#10000
+         ffff0000)
+ ...228: cae5ebda             ANDN  yz,inst,0B
+ ...22c: 3be3e803             SLU   xxx,xx,3
+ ...230: 3bffe903             SLU   t,op,3
+ ...234: 8ee4ddff             LDOU  f,info,t
+ ...238: e3e20000             SET   x,0
+ ...23c: e3e10000             SET   y,0
+ ...240: e3e00000             SET   z,0
+ ...244: e3de0000             SET   exc,0
+ ...248: c9ffe440             AND   t,f,Rel_addr_bit
+ ...24c: 52ffxxxx             PBZ   t,1F
+ ...250: 5ee4xxxx             PBEV  f,2F            Convert rel to abs, \S70
+($217=#ffffffff    9H  GREG  -#1000000
+         ff000000)
+ ...254: cae5ebd9             ANDN  yz,inst,9B   xyz
+ ...258: 22ffe5d9             ADDU  t,yz,9B
+ ...25c: f0xxxxxx             JMP   3F
+ ...260: 22ffe5da  2H         ADDU  t,yz,0B
+ ...264: 66e5e9ff  3H         CSOD   yz,op,t
+ ...268: 39ffe502             SL     t,yz,2
+ ...26c: 22e5edff             ADDU   yz,loc,t
+ ...270: 58eaxxxx  1H         PBNN   resuming,Install_X    Install operands \S71
+ ...274: 8fe1fed0             LDOU   y,g,8*rY       Install special operands \S127
+ ...278: 8fe0fed8             LDOU   z,g,8*rZ
+ ...27c: 46eaxxxx             BOD    resuming,Install_Y
+($216=#c1e2e000    0H    GREG #C1<<56+(x-$0)<<48+(z-$0)<<40+1<<16+X_is_dest_bit
+         00010020)
+ ...280: c1e4d800             SET    f,0B           Change to ORI instruction
+ ...284: 8fdefec8             LDOU   exc,g,8*rX
+ ...288: dddede20             MOR    exc,exc,#20
+ ...28c: f0xxxxxx             JMP    XDest
+ ...290: c9ffe410  Install_X  AND    t,f,X_is_source_bit
+ ...294: 52ffxxxx             PBZ    t,1F
+ ...298: c103e300             SET    arg,xxx
+ ...29c: f302ffb0             PUSHJ  res,GetReg
+ ...2a0: c1e20200             SET    x,res
+ ...2a4: 3fffe405  1H         SRU    t,f,5
+ ...2a8: c9fffff8             AND    t,t,#f8
+ ...2ac: 52ffxxxx             PBZ    t,Install_Z
+ ...2b0: 8ee2feff             LDOU   x,g,t      Set x from third op, \S79
+ ...2b4: c9ffe402  Install_Z  AND    t,f,Z_is_source_bit
+ ...2b8: 52ffxxxx             PBZ    t,1F
+ ...2bc: 3b03e603             SLU    arg,zz,3
+ ...2c0: f302ffa7             PUSHJ  res,GetReg
+ ...2c4: c1e00200             SET    z,res
+ ...2c8: f0xxxxxx             JMP    Install_Y
+ ...2cc: 66e0e4e6  1H         CSOD   z,f,zz     Z_is_immed_bit
+ ...2d0: c9ffe9f0             AND    t,op,#f0
+ ...2d4: 33ffffe0             CMPU   t,t,#e0
+ ...2d8: 5affxxxx             PBNZ   t,Install_Y
+ ...2dc: c9ffe903             AND    t,op,#3    Set z as immediate wyde, \S78
+ ...2e0: 34ff03ff             NEG    t,3,t
+ ...2e4: 3bffff04             SLU    t,t,4
+ ...2e8: 3ae0e5ff             SLU    z,yz,t
+ ...2ec: c1e1e200             SET    y,x
+ ...2f0: c9ffe404  Install_Y  AND    t,f,Y_is_immed_bit
+ ...2f4: 52ffxxxx             PBZ    t,1F
+ ...2f8: c1e1e700             SET    y,yy
+ ...2fc: 3bffe728             SLU    t,yy,40
+ ...300: 22e4e4ff             ADDU   f,f,t
+ ...304: c9ffe408  1H         AND    t,f,Y_is_source_bit
+ ...308: 42ffxxxx             BZ     t,1F
+ ...30c: 3b03e703             SLU    arg,yy,3
+ ...310: f302ff93             PUSHJ  res,GetReg
+ ...314: c1e10200             SET    y,res          (end of \S71)
+ ...318: c9ffe420  1H         AND    t,f,X_is_dest_bit
+ ...31c: 42ffxxxx             BZ     t,1F
+ ...320: 32ffe3f3  XDest      CMPU   t,xxx,gg      Install X as dest, \S80
+ ...324: 40ffxxxx             BN     t,3F
+ ...328: 22dffee3             LDA    xptr,g,xxx
+ ...32c: f0xxxxxx             JMP    1F
+ ...330: 22fff5f4  2H         ADDU   t,oo,ll
+ ...334: c8ffffee             AND    t,t,lring_mask
+ ...338: b400fdff             STCO   0,l,t
+ ...33c: e7f40008             INCL   ll,8
+ ...340: f302ffa3             PUSHJ  res,StackRoom
+ ...344: 32ffe3f4  3H         CMPU   t,xxx,ll
+ ...348: 49fffffa             BNN    t,2B
+ ...34c: 20ffe3f5             ADD    t,xxx,oo
+ ...350: c8ffffee             AND    t,t,lring_mask
+ ...354: 22dffdff             LDA    xptr,l,t
+ ...358: c9ffe480  1H         AND    t,f,Mem_bit
+ ...35c: 52ffxxxx             PBZ    t,1F
+ ...360: 2203e1e0             ADDU   arg,y,z
+ ...364: 33ffe9a0             CMPU   t,op,#A0
+ ...368: 40ffxxxx             BN     t,2F
+ ...36c: 32ff03fe             CMPU   t,arg,g
+ ...370: 40ffxxxx             BN     t,Error
+ ...374: f302ff63  2H         PUSHJ  res,MemFind
+ ...378: 3fffe420  1H         SRU    t,f,32
+ ...37c: f61900ff             PUT    rX,t
+ ...380: f60500e2             PUT    rM,x
+ ...384: f60200e2             PUT    rE,x
+($215=#00000000    0H    GREG   #30000
+         00030000)
+ ...388: c8fff2d7             AND    t,aa,0B
+ ...38c: ebff0400             ORL    t,U_BIT<<8  enable underflow trip
+ ...390: f61500ff             PUT    rA,t
+($214=#00000000    0H    GREG   Done
+         00001800)
+ ...394: f61800d6             PUT    rW,0B
+ ...398: f9000000             RESUME
+                   
+ ...39c: 1ae2e1e0  MulU       MULU   x,y,z
+ ...3a0: feff0003             GET    t,rH
+ ...3a4: affffe18             STOU   t,g,8*rH
+ ...3a8: f0xxxxxx             JMP    XDone
+                   
+ ...3ac: 1ce2e1e0  Div        DIV    x,y,z
+ ...3b0: f0xxxxxx             JMP    1F
+ ...3b4: f60100e2  DivU       PUT    rD,x
+ ...3b8: 1ee2e1e0             DIVU   x,y,z
+ ...3bc: feff0006  1H         GET    t,rR
+ ...3c0: adfffe30             STO    t,g,8*rR
+ ...3c4: f0xxxxxx             JMP    XDone
+                   
+ ...3c8: 8fe0feb8  Cswap      LDOU  z,g,8*rP
+ ...3cc: 8fe10200             LDOU  y,res,0
+ ...3d0: 32ffe1e0             CMPU  t,y,z
+ ...3d4: 4affxxxx             BNZ   t,1F
+ ...3d8: afe20200             STOU  x,res,0
+ ...3dc: f0xxxxxx             JMP   2F
+ ...3e0: afe1feb8  1H         STOU  y,g,8*rP
+ ...3e4: 73e2ff01  2H         ZSZ   x,t,1
+ ...3e8: f0xxxxxx             JMP   XDone
+                   
+ ...3ec: 23efef04  BTaken     ADDU   cc,cc,4
+ ...3f0: 27efef02  PBTaken    SUBU   cc,cc,2
+ ...3f4: c1ece500             SET    inst_ptr,yz
+ ...3f8: f0xxxxxx             JMP    Update
+                   
+ ...3fc: c1e2ec00  Go         SET    x,inst_ptr
+ ...400: 22ece1e0             ADDU   inst_ptr,y,z
+ ...404: f0xxxxxx             JMP    XDone
+                   
+ ...408: 22e5e1e0  PushGo     ADDU   yz,y,z
+ ...40c: c1ece500  PushJ      SET    inst_ptr,yz
+ ...410: 32ffe3f3             CMPU   t,xxx,gg
+ ...414: 50ffxxxx             PBN    t,1F
+ ...418: c1e3f400             SET    xxx,ll
+ ...41c: 3fe8e303             SRU    xx,xxx,3
+ ...420: e7f40008             INCL   ll,8
+ ...424: f300ff6a             PUSHJ  0,StackRoom
+ ...428: 22ffe3f5  1H         ADDU   t,xxx,oo
+ ...42c: c8ffffee             AND    t,t,lring_mask
+ ...430: aee8fdff             STOU   xx,l,t
+ ...434: 23ffed04             ADDU   t,loc,4
+ ...438: affffe20             STOU   t,g,8*rJ
+ ...43c: e7e30008             INCL   xxx,8
+ ...440: 26f4f4e3             SUBU   ll,ll,xxx
+ ...444: 22f5f5e3             ADDU   oo,oo,xxx
+ ...448: f0xxxxxx             JMP    Update
+                   
+ ...44c: 27f5f508  Pop        SUBU   oo,oo,8
+ ...450: 42e8xxxx             BZ     xx,1F
+ ...454: 32fff4e3             CMPU   t,ll,xxx
+ ...458: 40ffxxxx             BN     t,1F
+ ...45c: 22ffe3f5             ADDU   t,xxx,oo
+ ...460: c8ffffee             AND    t,t,lring_mask
+ ...464: 8ee1fdff             LDOU   y,l,t
+ ...468: 32fff5f6  1H         CMPU   t,oo,ss
+ ...46c: 58ffxxxx             PBNN   t,1F
+ ...470: f300ff4e             PUSHJ  0,StackLoad
+ ...474: c8fff5ee  1H         AND    t,oo,lring_mask
+ ...478: 8ee0fdff             LDOU   z,l,t
+ ...47c: c9e0e0ff             AND    z,z,#ff
+ ...480: 3be0e003             SLU    z,z,3
+ ...484: 26fff5f6  1H         SUBU   t,oo,ss
+ ...488: 32ffffe0             CMPU   t,t,z
+ ...48c: 58ffxxxx             PBNN   t,1F
+ ...490: f300ff46             PUSHJ  0,StackLoad actually gamma=beta possible here!
+ ...494: f1fffffc             JMP    1B
+ ...498: 23f4f408  1H         ADDU   ll,ll,8
+ ...49c: 32ffe3f4             CMPU   t,xxx,ll
+ ...4a0: 60f4ffe3             CSN    ll,t,xxx
+ ...4a4: 22f4f4e0             ADDU   ll,ll,z
+ ...4a8: 32fff3f4             CMPU   t,gg,ll
+ ...4ac: 60f4fff3             CSN    ll,t,gg
+ ...4b0: 32ffe0f4             CMPU   t,z,ll
+ ...4b4: 48ffxxxx             BNN    t,1F
+ ...4b8: c8fff5ee             AND    t,oo,lring_mask
+ ...4bc: aee1fdff             STOU   y,l,t
+ ...4c0: 8fe1fe20  1H         LDOU   y,g,8*rJ
+ ...4c4: 26f5f5e0             SUBU   oo,oo,z
+ ...4c8: 2aece5e1             4ADDU  inst_ptr,yz,y
+ ...4cc: f0xxxxxx             JMP    Update
+                   
+ ...4d0: 4ae5xxxx  Save       BNZ    yz,Error     \S102
+ ...4d4: 32ffe3f3             CMPU   t,xxx,gg
+ ...4d8: 40ffxxxx             BN     t,Error
+ ...4dc: 22fff5f4             ADDU   t,oo,ll
+ ...4e0: c8ffffee             AND    t,t,lring_mask
+ ...4e4: 3fe1f403             SRU    y,ll,3
+ ...4e8: aee1fdff             STOU   y,l,t
+ ...4ec: e7f40008             INCL   ll,8
+ ...4f0: f300ff37             PUSHJ  0,StackRoom
+ ...4f4: 22f5f5f4             ADDU   oo,oo,ll
+ ...4f8: e3f40000             SET    ll,0
+ ...4fc: f300ff22  1H         PUSHJ  0,StackStore
+ ...500: 32fff6f5             CMPU   t,ss,oo
+ ...504: 5bfffffe             PBNZ   t,1B
+ ...508: 27e1f308             SUBU   y,gg,8
+ ...50c: 23e1e108  4H         ADDU   y,y,8
+ ...510: c103f600  1H         SET    arg,ss     \S103
+ ...514: f302fefb             PUSHJ  res,MemFind
+ ...518: 33ffe1e0             CMPU   t,y,8*(rZ+1)
+ ...51c: 8ee0fee1             LDOU   z,g,y
+ ...520: 5affxxxx             PBNZ   t,2F
+ ...524: 3be0f335             SLU    z,gg,56-3
+ ...528: 22e0e0f2             ADDU   z,z,aa
+ ...52c: afe00200  2H         STOU   z,res,0
+ ...530: e7f60008             INCL   ss,8
+ ...534: 4affxxxx             BNZ    t,1F
+ ...538: 32ffe1dc             CMPU   t,y,c255
+ ...53c: 42ffxxxx             BZ     t,2F
+ ...540: 33ffe130             CMPU   t,y,8*rR
+ ...544: 5bfffff2             PBNZ   t,4B
+ ...548: e3e100b8             SET    y,8*rP
+ ...54c: f1fffff1             JMP    1B
+ ...550: e3e10000  2H         SET    y,8*rB
+ ...554: f1ffffef             JMP    1B
+ ...558: c1f5f600  1H         SET    oo,ss
+ ...55c: 27e2f508             SUBU   x,oo,8
+ ...560: f0xxxxxx             JMP    XDone
+                   
+ ...564: 4ae8xxxx  Unsave     BNZ    xx,Error    \S104
+ ...568: 4ae7xxxx             BNZ    yy,Error
+ ...56c: efe00007             ANDNL  z,#7
+ ...570: 23f6e008             ADDU   ss,z,8
+ ...574: e3e100e8             SET    y,8*(rZ+2)
+ ...578: 27e1e108  1H         SUBU   y,y,8
+ ...57c: 27f6f608  4H         SUBU   ss,ss,8      \S105
+ ...580: c103f600             SET    arg,ss
+ ...584: f302fedf             PUSHJ  res,MemFind
+ ...588: 8fe20200             LDOU   x,res,0
+ ...58c: 33ffe1e0             CMPU   t,y,8*(rZ+1)
+ ...590: 5affxxxx             PBNZ   t,2F
+ ...594: 3ff3e235             SRU    gg,x,56-3
+ ...598: 3bf2e22e             SLU    aa,x,64-18
+ ...59c: 3ff2f22e             SRU    aa,aa,64-18
+ ...5a0: f1fffff6             JMP    1B
+ ...5a4: aee2fee1  2H         STOU   x,g,y
+ ...5a8: 33ffe1b8  3H         CMPU   t,y,8*rP
+ ...5ac: 63e1ff38             CSZ    y,t,8*(rR+1)
+ ...5b0: 62e1e1db             CSZ    y,y,c256
+ ...5b4: 32ffe1f3             CMPU   t,y,gg
+ ...5b8: 5bfffff0             PBNZ   t,1B
+ ...5bc: f300fefb             PUSHJ  0,StackLoad
+ ...5c0: c8fff6ee             AND    t,ss,lring_mask
+ ...5c4: 8ee2fdff             LDOU   x,l,t
+ ...5c8: c9e2e2ff             AND    x,x,#ff
+ ...5cc: 42e2xxxx             BZ     x,1F
+ ...5d0: c1e1e200             SET    y,x
+ ...5d4: f300fef5  2H         PUSHJ  0,StackLoad
+ ...5d8: 27e1e101             SUBU   y,y,1
+ ...5dc: 5be1fffe             PBNZ   y,2B
+ ...5e0: 3be2e203             SLU    x,x,3
+ ...5e4: c1f4e200  1H         SET    ll,x
+ ...5e8: 32fff3e2             CMPU   t,gg,x
+ ...5ec: 60f4fff3             CSN    ll,t,gg
+ ...5f0: c1f5f600             SET    oo,ss
+ ...5f4: 5af0xxxx             PBNZ   uu,Update
+ ...5f8: 42eaxxxx             BZ     resuming,Update
+ ...5fc: f0xxxxxx             JMP    AllDone
+                   
+ ...600: 33ffe520  Get        CMPU   t,yz,32
+ ...604: 48ffxxxx             BNN    t,Error
+ ...608: aff1fe60             STOU   ii,g,8*rI
+ ...60c: afeffe40             STOU   cc,g,8*rC
+ ...610: aff5fe50             STOU   oo,g,8*rO
+ ...614: aff6fe58             STOU   ss,g,8*rS
+ ...618: aff0fe88             STOU   uu,g,8*rU
+ ...61c: aff2fea8             STOU   aa,g,8*rA
+ ...620: 3dfff403             SR     t,ll,3
+ ...624: affffea0             STOU   t,g,8*rL
+ ...628: 3dfff303             SR     t,gg,3
+ ...62c: affffe98             STOU   t,g,8*rG
+ ...630: 3bffe603             SLU    t,zz,3
+ ...634: 8ee2feff             LDOU   x,g,t
+ ...638: f0xxxxxx             JMP    XDone
+                   
+ ...63c: 4ae7xxxx  Put        BNZ    yy,Error
+ ...640: 33ffe820             CMPU   t,xx,32
+ ...644: 48ffxxxx             BNN     t,Error
+ ...648: 33ffe808             CMPU   t,xx,rC
+ ...64c: 40ffxxxx             BN     t,PutOK
+ ...650: 33ffe816             CMPU   t,xx,rF
+ ...654: 40ffxxxx             BN     t,1F
+ ...658: aee0fee3  PutOK      STOU   z,g,xxx
+ ...65c: f0xxxxxx             JMP    Update
+ ...660: 33ffe813  1H         CMPU   t,xx,rG
+ ...664: 40ffxxxx             BN     t,Error
+ ...668: 25ffe814             SUB    t,xx,rL
+ ...66c: 54ffxxxx             PBP    t,PutA
+ ...670: 40ffxxxx             BN     t,PutG
+ ...674: 3be0e003  PutL       SLU    z,z,3     \S98, PUT rL
+ ...678: 32ffe0f4             CMPU   t,z,ll
+ ...67c: 60f4ffe0             CSN    ll,t,z
+ ...680: f0xxxxxx             JMP    Update
+($213=#00000000    0H    GREG   #40000
+         00040000)
+ ...684: 32ffe0d5  PutA       CMPU   t,z,0B    \S100, PUT rA
+ ...688: 48ffxxxx             BNN    t,Error
+ ...68c: c1f2e000             SET    aa,z
+ ...690: f0xxxxxx             JMP    Update
+ ...694: 3fffe008  PutG       SRU    t,z,8
+ ...698: 4affxxxx             BNZ    t,Error
+ ...69c: 33ffe020             CMPU   t,z,32
+ ...6a0: 40ffxxxx             BN     t,Error
+ ...6a4: 3be0e003             SLU    z,z,3
+ ...6a8: 32ffe0f4             CMPU   t,z,ll
+ ...6ac: 40ffxxxx             BN     t,Error
+ ...6b0: f0xxxxxx             JMP    2F
+ ...6b4: 27f3f308  1H         SUBU   gg,gg,8
+ ...6b8: b400fef3             STCO   0,g,gg
+ ...6bc: 32ffe0f3  2H         CMPU   t,z,gg
+ ...6c0: 51fffffd             PBN    t,1B
+ ...6c4: c1f3e000             SET    gg,z
+ ...6c8: f0xxxxxx             JMP    Update
+                   
+ ...6cc: 3bffeb28  Resume     SLU    t,inst,40    \S125
+ ...6d0: 4affxxxx             BNZ    t,Error
+ ...6d4: 8fecfec0             LDOU   inst_ptr,g,8*rW
+ ...6d8: 8fe2fec8             LDOU   x,g,8*rX
+ ...6dc: 40e2xxxx             BN     x,Update
+ ...6e0: 3fe8e238             SRU    xx,x,56
+ ...6e4: 27ffe802             SUBU   t,xx,2
+ ...6e8: 48ffxxxx             BNN    t,1F
+ ...6ec: 52e8xxxx             PBZ    xx,2F
+ ...6f0: 3fe1e21c             SRU    y,x,28   rop=1 (RESUME_CONT)
+ ...6f4: c9e1e10f             AND    y,y,#f
+ ...6f8: e3e00001             SET    z,1
+ ...6fc: 3ae0e0e1             SLU    z,z,y
+ ...700: efe070cf             ANDNL  z,#70cf
+ ...704: 4ae0xxxx             BNZ    z,Error
+ ...708: 44ffxxxx  1H         BP     t,Error
+ ...70c: 3fffe20d             SRU    t,x,13
+ ...710: c8ffffdc             AND    t,t,c255
+ ...714: 32e1fff4             CMPU   y,t,ll
+ ...718: 40e1xxxx             BN     y,2F
+ ...71c: 32e1fff3             CMPU   y,t,gg
+ ...720: 40e1xxxx             BN     y,Error
+ ...724: ddffe208  2H         MOR    t,x,#8
+ ...728: 33fffff9             CMPU   t,t,#F9  RESUME
+ ...72c: 42ffxxxx             BZ     t,Error
+ ...730: 34ea00e8             NEG    resuming,xx
+ ...734: 69eaea01             CSNN   resuming,resuming,1
+ ...738: f0xxxxxx             JMP    Update
+                   
+ ...73c: 4ae8xxxx  Sync       BNZ    xx,Error
+ ...740: 33ffe504             CMPU   t,yz,4
+ ...744: 48ffxxxx             BNN    t,Error
+ ...748: f0xxxxxx             JMP    Update
+                   
+ ...74c: e3e80000  Trip       SET    xx,0
+ ...750: f0xxxxxx             JMP    TakeTrip
+                   
+ ...754: afecfee0  Trap       STOU   inst_ptr,g,8*rWW
+($212=#80000000    0H    GREG   #8000000000000000
+         00000000)
+ ...758: 22ffebd4             ADDU   t,inst,0B
+ ...75c: affffee8             STOU   t,g,8*rXX
+ ...760: afe1fef0             STOU   y,g,8*rYY
+ ...764: afe0fef8             STOU   z,g,8*rZZ
+ ...768: 3fe1eb06             SRU    y,inst,6
+ ...76c: 33ffe12c             CMPU   t,y,4*11
+ ...770: 48ffxxxx             BNN    t,Error
+ ...774: 8efffedc             LDOU   t,g,c255
+($211=#00000000    0H    GREG  @+4
+         0000077c)
+ ...778: 9ee1d3e1             GO     y,0B,y
+ ...77c: f0xxxxxx             JMP    SimHalt
+ ...780: f0xxxxxx             JMP    SimFopen
+ ...784: f0xxxxxx             JMP    SimFclose
+ ...788: f0xxxxxx             JMP    SimFread
+ ...78c: f0xxxxxx             JMP    SimFgets
+ ...790: f0xxxxxx             JMP    SimFgetws
+ ...794: f0xxxxxx             JMP    SimFwrite
+ ...798: f0xxxxxx             JMP    SimFputs
+ ...79c: f0xxxxxx             JMP    SimFputws
+ ...7a0: f0xxxxxx             JMP    SimFseek
+ ...7a4: f0xxxxxx             JMP    SimFtell
+                   
+ ...7a8: fe000004  :GetArgs   GET   $0,rJ
+ ...7ac: c1e1ff00             SET   y,t
+ ...7b0: c103ff00             SET   arg,t
+ ...7b4: f302fe53             PUSHJ res,MemFind
+ ...7b8: 8fe00200             LDOU  z,res,0        z = virtual address of buffer
+ ...7bc: c103e000             SET   arg,z
+ ...7c0: f302fe50             PUSHJ res,MemFind
+ ...7c4: c1e20200             SET   x,res          x = physical address of buffer
+ ...7c8: ade2fc00             STO   x,IOArgs
+ ...7cc: e3e81000             SET   xx,Mem:Chunk
+ ...7d0: c8e6e2f7             AND   zz,x,Mem:mask
+ ...7d4: 24e8e8e6             SUB   xx,xx,zz       xx = bytes from x to chunk end
+ ...7d8: 2303e108             ADDU  arg,y,8
+ ...7dc: f302fe49             PUSHJ res,MemFind
+ ...7e0: 8fe60200             LDOU  zz,res,0       zz = size of buffer
+ ...7e4: afe6fc08             STOU  zz,IOArgs+8
+ ...7e8: f6040000             PUT   rJ,$0
+ ...7ec: f8000000             POP
+                   
+($210=#00000000               GREG  @
+         000007f0)
+ ...7f0: 23fffc00  :SimInst   LDA   t,IOArgs
+ ...7f4: f0xxxxxx             JMP   DoInst
+ ...7f8: 23fffc00  SimFinish  LDA   t,IOArgs
+ ...7fc: f400xxxx  SimFclose  GETA  $0,TrapDone
+ ...800: f6180000  :DoInst    PUT   rW,$0
+ ...804: f61900eb             PUT   rX,inst
+ ...808: f9000000             RESUME
+                   
+ ...80c: f300ffe7  SimFopen   PUSHJ 0,GetArgs
+ ...810: 22e8f9f8             ADDU  xx,Mem:alloc,Mem:nodesize
+ ...814: afe8fc00             STOU  xx,IOArgs   % we'll copy the file name here
+ ...818: c1e2e800             SET   x,xx
+ ...81c: c103e000  1H         SET   arg,z
+ ...820: f302fe38             PUSHJ res,MemFind
+ ...824: 83ff0200             LDBU  t,res,0
+ ...828: a3ffe200             STBU  t,x,0
+ ...82c: e7e20001             INCL  x,1
+ ...830: e7e00001             INCL  z,1
+ ...834: 5bfffffa             PBNZ  t,1B
+ ...838: 9f00d200             GO    $0,SimInst
+ ...83c: b500e200  3H         STCO  0,x,0     % clean up the copied string
+ ...840: 32e0e8e2             CMPU  z,xx,x
+ ...844: 25e2e208             SUB   x,x,8
+ ...848: 51e0fffd             PBN   z,3B
+ ...84c: f0xxxxxx             JMP   TrapDone
+                   
+ ...850: adfffe38  TrapDone   STO    t,g,8*rBB    "RESUME 1" works this way
+ ...854: acfffedc             STO    t,g,c255
+ ...858: f0xxxxxx             JMP    Update
+                   
+ ...85c: f300ffd3  SimFread   PUSHJ  0,GetArgs
+ ...860: c1e1e600             SET    y,zz   number of bytes to read
+ ...864: 30ffe8e1  1H         CMP    t,xx,y
+ ...868: 59ffffe4             PBNN   t,SimFinish
+ ...86c: ade8fc08             STO    xx,IOArgs+8  oops, we must cross chunk bdry
+ ...870: 24e1e1e8             SUB    y,y,xx
+ ...874: 9f00d200             GO     $0,SimInst
+ ...878: 40ffxxxx             BN     t,1F
+ ...87c: 20e0e0e8             ADD    z,z,xx
+ ...880: c103e000             SET    arg,z
+ ...884: f302fe1f             PUSHJ  res,MemFind
+ ...888: af02fc00             STOU   res,IOArgs
+ ...88c: ade1fc08             STO    y,IOArgs+8
+ ...890: 21e8f701             ADD    xx,Mem:mask,1
+ ...894: f1fffff4             JMP    1B
+ ...898: 24ffffe1  1H         SUB    t,t,y
+ ...89c: f1ffffed             JMP    TrapDone
+                   
+ ...8a0: f300ffc2  SimFgets   PUSHJ  0,GetArgs
+ ...8a4: 30ffe8e6             CMP    t,xx,zz
+ ...8a8: 59ffffd4             PBNN   t,SimFinish     easy if all in one chunk
+ ...8ac: c1e1e600             SET    y,zz  remaining buf size
+ ...8b0: e3e70000             SET    yy,0  bytes successfully read so far
+ ...8b4: 21ffe801  1H         ADD    t,xx,1
+ ...8b8: adfffc08             STO    t,IOArgs+8   null character spills off end
+ ...8bc: 9f00d200             GO     $0,SimInst
+ ...8c0: 41ffffe4             BN     t,TrapDone
+ ...8c4: 20e7e7ff             ADD    yy,yy,t
+ ...8c8: 3000ffe8             CMP    $0,t,xx
+ ...8cc: c1ffe700             SET    t,yy
+ ...8d0: 5b00ffe0             PBNZ   $0,TrapDone
+ ...8d4: 22e0e0e8             ADDU   z,z,xx
+ ...8d8: c103e000             SET    arg,z
+ ...8dc: f302fe09             PUSHJ  res,MemFind
+ ...8e0: 27e2e201             SUBU   x,x,1
+ ...8e4: 82ffe2e8             LDBU   t,x,xx      look at last byte read
+ ...8e8: 31ffff0a             CMP    t,t,#0a     is it newline?
+ ...8ec: 42ffxxxx             BZ     t,1F
+ ...8f0: 24e1e1e8             SUB    y,y,xx
+ ...8f4: c1e20200             SET    x,res
+ ...8f8: afe2fc00             STOU   x,IOArgs
+ ...8fc: ade1fc08             STO    y,IOArgs+8
+ ...900: 21e8f701             ADD    xx,Mem:mask,1
+ ...904: 30ffe8e1             CMP    t,xx,y
+ ...908: 41ffffeb             BN     t,1B
+ ...90c: 9f00d200             GO     $0,SimInst
+ ...910: 41ffffd0             BN     t,TrapDone
+ ...914: 20ffe7ff  2H         ADD    t,yy,t
+ ...918: f1ffffce             JMP    TrapDone
+ ...91c: e3ff0000  1H         SET    t,0
+ ...920: a3ff0200             STBU   t,res,0
+ ...924: f1fffffc             JMP    2B
+                   
+ ...928: f300ffa0  SimFgetws  PUSHJ  0,GetArgs
+ ...92c: 20e1e6e6             ADD    y,zz,zz  remaining buf size (bytes)
+ ...930: 30ffe8e1             CMP    t,xx,y
+ ...934: 59ffffb1             PBNN   t,SimFinish     easy if all in one chunk
+ ...938: e3e70000             SET    yy,0  wydes successfully read so far
+ ...93c: 21e6e803  1H         ADD    zz,xx,3
+ ...940: 3de6e601             SR     zz,zz,1        wydes in current chunk, plus 1
+ ...944: ade6fc08             STO    zz,IOArgs+8   null character spills off end
+ ...948: 9f00d200             GO     $0,SimInst
+ ...94c: 41ffffc1             BN     t,TrapDone
+ ...950: 22e7e7ff             ADDU   yy,yy,t
+ ...954: 25e6e601             SUB    zz,zz,1
+ ...958: 3000ffe6             CMP    $0,t,zz
+ ...95c: c1ffe700             SET    t,yy
+ ...960: 5b00ffbc             PBNZ   $0,TrapDone
+ ...964: 20e0e0e8             ADD    z,z,xx
+ ...968: c103e000             SET    arg,z
+ ...96c: f302fde5             PUSHJ  res,MemFind
+ ...970: 27e2e202             SUBU   x,x,2
+ ...974: 86ffe2e8             LDWU   t,x,xx      look at last wyde read
+ ...978: 31ffff0a             CMP    t,t,#0a     is it newline?
+ ...97c: 42ffxxxx             BZ     t,1F
+ ...980: 24e1e1e8             SUB    y,y,xx
+ ...984: c1e20200             SET    x,res
+ ...988: afe2fc00             STOU   x,IOArgs
+ ...98c: 3dffe101             SR     t,y,1
+ ...990: adfffc08             STO    t,IOArgs+8
+ ...994: 21e8f701             ADD    xx,Mem:mask,1
+ ...998: cbe1e101             ANDN   y,y,1
+ ...99c: 30ffe8e1             CMP    t,xx,y
+ ...9a0: 41ffffe7             BN     t,1B
+ ...9a4: 9f00d200             GO     $0,SimInst
+ ...9a8: 41ffffaa             BN     t,TrapDone
+ ...9ac: 20ffe7ff  2H         ADD    t,yy,t
+ ...9b0: f1ffffa8             JMP    TrapDone
+ ...9b4: e3ff0000  1H         SET    t,0
+ ...9b8: a7ff0200             STWU   t,res,0
+ ...9bc: f1fffffc             JMP    2B
+                   
+(000000000000085c) SimFwrite  IS     SimFread    yes it works!
+                   
+ ...9c0: e3e80000  SimFputs   SET    xx,0       this many bytes written
+ ...9c4: c1e0ff00             SET    z,t        virtual address of string
+ ...9c8: c103e000  1H         SET    arg,z
+ ...9cc: f302fdcd             PUSHJ  res,MemFind
+ ...9d0: c1ff0200             SET    t,res      physical address of string
+ ...9d4: 9f00db00             GO     $0,DoInst
+ ...9d8: 41ffff9e             BN     t,TrapDone
+ ...9dc: 42ffxxxx             BZ     t,1F
+ ...9e0: 20e8e8ff             ADD    xx,xx,t
+ ...9e4: 22e0e0ff             ADDU   z,z,t
+ ...9e8: c8ffe0f7             AND    t,z,Mem:mask
+ ...9ec: 43fffff7             BZ     t,1B
+ ...9f0: c1ffe800  1H         SET    t,xx
+ ...9f4: f1ffff97             JMP    TrapDone
+                   
+ ...9f8: e3e80000  SimFputws  SET    xx,0       this many wydes written
+ ...9fc: c1e0ff00             SET    z,t        virtual address of string
+ ...a00: c103e000  1H         SET    arg,z
+ ...a04: f302fdbf             PUSHJ  res,MemFind
+ ...a08: c1ff0200             SET    t,res      physical address of string
+ ...a0c: 9f00db00             GO     $0,DoInst
+ ...a10: 41ffff90             BN     t,TrapDone
+ ...a14: 42ffxxxx             BZ     t,1F
+ ...a18: 20e8e8ff             ADD    xx,xx,t
+ ...a1c: 28e0ffe0             2ADDU  z,t,z
+ ...a20: c8ffe0f7             AND    t,z,Mem:mask
+ ...a24: 43fffff7             BZ     t,1B
+ ...a28: c1ffe800  1H         SET    t,xx
+ ...a2c: f1ffff89             JMP    TrapDone
+                   
+(00000000000007fc) SimFseek   IS    SimFclose
+(00000000000007fc) SimFtell   IS    SimFclose
+                   
+($209=#00000000      GREG @
+         00000a30)
+ ...a30: 5761726e  1H BYTE "Warning: ",0
+ ...a34: 696e673a
+ ...a38: 2000    
+ ...a3a:     2061  2H BYTE " at location ",0
+ ...a3c: 74206c6f
+ ...a40: 63617469
+ ...a44: 6f6e2000
+ ...a48: 0a00      3H BYTE #a,0
+ ...a4a:     5452  T0 BYTE "TRIP",0
+ ...a4c: 495000  
+ ...a4f:       69  T1 BYTE "integer divide check",0
+ ...a50: 6e746567
+ ...a54: 65722064
+ ...a58: 69766964
+ ...a5c: 65206368
+ ...a60: 65636b00
+ ...a64: 696e7465  T2 BYTE "integer overflow",0
+ ...a68: 67657220
+ ...a6c: 6f766572
+ ...a70: 666c6f77
+ ...a74: 00      
+ ...a75:   666c6f  T3 BYTE "float-to-fix overflow",0
+ ...a78: 61742d74
+ ...a7c: 6f2d6669
+ ...a80: 78206f76
+ ...a84: 6572666c
+ ...a88: 6f7700  
+ ...a8b:       69  T4 BYTE "invalid floating point operation",0
+ ...a8c: 6e76616c
+ ...a90: 69642066
+ ...a94: 6c6f6174
+ ...a98: 696e6720
+ ...a9c: 706f696e
+ ...aa0: 74206f70
+ ...aa4: 65726174
+ ...aa8: 696f6e00
+ ...aac: 666c6f61  T5 BYTE "floating point overflow",0
+ ...ab0: 74696e67
+ ...ab4: 20706f69
+ ...ab8: 6e74206f
+ ...abc: 76657266
+ ...ac0: 6c6f7700
+ ...ac4: 666c6f61  T6 BYTE "floating point underflow",0
+ ...ac8: 74696e67
+ ...acc: 20706f69
+ ...ad0: 6e742075
+ ...ad4: 6e646572
+ ...ad8: 666c6f77
+ ...adc: 00      
+ ...add:   666c6f  T7 BYTE "floating point division by zero",0
+ ...ae0: 6174696e
+ ...ae4: 6720706f
+ ...ae8: 696e7420
+ ...aec: 64697669
+ ...af0: 73696f6e
+ ...af4: 20627920
+ ...af8: 7a65726f
+ ...afc: 00      
+ ...afd:   666c6f  T8 BYTE "floating point inexact",0
+ ...b00: 6174696e
+ ...b04: 6720706f
+ ...b08: 696e7420
+ ...b0c: 696e6578
+ ...b10: 61637400
+ ...b18: 00000000  TripType OCTA T0,T1,T2,T3,T4,T5,T6,T7,T8
+ ...b1c: 00000a4a
+ ...b20: 00000000
+ ...b24: 00000a4f
+ ...b28: 00000000
+ ...b2c: 00000a64
+ ...b30: 00000000
+ ...b34: 00000a75
+ ...b38: 00000000
+ ...b3c: 00000a8b
+ ...b40: 00000000
+ ...b44: 00000aac
+ ...b48: 00000000
+ ...b4c: 00000ac4
+ ...b50: 00000000
+ ...b54: 00000add
+ ...b58: 00000000
+ ...b5c: 00000afd
+ ...b60: 31ffe601  SimHalt    CMP   t,zz,1
+ ...b64: 42ebxxxx             BZ    inst,Exit  t=0 on normal exit
+ ...b68: 4affxxxx             BNZ   t,Error
+ ...b6c: 33ffed90             CMPU  t,loc,#90
+ ...b70: 48ffxxxx             BNN   t,Error    Halt 1 from loc<#90 gives warning
+ ...b74: 23ffd100             LDA   t,1B
+ ...b78: 00000702             TRAP  0,Fputs,StdErr
+ ...b7c: 3de2ed01             SR    x,loc,1
+ ...b80: 23ffd1e8             LDA   t,TripType
+ ...b84: 8effffe2             LDOU  t,t,x
+ ...b88: 00000702             TRAP  0,Fputs,StdErr
+ ...b8c: 23ffd10a             LDA   t,2B
+ ...b90: 00000702             TRAP  0,Fputs,StdErr
+ ...b94: 8fe2fec0             LDOU  x,g,8*rW
+ ...b98: 27e2e204             SUBU  x,x,4
+ ...b9c: 3f03e220             SRU   arg,x,32
+ ...ba0: f202xxxx             PUSHJ res,OutTetra
+ ...ba4: c103e200             SET   arg,x
+ ...ba8: f202xxxx             PUSHJ res,OutTetra
+ ...bac: 23ffd118             LDA   t,3B
+ ...bb0: 00000702             TRAP  0,Fputs,StdErr
+ ...bb4: 8efffedc             LDOU  t,g,c255
+ ...bb8: f1ffff26             JMP   TrapDone
+                   
+ ...bbc: 35ff0016  Error      NEG    t,22       catch-22
+ ...bc0: 00000000  Exit       TRAP   0,Halt,0
+                   
+($001)             s IS $1
+($208=#00080004    0H GREG #0008000400020001
+         00020001)
+ ...bc4: dcff00d0  :OutTetra MOR t,$0,0B
+ ...bc8: 3b01ff04       SLU s,t,4
+ ...bcc: c6ff01ff       XOR t,s,t
+($207=#0f0f0f0f    0H GREG #0f0f0f0f0f0f0f0f
+         0f0f0f0f)
+ ...bd0: c8ffffcf       AND t,t,0B
+($206=#06060606    0H GREG #0606060606060606
+         06060606)
+ ...bd4: 22ffffce       ADDU t,t,0B
+($205=#00000027    0H GREG #0000002700000000
+         00000000)
+ ...bd8: dc01cdff       MOR s,0B,t
+($204=#2a2a2a2a    0H GREG #2a2a2a2a2a2a2a2a
+         2a2a2a2a)
+ ...bdc: 22ffffcc       ADDU t,t,0B
+ ...be0: 2201ff01       ADDU s,t,s
+ ...be4: ae01fedc       STOU s,g,c255
+ ...be8: f4ffxxxx       GETA t,OctaArgs
+ ...bec: 00000602       TRAP 0,Fwrite,StdErr
+ ...bf0: f8000000       POP  0
+                   
+(00000000000017fc) O   IS  Done-4
+                              LOC    Info
+0000000000001000:   JMP Trap+@-O; BYTE 0,5,0,#0a  TRAP
+ ...000: f1fffbd6
+ ...004: 0005000a
+ ...008: 01e2e1e0   FCMP x,y,z; BYTE 0,1,0,#2a  FCMP
+ ...00c: 0001002a
+ ...010: 02e2e1e0   FUN x,y,z; BYTE 0,1,0,#2a  FUN
+ ...014: 0001002a
+ ...018: 03e2e1e0   FEQL x,y,z; BYTE 0,1,0,#2a  FEQL
+ ...01c: 0001002a
+ ...020: 04e2e1e0   FADD x,y,z; BYTE 0,4,0,#2a  FADD
+ ...024: 0004002a
+ ...028: 05e200e0   FIX  x,0,z; BYTE 0,4,0,#26  FIX
+ ...02c: 00040026
+ ...030: 06e2e1e0   FSUB x,y,z; BYTE 0,4,0,#2a  FSUB
+ ...034: 0004002a
+ ...038: 07e200e0   FIXU x,0,z; BYTE 0,4,0,#26  FIXU
+ ...03c: 00040026
+ ...040: 08e200e0   FLOT x,0,z; BYTE 0,4,0,#26  FLOT
+ ...044: 00040026
+ ...048: 08e200e0   FLOT x,0,z; BYTE 0,4,0,#25  FLOTI
+ ...04c: 00040025
+ ...050: 0ae200e0   FLOTU x,0,z; BYTE 0,4,0,#26  FLOTU
+ ...054: 00040026
+ ...058: 0ae200e0   FLOTU x,0,z; BYTE 0,4,0,#25  FLOTUI
+ ...05c: 00040025
+ ...060: 0ce200e0   SFLOT x,0,z; BYTE 0,4,0,#26  SFLOT
+ ...064: 00040026
+ ...068: 0ce200e0   SFLOT x,0,z; BYTE 0,4,0,#25  SFLOTI
+ ...06c: 00040025
+ ...070: 0ee200e0   SFLOTU x,0,z; BYTE 0,4,0,#26  SFLOTU
+ ...074: 00040026
+ ...078: 0ee200e0   SFLOTU x,0,z; BYTE 0,4,0,#25  SFLOTUI
+ ...07c: 00040025
+ ...080: 10e2e1e0   FMUL x,y,z; BYTE 0,4,0,#2a  FMUL
+ ...084: 0004002a
+ ...088: 11e2e1e0   FCMPE x,y,z; BYTE 0,4,rE,#2a  FCMPE
+ ...08c: 0004022a
+ ...090: 12e2e1e0   FUNE x,y,z; BYTE 0,1,rE,#2a  FUNE
+ ...094: 0001022a
+ ...098: 13e2e1e0   FEQLE x,y,z; BYTE 0,4,rE,#2a  FEQLE
+ ...09c: 0004022a
+ ...0a0: 14e2e1e0   FDIV x,y,z; BYTE 0,40,0,#2a  FDIV
+ ...0a4: 0028002a
+ ...0a8: 15e200e0   FSQRT x,0,z; BYTE 0,40,0,#26  FSQRT
+ ...0ac: 00280026
+ ...0b0: 16e2e1e0   FREM x,y,z; BYTE 0,4,0,#2a  FREM
+ ...0b4: 0004002a
+ ...0b8: 17e200e0   FINT x,0,z; BYTE 0,4,0,#26  FINT
+ ...0bc: 00040026
+ ...0c0: 18e2e1e0   MUL x,y,z; BYTE 0,10,0,#2a  MUL
+ ...0c4: 000a002a
+ ...0c8: 18e2e1e0   MUL x,y,z; BYTE 0,10,0,#29  MULI
+ ...0cc: 000a0029
+ ...0d0: f1fffae8   JMP MulU+@-O; BYTE 0,10,0,#2a  MULU
+ ...0d4: 000a002a
+ ...0d8: f1fffae8   JMP MulU+@-O; BYTE 0,10,0,#29  MULUI
+ ...0dc: 000a0029
+ ...0e0: f1fffaec   JMP Div+@-O; BYTE 0,60,0,#2a  DIV
+ ...0e4: 003c002a
+ ...0e8: f1fffaec   JMP Div+@-O; BYTE 0,60,0,#29  DIVI
+ ...0ec: 003c0029
+ ...0f0: f1fffaee   JMP DivU+@-O; BYTE 0,60,rD,#2a  DIVU
+ ...0f4: 003c012a
+ ...0f8: f1fffaee   JMP DivU+@-O; BYTE 0,60,rD,#29  DIVUI
+ ...0fc: 003c0129
+ ...100: 20e2e1e0   ADD x,y,z; BYTE 0,1,0,#2a  ADD
+ ...104: 0001002a
+ ...108: 20e2e1e0   ADD x,y,z; BYTE 0,1,0,#29  ADDI
+ ...10c: 00010029
+ ...110: 22e2e1e0   ADDU x,y,z; BYTE 0,1,0,#2a  ADDU
+ ...114: 0001002a
+ ...118: 22e2e1e0   ADDU x,y,z; BYTE 0,1,0,#29  ADDUI
+ ...11c: 00010029
+ ...120: 24e2e1e0   SUB x,y,z; BYTE 0,1,0,#2a  SUB
+ ...124: 0001002a
+ ...128: 24e2e1e0   SUB x,y,z; BYTE 0,1,0,#29  SUBI
+ ...12c: 00010029
+ ...130: 26e2e1e0   SUBU x,y,z; BYTE 0,1,0,#2a  SUBU
+ ...134: 0001002a
+ ...138: 26e2e1e0   SUBU x,y,z; BYTE 0,1,0,#29  SUBUI
+ ...13c: 00010029
+ ...140: 28e2e1e0   2ADDU x,y,z; BYTE 0,1,0,#2a  2ADDU
+ ...144: 0001002a
+ ...148: 28e2e1e0   2ADDU x,y,z; BYTE 0,1,0,#29  2ADDUI
+ ...14c: 00010029
+ ...150: 2ae2e1e0   4ADDU x,y,z; BYTE 0,1,0,#2a  4ADDU
+ ...154: 0001002a
+ ...158: 2ae2e1e0   4ADDU x,y,z; BYTE 0,1,0,#29  4ADDUI
+ ...15c: 00010029
+ ...160: 2ce2e1e0   8ADDU x,y,z; BYTE 0,1,0,#2a  8ADDU
+ ...164: 0001002a
+ ...168: 2ce2e1e0   8ADDU x,y,z; BYTE 0,1,0,#29  8ADDUI
+ ...16c: 00010029
+ ...170: 2ee2e1e0   16ADDU x,y,z; BYTE 0,1,0,#2a  16ADDU
+ ...174: 0001002a
+ ...178: 2ee2e1e0   16ADDU x,y,z; BYTE 0,1,0,#29  16ADDUI
+ ...17c: 00010029
+ ...180: 30e2e1e0   CMP x,y,z; BYTE 0,1,0,#2a  CMP
+ ...184: 0001002a
+ ...188: 30e2e1e0   CMP x,y,z; BYTE 0,1,0,#29  CMPI
+ ...18c: 00010029
+ ...190: 32e2e1e0   CMPU x,y,z; BYTE 0,1,0,#2a  CMPU
+ ...194: 0001002a
+ ...198: 32e2e1e0   CMPU x,y,z; BYTE 0,1,0,#29  CMPUI
+ ...19c: 00010029
+ ...1a0: 34e200e0   NEG x,0,z; BYTE 0,1,0,#26  NEG
+ ...1a4: 00010026
+ ...1a8: 34e200e0   NEG x,0,z; BYTE 0,1,0,#25  NEGI
+ ...1ac: 00010025
+ ...1b0: 36e200e0   NEGU x,0,z; BYTE 0,1,0,#26  NEGU
+ ...1b4: 00010026
+ ...1b8: 36e200e0   NEGU x,0,z; BYTE 0,1,0,#25  NEGUI
+ ...1bc: 00010025
+ ...1c0: 38e2e1e0   SL x,y,z; BYTE 0,1,0,#2a  SL
+ ...1c4: 0001002a
+ ...1c8: 38e2e1e0   SL x,y,z; BYTE 0,1,0,#29  SLI
+ ...1cc: 00010029
+ ...1d0: 3ae2e1e0   SLU x,y,z; BYTE 0,1,0,#2a  SLU
+ ...1d4: 0001002a
+ ...1d8: 3ae2e1e0   SLU x,y,z; BYTE 0,1,0,#29  SLUI
+ ...1dc: 00010029
+ ...1e0: 3ce2e1e0   SR x,y,z; BYTE 0,1,0,#2a  SR
+ ...1e4: 0001002a
+ ...1e8: 3ce2e1e0   SR x,y,z; BYTE 0,1,0,#29  SRI
+ ...1ec: 00010029
+ ...1f0: 3ee2e1e0   SRU x,y,z; BYTE 0,1,0,#2a  SRU
+ ...1f4: 0001002a
+ ...1f8: 3ee2e1e0   SRU x,y,z; BYTE 0,1,0,#29  SRUI
+ ...1fc: 00010029
+ ...200: 41e2fafc   BN x,BTaken+@-O; BYTE 0,1,0,#50  BN
+ ...204: 00010050
+ ...208: 41e2fafc   BN x,BTaken+@-O; BYTE 0,1,0,#50  BNB
+ ...20c: 00010050
+ ...210: 43e2fafc   BZ x,BTaken+@-O; BYTE 0,1,0,#50  BZ
+ ...214: 00010050
+ ...218: 43e2fafc   BZ x,BTaken+@-O; BYTE 0,1,0,#50  BZB
+ ...21c: 00010050
+ ...220: 45e2fafc   BP x,BTaken+@-O; BYTE 0,1,0,#50  BP
+ ...224: 00010050
+ ...228: 45e2fafc   BP x,BTaken+@-O; BYTE 0,1,0,#50  BPB
+ ...22c: 00010050
+ ...230: 47e2fafc   BOD x,BTaken+@-O; BYTE 0,1,0,#50  BOD
+ ...234: 00010050
+ ...238: 47e2fafc   BOD x,BTaken+@-O; BYTE 0,1,0,#50  BODB
+ ...23c: 00010050
+ ...240: 49e2fafc   BNN x,BTaken+@-O; BYTE 0,1,0,#50  BNN
+ ...244: 00010050
+ ...248: 49e2fafc   BNN x,BTaken+@-O; BYTE 0,1,0,#50  BNNB
+ ...24c: 00010050
+ ...250: 4be2fafc   BNZ x,BTaken+@-O; BYTE 0,1,0,#50  BNZ
+ ...254: 00010050
+ ...258: 4be2fafc   BNZ x,BTaken+@-O; BYTE 0,1,0,#50  BNZB
+ ...25c: 00010050
+ ...260: 4de2fafc   BNP x,BTaken+@-O; BYTE 0,1,0,#50  BNP
+ ...264: 00010050
+ ...268: 4de2fafc   BNP x,BTaken+@-O; BYTE 0,1,0,#50  BNPB
+ ...26c: 00010050
+ ...270: 4fe2fafc   BEV x,BTaken+@-O; BYTE 0,1,0,#50  BEV
+ ...274: 00010050
+ ...278: 4fe2fafc   BEV x,BTaken+@-O; BYTE 0,1,0,#50  BEVB
+ ...27c: 00010050
+ ...280: 51e2fafd   PBN x,PBTaken+@-O; BYTE 0,3,0,#50  PBN
+ ...284: 00030050
+ ...288: 51e2fafd   PBN x,PBTaken+@-O; BYTE 0,3,0,#50  PBNB
+ ...28c: 00030050
+ ...290: 53e2fafd   PBZ x,PBTaken+@-O; BYTE 0,3,0,#50  PBZ
+ ...294: 00030050
+ ...298: 53e2fafd   PBZ x,PBTaken+@-O; BYTE 0,3,0,#50  PBZB
+ ...29c: 00030050
+ ...2a0: 55e2fafd   PBP x,PBTaken+@-O; BYTE 0,3,0,#50  PBP
+ ...2a4: 00030050
+ ...2a8: 55e2fafd   PBP x,PBTaken+@-O; BYTE 0,3,0,#50  PBPB
+ ...2ac: 00030050
+ ...2b0: 57e2fafd   PBOD x,PBTaken+@-O; BYTE 0,3,0,#50  PBOD
+ ...2b4: 00030050
+ ...2b8: 57e2fafd   PBOD x,PBTaken+@-O; BYTE 0,3,0,#50  PBODB
+ ...2bc: 00030050
+ ...2c0: 59e2fafd   PBNN x,PBTaken+@-O; BYTE 0,3,0,#50  PBNN
+ ...2c4: 00030050
+ ...2c8: 59e2fafd   PBNN x,PBTaken+@-O; BYTE 0,3,0,#50  PBNNB
+ ...2cc: 00030050
+ ...2d0: 5be2fafd   PBNZ x,PBTaken+@-O; BYTE 0,3,0,#50  PBNZ
+ ...2d4: 00030050
+ ...2d8: 5be2fafd   PBNZ x,PBTaken+@-O; BYTE 0,3,0,#50  PBNZB
+ ...2dc: 00030050
+ ...2e0: 5de2fafd   PBNP x,PBTaken+@-O; BYTE 0,3,0,#50  PBNP
+ ...2e4: 00030050
+ ...2e8: 5de2fafd   PBNP x,PBTaken+@-O; BYTE 0,3,0,#50  PBNPB
+ ...2ec: 00030050
+ ...2f0: 5fe2fafd   PBEV x,PBTaken+@-O; BYTE 0,3,0,#50  PBEV
+ ...2f4: 00030050
+ ...2f8: 5fe2fafd   PBEV x,PBTaken+@-O; BYTE 0,3,0,#50  PBEVB
+ ...2fc: 00030050
+ ...300: 60e2e1e0   CSN x,y,z; BYTE 0,1,0,#3a  CSN
+ ...304: 0001003a
+ ...308: 60e2e1e0   CSN x,y,z; BYTE 0,1,0,#39  CSNI
+ ...30c: 00010039
+ ...310: 62e2e1e0   CSZ x,y,z; BYTE 0,1,0,#3a  CSZ
+ ...314: 0001003a
+ ...318: 62e2e1e0   CSZ x,y,z; BYTE 0,1,0,#39  CSZI
+ ...31c: 00010039
+ ...320: 64e2e1e0   CSP x,y,z; BYTE 0,1,0,#3a  CSP
+ ...324: 0001003a
+ ...328: 64e2e1e0   CSP x,y,z; BYTE 0,1,0,#39  CSPI
+ ...32c: 00010039
+ ...330: 66e2e1e0   CSOD x,y,z; BYTE 0,1,0,#3a  CSOD
+ ...334: 0001003a
+ ...338: 66e2e1e0   CSOD x,y,z; BYTE 0,1,0,#39  CSODI
+ ...33c: 00010039
+ ...340: 68e2e1e0   CSNN x,y,z; BYTE 0,1,0,#3a  CSNN
+ ...344: 0001003a
+ ...348: 68e2e1e0   CSNN x,y,z; BYTE 0,1,0,#39  CSNNI
+ ...34c: 00010039
+ ...350: 6ae2e1e0   CSNZ x,y,z; BYTE 0,1,0,#3a  CSNZ
+ ...354: 0001003a
+ ...358: 6ae2e1e0   CSNZ x,y,z; BYTE 0,1,0,#39  CSNZI
+ ...35c: 00010039
+ ...360: 6ce2e1e0   CSNP x,y,z; BYTE 0,1,0,#3a  CSNP
+ ...364: 0001003a
+ ...368: 6ce2e1e0   CSNP x,y,z; BYTE 0,1,0,#39  CSNPI
+ ...36c: 00010039
+ ...370: 6ee2e1e0   CSEV x,y,z; BYTE 0,1,0,#3a  CSEV
+ ...374: 0001003a
+ ...378: 6ee2e1e0   CSEV x,y,z; BYTE 0,1,0,#39  CSEVI
+ ...37c: 00010039
+ ...380: 70e2e1e0   ZSN x,y,z; BYTE 0,1,0,#2a  ZSN
+ ...384: 0001002a
+ ...388: 70e2e1e0   ZSN x,y,z; BYTE 0,1,0,#29  ZSNI
+ ...38c: 00010029
+ ...390: 72e2e1e0   ZSZ x,y,z; BYTE 0,1,0,#2a  ZSZ
+ ...394: 0001002a
+ ...398: 72e2e1e0   ZSZ x,y,z; BYTE 0,1,0,#29  ZSZI
+ ...39c: 00010029
+ ...3a0: 74e2e1e0   ZSP x,y,z; BYTE 0,1,0,#2a  ZSP
+ ...3a4: 0001002a
+ ...3a8: 74e2e1e0   ZSP x,y,z; BYTE 0,1,0,#29  ZSPI
+ ...3ac: 00010029
+ ...3b0: 76e2e1e0   ZSOD x,y,z; BYTE 0,1,0,#2a  ZSOD
+ ...3b4: 0001002a
+ ...3b8: 76e2e1e0   ZSOD x,y,z; BYTE 0,1,0,#29  ZSODI
+ ...3bc: 00010029
+ ...3c0: 78e2e1e0   ZSNN x,y,z; BYTE 0,1,0,#2a  ZSNN
+ ...3c4: 0001002a
+ ...3c8: 78e2e1e0   ZSNN x,y,z; BYTE 0,1,0,#29  ZSNNI
+ ...3cc: 00010029
+ ...3d0: 7ae2e1e0   ZSNZ x,y,z; BYTE 0,1,0,#2a  ZSNZ
+ ...3d4: 0001002a
+ ...3d8: 7ae2e1e0   ZSNZ x,y,z; BYTE 0,1,0,#29  ZSNZI
+ ...3dc: 00010029
+ ...3e0: 7ce2e1e0   ZSNP x,y,z; BYTE 0,1,0,#2a  ZSNP
+ ...3e4: 0001002a
+ ...3e8: 7ce2e1e0   ZSNP x,y,z; BYTE 0,1,0,#29  ZSNPI
+ ...3ec: 00010029
+ ...3f0: 7ee2e1e0   ZSEV x,y,z; BYTE 0,1,0,#2a  ZSEV
+ ...3f4: 0001002a
+ ...3f8: 7ee2e1e0   ZSEV x,y,z; BYTE 0,1,0,#29  ZSEVI
+ ...3fc: 00010029
+ ...400: 81e20200   LDB x,res,0; BYTE 1,1,0,#aa  LDB
+ ...404: 010100aa
+ ...408: 81e20200   LDB x,res,0; BYTE 1,1,0,#a9  LDBI
+ ...40c: 010100a9
+ ...410: 83e20200   LDBU x,res,0; BYTE 1,1,0,#aa  LDBU
+ ...414: 010100aa
+ ...418: 83e20200   LDBU x,res,0; BYTE 1,1,0,#a9  LDBUI
+ ...41c: 010100a9
+ ...420: 85e20200   LDW x,res,0; BYTE 1,1,0,#aa  LDW
+ ...424: 010100aa
+ ...428: 85e20200   LDW x,res,0; BYTE 1,1,0,#a9  LDWI
+ ...42c: 010100a9
+ ...430: 87e20200   LDWU x,res,0; BYTE 1,1,0,#aa  LDWU
+ ...434: 010100aa
+ ...438: 87e20200   LDWU x,res,0; BYTE 1,1,0,#a9  LDWUI
+ ...43c: 010100a9
+ ...440: 89e20200   LDT x,res,0; BYTE 1,1,0,#aa  LDT
+ ...444: 010100aa
+ ...448: 89e20200   LDT x,res,0; BYTE 1,1,0,#a9  LDTI
+ ...44c: 010100a9
+ ...450: 8be20200   LDTU x,res,0; BYTE 1,1,0,#aa  LDTU
+ ...454: 010100aa
+ ...458: 8be20200   LDTU x,res,0; BYTE 1,1,0,#a9  LDTUI
+ ...45c: 010100a9
+ ...460: 8de20200   LDO x,res,0; BYTE 1,1,0,#aa  LDO
+ ...464: 010100aa
+ ...468: 8de20200   LDO x,res,0; BYTE 1,1,0,#a9  LDOI
+ ...46c: 010100a9
+ ...470: 8fe20200   LDOU x,res,0; BYTE 1,1,0,#aa  LDOU
+ ...474: 010100aa
+ ...478: 8fe20200   LDOU x,res,0; BYTE 1,1,0,#a9  LDOUI
+ ...47c: 010100a9
+ ...480: 91e20200   LDSF x,res,0; BYTE 1,1,0,#aa  LDSF
+ ...484: 010100aa
+ ...488: 91e20200   LDSF x,res,0; BYTE 1,1,0,#a9  LDSFI
+ ...48c: 010100a9
+ ...490: 93e20200   LDHT x,res,0; BYTE 1,1,0,#aa  LDHT
+ ...494: 010100aa
+ ...498: 93e20200   LDHT x,res,0; BYTE 1,1,0,#a9  LDHTI
+ ...49c: 010100a9
+ ...4a0: f1fffaf3   JMP Cswap+@-O; BYTE 2,2,0,#ba  CSWAP
+ ...4a4: 020200ba
+ ...4a8: f1fffaf3   JMP Cswap+@-O; BYTE 2,2,0,#b9  CSWAPI
+ ...4ac: 020200b9
+ ...4b0: 97e20200   LDUNC x,res,0; BYTE 1,1,0,#aa  LDUNC
+ ...4b4: 010100aa
+ ...4b8: 97e20200   LDUNC x,res,0; BYTE 1,1,0,#a9  LDUNCI
+ ...4bc: 010100a9
+ ...4c0: f1fffcf0   JMP Error+@-O; BYTE 0,1,0,#2a  LDVTS
+ ...4c4: 0001002a
+ ...4c8: f1fffcf0   JMP Error+@-O; BYTE 0,1,0,#29  LDVTSI
+ ...4cc: 00010029
+ ...4d0: fd000000   SWYM 0; BYTE 0,1,0,#0a  PRELD
+ ...4d4: 0001000a
+ ...4d8: fd000000   SWYM 0; BYTE 0,1,0,#09  PRELDI
+ ...4dc: 00010009
+ ...4e0: fd000000   SWYM 0; BYTE 0,1,0,#0a  PREGO
+ ...4e4: 0001000a
+ ...4e8: fd000000   SWYM 0; BYTE 0,1,0,#09  PREGOI
+ ...4ec: 00010009
+ ...4f0: f1fffb00   JMP Go+@-O; BYTE 0,3,0,#2a  GO
+ ...4f4: 0003002a
+ ...4f8: f1fffb00   JMP Go+@-O; BYTE 0,3,0,#29  GOI
+ ...4fc: 00030029
+ ...500: a1e20200   STB x,res,0; BYTE 1,1,0,#9a  STB
+ ...504: 0101009a
+ ...508: a1e20200   STB x,res,0; BYTE 1,1,0,#99  STBI
+ ...50c: 01010099
+ ...510: a3e20200   STBU x,res,0; BYTE 1,1,0,#9a  STBU
+ ...514: 0101009a
+ ...518: a3e20200   STBU x,res,0; BYTE 1,1,0,#99  STBUI
+ ...51c: 01010099
+ ...520: a5e20200   STW x,res,0; BYTE 1,1,0,#9a  STW
+ ...524: 0101009a
+ ...528: a5e20200   STW x,res,0; BYTE 1,1,0,#99  STWI
+ ...52c: 01010099
+ ...530: a7e20200   STWU x,res,0; BYTE 1,1,0,#9a  STWU
+ ...534: 0101009a
+ ...538: a7e20200   STWU x,res,0; BYTE 1,1,0,#99  STWUI
+ ...53c: 01010099
+ ...540: a9e20200   STT x,res,0; BYTE 1,1,0,#9a  STT
+ ...544: 0101009a
+ ...548: a9e20200   STT x,res,0; BYTE 1,1,0,#99  STTI
+ ...54c: 01010099
+ ...550: abe20200   STTU x,res,0; BYTE 1,1,0,#9a  STTU
+ ...554: 0101009a
+ ...558: abe20200   STTU x,res,0; BYTE 1,1,0,#99  STTUI
+ ...55c: 01010099
+ ...560: ade20200   STO x,res,0; BYTE 1,1,0,#9a  STO
+ ...564: 0101009a
+ ...568: ade20200   STO x,res,0; BYTE 1,1,0,#99  STOI
+ ...56c: 01010099
+ ...570: afe20200   STOU x,res,0; BYTE 1,1,0,#9a  STOU
+ ...574: 0101009a
+ ...578: afe20200   STOU x,res,0; BYTE 1,1,0,#99  STOUI
+ ...57c: 01010099
+ ...580: b1e20200   STSF x,res,0; BYTE 1,1,0,#9a  STSF
+ ...584: 0101009a
+ ...588: b1e20200   STSF x,res,0; BYTE 1,1,0,#99  STSFI
+ ...58c: 01010099
+ ...590: b3e20200   STHT x,res,0; BYTE 1,1,0,#9a  STHT
+ ...594: 0101009a
+ ...598: b3e20200   STHT x,res,0; BYTE 1,1,0,#99  STHTI
+ ...59c: 01010099
+ ...5a0: ade80200   STO xx,res,0; BYTE 1,1,0,#8a  STCO
+ ...5a4: 0101008a
+ ...5a8: ade80200   STO xx,res,0; BYTE 1,1,0,#89  STCOI
+ ...5ac: 01010089
+ ...5b0: b7e20200   STUNC x,res,0; BYTE 1,1,0,#9a  STUNC
+ ...5b4: 0101009a
+ ...5b8: b7e20200   STUNC x,res,0; BYTE 1,1,0,#99  STUNCI
+ ...5bc: 01010099
+ ...5c0: fd000000   SWYM 0; BYTE 0,1,0,#0a  SYNCD
+ ...5c4: 0001000a
+ ...5c8: fd000000   SWYM 0; BYTE 0,1,0,#09  SYNCDI
+ ...5cc: 00010009
+ ...5d0: fd000000   SWYM 0; BYTE 0,1,0,#0a  PREST
+ ...5d4: 0001000a
+ ...5d8: fd000000   SWYM 0; BYTE 0,1,0,#09  PRESTI
+ ...5dc: 00010009
+ ...5e0: fd000000   SWYM 0; BYTE 0,1,0,#0a  SYNCID
+ ...5e4: 0001000a
+ ...5e8: fd000000   SWYM 0; BYTE 0,1,0,#09  SYNCIDI
+ ...5ec: 00010009
+ ...5f0: f1fffb03   JMP PushGo+@-O; BYTE 0,3,0,#2a  PUSHGO
+ ...5f4: 0003002a
+ ...5f8: f1fffb03   JMP PushGo+@-O; BYTE 0,3,0,#29  PUSHGOI
+ ...5fc: 00030029
+ ...600: c0e2e1e0   OR x,y,z; BYTE 0,1,0,#2a  OR
+ ...604: 0001002a
+ ...608: c0e2e1e0   OR x,y,z; BYTE 0,1,0,#29  ORI
+ ...60c: 00010029
+ ...610: c2e2e1e0   ORN x,y,z; BYTE 0,1,0,#2a  ORN
+ ...614: 0001002a
+ ...618: c2e2e1e0   ORN x,y,z; BYTE 0,1,0,#29  ORNI
+ ...61c: 00010029
+ ...620: c4e2e1e0   NOR x,y,z; BYTE 0,1,0,#2a  NOR
+ ...624: 0001002a
+ ...628: c4e2e1e0   NOR x,y,z; BYTE 0,1,0,#29  NORI
+ ...62c: 00010029
+ ...630: c6e2e1e0   XOR x,y,z; BYTE 0,1,0,#2a  XOR
+ ...634: 0001002a
+ ...638: c6e2e1e0   XOR x,y,z; BYTE 0,1,0,#29  XORI
+ ...63c: 00010029
+ ...640: c8e2e1e0   AND x,y,z; BYTE 0,1,0,#2a  AND
+ ...644: 0001002a
+ ...648: c8e2e1e0   AND x,y,z; BYTE 0,1,0,#29  ANDI
+ ...64c: 00010029
+ ...650: cae2e1e0   ANDN x,y,z; BYTE 0,1,0,#2a  ANDN
+ ...654: 0001002a
+ ...658: cae2e1e0   ANDN x,y,z; BYTE 0,1,0,#29  ANDNI
+ ...65c: 00010029
+ ...660: cce2e1e0   NAND x,y,z; BYTE 0,1,0,#2a  NAND
+ ...664: 0001002a
+ ...668: cce2e1e0   NAND x,y,z; BYTE 0,1,0,#29  NANDI
+ ...66c: 00010029
+ ...670: cee2e1e0   NXOR x,y,z; BYTE 0,1,0,#2a  NXOR
+ ...674: 0001002a
+ ...678: cee2e1e0   NXOR x,y,z; BYTE 0,1,0,#29  NXORI
+ ...67c: 00010029
+ ...680: d0e2e1e0   BDIF x,y,z; BYTE 0,1,0,#2a  BDIF
+ ...684: 0001002a
+ ...688: d0e2e1e0   BDIF x,y,z; BYTE 0,1,0,#29  BDIFI
+ ...68c: 00010029
+ ...690: d2e2e1e0   WDIF x,y,z; BYTE 0,1,0,#2a  WDIF
+ ...694: 0001002a
+ ...698: d2e2e1e0   WDIF x,y,z; BYTE 0,1,0,#29  WDIFI
+ ...69c: 00010029
+ ...6a0: d4e2e1e0   TDIF x,y,z; BYTE 0,1,0,#2a  TDIF
+ ...6a4: 0001002a
+ ...6a8: d4e2e1e0   TDIF x,y,z; BYTE 0,1,0,#29  TDIFI
+ ...6ac: 00010029
+ ...6b0: d6e2e1e0   ODIF x,y,z; BYTE 0,1,0,#2a  ODIF
+ ...6b4: 0001002a
+ ...6b8: d6e2e1e0   ODIF x,y,z; BYTE 0,1,0,#29  ODIFI
+ ...6bc: 00010029
+ ...6c0: d8e2e1e0   MUX x,y,z; BYTE 0,1,rM,#2a  MUX
+ ...6c4: 0001052a
+ ...6c8: d8e2e1e0   MUX x,y,z; BYTE 0,1,rM,#29  MUXI
+ ...6cc: 00010529
+ ...6d0: dae2e1e0   SADD x,y,z; BYTE 0,1,0,#2a  SADD
+ ...6d4: 0001002a
+ ...6d8: dae2e1e0   SADD x,y,z; BYTE 0,1,0,#29  SADDI
+ ...6dc: 00010029
+ ...6e0: dce2e1e0   MOR x,y,z; BYTE 0,1,0,#2a  MOR
+ ...6e4: 0001002a
+ ...6e8: dce2e1e0   MOR x,y,z; BYTE 0,1,0,#29  MORI
+ ...6ec: 00010029
+ ...6f0: dee2e1e0   MXOR x,y,z; BYTE 0,1,0,#2a  MXOR
+ ...6f4: 0001002a
+ ...6f8: dee2e1e0   MXOR x,y,z; BYTE 0,1,0,#29  MXORI
+ ...6fc: 00010029
+ ...700: c1e2e000   SET x,z; BYTE 0,1,0,#20  SETH
+ ...704: 00010020
+ ...708: c1e2e000   SET x,z; BYTE 0,1,0,#20  SETMH
+ ...70c: 00010020
+ ...710: c1e2e000   SET x,z; BYTE 0,1,0,#20  SETML
+ ...714: 00010020
+ ...718: c1e2e000   SET x,z; BYTE 0,1,0,#20  SETL
+ ...71c: 00010020
+ ...720: 22e2e2e0   ADDU x,x,z; BYTE 0,1,0,#30  INCH
+ ...724: 00010030
+ ...728: 22e2e2e0   ADDU x,x,z; BYTE 0,1,0,#30  INCMH
+ ...72c: 00010030
+ ...730: 22e2e2e0   ADDU x,x,z; BYTE 0,1,0,#30  INCML
+ ...734: 00010030
+ ...738: 22e2e2e0   ADDU x,x,z; BYTE 0,1,0,#30  INCL
+ ...73c: 00010030
+ ...740: c0e2e2e0   OR x,x,z; BYTE 0,1,0,#30  ORH
+ ...744: 00010030
+ ...748: c0e2e2e0   OR x,x,z; BYTE 0,1,0,#30  ORMH
+ ...74c: 00010030
+ ...750: c0e2e2e0   OR x,x,z; BYTE 0,1,0,#30  ORML
+ ...754: 00010030
+ ...758: c0e2e2e0   OR x,x,z; BYTE 0,1,0,#30  ORL
+ ...75c: 00010030
+ ...760: cae2e2e0   ANDN x,x,z; BYTE 0,1,0,#30  ANDNH
+ ...764: 00010030
+ ...768: cae2e2e0   ANDN x,x,z; BYTE 0,1,0,#30  ANDNMH
+ ...76c: 00010030
+ ...770: cae2e2e0   ANDN x,x,z; BYTE 0,1,0,#30  ANDNML
+ ...774: 00010030
+ ...778: cae2e2e0   ANDN x,x,z; BYTE 0,1,0,#30  ANDNL
+ ...77c: 00010030
+ ...780: c1ece500   SET inst_ptr,yz; BYTE 0,1,0,#41  JMP
+ ...784: 00010041
+ ...788: c1ece500   SET inst_ptr,yz; BYTE 0,1,0,#41  JMPB
+ ...78c: 00010041
+ ...790: f1fffb04   JMP PushJ+@-O; BYTE 0,1,0,#60  PUSHJ
+ ...794: 00010060
+ ...798: f1fffb04   JMP PushJ+@-O; BYTE 0,1,0,#60  PUSHJB
+ ...79c: 00010060
+ ...7a0: c1e2e500   SET x,yz; BYTE 0,1,0,#60  GETA
+ ...7a4: 00010060
+ ...7a8: c1e2e500   SET x,yz; BYTE 0,1,0,#60  GETAB
+ ...7ac: 00010060
+ ...7b0: f1fffb90   JMP Put+@-O; BYTE 0,1,0,#02  PUT
+ ...7b4: 00010002
+ ...7b8: f1fffb90   JMP Put+@-O; BYTE 0,1,0,#01  PUTI
+ ...7bc: 00010001
+ ...7c0: f1fffb14   JMP Pop+@-O; BYTE 0,3,rJ,#00  POP
+ ...7c4: 00030400
+ ...7c8: f1fffbb4   JMP Resume+@-O; BYTE 0,5,0,#00  RESUME
+ ...7cc: 00050000
+ ...7d0: f1fffb35   JMP Save+@-O; BYTE 20,1,0,#20  SAVE
+ ...7d4: 14010020
+ ...7d8: f1fffb5a   JMP Unsave+@-O; BYTE 20,1,0,#02  UNSAVE
+ ...7dc: 14010002
+ ...7e0: f1fffbd0   JMP Sync+@-O; BYTE 0,1,0,#01  SYNC
+ ...7e4: 00010001
+ ...7e8: fde2e1e0   SWYM x,y,z; BYTE 0,1,0,#00  SWYM
+ ...7ec: 00010000
+ ...7f0: f1fffb81   JMP Get+@-O; BYTE 0,1,0,#20  GET
+ ...7f4: 00010020
+ ...7f8: f1fffbd4   JMP Trip+@-O; BYTE 0,5,0,#0a  TRIP
+ ...7fc: 0005000a
+                   
+ ...800: c9ffe420  Done       AND    t,f,X_is_dest_bit   % doubly defined but OK
+ ...804: 42ffxxxx             BZ     t,1F
+ ...808: afe2df00  XDone      STOU   x,xptr,0
+ ...80c: feff0015  1H         GET    t,rA
+ ...810: c9ffffff             AND    t,t,#ff
+ ...814: c0dedeff             OR     exc,exc,t
+ ...818: c9ffde05             AND    t,exc,U_BIT+X_BIT  Check for trip, \S123
+ ...81c: 33ffff04             CMPU   t,t,U_BIT
+ ...820: 5affxxxx             PBNZ   t,1F        branch unless underflow is exact
+($203=#00000000    0H    GREG   U_BIT<<8
+         00000400)
+ ...824: c8fff2cb             AND    t,aa,0B
+ ...828: 4affxxxx             BNZ    t,1F        branch if underflow is enabled
+ ...82c: efde0004             ANDNL  exc,U_BIT   ignore U if exact and not enabled
+ ...830: 52dexxxx  1H         PBZ    exc,Update
+ ...834: 3ffff208             SRU    t,aa,8
+ ...838: c8ffffde             AND    t,t,exc
+ ...83c: 52ffxxxx             PBZ    t,4F
+ ...840: e3e80000             SET    xx,0         Initiate a trip, \S124
+ ...844: 3bffff37             SLU    t,t,55
+ ...848: e7e80001  2H         INCL   xx,1
+ ...84c: 3bffff01             SLU    t,t,1
+ ...850: 59fffffe             PBNN   t,2B
+ ...854: e3ff0100             SET    t,#100
+ ...858: 3effffe8             SRU    t,t,xx
+ ...85c: cadedeff             ANDN   exc,exc,t
+ ...860: afecfec0  TakeTrip   STOU   inst_ptr,g,8*rW
+ ...864: 3bece804             SLU    inst_ptr,xx,4
+ ...868: e4eb8000             INCH   inst,#8000
+ ...86c: afebfec8             STOU   inst,g,8*rX
+ ...870: c9ffe480             AND    t,f,Mem_bit
+ ...874: 52ffxxxx             PBZ    t,1F
+ ...878: 22e1e1e0             ADDU   y,y,z
+ ...87c: c1e0e200             SET    z,x
+ ...880: afe1fed0  1H         STOU   y,g,8*rY
+ ...884: afe0fed8             STOU   z,g,8*rZ
+ ...888: 8efffedc             LDOU   t,g,c255
+ ...88c: affffe00             STOU   t,g,8*rB
+ ...890: 8ffffe20             LDOU   t,g,8*rJ
+ ...894: aefffedc             STOU   t,g,c255
+ ...898: c0f2f2de  4H         OR     aa,aa,exc
+($202=#00000008    0H    GREG   #0000000800000004  Update the clocks, \S128
+         00000004)
+ ...89c: dcffe4ca  Update     MOR    t,f,0B      $2^{32}$mems + oops
+ ...8a0: 22efefff             ADDU   cc,cc,t
+ ...8a4: 23f0f001             ADDU   uu,uu,1
+ ...8a8: 27f1f101             SUBU   ii,ii,1
+ ...8ac: 53eafa50  AllDone    PBZ    resuming,Fetch
+ ...8b0: 33ffe9f9             CMPU   t,op,#F9   RESUME
+ ...8b4: 6beaff00             CSNZ   resuming,t,0
+ ...8b8: f1fffa4d             JMP    Fetch
+                   
+ ...8c0: 20000000  OctaArgs   OCTA   Global+8*255,8
+ ...8c4: 000007f8
+ ...8c8: 00000000
+ ...8cc: 00000008
+(0000000000000003) Infile     IS     3
+ ...8d0: 23fbfc10  Main       LDA    Mem:head,Chunk0
+ ...8d4: 22f9fbf8             ADDU   Mem:alloc,Mem:head,Mem:nodesize
+ ...8d8: feff0009             GET    t,rN
+ ...8dc: e7ff0001             INCL   t,1
+ ...8e0: affffe48             STOU   t,g,8*rN
+ ...8e4: 8fff0108             LDOU   t,$1,8      argv[1]
+ ...8e8: affffc00             STOU   t,IOArgs
+ ...8ec: 23fffc00             LDA    t,IOArgs
+ ...8f0: 00000103             TRAP   0,Fopen,Infile
+ ...8f4: 41fffcb2             BN     t,Error
+ ...8f8: f5fffff2  1H         GETA   t,OctaArgs
+ ...8fc: 00000303             TRAP   0,Fread,Infile
+ ...900: 40ffxxxx             BN     t,9F
+ ...904: 8eedfedc             LDOU   loc,g,c255
+ ...908: f5ffffee  2H         GETA   t,OctaArgs
+ ...90c: 00000303             TRAP   0,Fread,Infile
+ ...910: 8ee2fedc             LDOU   x,g,c255
+ ...914: 41fffcaa             BN     t,Error
+ ...918: c103ed00             SET    arg,loc
+ ...91c: 43e2fff7             BZ     x,1B
+ ...920: f302f9f8             PUSHJ  res,MemFind
+ ...924: afe20200             STOU   x,res,0
+ ...928: e7ed0008             INCL   loc,8
+ ...92c: f1fffff7             JMP    2B
+ ...930: 00000203  9H         TRAP   0,Fclose,Infile
+ ...934: 27eded08             SUBU   loc,loc,8
+ ...938: aeedfedc             STOU   loc,g,c255  place to UNSAVE
+ ...93c: 2703ed68             SUBU   arg,loc,8*13
+ ...940: f302f9f0             PUSHJ  res,MemFind
+ ...944: 8fec0200             LDOU   inst_ptr,res,0   Main
+ ...948: e3030090             SET    arg,#90          Get ready to UNSAVE, \S162
+ ...94c: f302f9ed             PUSHJ  res,MemFind
+ ...950: 8be20200             LDTU   x,res,0
+ ...954: e3ea0001             SET    resuming,1       RESUME_AGAIN
+ ...958: 6bece290             CSNZ   inst_ptr,x,#90
+($201=#00000000    0H    GREG   #FB<<24+255      UNSAVE $255
+         fb0000ff)
+ ...95c: afc9fec8             STOU   0B,g,8*rX
+ ...960: c1f3dc00             SET    gg,c255
+ ...964: f1fffa22             JMP    Fetch
+                   
+2000000000000078:   LOC Global+8*rK; OCTA -1
+ ...078: ffffffff
+ ...07c: ffffffff
+ ...068: 80000005   LOC Global+8*rT; OCTA #8000000500000000
+ ...06c: 00000000
+ ...070: 80000006   LOC Global+8*rTT; OCTA #8000000600000000
+ ...074: 00000000
+ ...090: 369c2004   LOC Global+8*rV; OCTA #369c200400000000
+ ...094: 00000000
+                   
+                              LOC    U_Handler
+0000000000000060:             ORL    exc,U_BIT
+ ...060: ebde0004
+ ...064: f00005e7             JMP    Done
+
+Symbol table:
+ AllDone = #00000000000018ac (92)
+ BTaken = #00000000000003ec (83)
+ Chunk0 = #2000000000001010 (9)
+ Cswap = #00000000000003c8 (82)
+ Div = #00000000000003ac (80)
+ DivU = #00000000000003b4 (81)
+ DoInst = #0000000000000800 (117)
+ Done = #0000000000001800 (70)
+ Error = #0000000000000bbc (27)
+ Exit = #0000000000000bc0 (130)
+ Fetch = #00000000000001ec (48)
+ Get = #0000000000000600 (93)
+ GetArgs = #00000000000007a8 (115)
+ GetReg = #000000000000015c (40)
+ Global = #2000000000000000 (4)
+ Go = #00000000000003fc (86)
+ IOArgs = #2000000000001000 (8)
+ Infile = #0000000000000003 (135)
+ Info = #0000000000001000 (69)
+ Install_X = #0000000000000290 (74)
+ Install_Y = #00000000000002f0 (75)
+ Install_Z = #00000000000002b4 (77)
+ Local = #2000000000000800 (6)
+ Main = #00000000000018d0 (1)
+ Mem:Chunk = #0000000000001000 (14)
+ Mem:DATA = #0000000000000010 (23)
+ Mem:KEY = #0000000000000000 (21)
+ Mem:LINK = #0000000000000008 (22)
+ Mem:addr = $000 (15)
+ Mem:alloc = $249 (13)
+ Mem:curkey = $250 (12)
+ Mem:head = $251 (11)
+ Mem:key = $001 (16)
+ Mem:mask = $247 (25)
+ Mem:newlink = $003 (18)
+ Mem:nodesize = $248 (24)
+ Mem:p = $004 (19)
+ Mem:t = $255 (20)
+ Mem:test = $002 (17)
+ MemFind = #0000000000000100 (26)
+ Mem_bit = #0000000000000080 (68)
+ MulU = #000000000000039c (78)
+ O = #00000000000017fc (134)
+ OctaArgs = #00000000000018c0 (133)
+ OutTetra = #0000000000000bc4 (131)
+ PBTaken = #00000000000003f0 (84)
+ Pop = #000000000000044c (89)
+ PushGo = #0000000000000408 (87)
+ PushJ = #000000000000040c (88)
+ Put = #000000000000063c (94)
+ PutA = #0000000000000684 (96)
+ PutG = #0000000000000694 (97)
+ PutL = #0000000000000674 (98)
+ PutOK = #0000000000000658 (95)
+ Rel_addr_bit = #0000000000000040 (67)
+ Resume = #00000000000006cc (99)
+ Save = #00000000000004d0 (90)
+ SimFclose = #00000000000007fc (106)
+ SimFgets = #00000000000008a0 (108)
+ SimFgetws = #0000000000000928 (109)
+ SimFinish = #00000000000007f8 (118)
+ SimFopen = #000000000000080c (105)
+ SimFputs = #00000000000009c0 (111)
+ SimFputws = #00000000000009f8 (112)
+ SimFread = #000000000000085c (107)
+ SimFseek = #00000000000007fc (113)
+ SimFtell = #00000000000007fc (114)
+ SimFwrite = #000000000000085c (110)
+ SimHalt = #0000000000000b60 (104)
+ SimInst = #00000000000007f0 (116)
+ StackLoad = #00000000000001a8 (42)
+ StackRoom = #00000000000001cc (43)
+ StackStore = #0000000000000184 (41)
+ Sync = #000000000000073c (100)
+ T0 = #0000000000000a4a (120)
+ T1 = #0000000000000a4f (121)
+ T2 = #0000000000000a64 (122)
+ T3 = #0000000000000a75 (123)
+ T4 = #0000000000000a8b (124)
+ T5 = #0000000000000aac (125)
+ T6 = #0000000000000ac4 (126)
+ T7 = #0000000000000add (127)
+ T8 = #0000000000000afd (128)
+ TakeTrip = #0000000000001860 (102)
+ Trap = #0000000000000754 (103)
+ TrapDone = #0000000000000850 (119)
+ Trip = #000000000000074c (101)
+ TripType = #0000000000000b18 (129)
+ Unsave = #0000000000000564 (91)
+ Update = #000000000000189c (85)
+ XDest = #0000000000000320 (76)
+ XDone = #0000000000001808 (79)
+ X_is_dest_bit = #0000000000000020 (66)
+ X_is_source_bit = #0000000000000010 (65)
+ Y_is_immed_bit = #0000000000000004 (63)
+ Y_is_source_bit = #0000000000000008 (64)
+ Z_is_immed_bit = #0000000000000001 (61)
+ Z_is_source_bit = #0000000000000002 (62)
+ aa = $242 (35)
+ arg = $003 (30)
+ c255 = $220 (72)
+ c256 = $219 (73)
+ cc = $239 (38)
+ exc = $222 (60)
+ f = $228 (54)
+ g = $254 (5)
+ gg = $243 (34)
+ ii = $241 (36)
+ info = $221 (71)
+ inst = $235 (46)
+ inst_ptr = $236 (45)
+ l = $253 (7)
+ ll = $244 (33)
+ loc = $237 (44)
+ lring_mask = $238 (39)
+ lring_size = #0000000000000100 (3)
+ oo = $245 (32)
+ op = $233 (49)
+ res = $002 (29)
+ resuming = $234 (47)
+ s = $001 (132)
+ ss = $246 (31)
+ t = $255 (2)
+ uu = $240 (37)
+ x = $226 (56)
+ xptr = $223 (59)
+ xx = $232 (50)
+ xxx = $227 (55)
+ y = $225 (57)
+ yy = $231 (51)
+ yz = $229 (53)
+ z = $224 (58)
+ zz = $230 (52)

@@ -1,0 +1,50 @@
+\hsize=29pc
+\vsize=42pc
+\topglue 0.5in
+
+\centerline{\bf TexBook Learning Note---Chapter 18}
+\smallskip
+\centerline{4/22/2009 5:23PM}
+\bigskip
+
+\beginsection Exercise 18.1
+
+\par
+The Fibonacci numbers satisfy $F_n = F_{n-1} + F_{n-2}$, for $n \ge 2$.\par
+The Fibonacci numbers satisfy $F_n = F_{n-1} + F_{n-2}$, $n \ge 2$.\par
+The Fibonacci numbers satisfy $F_n = F_{n-1} + F_{n-2}$,\ $n \ge 2$.\par
+The Fibonacci numbers satisfy $F_n = F_{n-1} + F_{n-2}, n \ge 2$.\par
+The Fibonacci numbers satisfy $F_n = F_{n-1} + F_{n-2}$, \ $n \ge 2$.\par
+
+
+If $x<0$, we have shown that $$y=f(x).$$
+If $x<0,$ we have shown that $$y=f(x).$$
+If $x<0$, we have shown that $$y=f(x)$$.
+
+If $x<0,$ we have shown that $$y=f(x)$$.
+
+\TeX's spacing rules within paragraphs work best when the punctuation are
+
+Don't take operators like $-$ and $+$ out of $\$$'s, and keep commas inside the
+formula if they are truly part of the formula. If a comma or a period or other 
+punctuation mark belong linguistically to the sentense rather than to the formula,
+leave it outside of the $\$$'s.
+
+%$R(n,t)=O(t^{n/2})$, as $t\rarrow 0^{+}$
+{\mathsurround=1pt 
+For $x=a$, $b$, or~$c$}
+
+{\mathsurround=0pt 
+For $x=a$, $b$, or~$c$}
+
+For $x=a, b, or~c$
+
+$x...y$\par
+$x$...$y$\par
+$x\ldots y$\par
+$x\cdots y$\par
+
+%$x$\ldots $y$\par
+%$x$\cdots $y$\par
+
+\bye

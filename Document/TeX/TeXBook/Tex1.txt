@@ -1,0 +1,5 @@
+\show\cs
+\show\thinspace
+
+\centerline{This is a line centered and is {\it italic}.}
+\end

@@ -1,0 +1,18 @@
+the optimum_sorting - minimum number of comparision generally is not achievable
+except some known case ( there may be infinite number of case in which optimum
+is achieved though.)
+
+we can build a algorighm to implement the optimum sorting, but it is not a
+ general algorithm, it need different code for different number of data. if we 
+ can make it in a general way, then we can achieve optimum sorting.
+ 
+i.e. how can we avoid redundant(unnecessary) comparision in a generalized 
+algorithm.
+
+This is also a case to show the overhead of generalization.
+
+suppose we can build a mimumum comparision tree for each n. and sort it use that.
+the overhead of building the tree may make the performance worse.
+
+it is wrong, the lg(n!) is not necessarily a lower boundary, because we may
+not able to get a well balanced tree for some number N.

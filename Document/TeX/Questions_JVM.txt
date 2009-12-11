@@ -1,0 +1,62 @@
+(1). Do you know how to tune JVM options?
+At least the following options can be tuned. It can be changed through command line options when we start JVM. 
+a. Heap Size.
+b. Choose Garbage Collector.
+c. Choose between client and server JIT compiler.
+d. There are also non-standard command options.
+One example to tune heap size is as follows.
+java -Xms256m -Xmx512m
+which set initial Java  heap size to be 256M and maximum Java heap size to be 512M.
+
+(2). Do you know to tune JBoss or other J2EE servers?
+I usually use Oracle Application Server 10g and Tomcat in my daily work. I seldom use JBoss.
+Generally we can tune the application server from the following aspects.
+a. Hardware load balancing - add more servers.
+b. Separate WEB server from Application server.
+c. Application Server parameters tuning. (e.g. turn the debug off in Tomcat)
+d. Tune the JVM parameter will also impact the Application server, which is running on JVM.
+
+(3). Do you know to do trouble shooting of performance issues?
+Generally, we need to find out the root cause (bottle neck) of the performance issues. Then we can
+analyze possible options and trade off between them according to our priority of different criteria.
+
+For web applications, we can use load test tool to identify the pages with poor performance.
+we can use Profiling tool such as JProfiler to find out the bottle neck in server side.
+
+If the database access is the bottle neck, we may need or tune the SQL statement. 
+we also need to check whether database parameters are correctly setup.
+
+If the bottle neck is in the application server side. we need to check whether the application design
+ is reasonable and improve it if possible, e.g. whether all the database access are necessary.
+ we also need to check whether Application server is set up correctly. (According to my experience, 
+ there are more chance that performance issue is caused by application design 
+issue than it is caused by Application Server or Database setup.)
+
+The other possibility is to improve the front end performance, such as page loading time by adopting
+ some industrial best practice, such as the 34 rules published by Yahoo performance team. 
+
+Sometime we also need to consider the horizontal and vertical extension if the system have reached its capacity.
+
+(4). Do you know to tune queries and check exec plans?
+There are many ways to get the execution plan, like using TKPROF, or PL/SQL Developer, 
+I normally use AUTOTRACE in SQL*PLUS.
+E.g. After executing the following command:
+		set autotrace traceonly 
+in SQL*PLUS and execute a SQL statement, I can get the execution plan and statistics for the statement.
+
+To tune the query, usually, I will get the exec plans first to see how the SQL statement are
+executed internally in Oracle. 
+
+Then I will consider the way to improve its performance based on my knowledge about difference between different 
+data access path, e.g. fast index scan v.s. full index scan. We can get a different execution plan by writing SQL in another way, 
+we can also add Hint to impact execution plan, we can also add index to the related table to impact the execution plan.
+
+then I will check the execution plan and statistics again to see whether the performance is improved, whether the execution 
+plan is what I expected, continue this loop until I get the expected performance.
+
+One important note is that we should also keep the Scalability in mind when tuning the performance. Since
+in most of situations we have high volume end users, if the performance we get can not scale to huge 
+amount of concurrent uses, it does not make sense. E.g. if we enable parallel option to speed up the 
+Query, soon you will find the performance degenerate dramatically when there are more and more concurrent users.
+
+

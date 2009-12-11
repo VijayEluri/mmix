@@ -1,0 +1,92 @@
+regist in the followign git repo.
+username: eddie
+password: 111111
+
+create project in it.
+
+http://githost.cn/projects/test_mygit/repos/mainline
+
+git clone git://githost.cn/test_mygit/mainline.git
+
+2009-12-5 17:44
+does not work now.
+
+create new user account eddie/ on windows.
+use "run as" context menu item on GitBash.
+
+
+$ git config --global user.name eddie
+
+eddie@WUEDDIE ~/Documents and Settings/wueddie-wym-wrz
+$ git config --global user.email ueddieu@yahoo.com.cn
+
+eddie@WUEDDIE ~/Documents and Settings/wueddie-wym-wrz
+$ git config --list
+core.symlinks=false
+core.autocrlf=true
+color.diff=auto
+pack.packsizelimit=2g
+help.format=html
+http.sslcainfo=/bin/curl-ca-bundle.crt
+sendemail.smtpserver=/bin/msmtp.exe
+user.name=eddie
+user.email=ueddieu@yahoo.com.cn
+
+eddie@WUEDDIE ~/Documents and Settings/wueddie-wym-wrz
+
+
+http://repo.or.cz/?a=project_list&s=eddie
+	eddie.git 		ueddieu@yahoo.com.cn 	No commits 	summary | log | tree
+    	description	none
+    owner	ueddieu@yahoo.com.cn
+    URL	git://repo.or.cz/eddie.git
+    	http://repo.or.cz/r/eddie.git
+    Push URL	ssh://repo.or.cz/srv/git/eddie.git
+
+
+	ueddieu.git 		ueddieu@yahoo.com.cn 	2 months ago 	summary | log | tree
+
+    description	none
+    owner	ueddieu@yahoo.com.cn
+    last change	Sun, 4 Oct 2009 09:09:13 +0000
+    URL	git://repo.or.cz/ueddieu.git
+    	http://repo.or.cz/r/ueddieu.git
+    Push URL	ssh://repo.or.cz/srv/git/ueddieu.git
+
+in /d/scm/git/
+git clone git://repo.or.cz/ueddieu.git
+
+http://repo.or.cz/edituser.cgi
+
+get a temp code then login and update SSH keys.
+
+On windows, push successfully
+ueddieu@WUEDDIE /d/scm/git/ueddieu (master)
+$ pwd
+/d/scm/git/ueddieu
+
+$ git push ssh://repo.or.cz/srv/git/ueddieu.git
+Counting objects: 4, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 269 bytes, done.
+Total 3 (delta 1), reused 0 (delta 0)
+To ssh://repo.or.cz/srv/git/ueddieu.git
+   671c671..6aa9d73  master -> master
+   
+although,
+$ ssh ueddieu@repo.or.cz  echo "testing commands"
+fatal: unrecognized command 'echo testing commands'   
+
+
+
+
+
+https://github.com/signup/free
+ueddieu/{simple}
+
+Clone URL:  	 git://github.com/ueddieu/mmix.git  
+
+
+
+

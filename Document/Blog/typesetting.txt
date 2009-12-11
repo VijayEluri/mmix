@@ -1,0 +1,25 @@
+
+\beginsetion 1. WYSIWYM vs WYSIWYG.
+
+WYSIWYM stands for What You See is What You Mean; 
+WYSIWYG stands for What You See is What You Get;
+
+Microsoft---Word is always considered as a example of WYSIWYG. 
+Today I have a look at the tool named LyX, which is an example of 
+WYSIWYM. From an end user's point of view, there are more similarity 
+than difference between them. 
+
+They both display the the resulted layout on the fly; they both provide 
+button to typeset the document.
+
+The difference I can see between then is -- LyX use text file, while Word 
+use binary file. But I don't think it matters.
+
+In my humble opinion, the real difference between Word and LyX/LaTeX is 
+as the following. In Word, you typeset in the lower level, you can control 
+all the details but it also need more effort. In LyX/LaTex, you typeset in 
+higher level, you only need to figure out the logic structure of the document. 
+The resulted layout is not decided by you, you actually just share the layout 
+developed by the expert. I think it is the key advantage of WYSIWYM.
+
+\bye

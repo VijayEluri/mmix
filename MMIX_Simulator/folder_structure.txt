@@ -1,0 +1,12 @@
+src	source code
+
+testsrc	Junit code
+	mmix 		simulate mmix bebavior from scratch
+	mmix_port 	port the original mmix implementation from C to Java.
+	testsrc   	research(oberserve) API
+	ut_src		Integration code
+	it_src 		Unit test code
+	
+	test		the files to support the test, like the mms program.
+test test releated document(not java code)
+design design document

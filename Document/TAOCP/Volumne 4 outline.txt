@@ -1,0 +1,90 @@
+Volume 4
+
+Combinatorial Algorithms, in preparation. (Some parts are already available; see below.)
+Present plans are to publish ``Volume 4'' as at least three separate subvolumes:
+
+    * Volume 4A, Enumeration and Backtracking
+          o 7. Introduction
+          
+          o 7.1. Zeros and ones
+          o 7.1.1. Boolean basics
+          o 7.1.2. Boolean evaluation
+          o 7.1.3. Bitwise tricks and techniques
+          o 7.1.4. Binary decision diagrams
+          
+          o 7.2. Generating all possibilities
+          o 7.2.1. Combinatorial generators
+          o 7.2.2. Basic backtrack
+          o 7.2.3. Efficient backtracking
+          
+          o 7.3. Shortest paths
+          
+    * Volume 4B, Graph and Network Algorithms
+          o 7.4. Graph algorithms
+          o 7.4.1. Components and traversal
+          o 7.4.2. Special classes of graphs
+          o 7.4.3. Expander graphs
+          o 7.4.4. Random graphs
+          
+          o 7.5. Network algorithms
+          o 7.5.1. Distinct representatives
+          o 7.5.2. The assignment problem
+          o 7.5.3. Network flows
+          o 7.5.4. Optimum subtrees
+          o 7.5.5. Optimum matching
+          o 7.5.6. Optimum orderings
+          
+          o 7.6. Independence theory
+          o 7.6.1. Independence structures
+          o 7.6.2. Efficient matroid algorithms
+          
+    * Volume 4C and possibly 4D, Optimization and Recursion
+          o 7.7. Discrete dynamic programming
+          o 7.8. Branch-and-bound techniques
+          o 7.9. Herculean tasks (aka NP-hard problems)
+          o 7.10. Near-optimization
+          
+          o 8. Recursion
+
+The material will first appear in beta-test form as fascicles of approximately 
+128 pages each, issued approximately twice per year. These fascicles will 
+represent my best attempt to write a comprehensive account, but computer 
+science has grown to the point where I cannot hope to be an authority on all 
+the material covered in these books. Therefore I'll need feedback from readers 
+in order to prepare the official volumes later.
+
+Volume 4 Fascicle 0, Introduction to Combinatorial Algorithms and 
+Boolean Functions (2008), xii+216pp. ISBN 0-321-53496-4
+Volume 4 Fascicle 2, Generating All Tuples and Permutations 
+(2005), v+128pp. ISBN 0-201-85393-0
+Volume 4 Fascicle 3, Generating All Combinations and Partitions 
+(2005), vi+150pp. ISBN 0-201-85394-9
+Volume 4 Fascicle 4, Generating All Trees; History of Combinationatorial Generation 
+(2006), vi+120pp. ISBN 0-321-33570-8
+Some "pre-fascicles" are also available for alpha-testing: 
+Pre-Fascicle 1a (Bitwise tricks and techniques); 
+Pre-Fascicle 1b (Binary Decision Diagrams). 
+I've put them online primarily so that experts in the field can check the 
+contents before I inflict them on a wider audience. But if you want to help 
+debug them, please go right ahead. 
+
+Simplified outline:
+ * Volume 4A, Enumeration and Backtracking
+          o 7. Introduction
+          
+          o 7.1. Zeros and ones     (2 fascicles)
+          o 7.2. Generating all possibilities (3 fascicles)
+          o 7.3. Shortest paths
+          
+    * Volume 4B, Graph and Network Algorithms
+          o 7.4. Graph algorithms      
+          o 7.5. Network algorithms
+          o 7.6. Independence theory          
+          
+    * Volume 4C and possibly 4D, Optimization and Recursion
+          o 7.7. Discrete dynamic programming
+          o 7.8. Branch-and-bound techniques
+          o 7.9. Herculean tasks (aka NP-hard problems)
+          o 7.10. Near-optimization
+          
+          o 8. Recursion
