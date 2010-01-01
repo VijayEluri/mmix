@@ -1,0 +1,3 @@
+r4006.Bit5
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.AVP
+
