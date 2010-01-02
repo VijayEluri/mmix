@@ -23,7 +23,9 @@ Main	GETA	t,9F;
 	TRAP 	0,Fread,StdIn
 	SET	$0,N<<3
 1H	SR	$2,$0,3;
+	STO	$0,X0
 	GO	$0,GoMax100
+	LDO	$0,X0
 	LDO	$3,x0,$0
 	SL 	$2,$2,3
 	STO  	$1,x0,$0;
