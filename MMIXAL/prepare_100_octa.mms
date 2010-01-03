@@ -5,17 +5,18 @@ CONST1	GREG	#3030303030303060
 CONST2	GREG	#3030303030303160
 t	IS	$255
 i	IS	$0
+ii	IS	$2
 	LOC 	#100
-Main	CMP	$1,i,50
+Main	SUB	$0,$0,$0	
+main1	CMP	$1,i,50
 	BNN	$1,Exit
 	SUB	$1,CONST1,i
-	SL	$2,$0,3
-	STO	$1,$2,ADDR1
+	SL	ii,i,3
+	STO	$1,ii,ADDR1
 	SUB	$1,CONST2,i
-	SL	$2,$0,3
-	STO 	$1,$2,ADDR2
-	INCL	$0,1
-	JMP	Main
+	STO 	$1,ii,ADDR2
+	INCL	i,1
+	JMP	main1
 Exit	GETA	t,9F
 	TRAP	0,Fwrite,StdOut
 	TRAP	0,Halt,0
