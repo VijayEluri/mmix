@@ -34,5 +34,20 @@ Merge git://github.com/ueddieu/mmix
 2. in company network, proxy is enabled. so this proxy setting is
 necessary for SVN and GIT.
 
+export http_proxy="http://web-proxy.fc.hp.com:8080"
+git config --global http_proxy="http://web-proxy.fc.hp.com:8080"
+
+3. In company and home, I can use the following servers.
+testdl380d.cup.hp.com siu
+
+	export http_proxy="http://web-proxy.fc.hp.com:8080"
+	git clone http://github.com/ueddieu/mmix.git
+	Initialized empty Git repository in /home/seagull/mmix/.git/
+
+
+4. install cweb.
+ftp://ftp.cs.stanford.edu/pub/cweb/cweb.tar.gz
+curl ftp://ftp.cs.stanford.edu/pub/cweb/cweb.tar.gz \
+-o cweb.tar.gz
 
 
