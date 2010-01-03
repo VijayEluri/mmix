@@ -1,0 +1,37 @@
+                   	LOC Data_Segment
+($254=#20000000    ADDR1	GREG	@
+         00000000)
+($253=#20000000    ADDR2	GREG	@+50<<3
+         00000190)
+($252=#30303030    CONST1	GREG	#3030303030303060
+         30303060)
+($251=#30303030    CONST2	GREG	#3030303030303160
+         30303160)
+($255)             t	IS	$255
+($000)             i	IS	$0
+                   	LOC 	#100
+ ...100: 31010032  Main	CMP	$1,i,50
+ ...104: 4801xxxx  	BNN	$1,Exit
+ ...108: 2401fc00  	SUB	$1,CONST1,i
+ ...10c: ac0100fe  	STO	$1,i,ADDR1
+ ...110: 2401fb00  	SUB	$1,CONST2,i
+ ...114: ac0100fd  	STO 	$1,i,ADDR2
+ ...118: e7000001  	INCL	$0,1
+ ...11c: f1fffff9  	JMP	Main
+ ...120: f4ffxxxx  Exit	GETA	t,9F
+ ...124: 00000601  	TRAP	0,Fwrite,StdOut
+ ...128: 00000000  	TRAP	0,Halt,0
+ ...130: 20000000  9H	OCTA	Data_Segment,100<<3
+ ...134: 00000000
+ ...138: 00000000
+ ...13c: 00000320
+
+Symbol table:
+ ADDR1 = $254 (2)
+ ADDR2 = $253 (3)
+ CONST1 = $252 (4)
+ CONST2 = $251 (5)
+ Exit = #0000000000000120 (8)
+ Main = #0000000000000100 (1)
+ i = $000 (7)
+ t = $255 (6)
