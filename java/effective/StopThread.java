@@ -1,3 +1,4 @@
+package effective;
 import java.util.concurrent.TimeUnit;
 public class StopThread {
 

@@ -1,0 +1,81 @@
+ ./configure --prefix=/usr/local/mrtg-2
+   --with-gd-inc=/home/seagull/gd-2.0.33
+   --with-gd-lib=/home/seagull/gd-2.0.33
+ 
+  http://www.boutell.com/gd/
+  
+  For versions starting around 2.0.11, try:
+       
+        wget http://www.boutell.com/gd/http/gd-2.0.11.tar.gz
+        gunzip -c gd-2.0.11.tar.gz |tar xf -
+        mv gd-2.0.11 gd
+        cd gd
+        env CPPFLAGS="-I../zlib -I../libpng" LDFLAGS="-L../zlib -L../libpng" \
+            ./configure --disable-shared --without-freetype --without-jpeg
+        make
+        cp .libs/* .
+        
+wget http://www.boutell.com/gd/http/gd-2.0.33.tar.gz     
+
+download    gd-2.0.33.tar.gz manually from http://www.libgd.org/releases/oldreleases/
+
+
+a)  You don't have the GD library installed.
+       Get it from http://www.boutell.com, compile it and
+       use either --with-gd-lib=DIR and --with-gd-inc=DIR to specify
+       its location. You might also have to use --with-z-inc,
+             --with-z-lib and --with-png-inc, --with-png-lib for gd
+             versions 1.6 and higher.  Check config.log for more
+       information on the problem.
+
+   b)  You have the GD library installed, but not the gd.h
+       header file.  Download the source (see above) and use
+       --with-gd-inc=DIR to specify where the file can be found.
+
+   c)  You have the library and the header file installed, but
+       you also have a shared GD library in the same directory. 
+       Remove the shared library files and/or links (e.g. 
+       libgd.so.2.0.0, libgd.so and libgd.so.2).  This is especially
+             likely if you're using a recent (post 1.8.4) version of GD
+       and didn't configure it with --disable-shared.
+
+   d)  You have gd library installed and also it's headers, but you are
+       missing libpng (and headers) or freetype (and headers)
+       (mrtg does not use freetype, but if your copy of gd is precompiled
+       against it, you have to install it ... 
+
+   Consider following the instructions in doc/mrtg-unix-guide.txt
+
+
+[root@perf585 mrtg-2.16.2]# rpm -q -v gd
+gd-2.0.33-9.3.fc6
+[root@perf585 mrtg-2.16.2]# rpm -q -l gd
+/usr/lib64/libgd.so.2
+/usr/lib64/libgd.so.2.0.0
+/usr/share/doc/gd-2.0.33
+/usr/share/doc/gd-2.0.33/COPYING
+/usr/share/doc/gd-2.0.33/README-JPEG.TXT
+/usr/share/doc/gd-2.0.33/entities.html
+/usr/share/doc/gd-2.0.33/index.html
+
+
+ cfgmaker --global 'WorkDir: /home/seagull'  \
+                 --global 'Options[_]: bits,growright' \
+                 --output /home/seagull/mrtg.cfg    \
+                  community@router.abc.xyz
+                  
+SNMP Error:
+no response received
+SNMPv1_Session (remote host: "localhost" [127.0.0.1].161)
+                  community: "seagull"
+                 request ID: -565882382
+                PDU bufsize: 8000 bytes
+                    timeout: 2s
+                    retries: 5
+                    backoff: 1)
+ at /usr/bin/../lib64/mrtg2/SNMP_util.pm line 627
+SNMPWALK Problem for 1.3.6.1.2.1.1 on seagull@localhost::::::v4only
+ at /usr/bin/cfgmaker line 918
+WARNING: Skipping seagull@localhost: as no info could be retrieved
+
+                  
