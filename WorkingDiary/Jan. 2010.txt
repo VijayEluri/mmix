@@ -1,0 +1,41 @@
+Monday
+1. Switch to new schema, address XJC issue.
+2. Update code according to new Schema
+
+Tuesday
+1. Organize the sample and import into Repo.
+2. Debug executing case in Repo.
+3. EntityManager API reading.
+
+Wedensday
+1. Absorb QA's extension on Raptor.
+2. Draft API for UI.
+3. Draft new Action schema for data preparation.
+
+Thursday
+1. Template for message generation.	
+2. Continue work on new Action Schema for data preparation.
+
+
+
+TODO List
+1. Template for message generation. (use file or entity.)
+2. Action for Subscription ()
+3. DB Check API.
+4. UI integration.
+5. Result Report.  ---> node description in error node.
+
+
+Monday.
+1. Test Case for UI integration.
+2. Action Review.
+3. import QA  Code.
+4. Data preparation impl.
+
+Tuesday,
+1. Schema import and base issue.
+2. Entity date issue.
+3. file / Entity issue, because of the strict validation. (many potential issues are found and fixed)
+
+
+

@@ -1,0 +1,51 @@
+hooray : a variant of hurrah
+
+Hooray of Probablility Theory
+
+There are n coins,  
+if you flip the coin, you may get head with probability of $p_j$, get
+tail with probablity of $q_j$ for coin $j$;
+
+assuming $p_j+q_j=1$, that means you will not get rings.
+
+The probability of get k heads after fliping those 100 coins is 
+
+
+p_j+q_{j}Z * 
+
+$$a_0+a_1{k}+a_2{k^2}\cdot a_n{k^n}$$
+
+the probability of get k heads is $a_k$.
+
+The Expectation of k is w, that means averagely you should get w tails.
+(The average of k with probablity as weight)
+
+if the $k \le w$, then 
+$a_{k-1} < a_k$
+
+if the $k \be w$, then 
+$a_{k+1} < a_k$
+
+To prove it, we consider
+case 1:
+$p_j=p$ and $q_j=q$;ASDFG
+
+so if you have 
+
+Probability 
+
+first point is that the average of K is $np$
+we can verify it for case 1, 2, 3.
+
+n=1,$H(Z)=p+qz$ and E(k) is $p*1+q*0$
+n=2,$H(Z)=p^2+2pq+q^2q$ and E(k) is $2*p^2+2*p*q+q^2*0$, i.e. $2p(p+q)$
+n=3,$H(Z)=p^3+3p^{2}qz+3pq^{2}z+q^{3}z^3$ and E(k) is $3p(p^2+2pq+q^2)q*0$
+
+for n 
+$$H(z,n) = {a_0}p^n + {a_1}p^{n-1}qz+\cdot+{a_k}p^{n-k}q^{k}z^{k}+\cdot+{a_n}z^n$$
+its average is np.
+then for n+1.
+H(z,n+1)=H(z,n+1)*(p+q).
+	{a_0}p^{n+1} + {a_1}p^{n}qz+\cdot+{a_k}p^{n-k+1}q^{k}z^{k}+\cdot+{a_n}pz^n
+	
+34		       {a_0}p^nqz + {a_1}p^{n-1}{q^2}{z^2}+\cdot+{a_k}p^{n-k}q^{k+1}z^{k+1}+\cdot+{a_n}{z^n+1}.`b 	qqqq2112

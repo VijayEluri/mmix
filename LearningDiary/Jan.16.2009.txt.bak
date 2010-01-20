@@ -1,0 +1,35 @@
+hooray : a variant of hurrah
+
+Hooray of Probablility Theory
+
+There are n coins,  
+if you flip the coin, you may get head with probability of $p_j$, get
+tail with probablity of $q_j$ for coin $j$;
+
+assuming $p_j+q_j=1$, that means you will not get rings.
+
+The probability of get k heads after fliping those 100 coins is 
+
+
+p_j+q_{j}Z * 
+
+$$a_0+a_1{k}+a_2{k^2}\cdot a_n{k^n}$$
+
+the probability of get k heads is $a_k$.
+
+The Expectation of k is w, that means averagely you should get w tails.
+(The average of k with probablity as weight)
+
+if the $k \le w$, then 
+$a_{k-1} < a_k$
+
+if the $k \be w$, then 
+$a_{k+1} < a_k$
+
+To prove it, we consider
+case 1:
+$p_j=p$ and $q_j=q$;ASDFG
+
+so if you have 
+
+Probability 

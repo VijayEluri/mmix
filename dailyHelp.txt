@@ -1,0 +1,1179 @@
+
+
+
+
+
+1. in home network, proxy is disabled.
+fail to clone from 
+	git clone http://github.com/ueddieu/mmix.git
+but succeed 
+	git clone git://github.com/ueddieu/mmix.git
+	
+	
+git push git://github.com/ueddieu/mmix 
+--it is only for read only access
+$ git push git://github.com/ueddieu/mmix
+fatal: remote error:
+  You can't push to git://github.com/ueddieu/mmix.git
+  Use git@github.com:ueddieu/mmix.git
+  
+$ git push git@github.com:ueddieu/mmix.git
+Permission denied (publickey).
+fatal: The remote end hung up unexpectedly
+
+--we need to regist our public key in github first.  
+
+ssh-keygen
+just enter again and again.
+
+add your key to git hub on 
+	https://github.com/account
+	
+	
+then push again.
+git push git@github.com:ueddieu/mmix.git
+
+you win.
+Merge git://github.com/ueddieu/mmix 
+
+2. in company network, proxy is enabled. so this proxy setting is
+necessary for SVN and GIT.
+
+export http_proxy="http://web-proxy.fc.hp.com:8080"
+git config --global http_proxy="http://web-proxy.fc.hp.com:8080"
+
+3. In company and home, I can use the following servers.
+testdl380d.cup.hp.com siu
+
+	export http_proxy="http://web-proxy.fc.hp.com:8080"
+	git clone http://github.com/ueddieu/mmix.git
+	Initialized empty Git repository in /home/seagull/mmix/.git/
+
+
+4. install cweb.
+ftp://ftp.cs.stanford.edu/pub/cweb/cweb.tar.gz
+curl ftp://ftp.cs.stanford.edu/pub/cweb/cweb.tar.gz \
+-o cweb.tar.gz
+
+then install mmix.
+
+mmix -focta_100_input.txt  find_maximum_Go_100
+
+mmix -f100_cota.txt find_maximum.mmo
+mmix -f100_cota.txt find_maximum_100.mmo
+mmix -f100_cota.txt find_maximum_Go_100.mmo
+
+input file
+0000000`0000000_0000000^0000000]0000000\0000000[0000000Z0000000Y0000000X0000000W
+0000000V0000000U0000000T0000000S0000000R0000000Q0000000P0000000O0000000N0000000M
+0000000L0000000K0000000J0000000I0000000H0000000G0000000F0000000E0000000D0000000C
+0000000B0000000A0000000@0000000?0000000>0000000=0000000<0000000;0000000:00000009
+0000000800000007000000060000000500000004000000030000000200000001000000000000000/
+
+0000001`0000001_0000001^0000001]0000001\0000001[0000001Z0000001Y0000001X0000001W
+0000001V0000001U0000001T0000001S0000001R0000001Q0000001P0000001O0000001N0000001M
+0000001L0000001K0000001J0000001I0000001H0000001G0000001F0000001E0000001D0000001C
+0000001B0000001A0000001@0000001?0000001>0000001=0000001<0000001;0000001:00000019
+0000001800000017000000160000001500000014000000130000001200000011000000100000001/
+
+
+[seagull@perf585 MMIXAL]$ mmix -f100_cota.txt find_maximum_100.mmo
+0000001`
+0000000`0000000_0000000^0000000]0000000\0000000[0000000Z0000000Y0000000X0000000W
+0000000V0000000U0000000T0000000S0000000R0000000Q0000000P0000000O0000000N0000000M
+0000000L0000000K0000000J0000000I0000000H0000000G0000000F0000000E0000000D0000000C
+0000000B0000000A0000000@0000000?0000000>0000000=0000000<0000000;0000000:00000009
+0000000800000007000000060000000500000004000000030000000200000001000000000000000/
+
+0000001/
+	0000001_0000001^0000001]0000001\0000001[0000001Z0000001Y0000001X0000001W
+0000001V0000001U0000001T0000001S0000001R0000001Q0000001P0000001O0000001N0000001M
+0000001L0000001K0000001J0000001I0000001H0000001G0000001F0000001E0000001D0000001C
+0000001B0000001A0000001@0000001?0000001>0000001=0000001<0000001;0000001:00000019
+000000180000001700000016000000150000001400000013000000120000001100000010
+[seagull@perf585 MMIXAL]$ 
+[seagull@perf585 MMIXAL]$ mmix -f100_cota.txt find_maximum.mmo
+0000000/000000000000000100000002000000030000000400000005000000060000000700000008
+000000090000000:0000000;0000000<0000000=0000000>0000000?0000000@0000000A0000000B
+0000000C0000000D0000000E0000000F0000000G0000000H0000000I0000000J0000000K0000000L
+0000000M0000000N0000000O0000000P0000000Q0000000R0000000S0000000T0000000U0000000V
+0000000W0000000X0000000Y0000000Z0000000[0000000\0000000]0000000^0000000_0000000`
+0000001/000000100000001100000012000000130000001400000015000000160000001700000018
+000000190000001:0000001;0000001<0000001=0000001>0000001?0000001@0000001A0000001B
+0000001C0000001D0000001E0000001F0000001G0000001H0000001I0000001J0000001K0000001L
+0000001M0000001N0000001O0000001P0000001Q0000001R0000001S0000001T0000001U0000001V
+0000001W0000001X0000001Y0000001Z0000001[0000001\0000001]0000001^0000001_0000001`
+
+Li, Wei (ES-CMS-SNAP) [2:38 PM]:
+  16.186.108.160:9999
+Li, Wei (ES-CMS-SNAP) [2:42 PM]:
+  in ccr
+      <avp name="Destination-Realm" value="serverRealm"> </avp>
+      <avp name="Destination-Host" value="serverHost"> </avp>
+  should be properly set
+Wu, Jian-Feng (Jianfeng, TSG-BAS-China-SH) [2:43 PM]:
+  are this two items mandatory.
+Li, Wei (ES-CMS-SNAP) [2:44 PM]:
+  yes.
+  field name is not exactly like seagull
+  should be destinationRealm and destinationHost
+Wu, Jian-Feng (Jianfeng, TSG-BAS-China-SH) [2:45 PM]:
+  so I need to refer to XFD
+  
+
+real    0m0.369s
+user    0m0.367s
+sys     0m0.002s
+to bubble sort 10000 data.
+ 	long longA[10000];
+        int i;
+        printf("size=%d\n",sizeof(long));
+        for(i=0; i<10000;i++){
+                longA[  i]=100000 - i;
+        }
+                for(i=0; i<10000; i+=1000){
+                printf("%d\t",longA[i]);
+        }
+        printf("\n");
+
+
+MMIX code enhance ment
+
+hard code 10000.
+	Addr 	GREG Data_Segment
+	LDO	$1,0;
+	CMP	$2,$1,10000;
+	BNN	$2,3F
+Set	SL	$4,$1,3
+	ADD	$4,Addr,$4
+	//LDO 	$3,$4,
+	STO	$1,$4,0
+	INC	$1,1;
+3H	
+
+
+Eclipse plug in install history
+Code Coverage.
+http://update.eclemma.org/
+
+
+吴建锋
+21495529 (员工号)
+837443 (门禁卡)
+wujianfe/Asia-P
+jianfengw@hp.com
+
+all the leaf types
+
+String
+
+boolean
+int
+short
+long
+byte
+byte[]
+List
+Bean
+Bean
+
+
+Change on automatically generated code.
+public class SendReceiveType implements ActionDefinition {
+
+	@Override
+	public String marshal() {
+		return SchemaUtil.convertMessageToString(this);
+	}
+
+	@Override
+	public void unmarshal(String xmlContent) {
+		SendReceiveType type = SchemaUtil.loadMessageFromContent(xmlContent);
+		this.send = type.send;
+		this.receive = type.receive;
+	}
+
+
+
+# For Eclipse 3.4 and above, enter http://beust.com/eclipse.
+Fail to install so download and extract directly.
+http://testng.org/testng-eclipse-5.11.0.18.zip
+
+for groovy plug in
+http://dist.springsource.org/milestone/GRECLIPSE/e3.5/
+
+need to convert to Groovy project to enable groovy feature.
+
+commons is not imported. cause raptor runtime error.
+
+
+description		none
+owner					ueddieu@yahoo.com.cn
+last change		Wed, 9 Dec 2009 12:58:34 +0000
+URL						git://repo.or.cz/ueddieu.git
+							http://repo.or.cz/r/ueddieu.git
+Push URL			ssh://repo.or.cz/srv/git/ueddieu.git
+
+
+
+use it in git-svn commit
+ssl-client-cert-file = C:\ClassBCert.pfx
+ssl-client-cert-password = 111111
+
+$ git svn dcommit
+Committing to https://hpbss-platform.csd200a.com/svn/hpbss-platform ...
+Client certificate filename: C:\ClassBCert.pfx
+Password:
+A repository hook failed: Commit blocked by start-commit hook (exit code 1) with
+output:
+Project 'hpbss-platform' requires that committing clients be mergeinfo-aware,
+but yours is not.  Consider upgrading to a client that is using Subversion 1.5
+(or newer) libraries. at C:\Program Files\Git/libexec/git-core/git-svn line 3945
+
+need to research on the solution. (latest version of msys-git are not mergeinfo-aware.)
+
+
+
+[root@testdl380d intro]# ./daytimetcpsrv &
+[1] 32160
+[root@testdl380d intro]# ./daytimetcpcli localhost
+inet_pton error for localhost
+[root@testdl380d intro]# ./daytimetcpcli 127.0.0.1
+Tue Nov 17 12:06:26 2009
+
+
+
+
+
+
+
+
+cd C:\workspace\Eclipse\platform\atom\tools\raptor
+C:\workspace\Try_Eclipse_3.5\platform_trunk\atom\tools\raptor
+
+target\raptor-1.0.1-tools\bin\run.bat -C target\raptor-1.0.1-tools\examples\examples\new_sample\diameter-Client\diameter_case.xml
+
+run.bat -C ..\examples\new_sample\diameter-Client\diameter_performance_seagull_case.xml
+
+target\raptor-1.0.1-tools\bin\run.bat -C target\raptor-1.0.1-tools\examples\new_sample\diameter-Client\diameter_performance_seagull_case.xml
+run.bat -C ..\examples\new_sample\radius-Client\radius_case.xml
+run.bat -C ..\examples\new_sample\multi-Client\multi_client_case.xml
+
+Code Snippet
+
+throw new RuntimeException(e);
+
+static Logger log = LoggerFactory
+			.getLogger(ParamConstant.LOG4J_CATEGORY_RAPTOR);
+
+if(log.isDebugEnabled()){
+			log.debug(arg0)
+		}
+
+
+TestNG
+
+mvn install -Dmaven.test.skip=true
+
+mvn jar:jar -Dmaven.test.skip=true -Dmaven.jar.manifest=
+
+mvn jar:jar -Dmaven.test.skip=true -Darchive=src\main\configurations\archive.xml
+
+
+2009-11-16 16:42:11
+mvn learning
+
+mvn dependency:resolve
+
+
+[INFO] The following files have been resolved:
+[INFO]    apache-xerces:xercesImpl:jar:2.9.1:compile
+[INFO]    apache-xerces:xml-apis:jar:2.9.1:compile
+[INFO]    castor:castor:jar:0.9.5.4:compile
+[INFO]    com.hp.atom:codec:jar:1.0.1:compile
+[INFO]    com.hp.atom:commons:jar:1.0.1:compile
+[INFO]    com.hp.atom:connector:jar:1.0.1:compile
+[INFO]    com.hp.atom:diameter:jar:1.0.1:compile
+[INFO]    com.hp.atom:event:jar:1.0.1:compile
+[INFO]    com.hp.atom:gtpp:jar:1.0.1:compile
+[INFO]    com.hp.atom:radius:jar:1.0.1:compile
+[INFO]    com.hp.atom:scheduler:jar:1.0.1:compile
+[INFO]    com.hp.atom:script:jar:1.0.1:compile
+[INFO]    com.hp.atom:session:jar:1.0.1:compile
+[INFO]    com.hp.atom:workflow:jar:1.0.1:compile
+[INFO]    commons-lang:commons-lang:jar:2.4:compile
+[INFO]    ium:attrcodec:jar:3.0.0:compile
+[INFO]    ium:codec:jar:3.0.0:compile
+[INFO]    ium:collections:jar:3.0.0:compile
+[INFO]    ium:fdl:jar:3.1.5:compile
+[INFO]    ium:fst:jar:3.0.0:compile
+[INFO]    ium:fst.builder:jar:3.1.0:compile
+[INFO]    ium:fst.codec:jar:3.1.0:compile
+[INFO]    ium:fst.nme:jar:3.0.0:compile
+[INFO]    ium:loader:jar:3.0.0:compile
+[INFO]    ium:logging:jar:3.0.0:compile
+[INFO]    ium:nme:jar:3.0.1:compile
+[INFO]    ium:nme.schemaconfig:jar:3.1.0:compile
+[INFO]    ium:snme:jar:3.0.1:compile
+[INFO]    ium:tlv.codec:jar:3.0.0:compile
+[INFO]    ium:utils:jar:3.0.0:compile
+[INFO]    javassist:javassist:jar:3.10.0.GA:compile
+[INFO]    javax.activation:activation:jar:1.1.1:compile
+[INFO]    junit:junit:jar:3.8.1:compile
+[INFO]    log4j:log4j:jar:1.2.14:runtime
+[INFO]    org.codehaus.groovy:groovy-all:jar:1.6.4:compile
+[INFO]    org.javolution:javolution:jar:5.2.6:compile
+[INFO]    org.jboss:jboss-common-core:jar:2.2.12.GA:compile
+[INFO]    org.jboss:jboss-mdr:jar:2.0.1.GA:compile
+
+[INFO]    org.jboss:jboss-vfs:jar:2.2.0.M2:compile
+[INFO]    org.jboss:jbossxb:jar:2.0.1.CR1:compile
+
+[INFO]    org.jboss.cl:jboss-classloader:jar:2.2.0.M4:compile
+[INFO]    org.jboss.cl:jboss-classloading:jar:2.2.0.M4:compile
+[INFO]    org.jboss.cl:jboss-classloading-vfs:jar:2.2.0.M4:compile
+
+[INFO]    org.jboss.deployers:jboss-deployers:pom:2.2.0.M2:compile
+[INFO]    org.jboss.deployers:jboss-deployers-client:jar:2.2.0.M2:compile
+[INFO]    org.jboss.deployers:jboss-deployers-client-spi:jar:2.2.0.M2:compil
+[INFO]    org.jboss.deployers:jboss-deployers-core:jar:2.2.0.M2:compile
+[INFO]    org.jboss.deployers:jboss-deployers-core-spi:jar:2.2.0.M2:compile
+[INFO]    org.jboss.deployers:jboss-deployers-impl:jar:2.2.0.M2:compile
+[INFO]    org.jboss.deployers:jboss-deployers-spi:jar:2.2.0.M2:compile
+[INFO]    org.jboss.deployers:jboss-deployers-structure-spi:jar:2.2.0.M2:com
+[INFO]    org.jboss.deployers:jboss-deployers-vfs:jar:2.2.0.M2:compile
+[INFO]    org.jboss.deployers:jboss-deployers-vfs-spi:jar:2.2.0.M2:compile
+[INFO]    org.jboss.integration:jboss-classloading-spi:jar:5.0.3.GA:compile
+
+[INFO]    org.jboss.logging:jboss-logging-spi:jar:2.0.5.GA:compile
+[INFO]    org.jboss.man:jboss-managed:jar:2.0.0.GA:compile
+[INFO]    org.jboss.man:jboss-metatype:jar:2.0.0.GA:compile
+[INFO]    org.jboss.microcontainer:jboss-dependency:jar:2.2.0.M1:compile
+[INFO]    org.jboss.microcontainer:jboss-kernel:jar:2.2.0.M1:compile
+
+[INFO]    org.jboss.netty:netty:jar:3.1.3.GA:compile
+[INFO]    org.slf4j:slf4j-api:jar:1.5.9-RC0:compile
+[INFO]    org.slf4j:slf4j-log4j12:jar:1.5.9-RC0:compile
+[INFO]    org.testng:testng:jar:jdk15:5.10:compile
+[INFO]    stax:stax-api:jar:1.0:compile
+[INFO]    sun-jaxb:jaxb-api:jar:2.1.4:compile
+[INFO]    wutka-dtdparser:dtdparser121:jar:1.2.1:compile
+[INFO]    xerces:xercesImpl:jar:2.9.1:compile
+[INFO]    xml-apis:xml-apis:jar:1.3.04:compile
+[INFO]
+[INFO] ---------------------------------------------------------------------
+[INFO] BUILD SUCCESSFUL
+[INFO] ---------------------------------------------------------------------
+[INFO] Total time: 8 seconds
+[INFO] Finished at: Mon Nov 16 16:42:29 CST 2009
+[INFO] Final Memory: 15M/29M
+[INFO] ---------------------------------------------------------------------
+C:\workspace\Eclipse\platform\atom\tools\raptor>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+java -ea -classpath .;C:\Java\Jars\testng-5.10-jdk15.jar;C:\Java\Jars\commons-lang-2.1.jar ^
+org.testng.TestNG testng.xml
+(The line continuing character is ^ in DOS)
+
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+<suite name="My test suite">
+  <test name="First test">
+    <classes>
+       <class name="dev.work.StringUtilsTest" />
+    </classes>
+  </test>
+</suite>
+
+
+run testng.xml successful, but the plug-in still does not work. The root cause is 
+the wrong setting in the preference of TestNG - Use project TestNG.
+
+*Note that you have to enable Assert in JVM. with argument -ea.
+otherwise you can not defect AssertionError.
+
+you can get the testNG exception stack when click the failure method. it is kind of lazy 
+loading.
+
+
+
+
+cd C:\workspace\Eclipse\platform\atom\tools\raptor
+
+mvn jar:jar
+
+mvn dependency:copy-dependencies
+
+java.io.FileNotFoundException: C:\workspace\Eclipse\platform\atom\tools\raptor\src\test\resources\testall\functional_test_config.txt (The system cannot find the file specified)
+
+				if(log.isDebugEnabled()){
+					log.debug("Raptor sleep 60 seconds.");
+				}
+				
+	mvn install
+	
+	cd C:\workspace\Eclipse\platform\atom\tools\raptor
+	
+	
+	C:\workspace\Eclipse\platform\atom\tools\raptor\target\raptor-1.0.0-tools\bin
+	
+Code Review: 
+1. use JDK 1.5 concurrent API.
+2. remove lock.notify 
+3. use interface.
+4. smaller package	
+5. 
+
+Functional :
+support more client in one scenario.
+able to send binary message.
+
+Report Template.
+
+
+2009-10-19 9:37:48
+run.bat C:\workspace\Eclipse\platform\atom\tools\raptor\target\raptor-1.0.0-tools\examples\testcase\radius\radius_1_testcase.xml
+run.bat C:\workspace\Eclipse\platform\atom\tools\raptor\target\raptor-1.0.0-tools\examples\testcase\diameter\diameter_1_testcase.xml
+run.bat C:\workspace\Eclipse\platform\atom\tools\raptor\target\raptor-1.0.0-tools\examples\testcase\GTPP\gtpp_1_testcase.xml
+
+run_dependency.bat -C C:\workspace\Eclipse\platform\atom\tools\raptor\target\raptor-1.0.0-tools\examples\testcase\radius\radius_1_testcase.xml
+
+
+	
+
+
+Task: in coming two weeks.
+1. Provide binary package.
+2. Schema definition.
+3. Support Server mode (test loadbalancer by acting as back end server)
+4. code refactoring.
+
+
+
+
+
+It works in Eclipse but throw error in standalone app.
+The root cause is that testNG is added as runtime dependency.
+
+I also find that build.action is missing.
+
+  Then, install it using the command:
+      mvn install:install-file -DgroupId=org.testng -DartifactId=testng -Dversion
+=5.10 -Dpackaging=jar -Dfile=/path/to/file
+
+  Alternatively, if you host your own repository you can deploy the file there:
+      mvn deploy:deploy-file -DgroupId=org.testng -DartifactId=testng -Dversion=5
+.10 -Dpackaging=jar -Dfile=/path/to/file -Durl=[url] -DrepositoryId=[id]
+
+
+
+
+http://tangqii.javaeye.com/blog/261995
+
+
+2009-11-2 9:40:32
+mvn test and packaging.
+
+mvn test
+
+mvn test -Dtest=Raptor 
+
+mvn test -Dtest=*ModelTest
+
+
+
+cd C:\workspace\Eclipse\platform\atom\tools\raptor
+
+
+
+
+
+
+
+
+
+
+
+ignore test case and check install result directly,.
+
+run.bat -C ..\examples\new_sample\diameter-Client\diameter_case.xml
+run.bat -C ..\examples\new_sample\radius-Client\radius_case.xml
+run.bat -C ..\examples\new_sample\multi-Client\multi_client_case.xml
+
+
+run.bat -S "C:\Documents and Settings\wujianfe\Local Settings\Temp\2V6KRZ4QMFDGKWPS4VESPUMCAJVBZYRC\suite_test_a.xml"
+run.bat -S "C:\Documents and Settings\wujianfe\Local Settings\Temp\2V6KRZ4QMFDGKWPS4VESPUMCAJVBZYRC\suite_test_c.xml"
+run.bat -S "C:\Documents and Settings\wujianfe\Local Settings\Temp\2V6KRZ4QMFDGKWPS4VESPUMCAJVBZYRC\suite.xml"
+
+echo $CLASS_PATH
+
+java -cp $CLASS_PATH  com.hp.atom.raptor.Raptor %*
+./java -cp $CLASS_PATH  com.hp.atom.raptor.Raptor -Repoc ../examples/testcase/radius/radius_1_testcase.xml
+
+echo $CLASS_PATH
+
+
+replace 
+^(.*\.jar)\r\n$
+with 
+..\\lib\\$1;
+
+
+[02 11:05:11,892 DEBUG] [main] atom.raptor - absolute path of workflow is file:/C
+:/workspace/Eclipse/platform/atom/tools/raptor/src/test/resources/new_sample/radi
+us-Client/scenarios/scenario2/radius_1_workflow.xml
+
+put into shared server:
+ftp 16.91.113.182
+user: root
+password: sru98
+
+ftp> pwd
+ 	"/root"
+ftp> ls
+	raptor-1.0.0-tools.zip
+	
+	/root/raptor-1.0.0-tools.zip
+	
+	
+DIR [drive:][path][filename] [/P] [/W] [/A[[:]attributes]]
+
+　　[/O[[:]sortorder]] [/S] [/B] [/L] [/V] [/4]
+
+dir *.jar /ON /L /B
+get 
+session-1.0.0.jar
+slf4j-api-1.5.9-rc0.jar
+slf4j-log4j12-1.5.9-rc0.jar
+
+
+
+2009-11-3 9:33:19
+[root@testdl380d ~]# ls /home
+ftp  mrde  tester  tester1
+[root@testdl380d ~]# useradd seagull
+[root@testdl380d ~]# su seagull
+[seagull@testdl380d root]$ id
+uid=503(seagull) gid=503(seagull) groups=503(seagull)
+[seagull@testdl380d root]$ cd
+[seagull@testdl380d ~]$ ls
+[seagull@testdl380d ~]$ pwd
+/home/seagull
+
+
+com.hp.atom.scheduler.jdk.JDKScheduler
+-->
+com.hp.atom.scheduler.DefaultScheduler
+
+
+Missing:
+----------
+1) com.hp.atom:radius:jar:1.0.2
+
+  Try downloading the file manually from the project website.
+
+  Then, install it using the command:
+      mvn install:install-file -DgroupId=com.hp.atom -DartifactId=radius -Dversio
+n=1.0.2 -Dpackaging=jar -Dfile=/path/to/file
+
+  Alternatively, if you host your own repository you can deploy the file there:
+      mvn deploy:deploy-file -DgroupId=com.hp.atom -DartifactId=radius -Dversion=
+1.0.2 -Dpackaging=jar -Dfile=/path/to/file -Durl=[url] -DrepositoryId=[id]
+
+  Path to dependency:
+        1) com.hp.atom:raptor:jar:1.0.0
+        2) com.hp.atom:radius:jar:1.0.2
+        
+
+
+log4j.xml
+set basedir=C:\workspace\Eclipse\platform\atom\tools\raptor
+set bindir=target\raptor-1.0.0-tools\bin
+
+cd C:\workspace\Eclipse\platform\atom\tools\raptor
+
+cd target\raptor-1.0.0-tools\bin
+
+Step 1:
+copy and execute:
+src\main\configurations\generate_script.bat  
+
+Step 2:
+mvn install -Dmaven.test.skip=true
+
+Step 3: start mock server in eclipse
+
+Step 4:
+cd target\raptor-1.0.0-tools\bin
+
+run.bat -C ..\examples\new_sample\radius-Client\radius_case.xml
+
+run.bat -C target\raptor-1.0.0-tools\examples\new_sample\radius-Client\radius_case.xml
+	
+run.bat -C ..\examples\new_sample\diameter-Client\diameter_case.xml
+
+
+run.bat -C ..\examples\new_sample\multi-Client\multi_client_case.xml     
+        
+run.bat -C ..\..\..\src\test\resources\new_sample\diameter-Client\diameter_case.xml 
+set BASE_DIR=C:\workspace\Eclipse\platform\atom\tools\raptor 
+set LIB_DIR=target\raptor-1.0.0-tools\lib
+
+cd %BASE_DIR%
+dir %LIB_DIR%\*.jar /ON /L /B > %LIB_DIR%\dir.output 
+
+set LOG4J_XML_DIR=src\main\configurations
+set BOOTSTRAP_RAPTOR_JAR=C:\workspace\Eclipse\PlatformRepository\com\hp\atom\raptor\1.0.0\raptor-1.0.0.jar    
+
+Caused by: java.lang.NoClassDefFoundError: com/hp/atom/codec/exception/TypeNotFoundException
+
+
+Three system calls when fail to telnet:
+socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 3
+setsockopt(3, SOL_IP, IP_TOS, [16], 4)  = 0
+connect(3, {sa_family=AF_INET, sin_port=htons(23), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 ECONNREFUSED (Connection refused)
+
+Read git-pro
+and try msys-git (we'd better add it into classpath.)
+
+change the server url to https://hpbss-platform.csd200a.com/svn/hpbss-platform.
+then it works.
+
+
+There are two ways to clone the svn repo,.
+1. clone it as a svn server repo.
+(used to create a local svn server so that git svn has a local serber to interact with.)
+very slowly, revision by revision.
+
+2. clone it into a git repo (As client to original server).
+also takes time. (even slower.)
+
+
+overall, performance is still a big issue for scm tool. especially the svn. 
+so it is wise to use git to avoid unnecessary dependency on network.
+
+https://mmix.googlecode.com
+
+
+
+performance testing cont.
+
+cpu MHz         : 3166.674
+bogomips        : 6337.58
+(about two times)
+
+Test clock get similar result.
+Processor clock rate ?= 3167.8 MHz
+
+looks like cycle counting is enough.
+
+every request will go through the whold sock life cycle.
+create, connect, receive, close. in client side.
+Throughput:
+1000 * 1000 requests / 61 seconds. == 20 000 request/second
+
+It takes 236835.0 cycles
+It takes max=9029361.0 cycles
+It takes min=107008.0 cycles
+
+real    0m6.369s
+user    0m0.211s
+sys     0m4.951s
+
+
+use udp, which is connectionless.
+Message: 90000It takes 151012.0 cycles
+Message: 80000It takes 70091.0 cycles
+Message: 70000It takes 68742.0 cycles
+Message: 60000It takes 68419.0 cycles
+Message: 50000It takes 68951.0 cycles
+Message: 40000It takes 69445.0 cycles
+Message: 30000It takes 68637.0 cycles
+Message: 20000It takes 69189.0 cycles
+Message: 10000It takes 70072.0 cycles
+
+It takes max=129134.0 cycles
+It takes min=37668.0 cycles
+
+real    0m1.766s
+user    0m0.084s
+sys     0m0.711s
+60 000requst / second
+
+3-6 times faster.
+
+
+
+in raptor send message in groovy script.
+The throughput is 5455.45171716041 requsts per second
+
+here only send, but not waitfor request.
+
+romve groovy code in script. 20 times faster.
+
+[19 11:16:51,724 WARN ] [main] atom.raptor -  It takes 0.110082985  seconds to send 10000 times of scenario
+[19 11:16:51,724 WARN ] [main] atom.raptor - The performance is 0.0110082985 milliseconds per requst
+[19 11:16:51,724 WARN ] [main] atom.raptor - The throughput is 90840.55996483017 requsts per second
+
+try send it directly in Java code.
+[19 13:48:59,982 WARN ] [main] atom.raptor -  It takes 1.679973852  seconds to send 10000 times of scenario
+[19 13:49:00,045 WARN ] [main] atom.raptor - The performance is 0.16799738520000002 milliseconds per requst
+[19 13:49:00,045 WARN ] [main] atom.raptor - The throughput is 5952.473598380744 requsts per second
+
+So groovy script is not the bottle neck of performance.
+
+
+Tru multi Thread execution. 2
+[19 14:21:38,879 WARN ] [main] atom.raptor -  It takes 1.4135967  seconds to send 10000 times of scenario
+[19 14:21:38,879 WARN ] [main] atom.raptor - The performance is 0.14135967 milliseconds per requst
+[19 14:21:38,879 WARN ] [main] atom.raptor - The throughput is 7074.153469656515 requsts per second
+ 
+more threads. 6
+[19 14:24:46,110 WARN ] [main] atom.raptor -  It takes 1.124510517  seconds to send 10000 times of scenario
+[19 14:24:46,110 WARN ] [main] atom.raptor - The performance is 0.1124510517 milliseconds per requst
+[19 14:24:46,110 WARN ] [main] atom.raptor - The throughput is 8892.758092363843 requsts per second
+
+
+
+ 	 git://github.com/progit/progit.git
+ 	 git clone git://github.com/schacon/simplegit-progit.git
+ 	 
+ 	 
+git svn clone file:///C:/scm/google_code/sample_svn/projectB/ -T trunk -b branches -t tags
+#git svn clone file:///C:\scm\google_code\sample_svn\projectB/ -T trunk -b branches -t tags
+
+report error.
+
+
+ 	 
+ 	 
+
+
+Box: 16.91.113.144
+User/passwd: root/siu_98
+Location: /opt/Claro
+
+Box: 16.91.113.66
+User/Passwd: root/ium_2008
+Location: /opt/ttfortet
+
+successfully reproduce the NO Visibility issue for sample in Effective Java.
+but fail to achieve same result for the sample in Java Concurrency in practice.
+
+debug raptor on Unix.
+/home/seagull
+
+
+start all the mock server
+the local ip is 16.157.68.137
+
+sigar dev log
+
+for interface monitoring. 
+user need to use netstat or sigar to get the list of interfaces and choose the one he would like to monitor. 	 
+
+
+  Using IM with HP is subject to malware scanning and HP security processes.  HP workers are required to adhere to the SBC when using IM. Messages may leave your country.
+  
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [16:02]:
+  hi
+  问个问题
+Wu, Jian-Feng (Jianfeng, TSG-BAS-China-SH) [16:02]:
+  hi
+  ok
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [16:02]:
+  如果我现在用自己的xfd
+  这个xfd我应该放在哪里？
+  就是以前的cisco-gx.xfd
+  我以前放到diameter.jar里面是可以的
+Wu, Jian-Feng (Jianfeng, TSG-BAS-China-SH) [16:03]:
+  should be in the same folder as the testcase xml.
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [16:04]:
+  如果放到每个Case，就不能共用了吗？
+  能不能放到和diameter-client-jboss-beans.xml相同的路径
+Wu, Jian-Feng (Jianfeng, TSG-BAS-China-SH) [16:05]:
+  Yes, you can. but when you refer to it. the path for xfd should be relative to case file.
+  please refer to the sample in folder diameter-xx-Client.
+  another thing to note. all the raptor related file should be put into same top folder. other wise, we may encounter trouble when we import them into repository later.
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [16:07]:
+  恩， thanks, 我试试看
+Wu, Jian-Feng (Jianfeng, TSG-BAS-China-SH) [16:08]:
+  有问题找我.
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [16:08]:
+  好的～
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [16:14]:
+  Caused by: com.hp.usage.fst.FSTException: Diameter4006:cerType
+        at com.hp.usage.fst.codec.ConstructedElementMapping.setRecordMap(Unknown Source)
+        ... 28 more
+Caused by: com.hp.usage.nme.NamespaceNotFoundException: Diameter4006 namespace not found.
+        at com.hp.usage.nme.internal.DefaultNMESchema.getNMEType(Unknown Source)
+        at com.hp.usage.nme.internal.DefaultNMESchema.getNMEType(Unknown Source)
+        ... 29 more
+  我知道了～～
+  无视
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [16:16]:
+  cer 是raptor固定发送的
+  对吧？
+  现在需要加一个AVP  
+  <avp name="Host-IP-Address" value="0x00010a03"> </avp>
+  好像Raptor现在没有加
+  能帮我加一下吗？
+  我有说错了
+  稍等
+   我又说错了，稍等
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [16:24]:
+  无视我前面说的话
+  thanks
+  
+  
+     
+ Your DigitalBadge Test Results  
+ 
+  DigitalBadge Enrollment Failed 
+ 
+ If you have Remote Access 6.0 please run the Remote Access Interactive Help tool (located on your desktop), go to the section for DigitalBadge enrollment failure, and use the tool provided to try to fix the problem.  
+ 
+ If the new one still shows a red test result, then please use the GetIT icon for further assistance. Note: If you are  not in the office and your remote access no longer works due to a failed DigitalBadge, you can still re-enroll by  accessing our externally facing site at https://digitalbadge.external.hp.com. Please make a note of this URL before rebooting.  
+ 
+ 
+ DigitalBadge Details  
+ 
+ Organization = Hewlett-Packard Company
+Organizational Unit = Employment Status - Employees
+Organizational Unit = VPN-WEB-H
+Common Name = Jian-Feng Wu
+Email Address = jianfengw@hp.com
+  
+ Serial Number = 3daf2cc9228e5fddeac56fc7ec6583   
+ 
+ 
+  Using IM with HP is subject to malware scanning and HP security processes.  HP workers are required to adhere to the SBC when using IM. Messages may leave your country.
+  
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [9:45 AM]:
+  hi, jianfeng
+  再问个问题
+Wu, Jian-Feng (Jianfeng, TSG-BAS-China-SH) [9:45 AM]:
+  ok
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [9:45 AM]:
+  现在我们做Assert了
+  如果结果不对就退出了
+  但是我想，最后那个清Session的message还是需要发送出去
+  不管check的值对不对
+Wu, Jian-Feng (Jianfeng, TSG-BAS-China-SH) [9:46 AM]:
+  能把清session的操作放在teardown节点吗?
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [9:47 AM]:
+  清session的message发送出去后，还有需要等待其他的消息
+Wu, Jian-Feng (Jianfeng, TSG-BAS-China-SH) [9:47 AM]:
+  这样他就总是得到执行了.
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [9:47 AM]:
+  再发送消息
+  这样也可以吗？
+Wu, Jian-Feng (Jianfeng, TSG-BAS-China-SH) [9:47 AM]:
+  如果出错了,还需要等待消息吗?
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [9:48 AM]:
+  恩
+  发送了stop消息以后
+Wu, Jian-Feng (Jianfeng, TSG-BAS-China-SH) [9:49 AM]:
+  那就有点复杂了.那你就不要ASSERT了,吧字段写道log,事后手工验证行吗?
+  有空你可以过来, 我我们讨论一下.
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [9:49 AM]:
+  上次dinghao跟我讲一种方法
+Wu, Jian-Feng (Jianfeng, TSG-BAS-China-SH) [9:49 AM]:
+  说说看.
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [9:50 AM]:
+  就是可以catch一个指定的Exception
+Wu, Jian-Feng (Jianfeng, TSG-BAS-China-SH) [9:50 AM]:
+  然后呢?
+Ni, Xiao-Rong (TSG-GDCC-CMEP-SH) [9:50 AM]:
+  我过来～
+  
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:461:UTF8String:Diameter4006.serviceContextId
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:416:Integer32:Diameter4006.ccRequestType
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:415:Unsigned32:Diameter4006.ccRequestNumber
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:1:UTF8String:Diameter4006.userName
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:419:OctetString:Diameter4006.ccSubSessionId
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:50:UTF8String:Diameter4006.acctMultiSessionId
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:439:Integer32:Diameter4006.serviceIndentifier
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:295:Integer32:Diameter4006.terminationCause
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:437:Grouped:Diameter4006.requestServiceUnit
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:420:Integer32:Diameter4006.ccTime
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:413:Grouped:Diameter4006.ccMoney
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:420:Grouped:Diameter4006.unitValue
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:447:OctetString:Diameter4006.valueDigits
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:429:Integer32:Diameter4006.exponent
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:425:Integer32:Diameter4006.currencyCode
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:421:Integer64:Diameter4006.ccTotalOctets
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:412:Integer64:Diameter4006.ccInputOctets
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:414:Integer64:Diameter4006.ccOutputOctets
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:417:Integer64:Diameter4006.ccServiceSpecificUnits
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:436:Integer32:Diameter4006.requestAction
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:455:Integer32:Diameter4006.multipleServicesIndicator
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:411:OctetString:Diameter4006.ccCorrelationId
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:458:Grouped:Diameter4006.userEquipmentInfo
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:459:Integer32:Diameter4006.userEquipmentInfoType
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:460:OctetString:Diameter4006.userEquipmentInfoValue
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:443:Grouped:Diameter4006.subscriptionId
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:450:Integer32:Diameter4006.subscriptionIdType
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:444:UTF8String:Diameter4006.subscriptionIdData
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:446:Grouped:Diameter4006.usedServiceUnit
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:452:Integer32:Diameter4006.tariffChangeUsage
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:456:Grouped:Diameter4006.multipleServicesCreditControl
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:431:Grouped:Diameter4006.grantedServiceUnit
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:451:OctetString:Diameter4006.tariffTimeChange
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:437:Grouped:Diameter4006.requestedServiceUnit
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:432:Integer32:Diameter4006.ratingGroup
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:449:Integer32:Diameter4006.finalUnitAction
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:434:Grouped:Diameter4006.redirectServer
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:433:Integer32:Diameter4006.redirectAddressType
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:435:UTF8String:Diameter4006.redirectServerAddress
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:438:UTF8String:Diameter4006.restrictionFilterRule
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:11:UTF8String:Diameter4006.filterId
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:439:Integer32:Diameter4006.serviceIdentifier
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:457:Grouped:Diameter4006.gsuPoolReference
+[16 10:56:10,823 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:453:Integer32:Diameter4006.gsuPoolIdentifier
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:454:Integer32:Diameter4006.ccUnitType
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:440:Grouped:Diameter4006.serviceParameterInfo
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:441:Integer32:Diameter4006.serviceParameterType
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:442:OctetString:Diameter4006.serviceParameterValue
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:418:Integer32:Diameter4006.ccSessionFailover
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:424:UTF8String:Diameter4006.costUnit
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:423:Grouped:Diameter4006.costInformation
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:430:Grouped:Diameter4006.finalUnitIndication
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:422:Integer32:Diameter4006.checkBalanceResult
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:427:Integer32:Diameter4006.creditControlFailureHandling
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:428:Integer32:Diameter4006.directDebitingFailureHandling
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:448:Unsigned32:Diameter4006.validityTime
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:292:UTF8String:Diameter4006.redirectHost
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:261:Integer32:Diameter4006.redirectHostUsage
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:262:Unsigned32:Diameter4006.redirectMaxCacheTime
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:264:UTF8String:Diameter4006.originHost
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:296:UTF8String:Diameter4006.originRealm
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:283:UTF8String:Diameter4006.destinationRealm
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:257:OctetString:Diameter4006.hostIPAddress
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:266:Unsigned32:Diameter4006.vendorId
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:269:UTF8String:Diameter4006.productName
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:278:Unsigned32:Diameter4006.originStateId
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - override avp Diameter4006.userName
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:293:UTF8String:Diameter4006.destinationHost
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:55:Unsigned32:Diameter4006.eventTimeStamp
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:265:Unsigned32:Diameter4006.supportedVendorId
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:258:Unsigned32:Diameter4006.authApplicationId
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:299:Unsigned32:Diameter4006.inbandSecurityId
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:259:Unsigned32:Diameter4006.acctApplicationId
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:260:Grouped:Diameter4006.vendorSpecificApplicationId
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:267:Unsigned32:Diameter4006.firmwareRevision
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:268:Unsigned32:Diameter4006.resultCode
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:281:OctetString:Diameter4006.errorMessage
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:279:UTF8String:Diameter4006.failedAVP
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:263:UTF8String:Diameter4006.sessionId
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:273:Integer32:Diameter4006.disconnectCause
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:285:Integer32:Diameter4006.reAuthRequestType
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:294:UTF8String:Diameter4006.errorReportingHost
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - override avp Diameter4006.redirectHost
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - override avp Diameter4006.redirectHostUsage
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - override avp Diameter4006.redirectMaxCacheTime
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:295:Integer32:Diameter4006.teminationCause
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:25:UTF8String:Diameter4006.class
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:284:Grouped:Diameter4006.proxyInfo
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:280:OctetString:Diameter4006.proxyHost
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:33:OctetString:Diameter4006.proxyState
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:282:UTF8String:Diameter4006.routeRecord
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:480:Integer32:Diameter4006.accountingRecordType
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:485:Unsigned32:Diameter4006.accountingRecordNumber
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:287:Integer64:Diameter4006.accountingSubSessionId
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:44:UTF8String:Diameter4006.acctSessionId
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - override avp Diameter4006.acctMultiSessionId
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:85:Integer32:Diameter4006.acctInterimInterval
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:483:Integer32:Diameter4006.accountingRealtimeRequired
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:274:Integer32:Diameter4006.authRequestType
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:297:Grouped:Diameter4006.experimentalResult
+[16 10:56:10,838 DEBUG] [main] diameter.DiameterCodecListener - generate AVP: 0:298:Integer32:Diameter4006.experimentalResultCode
+[16 10:56:10,838 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.bodyType
+[16 10:56:10,916 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.Body
+[16 10:56:10,932 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccType
+[16 10:56:10,932 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccrType
+[16 10:56:10,963 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccaType
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.subscriptionIdArrayType
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.usedServiceUnitArrayType
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.multipleServicesCreditControlArrayType
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.restrictionFilterRuleArrayType
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.filterIdArrayType
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.serviceIdentifierArrayType
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.gsuPoolReferenceArrayType
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.serviceParameterInfoArrayType
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.serviceContextId
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccRequestType
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccRequestNumber
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.userName
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccSubSessionId
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.acctMultiSessionId
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.serviceIndentifier
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.terminationCause
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.requestServiceUnit
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccTime
+[16 10:56:10,979 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccMoney
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.unitValue
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.valueDigits
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.exponent
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.currencyCode
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccTotalOctets
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccInputOctets
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccOutputOctets
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccServiceSpecificUnits
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.requestAction
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.multipleServicesIndicator
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccCorrelationId
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.userEquipmentInfo
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.userEquipmentInfoType
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.userEquipmentInfoValue
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.subscriptionId
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.subscriptionIdType
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.subscriptionIdData
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.usedServiceUnit
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.tariffChangeUsage
+[16 10:56:10,994 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.multipleServicesCreditControl
+[16 10:56:11,010 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.grantedServiceUnit
+[16 10:56:11,010 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.tariffTimeChange
+[16 10:56:11,010 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.requestedServiceUnit
+[16 10:56:11,010 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ratingGroup
+[16 10:56:11,010 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.finalUnitAction
+[16 10:56:11,010 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.redirectServer
+[16 10:56:11,010 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.redirectAddressType
+[16 10:56:11,010 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.redirectServerAddress
+[16 10:56:11,010 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.restrictionFilterRule
+[16 10:56:11,010 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.filterId
+[16 10:56:11,010 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.serviceIdentifier
+[16 10:56:11,010 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.gsuPoolReference
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.gsuPoolIdentifier
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccUnitType
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.serviceParameterInfo
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.serviceParameterType
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.serviceParameterValue
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ccSessionFailover
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.costUnit
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.costInformation
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.finalUnitIndication
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.checkBalanceResult
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.creditControlFailureHandling
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.directDebitingFailureHandling
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.validityTime
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.redirectHostArrayType
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.redirectHost
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.redirectHostUsage
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.redirectMaxCacheTime
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - override class Diameter4006.bodyType
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.DiameterMessage
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - override class Diameter4006.Body
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ceType
+[16 10:56:11,026 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.dwType
+[16 10:56:11,041 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.dpType
+[16 10:56:11,041 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.raType
+[16 10:56:11,041 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.stType
+[16 10:56:11,041 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.asType
+[16 10:56:11,041 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.acType
+[16 10:56:11,041 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.cerType
+[16 10:56:11,057 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.ceaType
+[16 10:56:11,057 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.dwrType
+[16 10:56:11,057 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.dwaType
+[16 10:56:11,057 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.dprType
+[16 10:56:11,057 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.dpaType
+[16 10:56:11,057 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.rarType
+[16 10:56:11,072 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.raaType
+[16 10:56:11,072 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.strType
+[16 10:56:11,072 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.staType
+[16 10:56:11,072 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.asrType
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.asaType
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.acrType
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.acaType
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.hostIPAddressArrayType
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.supportedVendorIdArrayType
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.authApplicationIdArrayType
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.inbandSecurityIdArrayType
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.acctApplicationIdArrayType
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.vendorSpecificApplicationIdArrayType
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.failedAVPArrayType
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.originHost
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.originRealm
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.destinationRealm
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.hostIPAddress
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.vendorIdArrayType
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.vendorId
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.productName
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.originStateId
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.userName
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.destinationHost
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.eventTimeStamp
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.supportedVendorId
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.authApplicationId
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.inbandSecurityId
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.acctApplicationId
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.vendorSpecificApplicationId
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.firmwareRevision
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.resultCode
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.errorMessage
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.failedAVP
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.sessionId
+[16 10:56:11,119 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.disconnectCause
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.reAuthRequestType
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.errorReportingHost
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.redirectHostArrayType
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.redirectHost
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.redirectHostUsage
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.redirectMaxCacheTime
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.teminationCause
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.classArrayType
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.class
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.proxyInfoArrayType
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.routeRecordArrayType
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.proxyInfo
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.proxyHost
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.proxyState
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.routeRecord
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.accountingRecordType
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.accountingRecordNumber
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.accountingSubSessionId
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.acctSessionId
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.acctMultiSessionId
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.acctInterimInterval
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.accountingRealtimeRequired
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.authRequestType
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.experimentalResult
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.experimentalResultCode
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.UInt1
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.UInt3
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.Int4
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.Bit1
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.Bit4
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.Bit5
+[16 10:56:11,135 DEBUG] [main] codec.CodecFactory - generate class: Diameter4006.AVP

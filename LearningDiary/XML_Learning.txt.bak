@@ -1,0 +1,113 @@
+XML support default or Fixed value.
+
+<xs:element name="color" type="xs:string" default="red"/>
+
+<xs:element name="color" type="xs:string" fixed="red"/>
+
+used for type in entity reference. //wrong.
+
+Attribute
+by default is optional.
+<xs:attribute name="lang" type="xs:string" use="required"/>
+
+**TODO** handle whitespace (save the effort in java code.)
+better solution: <xs:element name="customer" type="xs:normalizedString"/>
+
+
+<xs:element name="address">
+  <xs:simpleType>
+    <xs:restriction base="xs:string">
+      <xs:whiteSpace value="collapse"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:element>
+
+<xs:simpleType name="collapseString">
+    <xs:restriction base="xs:string">
+      <xs:whiteSpace value="collapse"/>
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:element name="address" type="collapseString"></xs:element>
+
+
+Constraint  	Description
+enumeration 	Defines a list of acceptable values
+fractionDigits 	Specifies the maximum number of decimal places allowed. Must be equal to or greater than zero
+length 	Specifies the exact number of characters or list items allowed. Must be equal to or greater than zero
+maxExclusive 	Specifies the upper bounds for numeric values (the value must be less than this value)
+maxInclusive 	Specifies the upper bounds for numeric values (the value must be less than or equal to this value)
+maxLength 	Specifies the maximum number of characters or list items allowed. Must be equal to or greater than zero
+minExclusive 	Specifies the lower bounds for numeric values (the value must be greater than this value)
+minInclusive 	Specifies the lower bounds for numeric values (the value must be greater than or equal to this value)
+minLength 	Specifies the minimum number of characters or list items allowed. Must be equal to or greater than zero
+pattern 	Defines the exact sequence of characters that are acceptable
+totalDigits 	Specifies the exact number of digits allowed. Must be greater than zero
+whiteSpace 	Specifies how white space (line feeds, tabs, spaces, and carriage returns) is handled
+
+
+<xs:element name="employee" type="personinfo"/>
+
+<xs:complexType name="personinfo">
+  <xs:sequence>
+    <xs:element name="firstname" type="xs:string"/>
+    <xs:element name="lastname" type="xs:string"/>
+  </xs:sequence>
+</xs:complexType>
+
+
+Extension example.
+<xs:element name="employee" type="fullpersoninfo"/>
+
+<xs:complexType name="personinfo">
+  <xs:sequence>
+    <xs:element name="firstname" type="xs:string"/>
+    <xs:element name="lastname" type="xs:string"/>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="fullpersoninfo">
+  <xs:complexContent>
+    <xs:extension base="personinfo">
+      <xs:sequence>
+        <xs:element name="address" type="xs:string"/>
+        <xs:element name="city" type="xs:string"/>
+        <xs:element name="country" type="xs:string"/>
+      </xs:sequence>
+    </xs:extension>
+  </xs:complexContent>
+</xs:complexType>
+
+
+The <all> indicator specifies that the child elements can appear in any order, and that each child element must occur only once:
+**TODO** I should use <all> in config since order does not matter at all.
+
+
+<xs:element name="person">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="firstname" type="xs:string"/>
+      <xs:element name="lastname" type="xs:string"/>
+      <xs:any minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+The <any> and <anyAttribute> elements are used to make EXTENSIBLE documents! They allow documents to contain additional elements that are not declared in the main XML schema.
+
+
+A back door in the validation.
+
+Attribute Extension.
+<xs:element name="person">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="firstname" type="xs:string"/>
+      <xs:element name="lastname" type="xs:string"/>
+    </xs:sequence>
+    <xs:anyAttribute/>
+  </xs:complexType>
+</xs:element>
+
+
+Global element and sustitution group.
