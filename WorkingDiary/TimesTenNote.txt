@@ -1,0 +1,425 @@
+																																														sample database have already been installed and configured.																																																																																																		
+connect "dsn=TT_tt1121_32"
+
+create user eddie identified by eddie
+
+Command> begin
+       > for i in 1..100
+       > loop insert into a values (i||'in');
+       > end loop;
+       > end;
+       > /
+       
+begin
+for i in 1..1000000
+loop 
+	insert into aa(bb) values (i||'in');
+end loop;
+end;
+/
+
+ttDaemonAdmin -start
+
+desc a;
+
+create table  aa ( bb varchar(30));
+
+test performance of 1M records.
+begin
+for i in 1..1000000
+loop insert into aa values ('good-'||i||'-morning');
+end loop;
+end;
+/
+
+100K data.
+
+sqlplus	SPR_RT09/!qaz2wsx@dragon
+
+begin
+for i in 1..100000
+loop insert into account(ID, Balance) values (i,1+1000);
+end loop;
+end;
+/
+
+SQL> set timing on;
+SQL> select count(1) from account;
+
+  COUNT(1)
+----------
+    100000
+
+Elapsed: 00:00:00.29
+SQL> select count(ID) from account;
+
+--having the primary key index.
+--create index on table account()
+
+connect "dsn=sampledbCS_1121"
+ create table aa(bb varchar(30));
+ 
+ begin
+for i in 1..100000
+loop insert into a values (i||'in');
+end loop;
+end;
+/
+
+Command> select count(1) from a;
+< 200101 >
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.007674 seconds.
+
+
+will be better if having index;
+create table account(ID Number primary key,Balance Number) ; ID;
+
+begin
+for i in 1..100000
+loop insert into account values (i,i+1000);
+end loop;
+end;
+/
+
+Execution time (SQLExecDirect) = 0.184019 seconds.
+Command> begin
+       > for i in 1..100000
+       > loop insert into account values (i,1+1000);
+       > end loop;
+       > end;
+       > /
+
+PL/SQL procedure successfully completed.
+
+Execution time (SQLExecute) = 1.188809 seconds.
+Command> select count(1) from account;
+< 100000 >
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.004185 seconds.
+
+(there is no big difference.)
+see the power of times ten.
+
+
+begin
+for i in 1..1000000
+loop insert into account values (1000000+i,i+1000);
+end loop;
+end;
+/
+
+
+Elapsed: 00:00:00.29
+290 milli seconds 
+vs 
+0.007674 seconds.
+8 milli seconds.
+
+30 times quicke on 100K records table.
+
+
+select * from account where id=1;
+select * from aa where id=1;
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.000993 seconds.
+
+oracle
+Elapsed: 00:00:00.31
+
+310 milliseconds(including networking) vs 1 milliseconds.
+
+300k data no index
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.012850 seconds.
+
+Execution time (SQLExecute + Fetch Loop) = 0.012850 seconds.
+Command> create index aa_bb on  aa(bb);
+Execution time (SQLExecute) = 0.318272 seconds.
+Command> select * from aa where bb='10000in';
+< 10000in >
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.000864 seconds.
+Command> select * from aa where bb='10000in';
+< 10000in >
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.000871 seconds.
+
+
+Command> select * from aa where rownum=1;
+< 1000000in >
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.023311 seconds.
+Command> select * from aa where bb='1000000in';
+< 1000000in >
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.000896 seconds.
+Command> select * from aa where bb='1000000in';
+< 1000000in >
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.000881 seconds.
+Command> select * from aa where bb='1000000in';
+< 1000000in >
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.000877 seconds.
+Command> select count(1) from aa;
+< 1300000 >
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.051993 seconds.
+Command> select count(1) from aa;
+< 1300000 >
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.043052 seconds.
+
+
+10M
+
+
+
+begin
+for i in 1..1000000
+loop 
+	insert into aa(bb) values (i||'morning1');	
+end loop;
+commit;
+end;
+/
+
+begin
+for i in 1..1000000
+loop 
+	insert into aa(bb) values (i||'morning5');	
+end loop;
+commit;
+end;
+/
+begin
+for i in 1..1000000
+loop 
+	insert into aa(bb) values (i||'morning6');	
+end loop;
+commit;
+end;
+/
+begin
+for i in 1..1000000
+loop 
+	insert into aa(bb) values (i||'morning7');	
+end loop;
+commit;
+end;
+/
+begin
+for i in 1..1000000
+loop 
+	insert into aa(bb) values (i||'morning8');	
+end loop;
+commit;
+end;
+/
+
+begin
+for i in 1..10
+loop 
+	insert into aa(bb) values (i||'int2');
+	if(mod(i,1000)=0) then commit;
+	end if;
+end loop;
+end;
+/
+
+
+Command> select count(1) from aa;
+< 6459648 >
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.845339 seconds.
+
+select * from aa where bb='100001morning4';
+about 1 milli seconds.
+6.5M * 15 100M
+also index 100M
+can not add more.
+
+
+key point in the oracle doc.
+(In Memory Database)
+An active standby pair provides for high availability of a TimesTen database.  
+()
+
+(Cache Grid)
+Multiple grid members provide for high availability of a TimesTen cache grid. 
+(Can not understand. have not get it.)
+
+(In Disk Database)
+Oracle Real Application Clusters (RAC) and Data Guard provides for high availability 
+
+
+Cache Grid <>--->Cache Group<>--->Table
+
+
+Grid Member (TimeTen : one node)
+Grid Member (TimeTen Active/Standby Pair : two nodes) ---->Oracle DB
+Grid Member (TimeTen : one node)
+
+new grid members attach to the grid or existing grid members detach from the grid.
+
+redistributes data based on application access patterns. 
+
+The cache grid automatically maintains cache coherence and transactional consistency across the grid members.
+
+A cache group can contain only one root table.
+
+A cache instance is defined as a single row in the cache group's root table together with the set of related rows in the child tables.
+of an Oracle database.
+
+select * from aa where bb='1000000in';
+select count(1) from aa;
+
+Command> delete from aa where rownum<1000000;
+999999 rows deleted.
+Execution time (SQLExecute) = 3.847631 seconds.
+Command> commit;
+Execution time (SQLTransact) = 19.754099 seconds.
+
+begin
+	for count in 1..10000 loop
+		insert into aa values ('1000000'||count||'eddie');	
+	end loop;
+end;
+/
+commit;
+Execution time (SQLExecute) = 0.114370 seconds.
+Command> commit;
+Execution time (SQLTransact) = 0.039412 seconds.
+
+
+begin
+	for count in 1..100000 loop
+		insert into aa values ('1000000'||count||'eddie');	
+	end loop;
+end;
+/
+commit;
+Execution time (SQLExecute) = 1.136585 seconds.
+Command> commit;
+Execution time (SQLTransact) = 0.148528 seconds.
+
+autocommit 1;
+Execution time (SQLExecute) = 0.117057 seconds.
+
+
+0.073198 seconds.
+
+autocommit 0;
+begin
+	for count in 1..100000 loop
+		insert into aa values ('1000000'||count||'eddie');
+		commit;	
+	end loop;
+end;
+/
+Execution time (SQLExecute) = 1.670985 seconds.
+commit;
+
+begin
+	for count in 1..10000 loop
+		insert into account values ('1000000'||count);	
+	end loop;
+end;
+
+begin
+	for count in 1..10000 loop
+		--insert into account values ('1000000'||count);
+		insert into ORDERS values (6854179+count,1121,'0198612583',to_date('2009-02-02','yyyy-mm-dd'));	
+	end loop;
+end;
+Execution time (SQLExecute) = 1.702756 seconds.
+Execution time (SQLExecute) = 0.420533 seconds. --second time.
+
+begin
+	for count in 1..50000 loop
+		--insert into account values ('1000000'||count);
+		insert into ORDERS values (7074189+count,1121,'0198612583',to_date('2009-02-02','yyyy-mm-dd'));	
+	end loop;
+end;
+Execution time (SQLExecute) = 7.587547 seconds.
+Execution time (SQLExecute) = 7.612361 seconds. --second time
+
+TPS: about 7000
+
+begin
+	for count in 1..50000 loop
+		--insert into account values ('1000000'||count);
+		insert into ORDERS values (7274189+count,1121,'0198612583',to_date('2009-02-02','yyyy-mm-dd'));
+		commit;	
+	end loop;
+end;
+
+Execution time (SQLExecute) = 1.419324 seconds. --much better. TPS=33000
+Execution time (SQLExecute) = 1.485228 seconds. --second time.
+
+Command> select count(1) from appuser.orders;
+< 220007 >
+1 row found.
+Execution time (SQLExecute + Fetch Loop) = 0.010065 seconds.
+
+
+Data model:
+
+Account
+ID	NUMBER(30)	N			
+SUBSCRIBERID	NUMBER(30)	Y			
+BALANCE	NUMBER(30)	Y			
+ACCOUNTTYPE	INTEGER	Y			
+TOTALRESERVATION	NUMBER(30)	Y			
+CURRENCYCODE	VARCHAR2(254)	Y			
+CREDIT	NUMBER(30)	Y			
+STATUS	INTEGER	Y			
+NOTIFYENABLE	NUMBER(1)	Y			
+TAX	INTEGER	Y			
+ACCOUNTDEFINITIONNAME	VARCHAR2(254)	Y			
+PARAMETERBLOB	BLOB	Y		
+
+
+Device:
+ID	NUMBER(30)	N			
+SUBSCRIBERID	NUMBER(30)	Y			
+GROUPNAME	VARCHAR2(254)	Y	
+
+Sequence4KeyGeneration
+KEYGENID	VARCHAR2(100)	N			
+CURRENTVALUE	NUMBER(30)	Y	
+
+1	KeyGen4Account	10022
+2	KeyGen4BalanceThreshold	10000
+3	KeyGen4Subscriber	10012
+4	KeyGen4SubscriberServiceAttribute	10000
+5	KeyGen4ServiceQuota	10000
+6	KeyGen4ServiceUsageCounter	10010
+7	KeyGen4Subscription	10012
+8	KeyGen4Device	10012
+9	KeyGen4DeviceIdentifier	10012	
+
+SERVICEQUOTA:
+ID	NUMBER(30)	N			
+SUBSCRIPTIONID	NUMBER(30)	Y			
+QUOTADEFINITIONID	INTEGER	Y			
+TYPE	INTEGER	Y			
+QUOTABALANCE	NUMBER(30)	Y			
+SUBSCRIBERID	NUMBER(30)	Y			
+QUOTARESERVATION	NUMBER(30)	Y			
+RENEWALDATE	DATE	Y			
+SERVICEUSAGECOUNTERID	NUMBER(30)	Y	
+
+
+Sequence have no syschronization for getting the next value.						
+(It is fine because of implicit lock of coherence.)
+
+@@It takes 3369343311 nanoseconds for 10000 times adding subscription.
+subscriberId=4
+@@It takes 244931968 nanoseconds for 1 times query subscription.
+result count=1019
+result[0]=SubscriptionIdentifier [id=31943, identifier=id1266990511041, identifierType=4, subscriberId=4]
+@@It takes 19849975346 nanoseconds for 100 times query subscription.
+@@It takes 197315140052 nanoseconds for 1000 times query subscription.
+PASSED: test10000

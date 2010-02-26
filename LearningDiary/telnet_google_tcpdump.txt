@@ -1,0 +1,34 @@
+22:59:26.077039 IP jwu7.asiapacific.hpqcorp.net.1086 > 192.168.0.1.53:  36598+ A? www.google.com. (32)
+22:59:26.177896 IP 192.168.0.1.53 > jwu7.asiapacific.hpqcorp.net.1086:  36598 5/0/0 CNAME www.l.google.com.,[|domain]
+
+22:59:26.179176 IP jwu7.asiapacific.hpqcorp.net > hkg01s01-in-f99.1e100.net: ICMP echo request, id 512, seq 40704, length 40
+22:59:26.264930 IP hkg01s01-in-f99.1e100.net > jwu7.asiapacific.hpqcorp.net: ICMP echo reply, id 512, seq 40704, length 40
+
+22:59:26.705413 IP jwu7.asiapacific.hpqcorp.net.137 > 192.168.0.1.137: UDP, length 50
+22:59:26.706585 IP 192.168.0.1 > jwu7.asiapacific.hpqcorp.net: ICMP 192.168.0.1 udp port 137 unreachable, length 36
+
+22:59:27.180067 IP jwu7.asiapacific.hpqcorp.net > hkg01s01-in-f99.1e100.net: ICMP echo request, id 512, seq 40960, length 40
+22:59:27.233430 IP hkg01s01-in-f99.1e100.net > jwu7.asiapacific.hpqcorp.net: ICMP echo reply, id 512, seq 40960, length 40
+
+22:59:28.180054 IP jwu7.asiapacific.hpqcorp.net > hkg01s01-in-f99.1e100.net: ICMP echo request, id 512, seq 41216, length 40
+22:59:28.205414 IP jwu7.asiapacific.hpqcorp.net.137 > 192.168.0.1.137: UDP, length 50
+22:59:28.206206 IP 192.168.0.1 > jwu7.asiapacific.hpqcorp.net: ICMP 192.168.0.1 udp port 137 unreachable, length 36
+22:59:28.232902 IP hkg01s01-in-f99.1e100.net > jwu7.asiapacific.hpqcorp.net: ICMP echo reply, id 512, seq 41216, length 40
+
+22:59:28.273854 IP jwu7.asiapacific.hpqcorp.net.138 > 192.168.0.255.138: UDP, length 201
+22:59:29.181980 IP jwu7.asiapacific.hpqcorp.net > hkg01s01-in-f99.1e100.net: ICMP echo request, id 512, seq 41472, length 40
+22:59:29.234833 IP hkg01s01-in-f99.1e100.net > jwu7.asiapacific.hpqcorp.net: ICMP echo reply, id 512, seq 41472, length 40
+22:59:29.705387 IP jwu7.asiapacific.hpqcorp.net.137 > 192.168.0.1.137: UDP, length 50
+
+22:59:29.706223 IP 192.168.0.1 > jwu7.asiapacific.hpqcorp.net: ICMP 192.168.0.1 udp port 137 unreachable, length 36
+
+22:59:31.206106 IP jwu7.asiapacific.hpqcorp.net.1086 > 192.168.0.1.53:  9790+ PTR? 99.189.233.64.in-addr.arpa. (44)
+22:59:31.307098 IP 192.168.0.1.53 > jwu7.asiapacific.hpqcorp.net.1086:  9790 1/0/0 (83)
+
+
+Pinging jwu7.asiapacific.hpqcorp.net.1086.router [218.83.175.155] with 32 bytes of data:
+
+Reply from 218.83.175.155: bytes=32 time=46ms TTL=250
+Reply from 218.83.175.155: bytes=32 time=10ms TTL=250
+Reply from 218.83.175.155: bytes=32 time=9ms TTL=250
+Reply from 218.83.175.155: bytes=32 time=9ms TTL=250

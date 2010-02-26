@@ -1,0 +1,55 @@
+tcpdump windows version
+windump ---> wincap
+
+1. how to capture the packet.
+
+if only,
+ 	windump
+	windump: listening on \Device\NPF_GenericDialupAdapter
+ , nothing is capture.
+ 
+2.
+windump -D
+1.\Device\NPF_GenericDialupAdapter (Adapter for generic dialup and VPN capture)
+2.\Device\NPF_{3A788FF9-AC29-4A98-8C37-9968F743B75D} (Broadcom NetXtreme Gigabit
+Ethernet Driver (Microsoft's Packet Scheduler) )
+3.\Device\NPF_{170CCA98-09C6-40FB-9D4F-F74165835D11} (Intel(R) WiFi Link 5100 AGN
+ (Microsoft's Packet Scheduler) )
+ 
+3.
+	windump -i 2
+	windump: listening on \Device\NPF_{3A788FF9-AC29-4A98-8C37-9968F743B75D}
+
+
+4 . 
+windump -i 2 > telnet_google_tcpdump.txt
+telnet in another window.
+
+-n means using dotted decimal IP instead of domain name.
+
+5.arp -a
+Interface: 192.168.0.2 --- 0x2
+  Internet Address      Physical Address      Type
+  192.168.0.1           00-b0-2c-1e-7d-ef     dynamic   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

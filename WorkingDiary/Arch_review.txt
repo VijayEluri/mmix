@@ -1,0 +1,7 @@
+1. The usage of Sequence4KeyGeneration
+	Why not use 
+
+
+2. There is no index at all except the default index on primary key.
+
+3. 

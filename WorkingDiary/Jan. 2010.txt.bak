@@ -19,23 +19,70 @@ Thursday
 
 
 TODO List
-1. Template for message generation.
-2. Action for Subscription 
-3. DB Check API and Action.
+1. Template for message generation. (use file or entity.)
+2. Action for Subscription () -- pending
+3. DB Check API.
 4. UI integration.
-5. Result Report.
+5. Result Report.  ---> node description in error node.
 
 
 Monday.
 1. Test Case for UI integration.
-2. Action Review.
-3. import QA  Code.
+2. new Action Desgin Review.
+3. import QA Code.
 4. Data preparation impl.
 
 Tuesday,
 1. Schema import and base issue.
 2. Entity date issue.
-3. file / Entity issue, because of the strict validation. (many potential issues are found and fixed)
+3. Because of the strict validation. (many potential issues are found and fixed)
+
+Thursday,
+1. DBCheck schema design.
+2. DBCheck action drafting.
+3. Fixed xml issue found by strict validation.
+
+Thursday,
+1. merge QA code about logs.
+2. DBCheck action (contd.)
+
+
+Jan 25 Monday
+
+0. add API for UI
+1. support QA (legacy issue)
+2. improve code.
+3. try times ten.
+4. log trancate and backup.
+
+Tuesday.
+Support UI.
+implement log trancate and backup integration.
+fix one bug on URL inputsream conversion.
+Support QA(alpha version for ien zhang)
+reading Action schema.
+
+Wedesday.
+1. change the code ans schema to adaptor to new Action/Entity.
+2. 
+
+Thursday.
+1. continue integration.
+2. resolve build issue (API changed).
+
+
+Friday.
+1. Support UI becase of API change.
+2. Continue integration with new Action/Entity.
+3. Fix issues in API. (Trick xml issue.)
+
+
+<template><file>a.b</file></template> does not work ,can not be load into the object.
+may be caused by the xml inheritance and polymorphism.
+
+<send:template><file>a.b</file></send:template> works. does not know the reason.
+seems global name space cause confusion.
+
 
 
 

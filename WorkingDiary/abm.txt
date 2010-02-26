@@ -1,0 +1,57 @@
+BM: Balance Management
+CM: Counter Management
+QM: Quota Management
+
+RSU: Request Service Usage
+GSU: Granted Service Usage
+USU: Used Service Usage
+
+NC: Notification Center
+VC: Voucher Center  
+
+CC: Charge Control
+NE: Network Element
+
+refill. fill the account with more budget.
+refund. return some money (e.g. over charged) back to the account.
+
+
+HLD provide example of business scenario.
+
+
+create sequence LOGSEQUENCE
+minvalue 1
+maxvalue 999999999
+start with 1
+increment by 1
+cache 20;
+
+desc logsequencebegin
+declare temp number :=0;
+begin
+
+for i in 1..100000
+loop 
+select LOGSEQUENCE.Nextval into temp from dual;
+end loop;
+end;
+/
+
+
+declare temp number :=0;
+begin
+for i in 1..100000
+loop 
+select LOGSEQUENCE.currval into temp from dual;
+end loop;
+end;
+/
+
+Command> select LOGSEQUENCE.Nextval from dual;
+< 1 >
+1 row found.
+Command> select LOGSEQUENCE.currval from dual;
+< 1 >
+1 row found.
+
+timing on ;

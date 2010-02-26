@@ -3,3 +3,7 @@
 *.bin
 .svn
 *.class
+*.bak
+.metadata
+bak
+GO_WS

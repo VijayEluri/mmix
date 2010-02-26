@@ -1,0 +1,60 @@
+Monday.
+1. full time support UI integration and address issues.
+
+Tuesday.
+1. Addres class loading issue by moving raptor from tool/ to modules/
+2. 
+
+Wednesday.
+1. Raptor Server case supportting 
+2. Make UT faster. avoid unnecessary remote call like repo loading.
+3. Clean up and reorganize unit test case.
+4. Fix Quix bug.
+
+Thursday.
+1. Support QA adopting new version.
+2. Add DB check - Integration
+3. Clean up code and improve unit testing.
+
+Friday.
+1. 
+2. 
+
+
+Blog 1.
+SVN
+
+There is a problem in Eclipse SVN plugin. If you use TortoiseSVN at the same time.
+the plugin will complain that the format in the working copy need to be downgraded.
+
+Finally I find that there are two option in the plugin, you can choose between 
+JNI version and pure Java version. After I switch to Pure Java vwesion, everything go smoothly.
+
+
+XML
+There is an issue on default namespace.
+
+<template><file>template/message_template.xml</file></template> doesn't work.
+
+change to the following will work.
+<send:template><file>template/message_template.xml</file></send:template>
+
+
+
+
+1. Tuesday
+abm code reading
+tt research 
+
+Wednesday
+tt research 
+abm code reading
+data modeler research
+
+Thursday
+abm code reading
+TestCase cleanup/coverage
+
+Friday
+TestCase cleanup/coverage
+Support QA and address issue.

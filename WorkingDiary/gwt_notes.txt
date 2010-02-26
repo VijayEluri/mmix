@@ -1,0 +1,6 @@
+download GWT.
+
+cd C:\Program Files\gwt-2.0.1
+
+
+
