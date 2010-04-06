@@ -1,0 +1,88 @@
+Connected to Oracle Database 10g Enterprise Edition Release 10.2.0.1.0 
+Connected as SPR_RT09
+ 
+SQL> create table dept (deptno int primary key, sum_of_salary number);
+ 
+Table created
+ 
+SQL> crate table emp ( empno int primary key, deptno references dept,
+  2  salary number);
+ 
+crate table emp ( empno int primary key, deptno references dept,
+salary number)
+ 
+ORA-00900: invalid SQL statement
+ 
+SQL> create table emp ( empno int primary key, deptno references dept,
+  2  salary number);
+ 
+Table created
+ 
+SQL> insert into dept(deptno) values (1);
+ 
+1 row inserted
+ 
+SQL> insert into dept(deptno) values (2);
+ 
+1 row inserted
+ 
+SQL> select * from dept;
+ 
+                                 DEPTNO SUM_OF_SALARY
+--------------------------------------- -------------
+                                      1 
+                                      2 
+ 
+SQL> insert into emp ( empno,deptno,salary) values 
+  2  (100,1,55);
+ 
+1 row inserted
+ 
+SQL> insert into emp ( empno,deptno,salary) values
+  2  (101,1,50);
+ 
+1 row inserted
+ 
+insert into emp ( empno,deptno,salary) values  (102,2,60); 
+
+update emp set deptno=2 where empno=100;
+
+--init
+truncate table emp;
+truncate table dept;
+insert into emp ( empno,deptno,salary) values   (100,1,55);
+insert into emp ( empno,deptno,salary) values   (101,1,50);
+update dept set sum_of_salary =(select sum(salary) from emp where emp.deptno=dept.deptno) where dept.deptno  in (1,2);
+
+
+
+update dept set sum_of_salary =(select sum(salary) from emp where emp.deptno=dept.deptno) where dept.deptno =2;
+ 
+1 row updated
+ 
+SQL> commit;
+ 
+Commit complete
+ 
+SQL> select * from dept;
+ 
+                                 DEPTNO SUM_OF_SALARY
+--------------------------------------- -------------
+                                      1           105
+                                      2 
+ 
+SQL> select * from emp;
+ 
+                                  EMPNO                                  DEPTNO     SALARY
+--------------------------------------- --------------------------------------- ----------
+                                    100                                       1         55
+                                    101                                       1         50
+ 
+ 
+ 
+ 
+ insert into emp ( empno,deptno,salary) values   (102,2,60);
+ 
+1 row inserted
+ 
+SQL> (101,1,50);

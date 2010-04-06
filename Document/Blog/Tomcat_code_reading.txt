@@ -1,0 +1,43 @@
+0. I am reading the source code of Tomcat 6.0.26. To pay off the effort, 
+I documents some notes for record. Thanks for the articles about Tomcat
+source code, espcially the book <<How Tomcat works>>.
+
+1. They are two concepts about server, one is called Server, which
+is for managing the Tomcat (start and stop); another is called Conector,
+which is the server to serve the application request. they are on the different
+ports. The server.xml clearly show the difference. 
+
+<Server port="8005" shutdown="SHUTDOWN">
+  <Service name="Catalina">
+    <Connector port="8080" protocol="HTTP/1.1" 
+               connectionTimeout="20000" 
+               redirectPort="8443" />
+    <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+
+although the server is the top level element, logically it should not be.
+Actaully in code, Bootstrap starts the service first, which
+inturn start the Server and server's services. 
+
+2. My focus in on Connector part. I care how the request is services by the 
+Tomcat. Here are some key classes.
+
+Connector --> ProtocolHandler (HttpProtocol
+			  and AjpProtocol) 				--> JIoEndPoint
+							  				--> Handler(Http11ConnectionHandler 
+							  				     and AjpConnectionHandler)
+							  				     
+							  				     
+3. Connector is most obivious class, but the entry point is not here.
+The sequence is like this. 
+
+Connector.Acceptor.run() 
+--> JioEndPoint.processSocke(Socket socket) 
+	-->SockeProcess.run()
+		-->Http11ConnectorHandler.process(Socket socket)
+			-->Http11Processor.process(Socket socket)
+				-->CoyoteAdapter.service(Request req, Response res)		
+
+The core logic is in method Http11Processor.process(Socket socket)							  				     
+
+CoyoteAdapter bridges between Connector module and Container module.
+service(Request req, Response res)			

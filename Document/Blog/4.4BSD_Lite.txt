@@ -1,0 +1,31 @@
+How to read the source code in <<TCP/IP Illustrated Volume 2>>
+
+1. get the source code, original link provided in the book is not available now.
+YOu may need to google it.
+
+2. install cscope and vi.
+
+3. refer to http://cscope.sourceforge.net/large_projects.html for the following steps.
+
+It will include all the source code of the whole OS, not only the kernel.
+find src -name '*.[ch]' > cscope.files
+
+we actually only care kernel source.
+find src/sys -name '*.[ch]' > cscope.files
+
+4.  wc cscope.files 
+ 1613  1613 45585 cscope.files
+
+5. vim
+:help cscope
+then you can read the help details.
+
+6. if you run vim in the folder where cscope.out resides. then it will be loaded
+automaically. 
+
+7. Try a few commands.
+:cs find g mbuf
+:cs find f vm.h
+
+They works. A good start.
+
