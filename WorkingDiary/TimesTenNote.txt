@@ -423,3 +423,11 @@ result[0]=SubscriptionIdentifier [id=31943, identifier=id1266990511041, identifi
 @@It takes 19849975346 nanoseconds for 100 times query subscription.
 @@It takes 197315140052 nanoseconds for 1000 times query subscription.
 PASSED: test10000
+
+
+
+,
+1. how to get the format such as 3,369,343,311 from 3369343311.
+
+String. format
+System

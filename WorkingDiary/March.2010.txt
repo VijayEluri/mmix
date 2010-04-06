@@ -1,0 +1,30 @@
+Monday
+Support QA for adopting Raptor.
+Fix issue and provide more feature.
+
+Tuesday
+Support QA for adopting Raptor.
+Fix issue and provide more feature.
+Training from Honghai
+
+Wednesday
+Support QA for adopting Raptor.
+Fix issue and provide more feature.
+
+Thursday.
+Support QA for adopting Raptor.
+Fix issue and provide more feature.
+find a bug in codec module.
+
+Friday.
+
+System.exit(0) will broke maven plugin. cause no normal output.
+Be careful to use this way to terminate the program.
+
+find a bug in codec module
+
+release new version to QA.
+
+Improve code.
+
+code to support xml setting.
