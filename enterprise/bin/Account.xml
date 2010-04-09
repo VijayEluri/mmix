@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="example.Account">
+
+	<select id="getAccount" parameterType="int" resultType="example.Account">
+		select *
+		from AccountT where id = #{id}  
+	</select>
+
+	<insert id="createAccount" parameterType="example.Account">
+		insert into AccountT
+		(id, username, password)
+		values ( #{id}, #{username}, #{password} )
+	</insert>
+
+	<insert id="updateAccount" parameterType="example.Account">
+		update AccountT
+		set
+		username=#{username}, password=#{password}
+		where id = #{id}
+	</insert>
+
+	<insert id="deleteAccount" parameterType="int">
+		delete from AccountT
+		where id = #{id}
+	</insert>
+
+	<insert id="deleteAllAccount">
+		delete from AccountT
+	</insert>
+
+	<!-- how to support generic type such as java.util.List<Integer> -->
+
+	<!--
+		insert id="deleteAccounts" parameterType=""> delete from AccountT
+		where id in #{id} </insert
+	-->
+</mapper>

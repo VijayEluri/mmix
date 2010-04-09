@@ -1,0 +1,54 @@
+tracing from the system calls.
+
+:cs find g socket
+
+"src/sys/kern/uipc_syscalls.c" 1217 lines 
+
+create socket 
+
+
+send message
+struct sendto_args {
+        int     s;	//socket file descriptor.
+        caddr_t buf;
+        size_t  len;
+        int     flags;
+        caddr_t to;
+        int     tolen;
+};
+sendto(p, uap, retval)
+
+
+Value Object transformation. from sendto_args to msghdr.
+/*
+ * Message header for recvmsg and sendmsg calls.
+ * Used value-result for recvmsg, value only for sendmsg.
+ */     
+struct msghdr { 
+        caddr_t msg_name;               /* optional address */
+        u_int   msg_namelen;            /* size of address */
+        struct  iovec *msg_iov;         /* scatter/gather array */
+        u_int   msg_iovlen;             /* # elements in msg_iov */
+        caddr_t msg_control;            /* ancillary data, see below */
+        u_int   msg_controllen;         /* ancillary data buffer len */
+        int     msg_flags;              /* flags on received message */
+};      
+        
+
+Then forward to sendit 
+sendit(p, s, mp, flags, retsize)
+        register struct proc *p;
+        int s;
+        register struct msghdr *mp;
+        int flags, *retsize;
+{
+
+then forward to sosend
+sosend(so, addr, uio, top, control, flags)
+        register struct socket *so;
+        struct mbuf *addr;
+        struct uio *uio;
+        struct mbuf *top;
+        struct mbuf *control;
+        int flags;
+{         

@@ -1,0 +1,2 @@
+
+create table account (id number primary key, name varchar2(15),password varchar2(15);

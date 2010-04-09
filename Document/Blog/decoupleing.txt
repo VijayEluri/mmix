@@ -1,0 +1,56 @@
+ callerClassLoader=sun.misc.Launcher$AppClassLoader@19821f
+ ClassLoader.getSystemClassLoader()=sun.misc.Launcher$AppClassLoader@19821f
+ source.toExternalForm()=file:/C:/Documents%20and%20Settings/wujianfe/My%20Documents/Task/SMPP/Code/target/classes/
+ 
+ callerClassLoader=sun.misc.Launcher$AppClassLoader@19821f 
+ ClassLoader.getSystemClassLoader()=sun.misc.Launcher$AppClassLoader@19821f
+ source.toExternalForm()=file:/C:/Documents%20and%20Settings/wujianfe/My%20Documents/Task/SMPP/Code/target/classes/
+ 
+mappedBundleName=com.hp.usage.smpp.message_catalog
+bundle_ = java.util.PropertyResourceBundle@bfbdb0
+
+ callerClassLoader=sun.misc.Launcher$AppClassLoader@19821f
+ ClassLoader.getSystemClassLoader()=sun.misc.Launcher$AppClassLoader@19821f
+ source.toExternalForm()=file:/C:/Documents%20and%20Settings/wujianfe/My%20Documents/Task/SMPP/Code/target/classes/
+ 
+mappedBundleName=com.hp.usage.smpp.message_catalog
+bundle_ = java.util.PropertyResourceBundle@bfbdb0
+
+SMPPRequestExecutor.run(): Can not create SMPPDecoder: ee
+SMPPRequestExecutor.run(): Can not create SMPPDecoder: ee
+
+
+/C/Documents and Settings/wujianfe/My Documents/Task/ium_logging/original_logging/logging/siu/src/com/hp/siu/logging
+
+
+In order to enable the map mechanism
+
+we have to change the following code in Legacy IUM code.
+			// if (callerClassLoader != ClassLoader.getSystemClassLoader()) {
+			// This code belongs to a plugin.
+			URL source = callerClass.getProtectionDomain().getCodeSource()
+					.getLocation();
+
+			mappedBundleName = MessageCatalogNameMap.getInstance()
+					.getMessageCatalog(source.toExternalForm());
+
+			if (debug) {
+				System.out.println(" source.toExternalForm()="
+						+ source.toExternalForm());
+				System.out.println("mappedBundleName=" + mappedBundleName);
+			}
+			// }
+from the code, we can see that the condition is never true.
+
+In Logger.java
+ 	public static Logger getLogger(String loggerName) {
+        return _getLogger(loggerName, null);
+    }
+====>
+ 	public static Logger getLogger(String loggerName) {
+        return getLogger(loggerName, null);
+    }
+    
+    关于解藕。不能完全认同。将对外部的依赖完全抽象成一个名字。似乎解藕很彻底，但是也丢失了许多的信息，比如对象的类型等。事实上这只是从静态依赖变成了动态依赖。我认为和解藕与否无关。只是把一些资源相关的信息变成可配置的而已。
+
+不太赞成完全把静态依赖和动态依赖分割开来，对以Developer，至少单元测试还是要做的，动态依赖必须得到满足。他还是需要关心动态依赖的。
