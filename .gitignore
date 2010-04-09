@@ -1,9 +1,12 @@
+.classpath
+.project
 *.swp
 *.mmo
 *.bin
 .svn
 *.class
 *.bak
+*.jar
 .metadata
 bak
 GO_WS
