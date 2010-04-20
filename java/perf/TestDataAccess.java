@@ -19,13 +19,22 @@ import junit.framework.TestCase;
  * 100 reflection field access, 620,190<br/>
  * count=10000<br/>
  * 100 reflection method access, 1,832,356<br/>
- * count=100000000 10000 field access, 855,416 count=100000000 10000 method
- * access, 1,034,489 count=100000000 10000 map access, 2,357,562 count=100000000
- * 10000 reflection field access, 17,541,336 count=100000000 10000 reflection
- * method access, 9,833,652<br/>
- * count=10000000000 100000 field access, 2,938,362 count=10000000000 100000
- * method access, 3,039,772 count=10000000000 100000 map access, 10,784,052
- * count=10000000000 100000 reflection field access, 144,489,034
+ * 
+ * count=100000000 <br/>
+ * 10000 field access, 855,416 <br/>
+ * count=100000000 <br/>
+ * 10000 method access, 1,034,489<br/>
+ * count=100000000 <br/>
+ * 10000 map access, 2,357,562 <br/>
+ * count=100000000 <br/>
+ * 10000 reflection field access, 17,541,336 <br/>
+ * count=100000000 <br/>
+ * 10000 reflection method access, 9,833,652<br/>
+ * 
+ * count=10000000000 100000 field access, 2,938,362<br/>
+ * count=10000000000 100000 method access, 3,039,772 <br/>
+ * count=10000000000 100000 map access, 10,784,052 <br/>
+ * count=10000000000 100000 reflection field access, 144,489,034 <br/>
  * count=10000000000 100000 reflection method access, 37,525,719 <br/>
  * 
  * @author Wu Jianfeng
@@ -33,15 +42,18 @@ import junit.framework.TestCase;
  */
 public class TestDataAccess extends TestCase {
 	private static final int n = 100000;
+	private static final long expectedCount = n * (long)n;
 	Point[] points = new Point[n];
 	Map<String, Integer>[] map = new HashMap[n];
 	long start, end;
 	long count;
 
-	public void test()  {
+	public void test() {
 		fieldAccess();
 		methodAccess();
 		mapAccess();
+		methodAccessThreadLocal();
+		//compareThreadLocal();
 		try {
 			reflectionFieldAccess();
 			reflectionMethodAccess();
@@ -62,6 +74,7 @@ public class TestDataAccess extends TestCase {
 		}
 		end = System.nanoTime();
 		System.out.println("count=" + count);
+		assertEquals(expectedCount, count);
 		System.out.printf(n + " reflection field access, %,d %n", end - start);
 	}
 
@@ -78,6 +91,7 @@ public class TestDataAccess extends TestCase {
 		}
 		end = System.nanoTime();
 		System.out.println("count=" + count);
+		assertEquals(expectedCount, count);
 		System.out.printf(n + " reflection method access, %,d %n", end - start);
 	}
 
@@ -90,6 +104,7 @@ public class TestDataAccess extends TestCase {
 		}
 		end = System.nanoTime();
 		System.out.println("count=" + count);
+		assertEquals(expectedCount, count);
 		System.out.printf(n + " field access, %,d %n", end - start);
 	}
 
@@ -102,7 +117,23 @@ public class TestDataAccess extends TestCase {
 		}
 		end = System.nanoTime();
 		System.out.println("count=" + count);
+		assertEquals(expectedCount, count);
 		System.out.printf(n + " method access, %,d %n", end - start);
+	}
+
+	private void methodAccessThreadLocal() {
+		start = System.nanoTime();
+		count = 0;
+
+		for (int i = 0; i < n; i++) {
+			count += local[i].get().getX();
+			count += local[i].get().getY();
+		}
+		end = System.nanoTime();
+		System.out.println("count=" + count);
+		assertEquals(expectedCount, count);
+		System.out.printf(n + " method access thread local, %,d %n", end
+				- start);
 	}
 
 	private void mapAccess() {
@@ -114,8 +145,11 @@ public class TestDataAccess extends TestCase {
 		}
 		end = System.nanoTime();
 		System.out.println("count=" + count);
+		assertEquals(expectedCount, count);
 		System.out.printf(n + " map access, %,d %n", end - start);
 	}
+
+	ThreadLocal<Point>[] local = new ThreadLocal[n];
 
 	@Override
 	protected void setUp() throws Exception {
@@ -125,7 +159,36 @@ public class TestDataAccess extends TestCase {
 			map[i] = new HashMap<String, Integer>();
 			map[i].put("x", i);
 			map[i].put("y", i + 1);
+
+			local[i] = new ThreadLocal<Point>();
+			local[i].set(points[i]);
 		}
+
+	}
+
+	void compareThreadLocal() {
+		start = System.nanoTime();
+		count = 0;
+		for (int i = 0; i < n; i++) {
+			count += points[i].getX();
+			count += points[i].getY();
+		}
+		end = System.nanoTime();
+		System.out.println("count=" + count);
+		assertEquals(expectedCount, count);
+		System.out.printf(n + " method access, %,d %n", end - start);
+
+		start = System.nanoTime();
+		count = 0;
+		for (int i = 0; i < n; i++) {
+			count += local[i].get().getX();
+			count += local[i].get().getY();
+		}
+		end = System.nanoTime();
+		System.out.println("count=" + count);
+		assertEquals(expectedCount, count);
+		System.out.printf(n + " method thread local access, %,d %n", end
+				- start);
 	}
 
 }

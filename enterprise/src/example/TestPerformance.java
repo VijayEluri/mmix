@@ -18,7 +18,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
  */
 public class TestPerformance extends TestCase {
 	private AccountDAO dao;
-	TestAccountDAO accountDAO = new TestAccountDAO();
+	TestAccountDAO testAccountDAO = new TestAccountDAO();
 	long start, end;
 
 	public void setUp() {
@@ -31,8 +31,8 @@ public class TestPerformance extends TestCase {
 			fail();
 		}
 
-		accountDAO.setUp();
-		accountDAO._testDeleteAll();
+		testAccountDAO.setUp();
+		testAccountDAO._testDeleteAll();
 
 	}
 
@@ -88,7 +88,7 @@ public class TestPerformance extends TestCase {
 //				+ " records insertion (reuse session): %,d nanos %n", end
 //				- start);
 
-		accountDAO._testDeleteAll();
+		testAccountDAO._testDeleteAll();
 
 		start = end;
 		insertBatch = dao.insertBatch(accounts);

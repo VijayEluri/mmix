@@ -45,6 +45,8 @@ public class TestCharset extends TestCase {
 		for(String setN : map.keySet()){
 			System.out.println(setN);
 		}
+		System.out.println("I am not happy at all!");
+		//return null;//stupid.
 	}
 
 	public void testEndian() {
