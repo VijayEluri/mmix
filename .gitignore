@@ -1,6 +1,7 @@
 /enterprise/.classpath
 /enterprise/.project
 /enterprise/*.jar
+*~
 .*
 .classpath
 .project
