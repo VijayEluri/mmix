@@ -1,0 +1,53 @@
+install Xorg
+
+1. enable edev in kernel if not yet.
+Device Drivers --->
+  Input device support --->
+  <*>  Event interface
+
+check result: already selected.
+
+2. update make.config
+
+(For mouse, keyboard, and Synaptics touchpad support)
+INPUT_DEVICES="evdev synaptics"
+(OR, for ATI Radeon cards)
+VIDEO_CARDS="radeon"
+#fglrx is propritary one
+
+emerge -pv xorg-server, check all the options available and choose those which apply to your system.
+
+
+emerge xorg-server
+
+# env-update
+# source /etc/profile
+
+
+# /etc/init.d/hald start
+# rc-update add hald default
+
+startx
+
+those two package will test X.
+emerge --unmerge twm xterm 
+emerge --unmerge twm xterm 
+
+
+
+3D accelaration:
+Binary drivers include 
+	x11-drivers/nvidia-drivers  for nVidia cards and 
+*	x11-drivers/ati-drivers for ATI cards. 
+	
+	
+	
+emerge is the wrapper layer of common practice, such as autoconfig.
+when we manually intall a package, usually we can customize it with parameters
+to ./configure. Note that ./configure in each package have the same name but different ocntent.
+
+those parameters are wrapped by the USE flag. the /etc/make.conf is the system level setting, package private setting is in /etc/protage/package.use. this effect of the setting can be viewed with emerge -pv <package>
+example 
+	x11-base/xfree -ipv6
+	app-misc/mc -X gpm
+
