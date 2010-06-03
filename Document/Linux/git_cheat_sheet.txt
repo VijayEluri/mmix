@@ -1,0 +1,39 @@
+git clone <git-url> [target-folder]
+	default target-folder value is derived from <git-url>: 
+
+$git clone git://github.com/schacon/ticgit.git
+...
+$cd ticgit
+$ git remote 
+origin	
+
+$ git remote -v
+origin	git://github.com/schacon/ticgit.git
+
+another example.
+$ cd grit
+$ git remote -v
+bakkdoor  git://github.com/bakkdoor/grit.git
+cho45     git://github.com/cho45/grit.git
+defunkt   git://github.com/defunkt/grit.git
+koke      git://github.com/koke/grit.git
+origin    git@github.com:mojombo/grit.git
+
+Add a Remote:
+$ git remote
+origin
+$ git remote add pb git://github.com/paulboone/ticgit.git
+$ git remote -v
+origin	git://github.com/schacon/ticgit.git
+pb	git://github.com/paulboone/ticgit.git
+
+
+Fetch from Remote:
+$ git fetch pb
+remote: Counting objects: 58, done.
+remote: Compressing objects: 100% (41/41), done.
+remote: Total 44 (delta 24), reused 1 (delta 0)
+Unpacking objects: 100% (44/44), done.
+From git://github.com/paulboone/ticgit
+ * [new branch]      master     -> pb/master
+ * [new branch]      ticgit     -> pb/ticgit
