@@ -1,0 +1,58 @@
+%    7-10 years of Software Development Experience      
+%    5 ¨C 8 years of Java Development Experience          
+%    3 - 5 years minimum experience using Web based development technologies including J2EE, JDBC, Servlets, JSP, XML, HTML, Javascript
+%>>> more than 6 years J2EE developement experience (10 years java programming, startig from JDK 1.2).
+%    proficient on J2EE, JDBC, Servlets, JSP, XML, familiat with HTML, Javascript 
+%        
+%    2 years experience using Eclipse and/or IBM RAD 7.0 or higher  
+%>>>>6 years experience using Eclipse, one years experience on IBM RAD 5.0 (with IBM certificate)
+% 
+%    CSS, AJAX, Spring MVC and Spring experience        
+%>>>>proficient on Spring, familiar with Spring MVC, CSS, AJAX 
+%    
+%    Strong practice of Test-Driven-Development using JUnit and HttpUnit framework   
+%>>>>I have practiced TDD for more than 4 years, it is already kind of my habit.  I am proficient on Junit, have not ever try HttpUnit yet. It should 
+%not be a problem for me, because I am familiar with networking programming.
+%    
+%    Experience with IBM WebSphere or other J2EE application servers required  
+%>>>>I am  IBM Certified Solution Developer¡ªWebSphere Studio, V5.0. I am proficient on Tomcat, Oracle Application Server 10g.
+%   
+%    Detailed understanding of MVC frameworks   
+%>>>>I have ever researched on it when evaluating the front end framework, Spring MVC,
+%Struts, Tapestry were evaluated, but Struts was chosen in our project. During the evaluation, we not only develop samples, 
+%but also delve into the source code.
+%
+%    Experience leading small teams of 3 ¨C 10 SW engineers   
+%>>>>I have been project manager for about one and a half year. My team includes 5 software engineer, three tester, one CM representative and one SQA.
+%   
+%    Experience with agile development methodologies such as SCRUM     
+%    Agile development methodology experience   
+%>>>>I know agile development methodologies well, and have adopted some practice, such as daily short meeting from XP, although we are in a CMM 5 company.
+%    for Scrum, have not try yet. but know the basic concept.
+%    
+%    Effective oral and written communication skills in English and native language (E1)   
+%>>>>For sure, I can communcate with native speaker face to face. I have been to Safrancisco to co-develope one project on 2007 for 3 weeks.
+%
+%    Co-sourcing, multi-site development experience    
+%>>>>That is exactly what we did in the past 5 years. Actually we suffered a lot when syschroning between two CVS repositoty because CVS does not support
+%distributed Version Control. Our solution is to develope some home grow tool to work around it.
+%    
+%
+%    Strong problem solving and analytical skills
+%>>>>That is important for a engineer. I have address many performance issues with the solid Oralce                                                      
+%database knowledge; I have fixed one issue related to Hibernate, please refer to my blog for details.
+%http://www.blogjava.net/wueddie/archive/2008/07/07/212999.html
+%
+%    Experience defining software specifications (functional, design, etc.) in addition to coding responsibilities    
+%>>>>That is my daily job (design, coding).  
+%
+%Experience working with virtual (physically separated) teams                                         
+%>>>>I have 5 years experience on virtual team, we communicate with customer(in U.S) majoyly through eamil, conference call.
+%
+%Experience using an issue tracking system such as Jira                                                
+%>>>>Yes, issue tracking system is important in the whole process, we use TestDirector instead of Jira. I know 
+%Jira is a famous open source bug tracking system used by many open source project.
+%
+%Transaction control, REST, Hibernate   
+%>>>>Transaction control is one important feature in Spring, I have read Spring source code of Transaction control, I know how it is implemented.    
+%    Hibernate is powerful and complicated, I have run into some issue and resolve it by reading its source code. 
