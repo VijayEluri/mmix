@@ -1,0 +1,30 @@
+Monday
+	KPI bug fixing
+	QXCR1001048438 (Title:   Remove the default configuration of KPI and ALARM)
+	QXCR1001049146
+	
+Tuesday
+	KPI bug fixing
+	QXCR1001048883 
+	
+Wedenesday
+	KPI bug fixing
+	CR : 1001048785
+	
+	Config bug fixing
+	ID: QXCR1001048865
+
+Thursday	
+	bug fixingL:QXCR1001048624  remove system.out
+	NMEPRC task
+	half day leave.
+	
+Friday
+	Config bug fixing
+	CR Id: QXCR1001047716	
+	NME RPC task - set up environment.
+	
+Saturday
+
+
+Sunday				
