@@ -1,0 +1,1 @@
+make -C /home/eddie/linux-2.6 SUBDIRS=$PWD modules O=/home/eddie/buildcache

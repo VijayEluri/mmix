@@ -1,0 +1,7 @@
+To avoid mess up the kernel source tree.
+I am using the following command to build the kernel.
+	make -j2 O=/tmp
+unfortunately everytime when Gentoo is boot up. the /tmp
+folder will be wiped up. so the .config is removed. so is the change made in .config.
+
+Try to use a permanent tmp directory to avoid similar problem.

@@ -1,0 +1,26 @@
+#!/bin/bash
+#when reading Linux source code, I want to filter out the code which I do not care. For example, now I am using ext3 filesystem, I want to filter out files for other file systems.
+#I tried find . -path "./fs/*" ! -path "./fs/ext3*" -prune -o ...
+#unfortunately the files directly under the fs folder will also be filtered out.in order to fix this issue. I manually append the files in fs folder after I run the find command.
+origin_folder=`pwd`
+echo "executed in $origin_folder"
+LNX="/home/eddie/linux-2.6"
+cd $LNX
+mv ../cscope/file.list ../cscope/file.list.bak
+find . -path "./fs/*" ! -path "./fs/ext3" -prune -o \
+-path "./net/*" ! -path "./net/ipv4*" -prune -o \
+-path "./arch/*" ! -path "./arch/x86*" -prune -o \
+-path "./drivers/video/*" -prune -o \
+-path "./drivers/macintosh/*" -prune -o \
+-path "./drivers/ps3/*" -prune -o \
+-path "./drivers/s390/*" -prune -o \
+-path "./drivers/isdn/*" -prune -o \
+-path "./drivers/media/*" -prune -o \
+-path "./Documentation/*" -prune -o \
+-path "./sound/*" -prune -o \
+-path "./samples/*" -prune -o \
+-name "*.[chxsS]" -print \
+>> ../cscope/file.list
+ls ./fs/*.[chxsS] >> ../cscope/file.list
+ls ./net/*.[chxsS] >> ../cscope/file.list
+cd $origin_folder

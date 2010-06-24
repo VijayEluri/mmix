@@ -12,6 +12,9 @@
 *.class
 *.bak
 *.jar
+*.log
+*.o
+*.ko
 .metadata
 bak
 GO_WS
