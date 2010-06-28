@@ -1,0 +1,13 @@
+#The tool to convert GBK encoding files into UTF-8 
+#by usding native2ascii in the JDK.
+#cd C:\scm\github\mmix\GO_WS\??????\src\untitled4>
+
+#without this conversion. the Chinese can not work in pure English installation of Eclipse.
+native2ascii -encoding GBK <file_name>.java <file_name>.unicode
+native2ascii -reverse -encoding UTF-8  <file_name>.unicode <file_name>.utf8
+
+#testing with sample
+native2ascii -encoding GBK Shihuo.java Shihuo.unicode
+native2ascii -reverse -encoding UTF-8  Shihuo.unicode Shihuo.utf8
+
+find GO_WS -name *.java | 
