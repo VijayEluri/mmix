@@ -1,0 +1,8 @@
+SSL: 	imap.gmail.com
+e SSL: Yes
+Port: 993
+
+smtp.gmail.com (use authentication)
+Use Authentication: Yes
+Use STARTTLS: Yes (some clients call this SSL)
+Port: 465 or 587 
