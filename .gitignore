@@ -7,6 +7,7 @@
 .project
 *.swp
 *.mmo
+*.patch
 *.bin
 .svn
 *.class
