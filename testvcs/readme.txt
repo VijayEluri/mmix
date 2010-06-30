@@ -1,6 +1,6 @@
 C3
 I had pisa in Papa John.
 
-some change in experiment branch.
-take the time to learn Configuraion Management.
+some change for experiment/master branch
+take the time learn Configuration Management.
 
