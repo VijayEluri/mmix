@@ -1,6 +1,5 @@
 //辅助操作类:字节数据流比较
 package tupianxiangqi;
-import java.util.Vector;
 public final class ClsByte
 {
 	public static byte cstWordFlag=(byte)'\r';

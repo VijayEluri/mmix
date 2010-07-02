@@ -9,10 +9,11 @@ package tupianxiangqi;
  * @version 1.0
  */
 
-import java.awt.*;
 import java.applet.Applet;
-import java.lang.*;
-import java.math.*;
+import java.awt.Color;
+import java.awt.Event;
+import java.awt.Font;
+import java.awt.Graphics;
 
 public class XQApplet
     extends Applet {
