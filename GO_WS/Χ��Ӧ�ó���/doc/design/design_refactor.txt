@@ -1,0 +1,1 @@
+1. MVC pattern. separate UI class and core implementation.

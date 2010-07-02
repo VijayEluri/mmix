@@ -1,0 +1,733 @@
+package untitled8;
+
+/**
+ * <p>Title:\u5b8c\u6210\u68cb\u76d8\u529f\u80fd\u7684\u7c7b:\u6570\u7ec4\u68cb\u5757 </p>
+ * <p>Description:\u7b97\u6c14,\u5904\u7406\u63d0\u5b50 </p>
+ */
+
+public class GoBoard {
+
+  public final byte[][] szld={{1,0},{0,-1},{-1,0},{0,1}};
+  //\u904d\u5386\u56db\u5468\u90bb\u5b50\u70b9,\u987a\u5e8f\u53ef\u8c03.\u53f3-\u4e0b-\u5de6-\u4e0a
+  public final byte  ZBSX=20;//\u68cb\u76d8\u5750\u6807\u4e0a\u9650;
+  public final byte  ZBXX=0;//\u68cb\u76d8\u5750\u6807\u4e0b\u9650;
+  public final byte  BLANK=0;
+  public final byte  BLACK=1;//1\u8868\u793a\u9ed1\u5b50;
+  public final byte  WHITE=2;//2\u8868\u793a\u767d\u5b50;
+  public final byte  ZTXB=0;//\u4e0b\u68070\u5b58\u50a8\u72b6\u6001\u503c;
+  public final byte  SQBZXB=1;//\u4e0b\u68071\u5b58\u50a8\u7b97\u6c14\u6807\u5fd7;
+  public final byte  QSXB=2;//\u4e0b\u68072\u5b58\u50a8\u6c14\u6570;
+  public final byte  KSYXB=3;//\u4e0b\u68073\u5b58\u50a8\u5757\u7d22\u5f15
+
+  public byte ki=0; //kuai shu\u5757\u6570?\u5f53\u524d\u5df2\u7ecf\u7528\u5230\u7684\u5757\u53f7;
+  public short shoushu=0;//\u5f53\u524d\u624b\u6570,\u5904\u7406\u4e4b\u524d\u9012\u589e.\u4ece1\u5f00\u59cb;
+  public byte ktb=0,ktw=0;//\u9ed1\u767d\u88ab\u5403\u5b50\u8ba1\u6570
+  public byte[][][] zb = new byte [21][21][8];//0:state;\u5404\u70b9\u72b6\u6001:\u9ed11\u767d2;
+   //2:breath;\u6c14\u6570;3:blockindex\u5757\u7d22\u5f15;1:\u8ba1\u7b97\u6c14\u7684\u6807\u5fd7;4-7\u5b58\u50a8\u6c14\u70b9.
+   //\u524d\u4e24\u7ef4\u662f\u68cb\u76d8\u7684\u5750\u6807,\u6570\u7ec4\u4e0b\u6807\u4ece1\u523019;
+  public byte[][][] kuai = new byte [128][70][2];//mei yi kuai de ge zi zuo biao
+   //\u5b58\u50a8\u6bcf\u5757\u7684\u8be6\u7ec6\u4fe1\u606f;50-69\u4e3a\u6c14\u70b9.1-49\u4e3a\u5b50\u70b9;[x][0][0]\u4e3a\u6c14\u6570;
+   //[x][0][1]\u4e3a\u5b50\u6570;\u591a\u4e8e49\u5b50,\u4e0d\u5b58\u50a8,\u591a\u4e8e20\u6c14,\u4e0d\u5177\u4f53\u5b58\u50a8;
+  public byte  [][] hui=new byte [512][38];//0=\u65b0\u5757\u7d22\u5f15;1~8four single point
+   //eaten,9~12 kuai suo ying of fou block eaten.13~24is same ,25,26a,b
+   //\u8bb0\u5f55\u68cb\u5c40\u7684\u8fc7\u7a0b\u4fe1\u606f,\u7528\u4e8e\u6094\u68cb;1-8\u4e3a\u88ab\u5403\u5355\u5b50\u7684\u5750\u6807;9-12\u4e3a\u88ab\u5403\u5757\u7684\u7d22\u5f15;
+   //13-20\u4e3a\u6210\u5757\u5b50\u7684\u5750\u6807,21-24\u4e3a\u6210\u65b0\u5757\u7684\u65e7\u5757\u7d22\u5f15.27-32\u4e3a\u6253\u5403\u70b9,33-35\u4e3a\u6253\u5403\u7684\u5757
+   //\u7d22\u5f15;36.37\u4e3a\u7981\u7740\u70b9.25.26\u4e3a\u8be5\u6b65\u843d\u70b9\u5750\u6807.
+   //DataOutputStream out;//qi pu shu chu wen jain\u68cb\u8c31\u8f93\u51fa\u6587\u4ef6
+   //DataInputStream in;//\u76f4\u63a5\u4ece\u6587\u4ef6\u751f\u6210\u5c40\u9762.
+
+   public void cgcl(byte  a, byte  b){//chang gui chu li  qi zi  de qi
+   //\u53ef\u4ee5\u63a5\u53d7\u7684\u8f93\u5165\u4e3a(a,b)\u6216c;c=b*19+a-19;\u5b8c\u6210\u6570\u6c14\u63d0\u5b50
+   //a is the row subscript of the point.
+   //a\u662f\u6570\u7ec4\u7684\u884c\u4e0b\u6807,\u4e5f\u662f\u5e73\u9762\u7684\u6a2a\u5750\u6807:0-18
+   //b is the column subscript of the point.
+   //b\u662f\u6570\u7ec4\u7684\u5217\u4e0b\u6807,\u4e5f\u662f\u5c4f\u5e55\u7684\u7eb5\u5750\u6807:0-18
+   //byte c;//a,b\u7684\u4e00\u7ef4\u8868\u793a:0-360;
+      byte  m1=a;//a,b\u5728\u65b9\u6cd5\u4e2d\u4e0d\u6539\u53d8
+      byte  n1=b;//m1,n1\u4e3aa,b\u7684\u90bb\u70b9.
+      byte  linzishu=0;//\u90bb\u5b50\u6570
+      byte  yise=0;//\u5f02\u8272
+      byte  tongse=0;//yise is diff color.and 2 same.\u540c\u8272
+      byte  k0=0,k1=0,k2=0,k3=0;//the count for three kinds of point.
+      //\u4e09\u79cd\u70b9\u7684\u8ba1\u6570,k1\u4e3a\u5f02\u8272\u70b9\u8ba1\u6570,k2\u4e3a\u6c14\u70b9\u8ba1\u6570,k3\u4e3a\u540c\u8272\u70b9\u8ba1\u6570
+      byte i=0,j=0;
+      byte  dang=0;//dang is breath of block.\u5757\u7684\u6c14\u6570
+      byte  ktz=0;//\u63d0\u5b50\u8ba1\u6570,\u5c40\u90e8
+      byte  ks=0,kss=0;//ks is count for block,kss for single point
+      //\u76f8\u90bb\u7684\u6210\u5757\u70b9\u6570\u548c\u72ec\u7acb\u5355\u70b9\u6570
+      byte  kin1=0,m=0,n=0;//the block index.
+      //a,b\u5468\u56f4\u56db\u70b9\u7684\u5757\u7d22\u5f15
+      byte gq=0;//\u5171\u6c14.
+      byte [] u=  {0,0,0,0,0};//position0\u4e0d\u7528
+      byte [] v=  {0,0,0,0,0};//\u56db\u4e2a\u90bb\u5b50\u7684\u5750\u6807
+      byte [] tsk=  {0,0,0,0};//array for block index.\u56db\u540c\u8272\u90bb\u5b50\u7684\u5757\u7d22\u5f15
+      byte [] ysk={0,0,0,0};//\u56db\u5f02\u8272\u90bb\u5b50\u7684\u5757\u7d22\u5f15,\u540c\u5757\u4e0d\u91cd\u590d\u8ba1\u7b97
+      byte yiseks=0;//\u56db\u90bb\u5f02\u8272\u5757\u6570
+      byte  tzd=0,tkd=0;//the count for single pointeaten andblock eaten.
+       //\u5403\u7684\u70b9\u6570\u548c\u5757\u6570
+      byte  ktm=hui[shoushu][36];//\u7981\u7740\u70b9\u5728\u4e0a\u4e00\u6b65\u4ea7\u751f.
+      byte  ktn=hui[shoushu][37];//\u7981\u7740\u70b9\u7684\u5750\u6807(\u6253\u52ab\u4ea7\u751f\u7684\u7981\u7740\u70b9)
+
+
+      System.out.println("come into method cgcl()");
+      if (a>ZBXX&&a<ZBSX&&b>ZBXX&&b<ZBSX&&zb[a][b][ZTXB]==BLANK){
+       //\u4e0b\u6807\u5408\u6cd5,\u8be5\u70b9\u7a7a\u767d
+         if(a==ktm&&b==ktn){//\u662f\u5426\u7981\u7740\u70b9
+            System.out.println("\u8fd9\u662f\u6253\u52ab\u65f6\u7684\u7981\u7740\u70b9,\u8bf7\u5148\u627e\u52ab\u6750!");
+            return;
+         }else{
+            System.out.println("a="+a+",b="+b);
+         }//\u4ecd\u6709\u53ef\u80fd\u662f\u65e0\u6c14\u7981\u7740\u70b9!
+      }
+      else{//\u7b2c\u4e00\u7c7b\u4e0d\u5408\u6cd5\u70b9.
+         System.out.println("\u8be5\u70b9\u4e0d\u5408\u6cd5,\u5728\u68cb\u76d8\u4e4b\u5916\u6216\u8005\u8be5\u70b9\u5df2\u7ecf\u6709\u5b50.");
+         System.out.println("a="+a+",b="+b);
+         return;
+      }
+
+      hui[++shoushu][25]=a;//\u624b\u6570\u5904\u7406\u524d\u9012\u589e,\u5373\u4ece1\u5f00\u59cb\u8ba1\u6570.\u4e0e\u68cb\u8c31\u540c.
+      hui[shoushu][26]=b;//\u8bb0\u5f55\u6bcf\u6b65\u7684\u843d\u70b9
+      yise=(byte)(shoushu%2+1);//yi se=1\u62162,\u9ed1\u5148\u884c\u4e3a\u5947\u6570
+      tongse=(byte)((1+shoushu)%2+1);//tong se=1\u62162,\u767d\u540e\u884c\u4e3a\u5076\u6570
+      zb[a][b][ZTXB]=tongse;//\u53ef\u4ee5\u52a8\u6001\u4e00\u81f4
+
+      for(i=0;i<4;i++){//\u5148\u5904\u7406\u5f02\u8272\u90bb\u5b50
+         byte bdcds=0;//\u88ab\u6253\u5403\u70b9\u8ba1\u6570.
+         byte bdcks=0;//\u88ab\u6253\u5403\u5757\u8ba1\u6570.
+         m1=(byte)(a+szld[i][0]);
+         n1=(byte)(b+szld[i][1]);
+         if (zb[m1][n1][ZTXB]==yise) {//1.1\u53f3\u8fb9\u76f8\u90bb\u70b9
+            k1++;//the count of diffrent color.\u5f02\u8272\u70b9\u8ba1\u6570
+            kin1=zb[m1][n1][KSYXB];//the block index for the point.66
+            if (kin1==0){      //not a block.\u4e0d\u662f\u5757
+               zb[m1][n1][QSXB]-=1;
+               if(zb[m1][n1][QSXB]==0){//eat the diff point
+                  k1--;//\u88ab\u63d0\u70b9\u8981\u51cf\u53bb
+                  tzd++;
+                  hui[shoushu][tzd*2-1]=m1;
+                  hui[shoushu][tzd*2]=n1;
+                  System.out.println("\u63d0\u5b50:a="+m1+",b="+n1);
+                  ktz++;  //single pobyte eaten was count
+                  zzq(m1,n1,tongse);//zi zhen qi\u540c\u8272\u5b50\u5c06\u589e\u6c14.
+               }
+               else if(zb[m1][n1][QSXB]==1){
+                  hui[shoushu][27+bdcds++]=m1;
+                  hui[shoushu][27+bdcds++]=n1;
+               }
+               else if(zb[m1][n1][QSXB]<0){
+                  System.out.println("\u6c14\u6570\u9519\u8bef:a="+m1+",b="+n1);
+                  return;
+               }
+            }
+            else{//if (kin1==0)
+               for(j=0;j<yiseks;j++){
+                  if(kin1==ysk[j]) break;
+               }
+               if(j==yiseks){//\u4e0d\u91cd\u590d
+                  ysk[yiseks++]=kin1;
+                  byte qi=(byte)(kuai[kin1][0][0]-1);
+                  kdq(kin1,qi);
+                  if (kuai[kin1][0][0]==0){
+                     k1--;
+                     tkd++;//<=4
+                     hui[shoushu][8+tkd]=kin1;
+                     ktz+=kuai[kin1][(byte)0 ][1];//\u5b9e\u9645\u7684\u63d0\u5b50\u6570
+		     kzq(kin1,tongse); //increase the breath of pobyte surround
+                     //\u5f02\u8272\u5757\u88ab\u63d0,\u540c\u8272\u5b50\u589e\u6c14.
+                  }
+                  else if (kuai[kin1][0][0]==1){
+                     hui[shoushu][32+bdcks++]=kin1;
+                  }
+                  else if(kuai[kin1][(byte)0 ][(byte)0 ]<0){
+                     System.out.println("\u6c14\u6570\u9519\u8bef:kin="+kin1);
+                     return;
+                  }
+               }// i==yiseks
+            }
+         }
+      }//\u7528\u5faa\u73af\u4ee3\u66ff
+
+
+      k0=k1;//k0 is count for diff point.
+      zb[a][b][2]=0;//return the breath to zero.\u9632\u6b62\u63d0\u5b50\u65f6\u7684\u589e\u6c14.
+      if(shoushu%2==BLACK) ktb+=ktz;
+      else ktw+=ktz;//\u5c06\u5c40\u90e8\u63d0\u5b50\u8ba1\u5165
+
+      for(i=0;i<4;i++){//\u518d\u5904\u7406\u7a7a\u767d\u90bb\u5b50
+         m1=(byte)(a+szld[i][0]);
+         n1=(byte)(b+szld[i][1]);
+         if(zb[m1][n1][ZTXB]>=0){
+            linzishu++;
+            if(zb[m1][n1][ZTXB]==BLANK){//2.1the breath of blank
+            //\u8003\u8651\u76f8\u90bb\u56db\u70b9\u662f\u5426\u4e3a\u6c14
+               k2++;//\u6c14\u70b9\u8ba1\u6570
+               u[k0+k2]=m1;
+               v[k0+k2]=n1;//\u5b58\u5230\u6bcf\u70b9\u7684\u4fe1\u606f\u4e2d
+            }
+         }
+      }
+
+      k0+=k2;//k0 is the total points of diff and blank.
+      //k0\u73b0\u5728\u4e3a\u5f02\u8272\u70b9\u548c\u6c14\u70b9\u7684\u603b\u6570
+      dang=k2;//\u843d\u5b50\u70b9\u56db\u90bb\u7684\u76f4\u63a5\u6c14
+      /*byte dds=dingdianshu(a,b);
+      byte qikuaishu=0;
+      byte qikuaidian[][]=new byte[4][2];
+
+      if(k2==2){
+         if((u[k0+k2]-u[k0+1])*(v[k0+k2]-v[k0+1])==1){//\u659c\u5bf9\u89d2
+            if(zb[u[k0+k2]][v[k0+1]][ZTXB]==BLANK||
+            zb[u[k0+1]][v[k0+k2]][ZTXB]==BLANK){//\u6c14\u662f\u5426\u65ad\u5f00
+               qikuaidian[qikuaishu][0]=u[k0+k2];
+               qikuaidian[qikuaishu++][1]=v[k0+k2];
+               //qikuaishu=1;
+            }
+            else{
+               qikuaidian[qikuaishu][0]=u[k0+1];
+               qikuaidian[qikuaishu++][1]=v[k0+1];
+               qikuaidian[qikuaishu][0]=u[k0+k2];
+               qikuaidian[qikuaishu++][1]=v[k0+k2];
+               //qikuaishu=2;
+            }
+         }
+         else {
+            //qikuaishu=2;
+            qikuaidian[qikuaishu][0]=u[k0+1];
+            qikuaidian[qikuaishu++][1]=v[k0+1];
+            qikuaidian[qikuaishu][0]=u[k0+k2];
+            qikuaidian[qikuaishu++][1]=v[k0+k2];
+         }
+      }
+      else if(k2==3){
+         if(zb[u[k0+2]][v[k0+1]][ZTXB]==BLANK||
+         zb[u[k0+1]][v[k0+2]][ZTXB]==BLANK){
+            //qikuaishu=1;
+            qikuaidian[qikuaishu][0]=u[k0+1];
+            qikuaidian[qikuaishu++][1]=v[k0+1];
+         }
+         else{
+            qikuaidian[qikuaishu][0]=u[k0+1];
+            qikuaidian[qikuaishu++][1]=v[k0+1];
+            qikuaidian[qikuaishu][0]=u[k0+2];
+            qikuaidian[qikuaishu++][1]=v[k0+2];
+            //qikuaishu=2;
+         }
+         if(zb[u[k0+2]][v[k0+3]][ZTXB]==BLANK||
+         zb[u[k0+3]][v[k0+2]][ZTXB]==BLANK){
+            System.out.println("\u4e09\u6c14\u5168\u76f8\u8fde");
+         }
+         else{
+            qikuaidian[qikuaishu][0]=u[k0+k3];
+            qikuaidian[qikuaishu++][1]=v[k0+k3];
+            //qikuaishu++;
+         }
+      }
+      else if(k2==4){
+         if(dds==2){
+         }
+         if(dds==3){
+         }
+         if(dds==4){
+         //todo:\u786e\u5b9a\u5404\u6c14\u5757\u7684\u539f\u59cb\u70b9.
+         }
+
+      }//4\u670818\u65e5
+      for(i=0;i<4;i++){
+         m1=qikuaidian[i][0];
+         n1=qikuaidian[i][1];
+
+         if(m1!=0){
+            zishu=0;
+            chengkuai(m1,n1,BLANK);
+            if(zishu==kuai[zb[a][b][KSYXB]][0][1]-1){
+               kuai[zb[a][b][KSYXB]][0][1]-=1;
+               break;
+            }
+            else{
+
+            }
+         }
+         else break;
+
+      }*/
+      //\u6839\u636e\u6210\u5757\u7b97\u6cd5\u7edf\u8ba1\u5b50\u6570,\u770b\u662f\u5426\u751f\u6210\u65b0\u5757
+
+      for(i=0;i<4;i++){//\u518d\u5904\u7406\u540c\u8272\u90bb\u5b50
+         m1=(byte)(a+szld[i][0]);
+         n1=(byte)(b+szld[i][1]);
+         if(zb[m1][n1][ZTXB]==tongse){//3.1
+            k3++;//\u540c\u8272\u70b9\u8ba1\u6570
+            kin1= zb[m1][n1][KSYXB];
+            if (kin1==0){//\u72ec\u7acb\u70b9
+               kss++; //same color single point.\u72ec\u7acb\u70b9\u8ba1\u6570
+               dang+=zb[m1][n1][QSXB];
+               dang--;//current pobyte close one breath of surr point.
+               u[k0+kss]=m1;//u[0] not used
+               v[k0+kss]=n1;   //deal with single point.
+            }
+            else{//231\u6210\u5757\u70b9
+               for(j=0;j<ks;j++){
+                  if(kin1==tsk[j]) break;
+               }
+               if(j==ks){//\u4e0d\u91cd\u590d
+                  dang+=kuai[kin1][0][0];//\u6b64\u4e3a\u6c14\u6570
+                  dang--;
+	          u[linzishu-ks]=m1;//deal with block.
+                  v[linzishu-ks]=n1;
+                  tsk[ks++]=kin1;//
+               }
+            }//\u6210\u5757\u70b9
+         }
+      }
+      /*if(dang>0){//dang\u53ef\u80fd\u5927\u4e8e\u771f\u6b63\u7684\u6c14\u6570,\u4f46\u4e0d\u53ef\u80fd\u4e3a0.
+         ktm=0;//\u539f\u6765\u7684\u7981\u7740\u70b9\u5b9e\u6548,\u56e0\u4e3a\u5df2\u7ecf\u5bfb\u52ab
+         ktn=0;
+         byte [] tsk={0,0,0,0};//\u56db\u5f02\u8272\u90bb\u5b50\u7684\u5757\u7d22\u5f15,\u540c\u5757\u4e0d\u91cd\u590d\u8ba1\u7b97
+         byte  tsks=0;//\u56db\u90bb\u5f02\u8272\u5757\u6570
+         byte  lin1=0,lin2=0;//2\u670823\u65e5
+         for(i=0;i<4;i++){
+            m1=(byte)(a+szld[i][0]);
+            n1=(byte)(b+szld[i][1]);
+            if (zb[m1][n1][ZTXB]==yise&&zb[m1][n1][QSXB]==1) {
+          //1.1\u53f3\u8fb9\u76f8\u90bb\u70b9\u662f\u5426\u88ab\u6253\u5403
+               kin1=zb[m1][n1][KSYXB];//the block index for the point.66
+               if (kin1==0){     //not a block.\u4e0d\u662f\u5757
+                  lin1++;
+                  hui[shoushu][26+lin1*2-1]=m1;
+                  hui[shoushu][26+lin1*2]=n1;
+               }
+               else {
+                  for(i=0;i<tsks;i++){
+                     if(kin1==tsk[i]) break;
+                  }
+                  if(i==tsks){
+                     lin2++;
+                     hui[shoushu][32+lin2]=kin1;
+                  }
+               }
+            }
+         }
+      }//if dang>0*/
+      if(dang==0){//?\u4ec5\u4ec5\u8003\u8651\u4e86\u5355\u70b9,\u5982\u679c\u662f\u5757\u5462?\u6ca1\u5173\u7cfb,\u90fd\u662f\u865a\u7684\u8ba1\u7b97.
+         //showStatus("//this point is prohibited,try again!");
+         zzq(a,b,yise);//\u76f8\u5f53\u4e8e\u843d\u5b50\u548c\u63d0\u5b50\u4e00\u6b65\u5b8c\u6210,\u672c\u51fd\u6570\u5b8c\u6210\u63d0\u5b50
+         for(i=25;i<=35;i++){
+            hui[shoushu][i]=0;
+         }
+         shoushu--;
+         zb[a][b][ZTXB]=BLANK;
+         return;
+      }//\u4e0d\u5141\u8bb8\u81ea\u6740showStatus("qing="+dang+a+b);
+
+      if (k3==0){//4.1 no same color pobyte surround\u6ca1\u6709\u540c\u8272\u90bb\u70b9
+         System.out.println("//k3=0");
+         zb[a][b][2]=dang;
+         if(dang==1&&ktz==1){//\u8003\u8651\u52ab
+            ktm=u[linzishu];//\u56e0\u4e3a\u5148\u5904\u7406\u5f02\u8272\u5b50,\u518d\u7a7a\u767d\u70b9,\u53c8\u65e0\u540c\u8272\u70b9.
+            ktn=v[linzishu];//\u5fc5\u4e3a\u6700\u540e\u4e00\u70b9?\u5982\u679c\u662f\u89d2\u4e0a\u7684\u52ab\u5462?\u75314\u6539\u4e3alinzishu
+            hui[shoushu][36]=ktm;//\u7a7a\u767d\u70b9\u5373\u4e3a\u6253\u52ab\u7684\u7981\u7740\u70b9.
+            hui[shoushu][37]=ktn;//2yue23\u65e5\u589e
+         }//not conform to so. en.
+         if(dang>=2){//\u4e3a\u5f81\u5b50\u8ba1\u7b97\u63d0\u4f9b\u4fe1\u606f
+            zb[a][b][4]=u[k1+1];
+            zb[a][b][5]=v[k1+1];
+            zb[a][b][6]=u[k1+2];
+            zb[a][b][7]=v[k1+2];
+         }
+         else{//dang==1
+            zb[a][b][4]=u[k1+1];
+            zb[a][b][5]=v[k1+1];
+         }
+         return;
+      }
+
+      if (ks==0){//4.2 only single pobyte surr.\u6709\u540c\u8272\u70b9,\u4f46\u90fd\u4e3a\u72ec\u7acb\u70b9
+         System.out.println("//ks=0");
+         gq=0;
+         for (i=1;i<=kss;i++){//4.1 deal surr point\u5904\u7406\u76f8\u90bb\u72ec\u7acb\u70b9
+            hui[shoushu][12+i*2-1]=u[k0+i];//\u8bb0\u5f55\u5408\u5e76\u6210\u5757\u7684\u72ec\u7acb\u70b9
+            hui[shoushu][12+i*2]=v[k0+i];//\u4ece13\u523020
+            for ( j=1;j<=(kss-i);j++){//\u8ba1\u7b97\u70b9\u4e4b\u95f4\u7684\u5171\u6c14
+               gq+=dd(u[k0+i],v[k0+i],u[k0+i+j],v[k0+i+j]);
+            }
+         }
+         zb[a][b][QSXB]=(byte)(dang-gq);
+         zb[a][b][KSYXB]=++ki;//count from first block
+         hui[shoushu][0]=ki;//\u8bb0\u5f55\u6240\u6210\u5757\u7684\u7d22\u5f15
+         kuai[ki][0][0]=zb[a][b][2];
+         kuai[ki][0][1]=(byte)(k3+1);
+         kuai[ki][k3+1][0]=a;//\u6700\u540e\u4e00\u70b9\u4e3aa,b
+         kuai[ki][k3+1][1]=b;
+         for ( i=1;i<=k3;i++){//\u5c06\u5468\u56f4\u70b9\u5408\u5e76\u5230\u5757\u4e2d
+            m=u[k0+i];
+            n=v[k0+i];
+            kuai[ki][i][0]=m;
+            kuai[ki][i][1]=n;
+            zb[m][n][4]=0;//\u5757\u7684\u6c14\u4fe1\u606f\u4e0d\u5728\u70b9\u4e2d\u5b58\u50a8
+            zb[m][n][5]=0;
+            zb[m][n][6]=0;
+            zb[m][n][7]=0;
+            zb[m][n][QSXB]=zb[a][b][QSXB];
+            zb[m][n][KSYXB]=ki;
+         }
+         if (zb[a][b][2]!=jskq(ki)) System.out.println("error of breath");
+      }
+
+      if(ks>0){//\u76f8\u90bb\u6709\u5757
+         System.out.println("//ks>0");
+         ki++;
+         hui[shoushu][0]=ki;
+         kuai[ki][0][1]=1;//\u5efa\u7acb\u4e34\u65f6\u5757
+         kuai[ki][1][0]=a;//a,b\u5b58\u5728\u9996\u4f4d
+         kuai[ki][1][1]=b;
+         zb[a][b][KSYXB]=ki;
+         for ( i=1;i<=kss;i++){//\u70b9\u5408\u5e76\u5165\u5757
+            hui[shoushu][12+i*2-1]=u[k0+i];
+            hui[shoushu][12+i*2]=v[k0+i];
+            dkhb(u[k0+i],v[k0+i],ki);//\u76f8\u90bb\u70b9\u5e76\u5165\u4e34\u65f6\u5757
+         }
+           // dkhb(a,b,k[1]);
+         for ( j=1;j<=ks;j++){
+            hui[shoushu][20+j]=tsk[j-1];
+            kkhb(ki,tsk[j-1]);//not deal with breath\u5757\u5757\u5408\u5e76,\u6c14\u5c1a\u672a\u5904\u7406.
+         }
+           // hui[shoushu][0]=ki;
+            //zb[a][b][2]=tongse;
+            //kuai[k[1]][0][0]=zb[a][b][2];//? need deal with breath.
+         dang=jskq(ki);
+         kdq(ki,dang);
+            /*if(dang==0){
+               hui[shoushu][0]=ki;
+               kzq(ki,yise);
+               ktm=-1;
+               ktn=-1;
+               hui[shoushu][0]=ki;
+              // return;
+            }*/
+      }
+   }
+      //one point was eaten
+   public void zzq(byte  a,byte  b,byte  tiao)//\u7528\u4e8e\u6094\u68cb;\u53ca\u63d0\u5b50\u65f6\u5df1\u65b9\u589e\u6c14;
+   {//function 6.1\u603b\u4e4b\u662f\u67d0\u5b50\u88ab\u5403\u5f15\u8d77\u7684\u589e\u6c14.
+      byte c1=0,i,j,yiseks=0;
+      byte m1,n1;
+      byte ysk[]={0,0,0,0};
+      for(i=0;i<4;i++){
+         m1=(byte)(a+szld[i][0]);
+         n1=(byte)(b+szld[i][1]);
+        if(zb[m1][n1][ZTXB]==tiao){
+            c1= zb[m1][n1][KSYXB];
+           if (c1==0){
+               zb[m1][n1][QSXB]+=1;
+               if(zb[m1][n1][QSXB]==2){
+                    zb[m1][n1][6]=a;
+                    zb[m1][n1][7]=b;
+               }
+
+            }
+           else{
+               for(j=0;j<yiseks;j++){
+                 if(c1==ysk[j]) break;
+               }
+              if(j==yiseks){//\u4e0d\u91cd\u590d
+                  ysk[yiseks++]=c1;
+                  kdq(c1,kuai[c1][0][0]+=1);
+	       }
+
+	   }
+        }
+      }
+      zb[a][b][ZTXB]=BLANK;
+      zb[a][b][QSXB]=0;
+      zb[a][b][KSYXB]=0;
+      zb[a][b][4]=0;
+      zb[a][b][5]=0;
+      zb[a][b][6]=0;
+      zb[a][b][7]=0;
+   }
+   public void kzq(byte r,byte tiao){//6.2 yi se kuai bei ti
+   //\u63d0\u5403\u5f02\u8272\u5757\u65f6,\u540c\u8272\u5757\u6c14\u6570\u589e\u52a0
+      byte n=0;
+      byte p=0,q=0;
+      n=kuai[r][0][1];
+      for (byte i=1;i<=n;i++){
+         p=kuai[r][i][0];
+         q=kuai[r][i][1];
+         zzq(p,q,tiao);
+         //\u4fdd\u7559\u539f\u5757\u4fe1\u606f,\u4e3b\u8981\u662f\u5b50\u6570\u4fe1\u606f,\u4fbf\u4e8e\u6094\u68cb\u65f6\u6062\u590d
+      }
+      kuai[r][0][0]=0;
+
+   }
+   public void zjq(byte a,byte b,byte tiao)//\u6094\u68cb\u65f6\u63d0\u5b50\u7684\u6062\u590d
+   {//function 6.1
+      byte c1=0,i,m1,j,n1,yiseks=0;
+      byte ysk[]={0,0,0,0};
+      for(i=0;i<4;i++){
+         m1=(byte)(a+szld[i][0]);
+         n1=(byte)(b+szld[i][1]);
+        if(zb[m1][n1][ZTXB]==tiao){
+            c1= zb[m1][n1][3];
+           if (c1==0){
+               zb[m1][n1][QSXB]-=1;
+              if(zb[m1][n1][QSXB]<1)
+                  System.out.println("\u6094\u68cb\u65f6\u6c14\u6570\u51fa\u9519:a="+m1+",b="+n1);
+            }
+           else{
+              for(j=0;j<yiseks;j++){
+                 if(c1==ysk[j]) break;
+               }
+              if(j==yiseks){//\u4e0d\u91cd\u590d
+                  ysk[yiseks++]=c1;
+                  kdq(c1,kuai[c1][0][0]-=1);
+	       }
+            }
+         }
+      }
+
+
+   }
+   public void kjq(byte r,byte tiao){//\u6094\u68cb\u65f6,\u6210\u5757\u6062\u590d\u4f7f\u540c\u8272\u5b50\u51cf\u6c14
+      byte n=0;//the same color block is eaten
+      byte p=0,q=0;//\u6ca1\u6709\u81ea\u63d0\u65f6,tiao\u53ea\u80fd\u662f\u540c\u8272.
+       n=kuai[r][0][1];
+      for (byte i=1;i<=n;i++){
+         p=kuai[r][i][0];
+         q=kuai[r][i][1];
+         zjq(p,q,tiao);
+      }
+      kuai[r][0][0]=1;//\u88ab\u63d0\u5757\u6062\u590d,\u6c14\u6570\u4e3a1.
+   }
+   public byte dd(byte a,byte b,byte c,byte d ){//7.1diang diang gong qi
+      byte gq=0;// consider four points only.
+      if (zb[a][d][0]==0)//\u70b9\u5171\u6c14\u53ea\u6709\u4e24\u79cd\u53ef\u80fd,\u76f8\u5bf9\u4f4d\u7f6e\u4e3a\u80a9\u51b2\u548c\u4e00\u95f4\u8df3
+         gq++;//\u540e\u8005\u4e0d\u5fc5\u8003\u8651,\u7531\u5f53\u524d\u7740\u70b9\u8fde\u63a5\u5728\u4e2d\u95f4,\u4e0d\u4f1a\u91cd\u590d\u8ba1\u5165\u6c14\u6570.
+      if (zb[c][b][0]==0)
+         gq++;
+      System.out.println("\u65b9\u6cd5dd,\u8ba1\u7b97\u5171\u6c14="+gq+"\n");
+      return gq;
+   }
+
+   //6.7diang kuai he bing
+
+   public void dkhb(byte p,byte q,byte r){ //8.1
+      byte ss=(byte)(kuai[r][0][1]+1);//\u5757\u7684\u5b50\u6570\u589e1;
+      kuai[r][ss][0]=p;
+      kuai[r][ss][1]=q;
+      kuai[r][0][1]=ss;
+      zb[p][q][3]=r;
+      zb[p][q][4]=0;
+      zb[p][q][5]=0;
+      zb[p][q][6]=0;
+      zb[p][q][7]=0;
+      System.out.println("\u65b9\u6cd5dkhb:\u70b9\u5757\u5408\u5e76\n");
+   }
+   //6.8 ss1 shi zu yao kuai!
+   public void kkhb(byte r1,byte r2){//8.2\u5e76\u5165\u524d\u5757,\u6c14\u6570\u672a\u5b9a
+      byte ss1=kuai[r1][0][1];
+      byte ss2=kuai[r2][0][1];
+      byte m=0,n=0;
+      for (byte i=1;i<=ss2;i++){
+	 m=kuai[r2][i][0];
+         n=kuai[r2][i][1];
+         zb[m][n][3]=r1;
+        //\u4fdd\u7559\u539f\u5757\u4fe1\u606f
+         kuai[r1][ss1+i][0]=m;
+         kuai[r1][ss1+i][1]=n;
+      }
+      kuai[r1][0][1]=(byte)(ss1+ss2);
+      System.out.println("\u65b9\u6cd5dkhb:\u70b9\u5757\u5408\u5e76");
+   }
+
+
+
+   public byte jskq(byte r2){
+      byte qishu=0;   //the breath of the block
+      byte a=0,b=0;
+      byte m,n;
+      byte zishu=kuai[r2][0][1];//\u5757\u7684\u624b\u6570
+      byte i,j;
+      for ( i=1;i<=zishu;i++){
+         m=kuai[r2][i][0];
+         n=kuai[r2][i][1];
+         for(j=0;j<4;j++){
+            a=(byte)(m+szld[j][0]);
+            b=(byte)(n+szld[j][1]);
+           if (zb[a][b][ZTXB]==BLANK&&zb[a][b][SQBZXB]==0){
+               qishu++;
+               zb[a][b][1]=1;
+               kuai[r2][49+qishu][0]=a;//\u5b58\u50a8\u6c14\u70b9\u4e0b\u680750\u5f00\u59cb
+               kuai[r2][49+qishu][1]=b;
+            }
+         }
+      } //for
+
+      for ( i =1;i<=qishu;i++){//\u6062\u590d\u6807\u5fd7
+         a=kuai[r2][49+i][0];
+         b=kuai[r2][49+i][1];
+         zb[a][b][SQBZXB]=0;
+      }
+      return qishu;
+   }//2\u670822\u65e5\u6539,\u539f\u65b9\u6cd5\u867d\u5999,\u4ecd\u53ea\u80fd\u5fcd\u75db\u5272\u7231.
+//10.1ji suan kuai qi.
+
+
+   public void kdq(byte kin,byte a){//11.1 kuai ding qi\u5757\u5b9a\u6c14
+      byte m=0,n=0,p=0;
+      p=kuai[kin][0][1];
+      for (byte i=1;i<=p;i++){
+          m=kuai[kin][i][0];
+          n=kuai[kin][i][1];
+          zb[m][n][2]=a;
+      }
+      kuai[kin][0][0]=a;
+   }
+
+
+
+
+
+   public void clhuiqi(){//\u662f\u5426\u6240\u6709\u6570\u636e\u7ed3\u6784\u90fd\u80fd\u6062\u590d?
+      byte p=0;
+      byte yise=0;
+      byte tongse=0;//yise is diff color.and 2 same.
+      byte tdzs=0;
+      byte k0=0,k1=0,k2=0,k3=0,i=0,j=0;//the count for three kinds of point.
+      byte ks=0,kss=0;//ks is count for block,kss for single point
+      byte kin, kin1=0,m=0,n=0;//the block index.
+
+      tongse=(byte)((shoushu+1)%2+1);//tong se
+      yise=(byte)(shoushu%2+1);
+      m=hui[shoushu][25];
+      hui[shoushu][25]=0;
+      n=hui[shoushu][26];
+      hui[shoushu][26]=0;
+      if(m<=0||n<=0){//\u5f03\u6743\u7684\u6062\u590d
+         shoushu--;
+        return;//
+      }
+      zzq(m,n,yise);//\u6094\u68cb,\u5bf9\u65b9\u589e\u6c14,\u63d0\u5b50\u76f4\u63a5\u6062\u590d,\u4e0d\u7528\u5728\u6b64\u589e\u6c14
+      System.out.println("\u6094\u68cb:"+shoushu);
+      System.out.println("a="+m+",b="+n);
+      kin=hui[shoushu][0];
+      if(kin>0){//\u662f\u5426\u6210\u65b0\u5757,\u81ea\u6b64\u9519\u8bef\u7f29\u8fdb
+         for(i=0;i<70;i++){
+            kuai[kin][i][0]=0;
+            kuai[kin][i][1]=0;
+         }
+         ki=kin;//\u5168\u5c40\u53ef\u7528\u5757\u53f7?
+         for(i=1;i<=4;i++){
+           if(hui[shoushu][2*i+12-1]<0){//\u6210\u65b0\u5757\u7684\u70b9
+              break;
+            }
+           else{
+               m=hui[shoushu][12+2*i-1];//13-20
+               n=hui[shoushu][12+2*i];
+               hui[shoushu][12+2*i-1]=0;
+               hui[shoushu][12+2*i]=0;
+               zb[m][n][3]=0;
+               zb[m][n][0]=tongse;//fang wei bian cheng
+               zb[m][n][2]=jszq(m,n);//\u8ba1\u7b97\u5b50\u7684\u6c14
+               System.out.println("//\u8ba1\u7b97\u6210\u5757\u70b9\u7684\u6c14:"+"a="+m+",b"+n);
+            }
+         }//deal with 3 sub
+         for(i=1;i<=4;i++){//\u662f\u5426\u65e7\u5757\u6210\u65b0\u5757
+            kin1=hui[shoushu][20+i];//21-24
+            hui[shoushu][20+i]=0;
+           if(kin1==0)
+              break;
+           else{
+               p=kuai[kin1][0][1];
+              for(j=1;j<=p;j++){
+                  m=kuai[kin1][j][0];
+                  n=kuai[kin1][j][1];
+                  zb[m][n][3]=kin1;//\u4fee\u6539\u5757\u53f7
+                  //zb[m][n][0]=tongse;
+                  zb[m][n][2]=kuai[kin1][0][0];//\u6062\u590d\u539f\u5757\u6210\u5757\u65f6\u7684\u6c14
+               }
+            }//else
+         }//for
+      }//if \u662f\u5426\u65b0\u5757
+      for(i=1;i<=4;i++){//\u662f\u5426\u63d0\u5b50
+         if(hui[shoushu][2*i-1]<=0)
+            break;
+         else{
+            m=hui[shoushu][2*i-1];
+            n=hui[shoushu][2*i];
+            hui[shoushu][2*i-1]=0;
+            hui[shoushu][2*i]=0;
+            tdzs=i;//?
+            zb[m][n][ZTXB]=yise;
+            zb[m][n][QSXB]=1;
+            zb[m][n][KSYXB]=0;
+            zjq(m,n,tongse);
+            System.out.print("\u6062\u590d\u88ab\u63d0\u5b50:");
+            System.out.println("a="+m+",b="+n);
+         }
+      }//for
+
+      for(i=1;i<=4;i++){//\u662f\u5426\u6709\u88ab\u63d0\u7684\u5757
+         if(hui[shoushu][8+i]<=0){
+            break;
+         }
+         else{
+            kin1=hui[shoushu][8+i];
+            hui[shoushu][8+i]=0;
+            kdq(kin1,(byte)1);
+            kjq(kin1,tongse);
+            p=kuai[kin1][0][1];
+           for(j=1;j<=p;j++){
+               m=kuai[kin1][j][0];
+               n=kuai[kin1][j][1];
+               zb[m][n][0]=yise;
+               zb[m][n][3]=kin1;
+            }
+            tdzs+=p;
+         }//else
+      }//for
+      if(tongse==BLACK)
+         ktb-=tdzs;
+      if(tongse==WHITE)
+         ktw-=tdzs;
+       for(i=0;i<9;i++){
+         hui[shoushu][27+i]=0;//2yue
+      }
+      shoushu--;
+      System.out.println("\u65b9\u6cd5clhuiqi:\u5904\u7406\u6094\u68cb\n");
+   }//clhuiqi
+
+   public GoBoard() {
+        byte i,j;
+      final byte  PANWAIDIAN=-1;//\u68cb\u76d8\u4e4b\u5916\u7684\u6807\u5fd7;
+      for(i=0;i<21;i++){//2\u670822\u65e5\u52a0
+         zb[0][i][0]=PANWAIDIAN;
+         zb[20][i][0]=PANWAIDIAN;
+         zb[i][0][0]=PANWAIDIAN;
+         zb[i][20][0]=PANWAIDIAN;
+      }//2\u670822\u65e5\u52a0
+   }
+   public byte jszq(byte m,byte n){
+      byte dang=0;//\u6c14\u6570\u53d8\u91cf
+      byte i,a,b;
+      for(i=0;i<4;i++){
+          a=(byte)(m+szld[i][0]);
+          b=(byte)(n+szld[i][1]);
+         if(zb[a][b][ZTXB]==BLANK){//2.1the breath of blank
+            dang++;
+          }
+      }
+       return dang;
+   }
+   public byte dingdianshu(byte m1,byte n1){
+      byte[][] dingdian={{1,1},{1,-1},{-1,-1},{-1,1}};
+      //\u53f3\u4e0a-\u53f3\u4e0b-\u5de6\u4e0b-\u5de6\u4e0a
+      byte i,dds=0;
+      byte m,n;
+      for(i=0;i<4;i++){
+         m=(byte)(m1+dingdian[i][0]);
+         n=(byte)(n1+dingdian[i][1]);
+         if(zb[m][n][ZTXB]==BLACK||zb[m][n][ZTXB]==WHITE) dds++;
+      }
+      return dds;
+   }
+}
