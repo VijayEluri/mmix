@@ -1,10 +1,10 @@
 package tupianxiangqi;
 
-import java.awt.*;
-import java.lang.*;
-import java.math.*;
-import java.awt.image.*;
+import java.awt.Canvas;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.net.URL;
+
 import javax.swing.ImageIcon;
 
 public class Board

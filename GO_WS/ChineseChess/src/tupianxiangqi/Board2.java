@@ -1,12 +1,14 @@
 package tupianxiangqi;
 //用toolkit加载图像而已。
 
-import java.awt.*;
-import java.lang.*;
-import java.math.*;
-import java.awt.image.*;
-import java.net.URL;
-import javax.swing.ImageIcon;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Event;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Toolkit;
+
 
 public class Board2
     extends Canvas {

@@ -28,3 +28,14 @@ Saturday
 
 
 Sunday				
+
+
+The Karate Kid 2010 version is based on 1984 version.
+
+Karate 
+a traditional Japanese system of unarmed combat, employing smashes, chops, kicks, etc, made with the hands, feet, elbows, or legs
+
+TODO List
+Watech <<The Karate Kid>>
+cancel the subscription of <<Programmer>>.
+change it to <<Reader>>.

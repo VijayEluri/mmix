@@ -1,11 +1,15 @@
 package tupianxiangqi;
 //加载图像作为资源。
 
-import java.awt.*;
-import java.lang.*;
-import java.math.*;
-import java.awt.image.*;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Event;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.image.ImageProducer;
 import java.net.URL;
+
 import javax.swing.ImageIcon;
 
 public class Board3

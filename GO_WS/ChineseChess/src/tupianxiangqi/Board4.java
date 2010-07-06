@@ -1,7 +1,5 @@
 package tupianxiangqi;
 
-//package tupianxiangqi;
-
 /**
  * <p>Title: Board1 为基础，修改成可测试版本</p>
  * <p>Description: 供Frame2调用</p>

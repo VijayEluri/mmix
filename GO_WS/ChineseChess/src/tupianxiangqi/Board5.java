@@ -1,7 +1,5 @@
 package tupianxiangqi;
 
-//package tupianxiangqi;
-
 /**
  * <p>Title:客户端增加旁观的功能 </p>
  * <p>Description:根据服务器的启动信号决定 </p>
@@ -11,11 +9,13 @@ package tupianxiangqi;
  * @version 1.0
  */
 
-import java.awt.*;
-import java.lang.*;
-import java.math.*;
-import java.awt.image.*;
-import java.net.URL;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Event;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+
 import javax.swing.ImageIcon;
 
 
