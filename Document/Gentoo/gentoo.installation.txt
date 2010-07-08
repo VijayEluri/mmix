@@ -1,4 +1,35 @@
+After two weeks' struggle,  I have successfully installed Gentoo, a popular GNU/Linux Distribution. For Records, the obstacles I encountered are listed below.
+(but I can not remember the solution exactly)
+0. failed to emerge gpm when I install the links package.
+If I recall correctly, it is resolved by install gpm manually. 
+
+1.I encounter issue when I install glib 2.22.5. 
+	no update-desktop-database.
+which is in dev-util/desktop-file-utils. When I try to emerge it, there is a circular dependency on glib. no solution
+and I forget How I resolve the problem.
+
+2. later after I install glib, with ~amd64 keyword I can install gpm-1.20.6, but it conflicts with the manually inatalled gpm. 
+I remove the conflicted file and emerge successfully.
+
+3. Failed to emerge tiff. 
+edit packages.keywords to add the following.
+	<category>/<package> ~amd64
+I am able to use latest tiff in beta-version, which is unstable and masked out.
+
+
+4. later atk-1.28.0 failed to emerge.
+edit /etc/make.conf with the following.
+ FEATURES="-stricter". 
+then emerge successfully with only some complain. with out this seting. the warining from GCC will cause that emerge fail.
+
+5 when I run 
+	emerge --update system
+actually gcc will be upgraded from 4.3.4 to 4.4.3. but it failed because of compilation warning, again. add "-stricter" into Features variable in /etc/make.conf work around it.
+
+continue kde installation.
+
 install Xorg
+
 
 1. enable edev in kernel if not yet.
 Device Drivers --->
@@ -50,4 +81,6 @@ those parameters are wrapped by the USE flag. the /etc/make.conf is the system l
 example 
 	x11-base/xfree -ipv6
 	app-misc/mc -X gpm
+
+etcat -u package.
 

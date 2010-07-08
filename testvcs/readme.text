@@ -1,0 +1,5 @@
+C4
+I am practive the following git command.
+git checkout -b topicA
+git format-patch -M origin/master
+

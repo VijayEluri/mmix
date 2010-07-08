@@ -5,10 +5,13 @@
 .*
 .classpath
 .project
+.settings
+.metadata
+.svn
 *.swp
 *.mmo
+*.patch
 *.bin
-.svn
 *.class
 *.bak
 *.jar
@@ -17,4 +20,6 @@
 *.ko
 .metadata
 bak
-GO_WS
+GO_WS2
+classes
+	

@@ -1,0 +1,95 @@
+Monday
+1. Switch to new schema, address XJC issue.
+2. Update code according to new Schema
+
+Tuesday
+1. Organize the sample and import into Repo.
+2. Debug executing case in Repo.
+3. EntityManager API reading.
+
+Wedensday
+1. Absorb QA's extension on Raptor.
+2. Draft API for UI.
+3. Draft new Action schema for data preparation.
+
+Thursday
+1. Template for message generation.	
+2. Continue work on new Action Schema for data preparation.
+
+
+
+TODO List
+1. Template for message generation. (use file or entity.)
+2. Action for Subscription () -- pending
+3. DB Check API.
+4. UI integration.
+5. Result Report.  ---> node description in error node.
+
+
+Monday.
+1. Test Case for UI integration.
+2. new Action Desgin Review.
+3. import QA Code.
+4. Data preparation impl.
+
+Tuesday,
+1. Schema import and base issue.
+2. Entity date issue.
+3. Because of the strict validation. (many potential issues are found and fixed)
+
+Thursday,
+1. DBCheck schema design.
+2. DBCheck action drafting.
+3. Fixed xml issue found by strict validation.
+
+Thursday,
+1. merge QA code about logs.
+2. DBCheck action (contd.)
+
+
+Monday (Jan 25)
+
+0. Add API for UI (choose scenario to execute)
+1. Support QA (legacy issue)
+2. Improve code.
+3. Log truncate and backup coding.
+
+Tuesday.
+
+1. Support UI.
+2. Log truncate and backup integration.
+   (fix one bug on URL input stream conversion.)
+3. Support QA( release alpha version for ien zhang)
+4. Reading Action schema.
+
+Wednesday.
+1. change the code and schema to adaptor to new Action/Entity.
+
+
+Thursday.
+1. Continue integration Action.
+2. Resolve building issue (API changed).
+
+
+Friday.
+1. Support UI because of API change.
+2. Continue integration with new Action/Entity.
+3. Fix issues in API. (Trick xml issue.)
+
+Friday Night.
+1. Provide UI Sample of choosing scenario to execute.
+
+Sunday.
+1. Support UI integration. Fix two issues.
+
+
+
+<template><file>a.b</file></template> does not work ,can not be load into the object.
+may be caused by the xml inheritance and polymorphism.
+
+<send:template><file>a.b</file></send:template> works. does not know the reason.
+seems global name space cause confusion.
+
+
+
+

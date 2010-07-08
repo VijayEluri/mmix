@@ -1,0 +1,234 @@
+public boolean zhengzhi(int kin){//征子计算是预演,应该具有恢复到原局面的功能,
+//或者复制原局面,用副本进行计算.可能前者更佳,因为计算时也要倒退
+//kin是被征子的块的索引.
+      int m1=0,n1=0,q1=0,q2=0,m2=0,n2=0,i=0,j=0;//m,n为气点.
+      //q为交换后的气.
+      int fandaa=0,fandab=0,fandaqa=0,fandaqb=0;前为被提点后为提子点.
+      boolean zzcl=false,FANDA=false;//zhengzi cheng li,征子成立,反打
+      int [][]hou=new int[40][5];//hou xuan qi bu,候选棋步数组
+      int cq1=0,cq2=0,kzzd=0,ch=0;//ch为候选棋步计数.
+      tongbu();
+      while (kuai[kin][0][0]==2){//注意标示模型,否则难以理解.
+           zzcl=false;
+           if(ch>0&&hou[ch][5*ch-5]!=shoushu+1|ch==0){
+              m1=kuai[kin][50][0];//征子点a的坐标,也即kin块的气点
+              n1=kuai[kin][50][1];//50~69存储气的信息.
+              m2=kuai[kin][51][0];//征子点b的坐标,也是kin块的气点
+              n2=kuai[kin][51][1];
+              q1=jszq(m1,n1,m2,n2);//同名函数,连续落两子后算气.
+              q2=jszq(m2,n2,m1,n1);//打在m1,n1点.
+              cq1=jszq(m1,n1);//落子于m1,n1后该点或所在块的气数
+              cq2=jszq(m2,n2);
+              if(q1<2){//打在m2,n2点,是否有望结束征子.
+               //不能结束的特殊情况.有m1,n1之外的选点
+                if(FANDA==true){
+                  a=m2;//打吃
+                  b=n2;
+                  cgcl();
+                  a=fandaqa;//在反打处提子
+                  b=fandaqb;
+                  cgcl();
+                  a=m1;//兜打
+                  b=n1;
+                  cgcl();
+                  a=fandaa;//粘上
+                  b=fandab;
+                  cgcl();
+                  if(kuai[kin][0][0]>2){
+                       if(ch==0) zzcl=false;
+                       else {
+                          int shsh=hou[ch][5*ch-5];
+                          for(i=shoushu;i>=shsh;i--){
+                                  clhuiqi();
+                          }
+                       }//hou tui悔棋,恢复原局面
+                  }else if(kuai[kin][0][0]==2){
+                        continue;
+                  }else {
+                         zzcl=true;征子成立.
+                         break;
+                  }
+               }else{//if(fangda==true)
+                   zzcl=true;
+                   break;
+               }
+           }//if q1<2
+           if(q2<2){//与q1的情形同
+               if(FANDA==true){
+                    a=m1;
+                    b=n1;
+                    cgcl();
+                    a=fandaqa;
+                    b=fandaqb;
+                    cgcl();
+                    a=m2;
+                    b=n2;
+                   cgcl();
+                   a=fandaa;
+                    b=fandab;
+                    cgcl();
+                 if(kuai[kin][0][0]>2){
+                      if(ch==0) zzcl=false;
+                      else {
+                          int shsh=hou[ch][5*ch-5];
+                          for(i=shoushu;i>=shsh;i--){
+                                  clhuiqi();
+                            }
+                        }
+                      //hou tui
+                       }else if(kuai[kin][0][0]==2){
+                        continue;
+                       }else {
+                           zzcl=true;
+                         break;
+                       }
+
+
+               }//if fanda==true
+               else{
+                  zzcl=true;
+                 break;
+               }
+               }//ifq2<2
+
+
+
+           if(q1==2) {
+              if(cq2>2){
+                kzzd++;
+                a=m2;
+                b=n2;//打
+                cgcl();
+                a=m1;
+                b=n1;
+                cgcl();//长气
+              }
+              else if(cq2==2){
+                kzzd++;
+                a=m2;
+                b=n2;
+                cgcl();
+                a=m1;
+                b=n1;
+                cgcl();
+                cq2=jszq(m2,n2);//这是交换之后的算气,
+                if(cq2==1) FANDA=true;//判断是否反打.
+              }else if(cq2==1){//扑入
+                    FANDA=true;
+                    kzzd++;
+                   a=m2;
+                   b=n2;
+                  cgcl();
+                   a=m1;
+                  b=n1;
+                  cgcl();
+                   cq2=jszq(m2,n2);
+                      if(cq2==1) FANDA=true;
+               }else if(cq2==0){
+
+               }
+            }
+           if(q2==2) {
+                 if(cq1>2){
+               kzzd++;
+               a=m1;
+               b=n1;
+               cgcl();
+               a=m2;
+               b=n2;
+               cgcl();
+               }
+               else if(cq1==2){
+               kzzd++;
+               a=m1;
+               b=n1;
+               cgcl();
+               a=m2;
+               b=n2;
+               cgcl();
+               cq1=jszq(m1,n1);
+               if(cq2==1) FANDA=true;
+               }else if(cq1==1){
+
+                    kzzd++;
+                   a=m1;
+                   b=n1;
+                  cgcl();
+                   a=m2;
+                  b=n2;
+                  cgcl();
+                   cq1=jszq(m1,n1);
+                      if(cq1==1) FANDA=true;
+               }else if(cq2==0){
+
+                 }
+
+           kzzd++;
+           }
+           if(kzzd==0){
+               zzcl=false;
+               break;
+           }
+
+
+       }else if(ch>0&&hou[ch][5*ch-5]==shoushu+1){
+           a=hou[ch][5*ch-4];
+           b=hou[ch][5*ch-3];
+           cgcl();
+           a=hou[ch][5*ch-2];
+           b=hou[ch][5*ch-1];
+           cgcl();
+       }
+      }
+       huifu();
+       return zzcl;
+}
+
+public int  jszq(int a,int b,int m2,int n2){//被调用函数的细节
+       int dang=0,lin;//必须重写新的函数,因为不能真正落子
+       int tiao1=tbshoushu%2+1;
+       lin=jszq(m2,n2);//new
+       if(lin==0) return 3;//落子点不成立
+       if((a+1)<=18&&tbzb[a+1][b][0]==0){//2.1the breath of blank
+           if(a+1==m2&&b==n2) {//m,n被提
+               //if(jszq(m2,n2)==1) dang++;//重复调用jszq是否有问题/
+               if(lin==1) dang++; //jszq应该不落子.
+          }else dang++;
+
+        }
+       else if((a+1)<=18&&tbzb[a+1][b][0]==tiao1){
+             dang+=tbzb[a+1][b][2];
+             dang--;
+       }                                    //2.1
+         if((a-1)>=0&&tbzb[a-1][b][0]==0){//2.2
+            if(a-1==m2&&b==n2){
+                  if(jszq(m2,n2)==1) dang++;
+            }
+            else dang++;
+         }
+         else if((a-1)>=0&&tbzb[a-1][b][0]==tiao1){
+             dang+=tbzb[a-1][b][2];
+             dang--;
+         }                                //2.2
+         if((b+1)<=18&&tbzb[a][b+1][0]==0){//2.3
+            if(a==m2&&b+1==n2){
+                  if(jszq(m2,n2)==1) dang++;
+            }
+            else dang++;
+         }
+         else if(b+1<=18&&tbzb[a][b+1][0]==tiao1){
+             dang+=tbzb[a][b+1][2];
+             dang--;
+        }                                  //2.4
+         if((b-1)>=0&&tbzb[a][b-1][0]==0){//2.4
+            if(a==m2&&b-1==n2){
+                 if(jszq(m2,n2)==1) dang++;
+            }
+             else dang++;
+         }else if((b-1)>=0&&tbzb[a][b-1][0]==tiao1){
+             dang+=tbzb[a][b-1][2];
+             dang--;
+         }
+         return dang;
+
+   }
