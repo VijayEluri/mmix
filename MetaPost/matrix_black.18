@@ -1,0 +1,76 @@
+%!PS
+%%BoundingBox: 16 -119 119 -16 
+%%HiResBoundingBox: 16.68645 -118.80513 118.80513 -16.68645 
+%%Creator: MetaPost 1.005
+%%CreationDate: 2010.07.08:1336
+%%Pages: 1
+%*Font: cmr8 7.97011 7.97011 30:ffc
+%%BeginProlog
+%%EndProlog
+%%Page: 1 1
+ 0 0 0 setrgbcolor 0 0.5 dtransform truncate idtransform setlinewidth pop
+ [] 0 setdash 1 setlinecap 1 setlinejoin 10 setmiterlimit
+newpath 33.8729 -16.93645 moveto
+101.61868 -16.93645 lineto stroke
+newpath 16.93645 -33.8729 moveto
+118.55513 -33.8729 lineto stroke
+newpath 16.93645 -50.80934 moveto
+118.55513 -50.80934 lineto stroke
+newpath 33.8729 -67.74579 moveto
+101.61868 -67.74579 lineto stroke
+newpath 16.93645 -84.68224 moveto
+118.55513 -84.68224 lineto stroke
+newpath 16.93645 -101.61868 moveto
+118.55513 -101.61868 lineto stroke
+newpath 33.8729 -118.55513 moveto
+101.61868 -118.55513 lineto stroke
+35.97289 -24.17274 moveto
+(1) cmr8 7.97011 fshow
+69.84578 -24.17274 moveto
+(2) cmr8 7.97011 fshow
+86.78223 -24.17274 moveto
+(3) cmr8 7.97011 fshow
+19.03644 -41.10919 moveto
+(4) cmr8 7.97011 fshow
+69.84578 -41.10919 moveto
+(5) cmr8 7.97011 fshow
+103.71867 -41.10919 moveto
+(6) cmr8 7.97011 fshow
+19.03644 -58.04564 moveto
+(7) cmr8 7.97011 fshow
+52.90933 -58.04564 moveto
+(8) cmr8 7.97011 fshow
+52.90933 -74.98209 moveto
+(9) cmr8 7.97011 fshow
+86.78223 -74.98209 moveto
+(10) cmr8 7.97011 fshow
+19.03644 -91.91853 moveto
+(11) cmr8 7.97011 fshow
+35.97289 -91.91853 moveto
+(12) cmr8 7.97011 fshow
+86.78223 -91.91853 moveto
+(13) cmr8 7.97011 fshow
+35.97289 -108.85498 moveto
+(14) cmr8 7.97011 fshow
+newpath 50.80934 -33.8729 moveto
+50.80934 -50.80934 lineto
+67.74579 -50.80934 lineto
+67.74579 -33.8729 lineto
+ closepath fill
+newpath 84.68224 -50.80934 moveto
+84.68224 -67.74579 lineto
+101.61868 -67.74579 lineto
+101.61868 -50.80934 lineto
+ closepath fill
+newpath 33.8729 -67.74579 moveto
+33.8729 -84.68224 lineto
+50.80934 -84.68224 lineto
+50.80934 -67.74579 lineto
+ closepath fill
+newpath 67.74579 -84.68224 moveto
+67.74579 -101.61868 lineto
+84.68224 -101.61868 lineto
+84.68224 -84.68224 lineto
+ closepath fill
+showpage
+%%EOF
