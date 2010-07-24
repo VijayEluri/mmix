@@ -3,6 +3,8 @@
 /enterprise/*.jar
 *~
 .*
+=*
+#*#
 .classpath
 .project
 .settings

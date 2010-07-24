@@ -2,8 +2,6 @@ package common.beanutil;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.beanutils.PropertyUtils;
-
 /**
  * could be used to somplify the code.
  * @author Wu Jianfeng
