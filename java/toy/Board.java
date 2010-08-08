@@ -2,6 +2,7 @@ package toy;
 
 import static toy.Constant.COL;
 import static toy.Constant.ROW;
+import static toy.Constant.Debug;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -10,6 +11,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
+import static toy.Constant.*;
 
 /**
  * Record Current Status of the Board.
@@ -21,26 +24,66 @@ import java.util.Set;
  */
 public abstract class Board {
 
+	public Set<Block> getBlockList() {
+		return blockList;
+	}
+
+	List<BasicMove> history = new ArrayList<BasicMove>();
 	Set<Block> blockList = new HashSet<Block>();
-	List<Point> blankList = new ArrayList<Point>();
+	Set<Point> blankList = new HashSet<Point>();
 
 	// byte[][] state = new byte[ROW + 1][COL + 1];// check duplicate state
 
 	Block[][] blocks = new Block[ROW + 2][COL + 2];
 	Move lastMove = null;
+	// duplicate with bitset, but is handy.
+	byte[][] state = new byte[ROW + 2][COL + 2];
 
 	/**
-	 * update state array by blocks.
+	 * update state array by blocks. dose not distinguish vertical and
+	 * horizontal.
 	 */
-	BitSet updateState() {
+	public BitSet updateState() {
 		BitSet bs = new BitSet();
 		for (int i = 1; i <= ROW; i++) {
 			for (int j = 1; j <= COL; j++) {
 				Block block = blocks[i][j];
 				if (block != null) {
-					// state[i][j] = block.getType();
-					bs.set(2 * (i * (COL + j)));
-					bs.set(2 * (i * (COL + j) + 1));
+					state[i][j] = block.getType();
+					if (state[i][j] == BIGBOSS) {
+						bs.set(3 * ((i - 1) * COL + (j - 1)));
+					} else {
+						if (state[i][j] >= 2) {// high bit
+							bs.set(3 * ((i - 1) * COL + (j - 1)) + 1);
+						}
+						if (state[i][j] % 2 == 1) {// low bit
+							bs.set(3 * ((i - 1) * COL + (j - 1)) + 2);
+						}
+					}
+				}
+			}
+		}
+		return bs;
+	}
+
+	/**
+	 * distinguish vertical and horizontal.
+	 * 
+	 * @return
+	 */
+	BitSet updateState2() {
+		BitSet bs = new BitSet();
+		for (int i = 1; i <= ROW; i++) {
+			for (int j = 1; j <= COL; j++) {
+				Block block = blocks[i][j];
+				if (block != null) {
+					state[i][j] = block.getType();
+					if (state[i][j] >= 2) {// high bit
+						bs.set(3 * ((i - 1) * COL + (j - 1)));
+					}
+					if (state[i][j] % 2 == 1) {// low bit
+						bs.set(2 * ((i - 1) * COL + (j - 1)) + 1);
+					}
 				}
 			}
 		}
@@ -50,10 +93,12 @@ public abstract class Board {
 	public Board deepCopy() {
 		Board board = cloneBoard();
 		Set<Block> blockLista = new HashSet<Block>(blockList.size());
-		// Collections.copy(blockList, blockLista);
-
-		List<Point> blankLista = new ArrayList<Point>(this.blankList.size());
-		Collections.copy(blankList, blankLista);// blockList.
+	
+		Set<Point> blankLista = new HashSet<Point>(this.blankList.size());
+		for (Point point : blankList) {
+			blankLista.add(point);
+		}
+		board.blankList = blankLista;
 
 		board.blocks = new Block[ROW + 2][COL + 2];
 		for (int i = 1; i <= ROW; i++) {
@@ -71,6 +116,10 @@ public abstract class Board {
 		board.init(blockLista);
 		board.updateState();
 
+		for (BasicMove bm : history) {
+			board.history.add(bm);
+		}
+		// board.h
 		return board;
 	}
 
@@ -79,7 +128,7 @@ public abstract class Board {
 	public void run() {
 		init();
 		// list of moves
-		List<Move> moves = getMoves();
+		Set<Move> moves = getMoves();
 
 		if (moves.isEmpty()) {
 			// back track one level.
@@ -90,31 +139,34 @@ public abstract class Board {
 			apply(move);// change board status.
 		}
 		// for(Move move : moves){
-		//			
-		//		
+		//
+		//
 		// }
 
 	}
 
-	public List<Move> getMoves() {
-		List<Move> moves = new ArrayList<Move>();
+	public Set<Move> getMoves() {
+		Set<BasicMove> basicMoves = new HashSet<BasicMove>();
 		for (Point point : blankList) {
-			System.out.println("Considering blank point: " + point);
-			moves.addAll(point.getMoves(this));
+			if (Debug)
+				System.out.println("Considering blank point: " + point);
+			basicMoves.addAll(point.getMoves(this));
 		}
 
-//		for (Iterator<Move> iter = moves.iterator(); iter.hasNext();) {
-//			Move move = iter.next();
-//			if (move.supplement(lastMove)) {
-//				iter.remove();
-//			}
-//		}
+		Set<Move> moves = new HashSet<Move>();
+		for (BasicMove m : basicMoves) {
+			Move move = new Move(m);
+			move.setBoard(this);
+			moves.add(move);
+		}
+
 		return moves;
 	}
 
 	public void apply(Move move) {
 		// TODO Auto-generated method stub
-		System.out.println("applying move " + move);
+		if (Debug)
+			System.out.println("applying move " + move);
 		Block block = move.getBlock();
 		// empty first
 		for (Point point : block.getPositions()) {
@@ -132,34 +184,48 @@ public abstract class Board {
 			temp[i++] = Point.getPoint(a, b);
 		}
 
+		// before
+		for (Point p : blankList) {
+			if (Debug)
+				System.out.println(p);
+		}
+
 		for (Point point : block.getPositions()) {
 			if (this.blocks[point.getA()][point.getB()] == null) {
-				System.out.println("add blank point: " + point);
+				if (Debug)
+					System.out.println("add blank point: " + point);
 				this.blankList.add(point);
 			}
 		}
 
 		block.setPositions(temp);
 
-		System.out.println("remove blank point:" + move.getEnd());
+		if (Debug)
+			System.out.println("remove blank point:" + move.getEnd());
 		this.blankList.remove(move.getEnd());
 
 		for (Iterator<Point> it = blankList.iterator(); it.hasNext();) {
 			Point next = it.next();
 			if (this.getBlock(next) != null && blankList.contains(next)) {
-				System.out.println("remove blank point:" + next);
+				if (Debug)
+					System.out.println("remove blank point:" + next);
 				it.remove();
 			}
 		}
+		// after
+		for (Point p : blankList) {
+			if (Debug)
+				System.out.println(p);
+		}
 
-		this.lastMove=move;
+		this.lastMove = move;
 		// getBlank list
 	}
 
-	public void apply(Point start, int x, int y) {
-		Block block = this.getBlock(start);
-
-	}
+	// public void apply(Point start, int x, int y) {
+	// Block block = this.getBlock(start);
+	//
+	// }
 
 	public Block getBlock(Point p) {
 		return blocks[p.getA()][p.getB()];
@@ -167,7 +233,7 @@ public abstract class Board {
 
 	void init(Set<Block> list) {
 		for (Block block : list) {
-			for (Point p : block.positions) {
+			for (Point p : block.getPositions()) {
 				blocks[p.getA()][p.getB()] = block;
 			}
 		}
@@ -178,35 +244,6 @@ public abstract class Board {
 	 * initial state for Old dad
 	 */
 	public abstract void init();
-
-	// void initFinalTarget() {
-	// blockList.add(new Block(1, new Point[] { Point.getPoint(3, 1) },
-	// "Pawn 1"));
-	// blockList.add(new Block(1, new Point[] { Point.getPoint(3, 4) },
-	// "Pawn 2"));
-	//
-	// blockList.add(new Block(2, new Point[] { Point.getPoint(1, 3),
-	// Point.getPoint(1, 4) }, "Horizontal 1"));
-	// blockList.add(new Block(2, new Point[] { Point.getPoint(2, 3),
-	// Point.getPoint(2, 4) }, "Horizontal 2"));
-	// blockList.add(new Block(2, new Point[] { Point.getPoint(4, 3),
-	// Point.getPoint(4, 4) }, "Horizontal 3"));
-	// blockList.add(new Block(2, new Point[] { Point.getPoint(5, 3),
-	// Point.getPoint(5, 4) }, "Horizontal 4"));
-	//
-	// blockList.add(new Block(2, new Point[] { Point.getPoint(4, 1),
-	// Point.getPoint(5, 1) }, "Vertical 1"));
-	// blockList.add(new Block(2, new Point[] { Point.getPoint(4, 2),
-	// Point.getPoint(5, 2) }, "Vertical 2"));
-	//
-	// blockList.add(new Block(4, new Point[] { Point.getPoint(1, 1),
-	// Point.getPoint(2, 1), Point.getPoint(1, 2),
-	// Point.getPoint(2, 2) }, "Big Boss"));
-	// init(blockList);
-	//
-	// blankList.add(Point.getPoint(3, 2));
-	// blankList.add(Point.getPoint(3, 3));
-	// }
 
 	public abstract boolean achieveGoal();
 
@@ -224,10 +261,10 @@ public abstract class Board {
 		}
 	}
 
-	// @Override
-	// public int hashCode() {
-	// return state.hashCode();
-	// }
+	@Override
+	public int hashCode() {
+		return this.updateState().hashCode();
+	}
 
 	// transient info -- start point and target
 	Point start;
@@ -240,4 +277,13 @@ public abstract class Board {
 		this.start = start;
 	}
 
+	public List<BasicMove> getHistory() {
+		return history;
+	}
+
+	public void addHistoryMove(BasicMove move) {
+		this.history .add(move);
+	}
+
+	public abstract void checkInternal();
 }

@@ -1,7 +1,5 @@
 package toy;
 
-import java.util.Arrays;
-
 /**
  * Move include current board state and next step choice/candidate
  * 
@@ -9,22 +7,34 @@ import java.util.Arrays;
  * 
  */
 public class Move {
+	public Move(BasicMove move) {
+		this.move = move;
+	}
+
 	// Point[] startPosition;
 	// only useful in solution space search. otherwise it is implicitly knows
 	Board board;
+	BasicMove move;
 
-	/**
-	 * block and point are tightly coupled. block is a transient property
-	 * derived from point
-	 * 
-	 * 
-	 */
-	Point start;
+	public BasicMove getMove() {
+		return move;
+	}
 
-	byte x;
-	byte y;
+	public Point getEnd() {
+		return move.getEnd();
+	}
 
-	Point end; // the target: blank point.
+	public void setEnd(Point end) {
+		move.setEnd(end);
+	}
+
+	public Point getStart() {
+		return move.getStart();
+	}
+
+	public void setStart(Point start) {
+		move.setStart(start);
+	}
 
 	// Block block;
 
@@ -36,70 +46,17 @@ public class Move {
 		this.board = board;
 	}
 
-	public Point getEnd() {
-		return end;
-	}
-
-	public void setEnd(Point end) {
-		this.end = end;
-	}
-
-	public boolean equals(Object o) {
-		if (o instanceof Move) {
-			Move m = (Move) o;
-			if (m.getBlock().equals(getBlock())) {
-				if (m.x == x && m.y == y) {
-					return true;
-				} else
-					return false;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
-	}
-
 	public Block getBlock() {
-		return board.getBlock(start);
+		return board.getBlock(move.getStart());
 	}
 
 	public byte getX() {
-		return x;
-	}
-
-	public void setX(byte x) {
-		this.x = x;
+		return move.getX();
 	}
 
 	public byte getY() {
-		return y;
+		return move.getY();
 	}
-
-	public void setY(byte y) {
-		this.y = y;
-	}
-
-	public Point getStart() {
-		return start;
-	}
-
-	public void setStart(Point start) {
-		this.start = start;
-	}
-
-//	public boolean supplement(Move m) {
-//		if (m == null)
-//			return false;
-//		if (m.getBlock().equals(getBlock())) {
-//			if (m.x + x == 0 && m.y + y == 0)
-//				return true;
-//			else
-//				return false;
-//		} else {
-//			return false;
-//		}
-//	}
 
 	public Board apply() {
 		board.apply(this);
@@ -108,7 +65,28 @@ public class Move {
 
 	@Override
 	public String toString() {
-		return "Move [block=" + getBlock() + ", x=" + x + ", y=" + y
-				+ ", start=" + start + ",end=" + end + "]";
+		return "Move " + ", start=" + move.getStart() + ",end=" + move.getEnd()
+				+ "]";
 	}
+
+	@Override
+	public int hashCode() {
+		int result = move.hashCode();
+		result = 31 * result + board.hashCode();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Move) {
+			Move move = (Move) obj;
+			if (move.board.equals(this.board))
+				return true;
+			else
+				return false;
+		} else
+			return false;
+		// return super.equals(obj);
+	}
+
 }

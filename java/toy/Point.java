@@ -4,8 +4,10 @@ import static toy.Constant.COL;
 import static toy.Constant.ROW;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
+import java.util.Set;
+import static toy.Constant.Debug;
 public class Point {
 
 	public byte getA() {
@@ -64,8 +66,8 @@ public class Point {
 	 * @param point
 	 * @return
 	 */
-	public List<Move> getMoves(Board board) {
-		List<Move> moves = new ArrayList<Move>();
+	public Set<BasicMove> getMoves(Board board) {
+		Set<BasicMove> moves = new HashSet<BasicMove>();
 		Point t;
 
 		for (Point p : periphery) {
@@ -90,12 +92,12 @@ public class Point {
 
 				}
 				if (accept == true) {
-					System.out.println("Considering point: " + t);
-					Move move = new Move();
+					if(Debug) System.out.println("Considering point: " + t);
+					BasicMove move = new BasicMove();
 					//move.setBlock(block);
-					move.setStart(t);
+					move.setStart(board.getBlock(t).getRepPoint());
 					move.setEnd(this);
-					move.setBoard(board);
+					
 					
 					move.setX(p.a);
 					move.setY(p.b);
@@ -106,6 +108,31 @@ public class Point {
 		}
 
 		return moves;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + a;
+		result = prime * result + b;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Point other = (Point) obj;
+		if (a != other.a)
+			return false;
+		if (b != other.b)
+			return false;
+		return true;
 	}
 
 	@Override

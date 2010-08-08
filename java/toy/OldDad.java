@@ -36,7 +36,7 @@ public class OldDad extends Board {
 		blockList.add(new Block(DOUBLE, new Point[] { Point.getPoint(4, 2),
 				Point.getPoint(5, 2) }, "Vertical 2"));
 
-		Block bigBoss = new Block(4, new Point[] { Point.getPoint(1, 1),
+		Block bigBoss = new Block(BIGBOSS, new Point[] { Point.getPoint(1, 1),
 				Point.getPoint(2, 1), Point.getPoint(1, 2),
 				Point.getPoint(2, 2) }, "Big Boss");
 		blockList.add(bigBoss);
@@ -51,5 +51,16 @@ public class OldDad extends Board {
 		// TODO Auto-generated method stub
 		return new OldDad();
 	}
+
+	@Override
+	public void checkInternal() {
+		if(blockList.size()!=9){
+			System.out.println("there are " + blockList.size() + " blocks");
+			
+		}
+		
+	}
+	
+	
 
 }
