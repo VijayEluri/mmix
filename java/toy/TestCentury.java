@@ -1,15 +1,12 @@
 package toy;
 
-import java.util.List;
-
 import junit.framework.TestCase;
 
-public class TestHenDaoLiMa extends TestCase{
-	public static String fileName = "hendaolima.solution";
+public class TestCentury extends TestCase {
 	public void testDeepFirstSearch() {
 		Search cen = new Search();
 
-		Board board = new HenDaoLiMa();
+		Board board = new Century();
 		board.init();
 
 		cen.setInitBoard(board);
@@ -20,13 +17,11 @@ public class TestHenDaoLiMa extends TestCase{
 	public void testBroadFirstSearch() {
 		Search cen = new Search();
 
-		Board board = new HenDaoLiMa();
+		Board board = new Century();
 		board.init();
 
 		cen.setInitBoard(board);
-		List<BasicMove> list = cen.searchSolutionBroadFirst();
-		
-		Util.storeList(fileName , list);
+		cen.searchSolutionBroadFirst();
 
 	}
 }

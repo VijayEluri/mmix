@@ -93,7 +93,7 @@ public abstract class Board {
 	public Board deepCopy() {
 		Board board = cloneBoard();
 		Set<Block> blockLista = new HashSet<Block>(blockList.size());
-	
+
 		Set<Point> blankLista = new HashSet<Point>(this.blankList.size());
 		for (Point point : blankList) {
 			blankLista.add(point);
@@ -128,7 +128,7 @@ public abstract class Board {
 	public void run() {
 		init();
 		// list of moves
-		Set<Move> moves = getMoves();
+		List<Move> moves = getMoves();
 
 		if (moves.isEmpty()) {
 			// back track one level.
@@ -145,19 +145,39 @@ public abstract class Board {
 
 	}
 
-	public Set<Move> getMoves() {
+	/**
+	 * the sequence is important between moves.
+	 * 
+	 * @return
+	 */
+	// public Set<Move> getMoves() {
+	public List<Move> getMoves() {
 		Set<BasicMove> basicMoves = new HashSet<BasicMove>();
+
+		List<BasicMove> twoStep = new ArrayList<BasicMove>();
 		for (Point point : blankList) {
 			if (Debug)
 				System.out.println("Considering blank point: " + point);
-			basicMoves.addAll(point.getMoves(this));
+			basicMoves.addAll(point.getMoves(this, twoStep));
 		}
 
-		Set<Move> moves = new HashSet<Move>();
+		List<Move> moves = new ArrayList<Move>();
+
+		for (BasicMove m : twoStep) {
+			Move move = new Move(m);
+			move.setBoard(this);
+			moves.add(move);
+			if (Debug) {
+				System.out.println("In getMoves: two step move.");
+				System.out.println(m);
+			}
+		}
+
 		for (BasicMove m : basicMoves) {
 			Move move = new Move(m);
 			move.setBoard(this);
 			moves.add(move);
+
 		}
 
 		return moves;
@@ -228,7 +248,14 @@ public abstract class Board {
 	// }
 
 	public Block getBlock(Point p) {
-		return blocks[p.getA()][p.getB()];
+		try {
+			return blocks[p.getA()][p.getB()];
+		} catch (RuntimeException e) {
+			System.err.println(p);
+			System.err.println(blocks);
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	void init(Set<Block> list) {
@@ -282,7 +309,7 @@ public abstract class Board {
 	}
 
 	public void addHistoryMove(BasicMove move) {
-		this.history .add(move);
+		this.history.add(move);
 	}
 
 	public abstract void checkInternal();

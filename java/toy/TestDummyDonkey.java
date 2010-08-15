@@ -4,8 +4,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-public class TestHenDaoLiMa extends TestCase{
-	public static String fileName = "hendaolima.solution";
+public class TestDummyDonkey extends TestCase{
+	public static String fileName = "dummydonkey.solution";
 	public void testDeepFirstSearch() {
 		Search cen = new Search();
 

@@ -14,6 +14,14 @@ public class OldDad extends Board {
 		else
 			return false;
 	}
+//	@Override
+//	public boolean achieveGoal() {
+//		if (state[4][3] == BIGBOSS && state[4][2] == BIGBOSS
+//				&& state[5][3] == BIGBOSS && state[5][2] == BIGBOSS)
+//			return true;
+//		else
+//			return false;
+//	}
 
 	@Override
 	public void init() {

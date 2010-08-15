@@ -5,14 +5,13 @@ import java.awt.Color;
 import java.awt.Event;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
-import java.util.Set;
+import java.util.List;
 
 import toy.Block;
 import toy.Board;
 import toy.Move;
 import toy.OldDad;
 import toy.Point;
-import static toy.Constant.Debug;
 
 /**
  * 1. it will show the candidate.<br/>
@@ -61,7 +60,7 @@ public class OldDadApplet extends Applet {
 		return true;
 	}
 
-	Set<Move> moves;
+	List<Move> moves;
 
 	public void drawBoard(Graphics g, Board board) {
 		board.checkInternal();

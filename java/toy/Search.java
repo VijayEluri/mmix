@@ -57,7 +57,7 @@ public class Search {
 			/**
 			 * is it known status? or a terminal status.
 			 */
-			Set<Move> moves = null;// = board.getMoves();
+			List<Move> moves = null;// = board.getMoves();
 			if (failed.contains(board.updateState())
 					|| marked.contains(board.updateState())
 					|| (moves = board.getMoves()).isEmpty()) { // back tracking.
@@ -173,17 +173,20 @@ public class Search {
 				nosolution = true;
 				break outloop;
 			}
-			if (level <= 5) {
-				for (Board b : states) {
-					System.out.println("hittory size " + b.getHistory().size());
-					for (BasicMove move : b.getHistory()) {
-						System.out.println(move);
-					}
-				}
-			}
+			
+			
+
 			Set<Board> statesNew = new HashSet<Board>();
 			for (Board board2 : states) {
+				if (level <= 5) {
 
+					System.out.println("history size "
+							+ board2.getHistory().size());
+					for (BasicMove move : board2.getHistory()) {
+						System.out.println(move);
+					}
+
+				}
 				Board board = board2.deepCopy();
 
 				// first, is current status the solution?
@@ -195,7 +198,7 @@ public class Search {
 				/**
 				 * is it known status? or a terminal status.
 				 */
-				Set<Move> moves = null;// = board.getMoves();
+				List<Move> moves = null;// = board.getMoves();
 				if (failed.contains(board.updateState())
 						|| marked.contains(board.updateState())
 						|| (moves = board.getMoves()).isEmpty()) {

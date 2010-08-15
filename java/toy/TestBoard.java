@@ -8,8 +8,8 @@ public class TestBoard extends TestCase{
 	public void testGetMoves(){
 		Board board = new OldDad();
 		board.init();
-		Set<Move> moves = board.getMoves();
-		for(Move move : moves){
+		
+		for(Move move :  board.getMoves()){
 			if(Debug) System.out.println(move);
 		}
 	}

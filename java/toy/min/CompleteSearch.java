@@ -5,6 +5,7 @@ import static toy.Constant.Debug;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
@@ -49,7 +50,7 @@ public class CompleteSearch {
 			/**
 			 * is it known status? or a terminal status.
 			 */
-			Set<Move> moves = null;// = board.getMoves();
+			List<Move> moves = null;// = board.getMoves();
 			if (failed.contains(board.updateState())
 					|| marked.contains(board.updateState())
 					|| (moves = board.getMoves()).isEmpty()) { // back tracking.

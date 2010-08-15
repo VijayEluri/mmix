@@ -1,15 +1,19 @@
 package toy;
 
+import java.io.Serializable;
+
 /**
  * immutable.
- * 
+ * Differentiate between rep. point and start point.later one is used to calculate delta x and y.
  * @author wueddie-wym-wrz
  * 
  */
-public class BasicMove {
+public class BasicMove implements Serializable{
 	/**
 	 * for 2*2 or 1*2 block. the point should be the top left one in the block.
 	 */
+	protected Point representative;
+	
 	protected Point start;
 	
 	// the target: blank point.
@@ -22,8 +26,8 @@ public class BasicMove {
 	 * 
 	 */
 
-	byte x = -1;
-	byte y = -1;
+	transient byte x = -1;
+	transient byte y = -1;
 
 	public byte getX() {
 		if (x == -1) {
@@ -32,9 +36,9 @@ public class BasicMove {
 			return x;
 	}
 
-	public void setX(byte x) {
-		this.x = x;
-	}
+//	public void setX(byte x) {
+//		this.x = x;
+//	}
 
 	public byte getY() {
 		if (y == -1) {
@@ -43,9 +47,9 @@ public class BasicMove {
 			return y;
 	}
 
-	public void setY(byte y) {
-		this.y = y;
-	}
+//	public void setY(byte y) {
+//		this.y = y;
+//	}
 
 	public Point getEnd() {
 		return end;
@@ -73,7 +77,7 @@ public class BasicMove {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((end == null) ? 0 : end.hashCode());
-		result = prime * result + ((start == null) ? 0 : start.hashCode());
+		result = prime * result + ((representative == null) ? 0 : representative.hashCode());
 		return result;
 	}
 
@@ -91,12 +95,17 @@ public class BasicMove {
 				return false;
 		} else if (!end.equals(other.end))
 			return false;
-		if (start == null) {
-			if (other.start != null)
+		if (representative == null) {
+			if (other.representative != null)
 				return false;
-		} else if (!start.equals(other.start))
+		} else if (!representative.equals(other.representative))
 			return false;
 		return true;
+	}
+
+	public void setRepresentative(Point repPoint) {
+		this.representative = repPoint;
+		
 	}
 
 }

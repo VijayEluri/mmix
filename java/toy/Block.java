@@ -87,10 +87,15 @@ public class Block {
 		} else if (points == 4) {
 			return 2;
 		} else if (points == 2) {
+			try{
 			if (this.positions[0].getA() == this.positions[1].getA()) {
 				return 1;
 			} else {
 				return 2;
+			}
+			}catch(RuntimeException e){
+				System.out.println(Arrays.toString(positions));
+				throw e;
 			}
 		} else {
 			System.err.println("wrong: points = " + points);

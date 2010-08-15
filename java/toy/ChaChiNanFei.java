@@ -30,7 +30,7 @@ public class ChaChiNanFei extends HuaRongDao {
 				"Pawn 4"));
 
 		blockList.add(new Block(DOUBLE, new Point[] { Point.getPoint(3, 2),
-				Point.getPoint(3, 2) }, "Horizontal 1"));
+				Point.getPoint(3, 3) }, "Horizontal 1"));
 		blockList.add(new Block(DOUBLE, new Point[] { Point.getPoint(4, 2),
 				Point.getPoint(4, 3) }, "Horizontal 1"));
 		blockList.add(new Block(DOUBLE, new Point[] { Point.getPoint(5, 2),
