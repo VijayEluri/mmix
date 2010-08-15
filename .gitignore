@@ -2,6 +2,7 @@
 /enterprise/.project
 /enterprise/*.jar
 *~
+*.java#
 .*
 =*
 #*#
