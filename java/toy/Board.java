@@ -37,7 +37,7 @@ public abstract class Board {
 	Block[][] blocks = new Block[ROW + 2][COL + 2];
 	Move lastMove = null;
 	// duplicate with bitset, but is handy.
-	byte[][] state = new byte[ROW + 2][COL + 2];
+	byte[][]  state = new byte[ROW + 2][COL + 2];
 
 	/**
 	 * update state array by blocks. dose not distinguish vertical and

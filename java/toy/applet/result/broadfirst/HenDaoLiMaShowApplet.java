@@ -1,6 +1,7 @@
 package toy.applet.result.broadfirst;
 
 import toy.HenDaoLiMa;
+import toy.Search;
 import toy.TestHenDaoLiMa;
 import toy.Util;
 
@@ -11,7 +12,12 @@ public class HenDaoLiMaShowApplet extends BroadFirstManualApplet {
 		board = new HenDaoLiMa();
 
 		board.init();
-		solution = Util.getList(TestHenDaoLiMa.fileName);
+		//solution = Util.getList(TestHenDaoLiMa.fileName);
+		Search cen = new Search();
+
+		cen.setInitBoard(board.deepCopy());
+		solution = cen.searchSolutionBroadFirst();
+
 
 	}
 }
