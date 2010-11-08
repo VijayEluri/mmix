@@ -1,0 +1,58 @@
+  \hsize=29pc
+\vsize=42pc
+\footline={\tenrm Chapter 1 Inroduction\quad \dotfill \quad Page \folio}
+
+%\hrulefill{}
+\topglue 1in
+
+\centerline{\bf A Bold, Centered Title}
+\smallskip
+\rightline{ \it Eddie Wu}
+
+\beginsection 1. Plain \TeX nology
+
+Subsequent paragraph {\it are} indented.\footnote*{The amount of intentation 
+can be changed b y changing a parameter} (See?) The computer breaks a paragraph's
+text into lines in a interesting way---set reference~[1]---and h%
+yphenates words automatically when necessary.
+
+\midinsert
+\narrower\narrower
+\noindent \llap{``}If there hadn't been room for this material on the present page,
+it would have been inserted on the next one.''
+\endinsert
+
+\midinsert
+\narrower
+\noindent \llap{o }If there hadn't been room for this material on the present page,
+it would have been inserted on the next one.
+\endinsert
+
+\midinsert
+%\narrower
+\noindent \item{o }If there hadn't been room for this material on the present page,
+it would have been inserted on the next one.
+\endinsert
+
+\midinsert
+\narrower
+\noindent \llap{$<$good$>$}If there hadn't been room for this material on the present page,
+it would have been inserted on the next one.
+\endinsert
+
+\midinsert
+%\narrower
+\noindent \item{$<$good$>$}If there hadn't been room for this material on the present page,
+it would have been inserted on the next one.
+\endinsert
+
+
+\proclaim Theorem T. The typesetting of $math$ is discussed in chapters 16--19, and 
+math symbols are summarized in Appendix~F.
+
+\beginsection 2. Bibliography
+
+\frenchspacing
+\item{[1]} D.~E. Knuth and M.~F. Plass, ``Breaking paragraphs into lines,''{\sl
+ Softw. pract. exp. \bf11} (1981). 1119--1184.
+\bye
