@@ -1,8 +1,14 @@
 Those two days we watch EGo <<Qi Hun>> in Chinese.
-But the wide-band always broke in the middle. the root cause is that the connection between DSL Modem and Router is not stable. the direction of the wire will change and broke the link.  In order to fix it, just adjust the direction of the wire. For record, do not touch them physically from now on and fix it in this way if it break again.
+
+But the wide-band always broke in the middle. the root cause is that the 
+connection between DSL Modem and Router is not stable. the direction of 
+the wire will change and broke the link.  In order to fix it, just adjust 
+the direction of the wire. For record, do not touch them physically from 
+now on and fix it in this way if it break again.
 
 To ovilia, 
-My father like to write paper, I like to cook and my mum is a cooker, my young sister - HanHan is a good baby. I like to have peanuts, cake, biscuit, 
+My father like to write paper, I like to cook and my mum is a cooker, 
+my young sister - HanHan is a good baby. I like to have peanuts, cake, biscuit, 
 drawing lesson. 
 
 My mummy went out to see his old friends.

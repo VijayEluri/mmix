@@ -5,4 +5,4 @@ When I worked with American Customer, I learned the following accronym.
 	
 When I install Gentoo, I choose PRC(People's Repuboic of China) timezone, but I see
 CST in output of date command and feel it is confusing.	Today I learn that CST also stands
-for Chins Standard Time.
+for China Standard Time.
