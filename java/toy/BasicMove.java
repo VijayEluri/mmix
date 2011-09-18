@@ -3,21 +3,22 @@ package toy;
 import java.io.Serializable;
 
 /**
- * immutable.
- * Differentiate between rep. point and start point.later one is used to calculate delta x and y.
+ * immutable. Differentiate between rep. point and start point.later one is used
+ * to calculate delta x and y.
+ * 
  * @author wueddie-wym-wrz
  * 
  */
-public class BasicMove implements Serializable{
+public class BasicMove implements Serializable {
 	/**
 	 * for 2*2 or 1*2 block. the point should be the top left one in the block.
 	 */
 	protected Point representative;
-	
+
 	protected Point start;
-	
+
 	// the target: blank point.
-	protected Point end; 
+	protected Point end;
 
 	/**
 	 * block and point are tightly coupled. block is a transient property
@@ -36,10 +37,6 @@ public class BasicMove implements Serializable{
 			return x;
 	}
 
-//	public void setX(byte x) {
-//		this.x = x;
-//	}
-
 	public byte getY() {
 		if (y == -1) {
 			return (byte) (this.getEnd().getB() - this.getStart().getB());
@@ -47,9 +44,6 @@ public class BasicMove implements Serializable{
 			return y;
 	}
 
-//	public void setY(byte y) {
-//		this.y = y;
-//	}
 
 	public Point getEnd() {
 		return end;
@@ -76,8 +70,9 @@ public class BasicMove implements Serializable{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((end == null) ? 0 : end.hashCode());
-		result = prime * result + ((representative == null) ? 0 : representative.hashCode());
+		result = prime * result + (representative.hashCode());
+		result = prime * result + (this.getX());
+		result = prime * result + (this.getY());
 		return result;
 	}
 
@@ -90,22 +85,22 @@ public class BasicMove implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		BasicMove other = (BasicMove) obj;
-		if (end == null) {
-			if (other.end != null)
-				return false;
-		} else if (!end.equals(other.end))
-			return false;
+
 		if (representative == null) {
 			if (other.representative != null)
 				return false;
 		} else if (!representative.equals(other.representative))
+			return false;
+		if (this.getX() != other.getX())
+			return false;
+		if (this.getY() != other.getY())
 			return false;
 		return true;
 	}
 
 	public void setRepresentative(Point repPoint) {
 		this.representative = repPoint;
-		
+
 	}
 
 }

@@ -1,3 +1,6 @@
+Shall we encrypt this file.
+:wq
+
 Skype account:
 user name: eddie.wu.jf
 password: <5 letter>{simple}

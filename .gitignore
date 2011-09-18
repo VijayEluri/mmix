@@ -2,6 +2,7 @@
 /enterprise/.project
 /enterprise/*.jar
 *~
+*.java#
 .*
 =*
 #*#
@@ -20,6 +21,7 @@
 *.log
 *.o
 *.ko
+*.html
 .metadata
 bak
 GO_WS2

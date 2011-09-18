@@ -1,4 +1,23 @@
 
+I have a lot of pain experience on use home lan.
+
+a. I shold remember that the management interface for home router is
+192.168.0.1.
+user/password are admin/admin.
+
+2. the root cause of issues are the cable connection is not stable at all
+the following LED should flash:
+	Power
+	WAN
+	System
+on Modem except the Diagnose.
+	WLAN
+	lan1
+	lan2
+	lan3
+	power.
+if the cable connectting modem and router does not work. then at lease one of
+the LED will be black.
 
 
 
