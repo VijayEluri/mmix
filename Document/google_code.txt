@@ -1,0 +1,71 @@
+1. create google code project. (refer to http://blog.csdn.net/xushiweizh/archive/2006/12/28/1466334.aspx)
+mmix
+To create a mmix simulator in Java. 
+To learn the mmix better, I am trying to create a mmix simulator in Java.
+
+svn checkout https://mmix.googlecode.com/svn/trunk/ mmix --username eddie.wjf
+tW8bQ2Wh5EW9
+
+To learn the mmix better, I am trying to create a mmix simulator in Java.
+
+2 follow the instruction.
+http://www-128.ibm.com/developerworks/opensource/library/os-ecl-subversion/
+
+3. download plug in.
+Eclipse update site URL: http://subclipse.tigris.org/update_1.4.x
+http://subclipse.tigris.org/
+
+
+the web site for my mmix:
+http://code.google.com/p/mmix/
+
+where to push :
+
+on git bub
+git@github.com:ueddieu/mmix.git
+
+
+on repo.or.cz.
+description	none
+owner	ueddieu@yahoo.com.cn
+last change	Wed, 9 Dec 2009 12:58:34 +0000
+URL	git://repo.or.cz/ueddieu.git
+	http://repo.or.cz/r/ueddieu.git
+Push URL	ssh://repo.or.cz/srv/git/ueddieu.git
+
+pull from git - hub
+
+
+
+
+
+
+
+
+
+
+
+10/14/2008 11:36AM
+
+Computer Architecture: a quantitative approach
+
+Appendix A: pipelining
+
+pipeline Hazards:
+Structural Hazards:
+Data Hazards:
+Branch Hazards:
+
+Structural Hazards:
+    no enough resource for parallel. 
+    e.g. Instruction and Data memory access.
+    solution: separate I/D cache.
+    
+    exception: floating point Unit.
+Data Hazards:
+    the data dependencies between instructions. e.g. instruction i 's output will be used by instruction i+1 as input. since they are excuted parallel, the data is ready for next instruction.
+    solution: forwarding / bypassing. directly used the intermediate result in pipeline register.
+    
+    exception: the data of LD instruction is not ready yet as intermediate result.
+
+Branch Hazards:

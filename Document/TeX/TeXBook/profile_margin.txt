@@ -1,0 +1,23 @@
+\hrule
+\vskip 1in
+\centerline{what are you doing. 1.}
+\hrule
+
+\vskip 1in
+\centerline{what are you doing. 2}
+\hrule
+
+\vskip 1in
+\centerline{what are you doing.3}
+\hrule
+
+\vskip 2in
+\centerline{what are you doing.4}
+\hrule
+
+\vskip 2in
+
+\centerline{what are you doing. 6}
+\hrule
+\eject
+\bye
