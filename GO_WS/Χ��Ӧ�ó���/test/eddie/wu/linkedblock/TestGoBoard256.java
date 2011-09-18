@@ -26,7 +26,7 @@ public class TestGoBoard256 extends TestCase{
 	private static final Log log=LogFactory.getLog(TestGoBoard256.class);
 	public void testForwardNextStepSingleGoManual() {
 		byte[] original = null;
-		original = LoadGoManual.loadSingleGoManual();
+		original = new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadSingleGoManual();
 		GoBoard goBoard = new GoBoard();
 		eddie.wu.arrayblock.GoBoard256 goboard1 = new eddie.wu.arrayblock.GoBoard256();
 		//for(int i=0; i<1;i++ ){
@@ -57,7 +57,7 @@ public class TestGoBoard256 extends TestCase{
 	public void testForwardNextStepMultiGoManual() {
 		byte[] original = null;
 		byte count=0;
-		List list = LoadGoManual.loadMultiGoManualFromLib0();
+		List list = new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadMultiGoManualFromLib0();
 		for (Iterator iter = list.iterator(); iter.hasNext();) {
 			count++;
 			
@@ -105,7 +105,7 @@ public class TestGoBoard256 extends TestCase{
 	public void testForwardNextStepMultiGoManualLib1() {
 		byte[] original = null;
 		int count=0;
-		List list = LoadGoManual.loadMultiGoManual(1);
+		List list = new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadMultiGoManual(1);
 		for (Iterator iter = list.iterator(); iter.hasNext();) {
 			
 			
@@ -149,7 +149,7 @@ public class TestGoBoard256 extends TestCase{
 //		for (Iterator iter = list.iterator(); iter.hasNext();) {
 //			count++;
 			
-			original =  LoadGoManual.loadOneFromAllGoManual(1,453);
+			original =  new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadOneFromAllGoManual(1,453);
 			log.debug("GOManual:"+344);
 			log.debug("GOManualLength:"+original.length);
 			

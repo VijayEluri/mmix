@@ -25,6 +25,7 @@ import eddie.wu.domain.Block;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
+import go.Survive;
 
 /**
  * this program is refactored from the old program which use array as data
@@ -37,12 +38,6 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		ZhengZiInterface {
 	private transient static final Log log = LogFactory.getLog(GoBoard.class);
 
-	private static final byte[][] szld = Constant.szld;
-	
-	private static final byte[][] szdjd = Constant.szdjd;
-	
-	// private byte[][][] zb = new byte[21][21][4];
-	// 每个落子点的情况，所有原始信息都在这个数组中。足以代表一个局面。
 	// 两维是棋盘的坐标,数组下标从1到19;
 	private BoardPoint[][] boardPoints = new BoardPoint[Constant.SIZEOFMATRIX][Constant.SIZEOFMATRIX];
 
@@ -57,42 +52,6 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	private byte numberOfBlackPointEaten = 0; // 黑白被吃子计数
 
 	private StepHistory stepHistory = new StepHistory();
-
-	/**
-	 * 
-	 * still not finished!
-	 * 
-	 * @param oldgo
-	 */
-	// private GoBoard(GoBoard oldgo) {
-	// super();
-	//
-	// byte i, j;
-	// short t;
-	//
-	// for (i = 1; i < 20; i++) {
-	// for (j = 1; j < 20; j++) {
-	// boardPoints[i][j] = oldgo.boardPoints[i][j];
-	// }
-	// }
-	//
-	// numberOfBlackPointEaten = oldgo.numberOfBlackPointEaten;
-	// numberOfWhitePointEaten = oldgo.numberOfWhitePointEaten;
-	// shoushu = oldgo.shoushu;
-	//
-	// for (t = 0; t < 512; t++) {
-	// for (j = 0; j < 5; j++) {
-	//
-	// stepHistory.hui[t][j] = oldgo.stepHistory.hui[t][j];
-	// }
-	// }
-	// // for (t = 0; t < 512; t++) {
-	// // for (j = 0; j < 12; j++) {
-	// // huik[t][j] = oldgo.huik[t][j];
-	// // }
-	// // }
-	//
-	// }
 
 	public void initPoints() {
 		byte i, j;
@@ -212,7 +171,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	 * no double check really used Constructor.
 	 * 
 	 */
-	GoBoard(BoardColorState boardState) {
+	public GoBoard(BoardColorState boardState) {
 		this();
 
 		final Set blackPoints = boardState.getBlackPoints();
@@ -231,7 +190,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 
 	}
 
-	GoBoard(byte[][] board) {
+	public GoBoard(byte[][] board) {
 		this();
 		byte i, j;
 		for (i = 1; i < 20; i++) {
@@ -247,6 +206,16 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		return validate(row, column);
 	}
 
+	boolean validate(final Point point, int color) {
+		final byte row = point.getRow();
+		final byte column = point.getColumn();
+		return validate(row, column, color);
+	}
+
+	boolean validate(final byte row, final byte column) {
+		return validate(row, column, 0);
+	}
+
 	/**
 	 * no side effect 判断落子位置的有效性。
 	 * 
@@ -254,11 +223,12 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	 * @param column
 	 * @return
 	 */
-	boolean validate(final byte row, final byte column) {
+	boolean validate(final byte row, final byte column, int color) {
 		byte m, n, qi = 0;
 		// 在shoushu增加之前调用，yise和tongse的计算有所不同。
 		byte selfColor = ColorUtil.getNextStepColor(shoushu);
 		byte enemyColor = ColorUtil.getNextStepEnemyColor(shoushu);
+
 		// if(log.isDebugEnabled()){
 		if (log.isDebugEnabled()) {
 			log.debug("row=" + row + ",column=" + column);
@@ -282,6 +252,10 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		}
 	}
 
+	private boolean validateAccordingBreath(final byte row, final byte column) {
+		return validateAccordingBreath(row, column, 0);
+	}
+
 	/**
 	 * @param row
 	 * @param column
@@ -290,15 +264,20 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	 * @param enemyColor
 	 * @return
 	 */
-	private boolean validateAccordingBreath(final byte row, final byte column) {
+	private boolean validateAccordingBreath(final byte row, final byte column,
+			int color) {
 		byte m;
 		byte n;
 		byte qi = 0;
 		byte selfColor = ColorUtil.getNextStepColor(shoushu);
 		byte enemyColor = ColorUtil.getNextStepEnemyColor(shoushu);
+		if (color != 0) {
+			selfColor = (byte) color;
+			enemyColor = (byte) ColorUtil.enemyColor(color);
+		}
 		for (byte i = 0; i < 4; i++) {
-			m = (byte) (row + szld[i][0]);
-			n = (byte) (column + szld[i][1]);
+			m = (byte) (row + Constant.szld[i][0]);
+			n = (byte) (column + Constant.szld[i][1]);
 			if (boardPoints[m][n].getColor() == ColorUtil.BLANK_POINT) {
 				return true;
 			} else if (boardPoints[m][n].getColor() == enemyColor) {
@@ -443,8 +422,8 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		}
 		byte m1, n1;
 		for (byte i = 0; i < 4; i++) {
-			m1 = (byte) (point.getRow() + szld[i][0]);
-			n1 = (byte) (point.getColumn() + szld[i][1]);
+			m1 = (byte) (point.getRow() + Constant.szld[i][0]);
+			n1 = (byte) (point.getColumn() + Constant.szld[i][1]);
 			if (boardPoints[m1][n1].getColor() == point.getEnemyColor()) {
 				if (log.isDebugEnabled()) {
 					log.debug("add breath for block:"
@@ -510,8 +489,8 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			n = point.getColumn();
 
 			for (j = 0; j < 4; j++) {
-				a = (byte) (m + szld[j][0]);
-				b = (byte) (n + szld[j][1]);
+				a = (byte) (m + Constant.szld[j][0]);
+				b = (byte) (n + Constant.szld[j][1]);
 				if (log.isDebugEnabled()) {
 					log.debug("a=" + a);
 				}
@@ -536,7 +515,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			}
 
 		} // for
-		// block.setBreath(tempBreath);
+			// block.setBreath(tempBreath);
 
 		// 恢复标志
 		for (java.util.Iterator iter = block.getAllBreathPoints().iterator(); iter
@@ -579,19 +558,50 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 
 	}
 
+	private Point lastPoint;
+
 	boolean oneStepForward(final Point point) {
 		final byte row = point.getRow();
 		final byte column = point.getColumn();
+		lastPoint = point;
 		return oneStepForward(row, column);
 	}
 
+	boolean oneStepForward(final Point point, int color) {
+		final byte row = point.getRow();
+		final byte column = point.getColumn();
+		lastPoint = point;
+		return oneStepForward(row, column, color);
+	}
+
+	public Point getLastPoint() {
+		return lastPoint;
+	}
+
 	public boolean oneStepForward(final Step step) {
+		lastPoint = step.getPoint();
 		return this.oneStepForward(step.getPoint());
 	}
 
 	public boolean oneStepForward(final int row, final int column) {
-		return oneStepForward((byte) row, (byte) column);
+		lastPoint = Point.getPoint(row, column);
+		return oneStepForward((byte) row, (byte) column, 0);
 	}
+
+	/**
+	 * It is better to specify the color from caller side, instead of decide
+	 * color according to the 手数。 since for calculation, we may not follow the
+	 * principle. black and white comes one after the other.
+	 * 
+	 * @param row
+	 * @param column
+	 * @param color
+	 * @return
+	 */
+	// public boolean oneStepForward(final int row, final int column, int color)
+	// {
+	//
+	// }
 
 	/**
 	 * accept input and finish all the dealing. 命名是一个很难的课题， 命名方法的重要性可以
@@ -600,7 +610,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	 * row是数组的行下标,也是平面的横坐标:1-19 column是数组的列下标,也是屏幕的纵坐标:1-19 byte c;
 	 * a,b的一维表示:1-361;
 	 */
-	public boolean oneStepForward(final byte row, final byte column) {
+	public boolean oneStepForward(final byte row, final byte column, int color) {
 		byte enemyColor = 0; // 与落子点异色
 		byte selfColor = 0; // 与落子点同色
 
@@ -612,7 +622,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			log.debug("落子点:" + row + "/" + column);
 		}
 
-		if (validate(row, column) == false) { // 1.判断落子点的有效性。
+		if (validate(row, column, color) == false) { // 1.判断落子点的有效性。
 			if (log.isDebugEnabled()) {
 				log.debug("落子点invalide");
 			}
@@ -624,12 +634,19 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		}
 
 		shoushu++;
-		enemyColor = ColorUtil.getCurrentStepEnemyColor(shoushu);
-		selfColor = ColorUtil.getCurrentStepColor(shoushu);
-		stepHistory.addStep(shoushu, row, column);
-		// bug fix jgzs() calculate need the point[row][column]shoule be
-		// colored, only flaged is not enough.
-		boardPoints[row][column].setColor(selfColor);
+		if (color == 0) {
+			enemyColor = ColorUtil.getCurrentStepEnemyColor(shoushu);
+			selfColor = ColorUtil.getCurrentStepColor(shoushu);
+			stepHistory.addStep(shoushu, row, column);
+			// bug fix jgzs() calculate need the point[row][column]shoule be
+			// colored, only flaged is not enough.
+			boardPoints[row][column].setColor(selfColor);
+		} else {
+			selfColor = (byte) color;
+			enemyColor = (byte) ColorUtil.enemyColor(color);
+			stepHistory.addStep(shoushu, row, column);
+			boardPoints[row][column].setColor(selfColor);
+		}
 		dealBlankPoint(row, column);
 		// boardPoints[row][column].setColor(selfColor); //可以动态一致
 		Block sameColorBlock = dealSelfPoint(row, column, selfColor);
@@ -717,9 +734,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		}
 		// 已经扣除落子点。
 		if (log.isDebugEnabled()) {
-			log
-					.debug("落子点所在空白块子数现为："
-							+ blankPointBlock.getTotalNumberOfPoint());
+			log.debug("落子点所在空白块子数现为：" + blankPointBlock.getTotalNumberOfPoint());
 			log.debug(boardPoints[row][column].getBlock().toString());
 			// 原气块落子后的子数；
 		}
@@ -737,8 +752,8 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 				log.debug("一、记录直接气。直接气点为");
 			}
 			for (i = 0; i < 4; i++) { // 直接的气，而非提子生成的气。
-				m1 = (byte) (row + szld[i][0]);
-				n1 = (byte) (column + szld[i][1]);
+				m1 = (byte) (row + Constant.szld[i][0]);
+				n1 = (byte) (column + Constant.szld[i][1]);
 				if (boardPoints[m1][n1].getColor() == ColorUtil.BLANK_POINT) {
 					// 2.1the breath of blank
 					blankPoint.add(points[m1][n1]);
@@ -778,8 +793,8 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		}
 		// Set enemyBlocks = new HashSet(4);
 		for (i = 0; i < 4; i++) { // 先处理异色邻子
-			m1 = (byte) (row + szld[i][0]);
-			n1 = (byte) (column + szld[i][1]);
+			m1 = (byte) (row + Constant.szld[i][0]);
+			n1 = (byte) (column + Constant.szld[i][1]);
 			if (boardPoints[m1][n1].getColor() == enemyColor) { // 1.1右边相邻点
 
 				Block tempEnemyBlock = boardPoints[m1][n1].getBlock();
@@ -901,8 +916,8 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			log.debug("二、处理同色邻子");
 		}
 		for (i = 0; i < 4; i++) { // 再处理同色邻子
-			m1 = (byte) (row + szld[i][0]);
-			n1 = (byte) (column + szld[i][1]);
+			m1 = (byte) (row + Constant.szld[i][0]);
+			n1 = (byte) (column + Constant.szld[i][1]);
 
 			if (boardPoints[m1][n1].getColor() == selfColor) { // 3.1
 				if (log.isDebugEnabled()) {
@@ -1085,8 +1100,8 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		case 4: {
 			byte lianjieshu = 0;
 			for (byte bianli = 0; bianli < 4; bianli++) {
-				m1 = (byte) (row + szdjd[bianli][0]);
-				n1 = (byte) (column + szdjd[bianli][1]);
+				m1 = (byte) (row + Constant.szdjd[bianli][0]);
+				n1 = (byte) (column + Constant.szdjd[bianli][1]);
 				if (boardPoints[m1][n1].getColor() == ColorUtil.BLANK_POINT) {
 					lianjieshu++;
 					// 通过对角点连接
@@ -1128,8 +1143,8 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		byte dang = 0; // 气数变量
 		byte i, a, b; // 悔棋恢复时，解散块所成单点的气数计算；
 		for (i = 0; i < 4; i++) {
-			a = (byte) (m + szld[i][0]);
-			b = (byte) (n + szld[i][1]);
+			a = (byte) (m + Constant.szld[i][0]);
+			b = (byte) (n + Constant.szld[i][1]);
 			if (boardPoints[a][b].getColor() != ColorUtil.BLANK_POINT) { // 2.1the
 				// breath
 				// of
@@ -1138,8 +1153,8 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			}
 		}
 		for (i = 0; i < 4; i++) {
-			a = (byte) (m + szdjd[i][0]);
-			b = (byte) (n + szdjd[i][1]);
+			a = (byte) (m + Constant.szdjd[i][0]);
+			b = (byte) (n + Constant.szdjd[i][1]);
 			if (boardPoints[a][b].getColor() != ColorUtil.BLANK_POINT) { // 2.1the
 				// breath
 				// of
@@ -1168,8 +1183,8 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		boardPoints[a][b].setBlock(newBlock);
 
 		for (byte k = 0; k < 4; k++) {
-			m1 = (byte) (a + szld[k][0]);
-			n1 = (byte) (b + szld[k][1]);
+			m1 = (byte) (a + Constant.szld[k][0]);
+			n1 = (byte) (b + Constant.szld[k][1]);
 			if (boardPoints[m1][n1].isCalculatedFlag()) {
 				continue;
 			}
@@ -1208,8 +1223,8 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		boardPoints[a][b].setBlock(newBlock);
 
 		for (byte k = 0; k < 4; k++) {
-			m1 = (byte) (a + szld[k][0]);
-			n1 = (byte) (b + szld[k][1]);
+			m1 = (byte) (a + Constant.szld[k][0]);
+			n1 = (byte) (b + Constant.szld[k][1]);
 
 			if (boardPoints[m1][n1].getColor() == color) {
 				if (boardPoints[m1][n1].isCalculatedFlag()) {
@@ -1229,6 +1244,14 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 
 	public BoardPoint getBoardPoint(byte row, byte column) {
 		return boardPoints[row][column];
+	}
+
+	public Block getBlock(int row, int column) {
+		return boardPoints[row][column].getBlock();
+	}
+
+	public Block getBlock(Point point) {
+		return this.getBoardPoint(point).getBlock();
 	}
 
 	private BoardPoint getBoardPoint(Point point) {
@@ -1589,9 +1612,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 					}
 					makeBlock(j, i, ColorUtil.WHITE, new Block(ColorUtil.WHITE));
 					if (log.isDebugEnabled()) {
-						log
-								.debug("added block:"
-										+ boardPoints[j][i].getBlock());
+						log.debug("added block:" + boardPoints[j][i].getBlock());
 						log.debug("hashcode of added block:"
 								+ boardPoints[j][i].getBlock().hashCode());
 					}
@@ -1603,9 +1624,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 					makeBlock(j, i, ColorUtil.BLANK_POINT, new Block(
 							ColorUtil.BLANK_POINT));
 					if (log.isDebugEnabled()) {
-						log
-								.debug("added block:"
-										+ boardPoints[j][i].getBlock());
+						log.debug("added block:" + boardPoints[j][i].getBlock());
 						log.debug("hashcode of added block"
 								+ boardPoints[j][i].getBlock().hashCode());
 					}
@@ -1637,8 +1656,9 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		return getSetFromState(ColorUtil.BLANK_POINT);
 	}
 
+	Set<Block> blocks = new HashSet<Block>();
+
 	public Set<Block> getSetFromState(int color) {
-		Set<Block> blocks = new HashSet<Block>();
 		Block temp = null;
 		for (int i = 1; i <= 19; i++) {
 			for (int j = 1; j <= 19; j++) {
@@ -2355,6 +2375,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 
 	/**
 	 * The clone done by serialization/deserialization
+	 * 
 	 * @return
 	 */
 	public GoBoard deepClone() {
@@ -2435,16 +2456,17 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		Set<Point> candidate = new HashSet<Point>(4);
 		// 1. 确定可以提子的点.
 		// TODO:高级数据结构可以还没有准备好.
-		for (Iterator iter = blockToBeEaten.getEnemyBlocks().iterator(); iter
+		for (Iterator<Block> iter = blockToBeEaten.getEnemyBlocks().iterator(); iter
 				.hasNext();) {
 			// 记录周围一气的点。
 			// ?出现错误，打吃一般不适上一步生成。而是再前一步形成的.
 
 			Block tempBlock = (Block) iter.next();
 			if (tempBlock.getBreaths() == 1) {
-				Iterator iter2 = tempBlock.getAllBreathPoints().iterator();
+				Iterator<Point> iter2 = tempBlock.getAllBreathPoints()
+						.iterator();
 				if (iter2.hasNext()) {
-					Point ppp = (Point) iter.next();
+					Point ppp = (Point) iter2.next();
 					candidate.add(ppp);
 				}
 			}
@@ -2457,16 +2479,16 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			}
 			throw new RuntimeException("错误：被征子方轮走时气数不为1。");
 		}
-		Set temps = blockToBeEaten.getAllBreathPoints();
-		if (temps == null) {
+		Set<Point> temps = blockToBeEaten.getAllBreathPoints();
+		if (temps == null || temps.isEmpty()) {
 			if (log.isDebugEnabled()) {
 				log.debug("气数不足1。");
 			}
 			throw new RuntimeException("错误：被征子方轮走时气数不足1。");
 		}
 
-		Iterator itertemp = temps.iterator();
-		if (itertemp.hasNext()) {
+		Iterator<Point> itertemp = temps.iterator();
+		if (itertemp.hasNext()) {// 因为被征子方最多只有一气。
 			candidate.add((Point) itertemp.next());
 		}
 
@@ -2479,7 +2501,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 
 		int youxiaodian = 0;
 		// int haodian=0;
-		for (Iterator iter = candidate.iterator(); iter.hasNext();) {
+		for (Iterator<Point> iter = candidate.iterator(); iter.hasNext();) {
 			GoBoard temp = this.getGoBoardCopy();
 			// 目前仅仅考虑候选点已知而且在搜索过程中不动态改变
 			// 以后应该进行更细致的处理，根据要展开的局面确定。
@@ -2522,8 +2544,8 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 				}
 			}
 		} // for循环结束
-		// if(result.)
-		// TODO how to return result.
+			// if(result.)
+			// TODO how to return result.
 		if (result.getNumberOfCandidates() == 0) {
 			result.setScore(-127);
 		}
@@ -2533,11 +2555,12 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	public GoBoard getGoBoardCopy() {
 		GoBoard temp = new GoBoard(this.getBoardColorState(), this.getShoushu());
 		temp.generateHighLevelState();
+		temp.lastPoint = this.lastPoint;
 		return temp;
 	}
 
 	/**
-	 * 轮Max方即征子方走时，考虑所有可能的候选点并且排除某些确定状态的点。
+	 * 轮Max方即征子方走时，考虑所有可能的候选点并且排除某些确定状态的点。 只有两种可能结果：1。没有合法着点。 2. 继续计算（取决于后面的进展）
 	 * 
 	 * @param row
 	 * @param column
@@ -2549,34 +2572,21 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		LocalResultOfZhengZi result = new LocalResultOfZhengZi();
 
 		Block blockToBeEaten = boardPoints[row][column].getBlock();
-		Set tep = blockToBeEaten.getAllBreathPoints();
 		if (blockToBeEaten.getBreaths() != 2) {
 			if (log.isDebugEnabled()) {
 				log.debug("错误：气数不为二。" + blockToBeEaten.getBreaths());
 			}
 			zhengzijieguo[0][0] = -127;
-			throw new RuntimeException("错误：征子方落子前气数不为二。");
+			throw new RuntimeException("错误：征子方落子前目标快气数不为二。");
 			// return zhengzijieguo; // 表示方法失败。
 		}
 
 		Set<Point> candidate = new HashSet<Point>(4);
-		for (Iterator iter = tep.iterator(); iter.hasNext();) {
-			if (tep.size() == 0) {
-				if (log.isDebugEnabled()) {
-					log.debug("气数不足二。");
-				}
-				zhengzijieguo[0][0] = -127;
-				throw new RuntimeException("错误：征子方落子前气数不为二。");
-			}
-
-			Point bpp = (Point) iter.next();
-			candidate.add(bpp);
-
-		}
+		candidate.addAll(blockToBeEaten.getAllBreathPoints());
 
 		byte m1, n1;
 		// 遍历并且评价候选点,事后评价.需要落子.
-		for (Iterator iter = candidate.iterator(); iter.hasNext();) {
+		for (Iterator<Point> iter = candidate.iterator(); iter.hasNext();) {
 			GoBoard temp = this.getGoBoardCopy();
 			// 目前仅仅考虑候选点已知而且在搜索过程中不动态改变
 			// 以后应该进行更细致的处理，根据要展开的局面确定。
@@ -2595,7 +2605,6 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 
 			}
 			result.setScore(-128);
-
 		}
 
 		return result;
@@ -2606,5 +2615,88 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	 */
 	public StepHistory getStepHistory() {
 		return stepHistory;
+	}
+
+	/**
+	 * 死活计算。
+	 */
+	public LocalResultOfZhengZi getLocalResultSelfFirst(Point point) {
+		LocalResultOfZhengZi result = new LocalResultOfZhengZi();
+
+		Block blockToBeEaten = getBlock(point);
+
+		Set<Point> candidate = blockToBeEaten.getAllBreathPoints();
+
+		// 遍历并且评价候选点,事后评价.需要落子.
+		for (Point tempPoint : candidate) {
+			GoBoard temp = this.getGoBoardCopy();
+			// 目前仅仅考虑候选点已知而且在搜索过程中不动态改变
+			// 以后应该进行更细致的处理，根据要展开的局面确定。
+
+			// 扩展最后的局面，扩展同一个上级局面。
+			if (temp.validate(tempPoint, blockToBeEaten.getColor())) { // 判断合法着点
+				temp.oneStepForward(tempPoint, blockToBeEaten.getColor());
+				Survive survive = new Survive(temp.getBoardColorState()
+						.getMatrixState());
+				if (survive.isLive(tempPoint)) {
+					result.setScore(127);//
+					result.setCandidateJuMianAndPoint(temp, tempPoint);
+					return result;
+				} else {
+					result.addCandidateJuMianAndPoint(temp, tempPoint);
+				}
+			}
+		}
+		if (result.getCandidatePoints().size() == 0) {
+			// 返回，一般是征子方无子可下。
+			if (log.isDebugEnabled()) {
+				log.debug("有效点为0");
+
+			}
+			result.setScore(-128);
+		}
+
+		return result;
+	}
+	
+	public LocalResultOfZhengZi getLocalResultEnemyFirst(Point point) {
+		LocalResultOfZhengZi result = new LocalResultOfZhengZi();
+
+		Block blockToBeEaten = getBlock(point);
+
+		Set<Point> candidate = blockToBeEaten.getAllBreathPoints();
+		int myColor = blockToBeEaten.getColor();
+		int enemyColor = ColorUtil.enemyColor(myColor);
+
+		// 遍历并且评价候选点,事后评价.需要落子.
+		for (Point tempPoint : candidate) {
+			GoBoard temp = this.getGoBoardCopy();
+			// 目前仅仅考虑候选点已知而且在搜索过程中不动态改变
+			// 以后应该进行更细致的处理，根据要展开的局面确定。
+
+			// 扩展最后的局面，扩展同一个上级局面。
+			if (temp.validate(tempPoint, enemyColor)) { // 判断合法着点
+				temp.oneStepForward(tempPoint, enemyColor);
+				Survive survive = new Survive(temp.getBoardColorState()
+						.getMatrixState());
+				if (survive.isLive(tempPoint)) {
+					result.setScore(127);//live
+					result.setCandidateJuMianAndPoint(temp, tempPoint);
+					return result;
+				} else {
+					result.addCandidateJuMianAndPoint(temp, tempPoint);
+				}
+			}
+		}
+		if (result.getCandidatePoints().size() == 0) {
+			// 返回，一般是征子方无子可下。
+			if (log.isDebugEnabled()) {
+				log.debug("有效点为0");
+
+			}
+			result.setScore(127);//live
+		}
+
+		return result;
 	}
 }

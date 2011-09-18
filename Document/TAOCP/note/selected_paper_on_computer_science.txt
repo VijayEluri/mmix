@@ -49,7 +49,7 @@ The author was asked to write a commentary for the books.
 
 
 
-I had no idea that a new discipline called computer sciende would soon spring 
+I had no idea that a new discipline called computer science would soon spring 
 up at numerous campuses, not did i realize that "deep down" I was really a 
 computer scientist, not a mathematician. Computer scientists haven't discover 
 each other yet. But I had been writting computer programs to help support 
@@ -105,7 +105,8 @@ our growing expectations.
 
 ...
 
-I have made minor adjustments to the texts, but BY AND LARGE these chanpters remain essentially as I originally wrote them. the bibliography
+I have made minor adjustments to the texts, but BY AND LARGE these chanpters 
+remain essentially as I originally wrote them. the bibliography
 
 
 
@@ -121,15 +122,20 @@ Important point and example
 author constructed some unimagible big numbers which is much much bigger than the whole neutrons in the universe.
 
 2. some problem looks hard appaently may be attackable. 
-Example is the latin square, in this case, you do not need to go through all the possibilites. 
+Example is the latin square, in this case, you do not need to go through 
+all the possibilites. 
 there are more examples based on a 10*10 network.
 
-3. some problem is really hard. you can not get the optimum result, but you may find a approxiamte result easily.
+3. some problem is really hard. you can not get the optimum result, 
+but you may find a approxiamte result easily.
 one problem is first proved to finite, then it is proved to unrealistic since it takes about
 10 power 125.
 
-4. computer may act as a assistant to show the result of the small cases, which is hardly done by hand. then it may still need the human being to conquer the problem finally, e.g.
+4. computer may act as a assistant to show the result of the small cases, 
+which is hardly done by hand. then it may still need the human being 
+to conquer the problem finally, e.g.
 latin sqare exists for number large than 6.
-it is a tie for game of 8 consecutive point.(similar to 五子棋)
+
+5.it is a tie for game of 8 consecutive point.(similar to 五子棋)
 
 

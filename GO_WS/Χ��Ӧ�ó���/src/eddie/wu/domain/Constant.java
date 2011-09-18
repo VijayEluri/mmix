@@ -34,9 +34,10 @@ public class Constant {
 	
 	
 //	public static final byte ZTXB = 0; // 下标0存储状态值（无子、黑子、白子）;
-//	public static final byte BLANK = 0;
-//	public static final byte BLACK = 1; // 1表示黑子;
-//	public static final byte WHITE = 2; // 2表示白子;
+	public static final byte OUT_OF_BOUND = -1;
+	public static final byte BLANK = 0;
+	public static final byte BLACK = 1; // 1表示黑子;
+	public static final byte WHITE = 2; // 2表示白子;
 //
 //	public static final byte SQBZXB = 1; // 下标1存储算气标志;
 //	public static final byte QSXB = 2; // 下标2存储气数（单子或者棋块的气数）;

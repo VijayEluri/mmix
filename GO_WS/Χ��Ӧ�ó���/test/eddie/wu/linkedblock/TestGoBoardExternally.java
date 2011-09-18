@@ -26,6 +26,7 @@ import eddie.wu.manual.LoadGoManual;
  * Test GOBoard class
  */
 public class TestGoBoardExternally extends TestCase {
+	private static final String rootDir = "doc/Î§Æå´òÆ×Èí¼þ/";
     private static final Log log = LogFactory.getLog(TestGoBoardExternally.class);
 
     public TestGoBoardExternally(String string) {
@@ -59,7 +60,7 @@ public class TestGoBoardExternally extends TestCase {
     	}
     	//logger.setLevel(Level.DEBUG);
         byte[] original = null;
-        original = LoadGoManual.loadSingleGoManual();
+        original = new LoadGoManual(rootDir).loadSingleGoManual();
         helperTestMethod(original);
 
     }
@@ -82,7 +83,7 @@ public class TestGoBoardExternally extends TestCase {
     	}
         byte[] original = null;
         byte count = 0;
-        List list = LoadGoManual.loadMultiGoManualFromLib0();
+        List list = new LoadGoManual(rootDir).loadMultiGoManualFromLib0();
         for (Iterator iter = list.iterator(); iter.hasNext();) {
             count++;
 
@@ -136,7 +137,7 @@ since Array go Board is not so good.
     	int libId=0;
     	int manualId=4;
     	int shoushu=183;
-        original = LoadGoManual.loadOneFromAllGoManual(libId, manualId);
+        original = new LoadGoManual(rootDir).loadOneFromAllGoManual(libId, manualId);
         log.debug("GOManual:"+libId+":" + manualId);
         log.debug("GOManualLength:" + original.length);
         assertEquals(shoushu*2,original.length);

@@ -1,12 +1,6 @@
 package eddie.wu.api;
 import eddie.wu.domain.Step;
 import eddie.wu.linkedblock.BoardColorState;
-/*
- * Created on 2005-5-6
- *
-
-
- */
 
 /**
  * @author eddie

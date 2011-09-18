@@ -14,19 +14,22 @@ import java.util.Set;
 import eddie.wu.domain.Point;
 
 /**
+ * The most basic way to represent the state of the board without derived
+ * information. it could be converted to classic matrix representation.
+ * 
  * @author eddie
  * 
- * use Bit Set to represent the board Point sate! index come from 1.
+ *         use Bit Set to represent the board Point sate! index start from 1.
  */
 public class BoardColorState {
-    
-    /* 
-     *  index 0 is not used.
-     */
+
+	/*
+	 * index 0 is not used.
+	 */
 	private BitSet black = new BitSet(362);
 
 	private BitSet white = new BitSet(362);
-	
+
 	public BoardColorState() {
 
 	}
@@ -43,11 +46,26 @@ public class BoardColorState {
 		}
 	}
 
+	public byte[][] getMatrixState() {
+		byte[][] matrix = new byte[21][21];
+		Point point;
+		for (short i = 1; i <= 361; i++) {
+			if (black.get(i)) {
+				point = Point.getPoint(i);
+				matrix[point.getRow()][point.getColumn()] = ColorUtil.BLACK;
+			} else if (white.get(i)) {
+				point = Point.getPoint(i);
+				matrix[point.getRow()][point.getColumn()] = ColorUtil.BLACK;
+			}
+		}
+		return matrix;
+	}
+
 	public Set<Point> getBlackPoints() {
 		Set<Point> blackPoints = new HashSet<Point>(128);
 		for (short i = 1; i <= 361; i++) {
 			if (black.get(i))
-				blackPoints.add(new Point(i));
+				blackPoints.add(Point.getPoint(i));
 		}
 		return blackPoints;
 	}
@@ -56,12 +74,10 @@ public class BoardColorState {
 		Set<Point> whitePoints = new HashSet<Point>(128);
 		for (short i = 1; i <= 361; i++) {
 			if (white.get(i))
-				whitePoints.add(new Point(i));
-		}		
+				whitePoints.add(Point.getPoint(i));
+		}
 		return whitePoints;
 	}
-
-	
 
 	public Set<Point> getBlankPoints() {
 		BitSet blank = (BitSet) black.clone();
@@ -69,8 +85,8 @@ public class BoardColorState {
 		Set<Point> blankPoints = new HashSet<Point>(128);
 		for (short i = 1; i <= 361; i++) {
 			if (blank.get(i))
-				blankPoints.add(new Point(i));
-		}		
+				blankPoints.add(Point.getPoint(i));
+		}
 		return blankPoints;
 
 	}
@@ -93,7 +109,8 @@ public class BoardColorState {
 	}
 
 	/**
-	 * @param points Set of BoardPoint
+	 * @param points
+	 *            Set of BoardPoint
 	 */
 	public void remove(Set points) {
 		for (Iterator iter = points.iterator(); iter.hasNext();) {
@@ -106,24 +123,25 @@ public class BoardColorState {
 			BoardColorState boardState = (BoardColorState) object;
 			return this.black.equals(boardState.black)
 					&& this.white.equals(boardState.white);
-		} 
+		}
 		return false;
 	}
-	public int hashCode(){
-		return black.hashCode()+white.hashCode();
+
+	public int hashCode() {
+		return black.hashCode() + white.hashCode();
 	}
-	
-//	public String toString(){
-//		return black.toString()+":"+white.toString();
-//	}
-	
-	public String toString(){
-		StringBuffer buf=new StringBuffer("BoardPointState[blackpoint=") ;
+
+	// public String toString(){
+	// return black.toString()+":"+white.toString();
+	// }
+
+	public String toString() {
+		StringBuffer buf = new StringBuffer("BoardPointState[blackpoint=");
 		buf.append(this.getBlackPoints().toString());
 		buf.append(", whitePoint=");
 		buf.append(this.getWhitePoints().toString());
 		buf.append("]");
 		return buf.toString();
-		
+
 	}
 }

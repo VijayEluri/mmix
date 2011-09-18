@@ -28,7 +28,7 @@ extends GoBoard256Applet {
 
 	int count = 0;
 
-	byte[] temp = LoadGoManual.loadOneFromAllGoManual(1,453);
+	byte[] temp = new LoadGoManual("../doc/Î§Æå´òÆ×Èí¼þ").loadOneFromAllGoManual(1,453);
 
 	public void init() {
 		this.setBackground(Color.ORANGE);

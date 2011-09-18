@@ -1,11 +1,13 @@
 package eddie.wu.linkedblock;
 
+import eddie.wu.domain.Constant;
+
 //含义为ConStant。
 public class CS {
 
-   public static final byte QIPANDAXIAO = 19;
+   public static final byte BoardSize = 19;
 
-   public static final byte ZBSX = QIPANDAXIAO + 1; //棋盘坐标上限（人造边界）;
+   public static final byte ZBSX = BoardSize + 1; //棋盘坐标上限（人造边界）;
    public static final byte ZBXX = 0; //棋盘坐标下限（人造边界）;
 
    public static final byte[][] szld = {
@@ -31,9 +33,9 @@ public class CS {
       -1, 1}
    };
    public static final byte ZTXB = 0; //下标0存储状态值（无子、黑子、白子）;
-   public static final byte BLANK = 0;
-   public static final byte BLACK = 1; //1表示黑子;
-   public static final byte WHITE = 2; //2表示白子;
+   public static final byte BLANK = Constant.BLANK;
+   public static final byte BLACK = Constant.BLACK; //1表示黑子;
+   public static final byte WHITE = Constant.WHITE; //2表示白子;
 
    public static final byte SQBZXB = 1; //下标1存储算气标志;
    public static final byte QSXB = 2; //下标2存储气数（单子或者棋块的气数）;

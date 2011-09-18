@@ -10,9 +10,11 @@ import junit.framework.TestSuite;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
+import eddie.wu.other.TestLog4j;
 /**
  * @author eddie
- *
+ * only the class in linkedblock package are well tested.
  * TODO To change the template for this generated type comment go to
 
  */

@@ -1,7 +1,12 @@
 package eddie.wu.linkedblock;
 
+import eddie.wu.manual.StateLoader;
 import junit.framework.TestCase;
-
+/**
+ * case failed bacause of issue in Cloning a Complex instance.
+ * @author wueddie-wym-wrz
+ *
+ */
 public class TestGoBoardZhengzi extends TestCase {
 	public void testZhengZi(){
 		 //计算死活
@@ -11,8 +16,9 @@ public class TestGoBoardZhengzi extends TestCase {
         	m1=16;
         	n1=14;
         
-        
-        BoardColorState state=new LoadExercise().loadZhengZi();
+        String fileName = "doc/征子局面/征子";
+        BoardColorState state=StateLoader.load(fileName);
+        	//new LoadExercise().loadZhengZi();
         System.out.println("state"+state);
         GoBoard linkedBlockGoBoard = new GoBoard(state);
         System.out.println("points"+linkedBlockGoBoard.getPoints());

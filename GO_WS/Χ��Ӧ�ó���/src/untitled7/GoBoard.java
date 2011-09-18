@@ -1,5 +1,5 @@
-/*
- * <p>Title:围棋死活题小程序：不能运行 </p>
+package untitled7;
+/** <p>Title:围棋死活题小程序：不能运行 </p>
  * <p>Description: 用于死活题训练:shihuo 基础上加入布局的代码</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: SE</p>
@@ -100,6 +100,7 @@ public class GoBoard extends Applet {
       if(n<2)return false;//三线或三线以上
       if(zb[m][n][0]!=0) return false;
       if(jiejinfangshi(m,n)>2) return true;
+      return false;
    }
 
    public int chaiyigeshu(int m,int n){//计算拆一个数
@@ -129,6 +130,7 @@ public class GoBoard extends Applet {
 
 
       }
+      return false;
    }
 
    public void init(){
@@ -1691,92 +1693,92 @@ public class GoBoard extends Applet {
    }//clhuiqi end
 }
 
-class TreeNode {
-  TreeNode left;
-  int zba;
-  int zbb;
-  TreeNode father;
-  String jieshuo;
-  TreeNode right;
-  public TreeNode(int a,int b,String s) {
-     left=null;
-     right=null;
-     father=null;
-     jieshuo=s;
-     zba=a;
-     zbb=b;
-  }
-}
-class Tree {
-  private TreeNode root;
-  public TreeNode getTreeNode(){
-     return root;
-  }
-   public void insert(int [][][] a,String [][] s){
-      int i,j,k,h,p;
-      int m,n;
-      String str;
-      TreeNode temp=null,old=null;
-      TreeNode work=null;
-      h=a[0][0][1];// bian hua de shu mu,bu bao kuo zheng jie
-      for(i=1;i<=h;i++){
-
-         p=a[i][0][0];//bian hua de shou shu
-         temp=root;
-         old=null;
-         for(j=1;j<=p;j++){
-            str=s[i][j];
-            m=a[i][j][0];
-            n=a[i][j][1];
-           if(temp==null){
-              if(old!=null){
-                  temp=new TreeNode(m,n,str);
-                  System.out.println("cha ru di yi ge bianhua");
-                  System.out.println("a="+temp.zba+",b="+temp.zbb);
-                  System.out.println("str="+str);
-                  old.left=temp;
-                  temp.father=old;
-                  old=temp;
-                  temp=temp.left;
-               }else{
-                  root=new TreeNode(m,n,str);
-                  System.out.println("cha ru gen jie dian/zhengjie");
-                  System.out.println("a="+m+",b="+n);
-                  System.out.println("str="+str);
-                  old=root;
-                  temp=root.left;
-               }
-            }
-           else if(temp.zba==m&&temp.zbb==n){
-               temp=temp.left;
-
-            }else{
-               work=temp.right;
-              while(work!=null){
-                 if(work.zba==m&&work.zbb==n)
-                    break;
-                 else {
-                     temp=work;
-                     work=work.right;
-                  }
-              }
-             if(work==null){
-                  work=new TreeNode(m,n,str);
-                  System.out.println("cha ru fei zheng jie");
-                  System.out.println("a="+m+",b="+n);
-                 //System.out.println("b="+n);
-                  System.out.println("str="+str);
-                  temp.right=work;
-                  work.father=temp;
-              }
-              old=work;
-              temp=work.left;
-           }
-        }//for1
-     }//for2,bian hua shu
-
-  }
-  public Tree() {
-     root=null;
-  }
-}
+//class TreeNode {
+//  TreeNode left;
+//  int zba;
+//  int zbb;
+//  TreeNode father;
+//  String jieshuo;
+//  TreeNode right;
+//  public TreeNode(int a,int b,String s) {
+//     left=null;
+//     right=null;
+//     father=null;
+//     jieshuo=s;
+//     zba=a;
+//     zbb=b;
+//  }
+//}
+//class Tree {
+//  private TreeNode root;
+//  public TreeNode getTreeNode(){
+//     return root;
+//  }
+//   public void insert(int [][][] a,String [][] s){
+//      int i,j,k,h,p;
+//      int m,n;
+//      String str;
+//      TreeNode temp=null,old=null;
+//      TreeNode work=null;
+//      h=a[0][0][1];// bian hua de shu mu,bu bao kuo zheng jie
+//      for(i=1;i<=h;i++){
+//
+//         p=a[i][0][0];//bian hua de shou shu
+//         temp=root;
+//         old=null;
+//         for(j=1;j<=p;j++){
+//            str=s[i][j];
+//            m=a[i][j][0];
+//            n=a[i][j][1];
+//           if(temp==null){
+//              if(old!=null){
+//                  temp=new TreeNode(m,n,str);
+//                  System.out.println("cha ru di yi ge bianhua");
+//                  System.out.println("a="+temp.zba+",b="+temp.zbb);
+//                  System.out.println("str="+str);
+//                  old.left=temp;
+//                  temp.father=old;
+//                  old=temp;
+//                  temp=temp.left;
+//               }else{
+//                  root=new TreeNode(m,n,str);
+//                  System.out.println("cha ru gen jie dian/zhengjie");
+//                  System.out.println("a="+m+",b="+n);
+//                  System.out.println("str="+str);
+//                  old=root;
+//                  temp=root.left;
+//               }
+//            }
+//           else if(temp.zba==m&&temp.zbb==n){
+//               temp=temp.left;
+//
+//            }else{
+//               work=temp.right;
+//              while(work!=null){
+//                 if(work.zba==m&&work.zbb==n)
+//                    break;
+//                 else {
+//                     temp=work;
+//                     work=work.right;
+//                  }
+//              }
+//             if(work==null){
+//                  work=new TreeNode(m,n,str);
+//                  System.out.println("cha ru fei zheng jie");
+//                  System.out.println("a="+m+",b="+n);
+//                 //System.out.println("b="+n);
+//                  System.out.println("str="+str);
+//                  temp.right=work;
+//                  work.father=temp;
+//              }
+//              old=work;
+//              temp=work.left;
+//           }
+//        }//for1
+//     }//for2,bian hua shu
+//
+//  }
+//  public Tree() {
+//     root=null;
+//  }
+//}

@@ -13,5 +13,11 @@ package eddie.wu.api;
 
  */
 public interface ZhengZiInterface {
+	/**
+	 * 
+	 * @param a
+	 * @param b
+	 * @return the steps to konquer the block.
+	 */
     public byte[][] jiSuanZhengZi(byte a, byte b) ;
 }

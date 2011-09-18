@@ -6,6 +6,7 @@ import java.awt.HeadlessException;
 import java.applet.Applet;
 import java.awt.*;
 
+
 //项目10：用GoAppletLian测试GoBoardLian
 //所有源代码在同一目录下，确保类的通信。
 //仍有很多错误，未细致检查。

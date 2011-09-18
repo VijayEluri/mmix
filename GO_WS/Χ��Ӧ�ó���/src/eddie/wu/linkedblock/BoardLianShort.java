@@ -3,6 +3,7 @@ package eddie.wu.linkedblock;
 import java.io.*;
 
 //气块和棋块都存在链表中。
+//
 
 //bug之一：小飞挂，夹击，白方强行出头，黑方棋子取势，白发
 //连接时未能成新块。2004年2月15日。已经修正
@@ -1240,6 +1241,10 @@ public class BoardLianShort
       }
    }
 
+   /**
+    * 用线性表来存储征子的结果。因为征子时变化少，这样存储是成立的。
+    * 征子有时有两种选择都成立，随意选择一种即可，简化征子结果的表达
+    */
    byte zhengzijieguo[][] = new byte[127][2];
    public byte[][] jiSuanZhengZi(byte a, byte b) {
       //计算征子，但是不能用于含有劫争的情况。
@@ -3023,6 +3028,9 @@ public class BoardLianShort
       return lingxian;
    }
 
+   /**
+    * refacted and move to StateAnalysis
+    */
    public void shengchengjumian() {
       //从棋谱的位图表示生成kuai和zb数组的相应信息
       //从链式气块生成局面项目复制来的，需要修改。

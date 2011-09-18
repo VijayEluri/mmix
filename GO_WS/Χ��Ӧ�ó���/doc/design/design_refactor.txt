@@ -1,1 +1,4 @@
 1. MVC pattern. separate UI class and core implementation.
+2. 2011-8-22
+it is very difficult for me to understand the old, the current idea is to re-implement
+it based on current requirement.

@@ -26,7 +26,7 @@ import eddie.wu.manual.LoadGoManual;
  */
 public class TestGoBoardInternally extends TestCase {
 	Log log = LogFactory.getLog(TestGoBoardInternally.class);
-
+	private static final String rootDir = "doc/Î§Æå´òÆ×Èí¼þ/";
 	public TestGoBoardInternally(String string) {
 		super(string);
 	}
@@ -42,7 +42,7 @@ public class TestGoBoardInternally extends TestCase {
 			logger.setLevel(Level.INFO);
 		}
 		byte[] original = null;
-		original = LoadGoManual.loadSingleGoManual();
+		original =new LoadGoManual(rootDir).loadSingleGoManual();
 		helperTestMethod(original);
 		log.info("success of testForwardNextStepSingleGoManualInternally");
 	}
@@ -286,7 +286,7 @@ public class TestGoBoardInternally extends TestCase {
 	public void testForwardNextStepFirstLibGoManualInternally() {
 
 		byte count = 0;
-		List list = LoadGoManual.loadMultiGoManualFromLib0();
+		List list =new LoadGoManual(rootDir).loadMultiGoManualFromLib0();
 		byte[] original = null;
 		for (Iterator iter = list.iterator(); iter.hasNext();) {
 			count++;
@@ -306,7 +306,7 @@ public class TestGoBoardInternally extends TestCase {
 	public void testForwardNextStepForAllGoManualInternally() {
 
 		int count = 0;
-		List list = LoadGoManual.loadMultiGoManualFromLib0();
+		List list =new LoadGoManual(rootDir).loadMultiGoManualFromLib0();
 
 		byte[] original = null;
 		// for (Iterator iter = list.iterator(); iter.hasNext();) {
@@ -321,7 +321,7 @@ public class TestGoBoardInternally extends TestCase {
 		// }
 		for (int j = 1; j < 2; j++) {
 			log.info("j=" + j);
-			list = LoadGoManual.loadMultiGoManual(j);
+			list = new LoadGoManual(rootDir).loadMultiGoManual(j);
 			for (Iterator iter = list.iterator(); iter.hasNext();) {
 				count++;
 				original = (byte[]) iter.next();

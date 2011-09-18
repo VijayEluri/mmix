@@ -26,7 +26,7 @@ public class TestBoardPoint extends TestCase {
 		a.setColumn((byte)4);
 		a.setRow((byte)3);
 		
-		Point b=new Point((short)42);
+		Point b=Point.getPoint((short)42);
 		assertEquals(a.getRow(),b.getRow());
 		assertEquals(a.getColumn(),b.getColumn());
 		assertEquals(a.getOneDimensionCoordinate(),b.getOneDimensionCoordinate());

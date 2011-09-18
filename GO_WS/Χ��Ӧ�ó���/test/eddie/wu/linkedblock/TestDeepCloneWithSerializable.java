@@ -32,7 +32,7 @@ public class TestDeepCloneWithSerializable extends TestCase{
 			logger1.setLevel(Level.DEBUG);
 		}
 		byte[] original = null;
-		original = LoadGoManual.loadSingleGoManual();
+		original = new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadSingleGoManual();
 		helperTestMethod(original);
 		log.info("success of testDeepClone");
 	}
@@ -50,7 +50,7 @@ public class TestDeepCloneWithSerializable extends TestCase{
 			logger1.setLevel(Level.DEBUG);
 		}
 		byte[] original = null;
-		original = LoadGoManual.loadSingleGoManual();
+		original = new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadSingleGoManual();
 		helperTestMethodForEquals(original);
 		log.info("success of testDeepClone");
 	}

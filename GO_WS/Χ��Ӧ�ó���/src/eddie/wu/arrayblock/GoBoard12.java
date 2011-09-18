@@ -7,7 +7,7 @@ import eddie.wu.arrayblock.GoBoard;
 public class GoBoard12 extends GoBoard {
    byte zishu=0;
    byte qiki=127;//气的块号,用后减 1;
-   public GoBoard12(GoBoard2 goboard) {
+   public GoBoard12(GoBoard goboard) {
       super();
       for(int i=ZBXX;i<=ZBSX;i++){
          for(int j=ZBXX;j<=ZBSX;j++){

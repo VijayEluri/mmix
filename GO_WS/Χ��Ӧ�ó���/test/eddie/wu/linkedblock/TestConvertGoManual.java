@@ -26,7 +26,7 @@ public class TestConvertGoManual extends TestCase {
 		logger.setLevel(Level.ERROR);
 		Logger logger1=Logger.getLogger(TestConvertGoManual.class);
 		logger1.setLevel(Level.ERROR);
-		byte[] temp = LoadGoManual.loadSingleGoManual();
+		byte[] temp = new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadSingleGoManual();
 
 		ConvertGoManual convert = new ConvertGoManual();
 		byte[] result = convert.convertFormat(temp);
@@ -38,13 +38,13 @@ public class TestConvertGoManual extends TestCase {
 			}
 		}
 		  int count = 0;
-	        List list = LoadGoManual.loadMultiGoManualFromLib0();
+	        List list = new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadMultiGoManualFromLib0();
 
 	        byte[] original = null;
 
 	        for (int j = 1; j < 2; j++) {
 	        	
-	            list = LoadGoManual.loadMultiGoManual(j);
+	            list = new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadMultiGoManual(j);
 	            for (Iterator iter = list.iterator(); iter.hasNext();) {
 	                count++;
 	                //if(count<760) continue;
@@ -62,7 +62,7 @@ public class TestConvertGoManual extends TestCase {
 	public void testSimgleGoManual(){
 		Logger logger=Logger.getLogger(ConvertGoManual.class);
 		logger.setLevel(Level.DEBUG);
-		byte[] temp =LoadGoManual.loadOneFromAllGoManual(1,760);
+		byte[] temp =new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadOneFromAllGoManual(1,760);
 		ConvertGoManual convert = new ConvertGoManual();
 		byte[] result = convert.convertFormat(temp);
 		for (int i = 0; i < temp.length / 2; i++) {

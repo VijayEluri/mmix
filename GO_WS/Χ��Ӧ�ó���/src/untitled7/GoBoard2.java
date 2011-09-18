@@ -1,3 +1,4 @@
+package untitled7;
 /*
  * <p>Title:围棋死活题小程序：不能运行 </p>
  * <p>Description: 用于死活题训练:shihuo 基础上加入布局的代码</p>
@@ -7,12 +8,21 @@
  * @version 1.0
  * 感觉上java对于围棋程序未必合适,因为与一般应用程序不同,不容易提出对象
  */
-import java.awt.*;
 import java.applet.Applet;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Event;
+import java.awt.Graphics;
+import java.awt.TextArea;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 //import java.net.*;
-public class GoBoard extends Applet {
+public class GoBoard2 extends Applet {
    boolean fdangbu=false;//hui qi shi shi fou dang bu.
    boolean fshuzi=false;//shi fou biao chu shu zi.
    boolean fbuhelidian=false;//zhi zuo shi wei yu kao lv de dian.
@@ -62,7 +72,7 @@ public class GoBoard extends Applet {
 
    }
    public int jieduan(){
-
+	   return 0;//dummy
    }
    public int buju(){//布局
       int jiao[][]=new int[5][2];
@@ -76,17 +86,20 @@ public class GoBoard extends Applet {
       jiao[3][1]=4;
       jiao[4][0]=3;
       jiao[4][1]=4;
+      int dummy = 0;
+      return dummy;
 
    }
    int[][] dingdian1={{1,0},{-1,0},{0,1},{0,-1}};//每个点的直接相邻点
    int[][] dingdian2={{1,1},{-1,1},{1,-1},{-1,-1}};//每个点的肩冲点
+private int[][] jiao;
    public int jiejinfangshi(int m, int n){//接近方式:靠还是肩冲
       for(int i=0;i<4;i++){
          int  u=zb[m+dingdian1[i][0]][n+dingdian1[i][1]][0];
          if(u!=0) return 1;// 紧紧相邻
       }
       for(int i=0;i<4;i++){
-         int  u=zb[m+dingdian2[i][0]][n+dingdian2[i][1]];
+         int  u=zb[m+dingdian2[i][0]][n+dingdian2[i][1]][0];
          if(u!=0) return 2;// 肩冲位置
       }
       return 3;
@@ -97,6 +110,7 @@ public class GoBoard extends Applet {
       if(n<2)return false;//三线或三线以上
       if(zb[m][n][0]!=0) return false;
       if(jiejinfangshi(m,n)>2) return true;
+      return false;
    }
 
    public int chaiyigeshu(int m,int n){//计算拆一个数
@@ -107,12 +121,12 @@ public class GoBoard extends Applet {
          return -1;
       }
       if(m>2&m<3) {
-         if(kechaiyi(m+2,n)) chai++;
-         if(kechaiyi(m-2,n)) chai++;
+         if(kecaiyi(m+2,n)) chai++;
+         if(kecaiyi(m-2,n)) chai++;
       }
       if(n>2&n<3) {
-         if(kechaiyi(m,n+2)) chai++;
-         if(kechaiyi(m,n-2)) chai++;
+         if(kecaiyi(m,n+2)) chai++;
+         if(kecaiyi(m,n-2)) chai++;
        }
        return chai;
    }
@@ -126,6 +140,7 @@ public class GoBoard extends Applet {
 
 
       }
+      return false;
    }
 
    public void init(){

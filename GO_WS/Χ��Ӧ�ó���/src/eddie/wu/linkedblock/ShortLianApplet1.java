@@ -3,6 +3,7 @@ package eddie.wu.linkedblock;
 import java.applet.Applet;
 import java.awt.*;
 
+
 public class ShortLianApplet1 extends Applet {
 
     boolean DONGHUA = false;

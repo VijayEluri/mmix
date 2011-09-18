@@ -1,12 +1,11 @@
 package eddie.wu.linkedblock;
 
-import java.awt.Frame;
-import java.awt.Event;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
 
 public class SiHuoSouSuo
    extends Frame {
