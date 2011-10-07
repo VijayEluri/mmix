@@ -4,17 +4,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import eddie.wu.domain.Block;
+import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
-import eddie.wu.domain.Result;
-import eddie.wu.domain.SurviveResult;
-import eddie.wu.linkedblock.BoardColorState;
-import eddie.wu.linkedblock.Controller;
-import eddie.wu.linkedblock.GoBoard;
-import eddie.wu.linkedblock.LocalResultOfZhengZi;
+import eddie.wu.domain.survive.RelativeSurviveResult;
+import eddie.wu.domain.survive.Result;
+import eddie.wu.domain.survive.SurviveResult;
 
 /**
- * 死活的计算中意识到一个问题。直三被对方点过之后成为形式上的双活，要全面解决死活的概念问题，需要考虑
- * 双活的概念。正好这也是迟早要涉及的问题。
+ * 死活的计算中意识到一个问题。直三被对方点过之后成为形式上的双活，要全面解决死活的概念问题，需要考虑 双活的概念。正好这也是迟早要涉及的问题。
  * 
  * derived from ZhengZiCalculate. the difference is that. for ZhengZi, two side
  * may have different logic. for surviving, the logic looks similar.
@@ -30,8 +28,8 @@ public class SurviveCalculate extends ZhengZiCalculate {
 		SurviveResult result = new SurviveResult();
 		Result xianShou = this.surviveCalculate(stateIn, pointInTargetBlock,
 				true);
-		Result houShou = this.surviveCalculate(stateIn, pointInTargetBlock,
-				false);
+		Result houShou = new SurviveCalculate().surviveCalculate(stateIn,
+				pointInTargetBlock, false);
 		result.setHouShou(houShou);
 		result.setXianShou(xianShou);
 		return result;
@@ -56,6 +54,7 @@ public class SurviveCalculate extends ZhengZiCalculate {
 		}
 		controllers[0].setIndexForJuMian(0);
 		controllers[0].setNumberOfJuMian(1);
+		cengshu = 0;
 
 		// 做活主体的块。
 		GoBoard linkedBlockGoBoard = new GoBoard(state);
@@ -70,126 +69,224 @@ public class SurviveCalculate extends ZhengZiCalculate {
 		go[0] = linkedBlockGoBoard;
 
 		/*
-		 * 2.开始计算。 第一层循环：展开最后一个局面。
+		 * 2.开始计算。 第一层循环：展开最后一个局面。 decide to completely redo it. 有未确定状态才需要继续搜索.
 		 */
 
 		while (true) {
 
-			if (cengshu >= (SEARTHDEPTH - 1)) {
-				if (log.isDebugEnabled()) {
-					log.debug("搜索到" + SEARTHDEPTH + "层，仍没有结果，返回不精确结果");
-				}
-				throw new RuntimeException("搜索到" + SEARTHDEPTH + "层，仍没有结果");
+			// } else {
+			temp = (go[lastJumianIndex]).getGoBoardCopy();
+			log.debug("clone old board/state in index:" + lastJumianIndex);
+			if (cengshu != 0) {
+				Point lastPoint = temp.getLastPoint();
+				zhengzijieguo[cengshu][0] = (byte) lastPoint.getRow();
+				zhengzijieguo[cengshu][1] = (byte) lastPoint.getColumn();
+				zhengzijieguo[0][1] = cengshu;
+			}
 
-			} else {
-				temp = (go[jumianIndex]).getGoBoardCopy();
-				if (cengshu != 0) {
-					Point lastPoint = temp.getLastPoint();
-					zhengzijieguo[cengshu][0] = (byte) lastPoint.getRow();
-					zhengzijieguo[cengshu][1] = (byte) lastPoint.getColumn();
-					zhengzijieguo[0][1] = cengshu;
+			// }
+
+			blockToBeEaten = temp.getBlock(pointInTargetBlock);
+			// 征子方候选点数为
+			// if (controllers[cengshu].getWhoseTurn() == MIN) {
+			if (log.isDebugEnabled()) {
+				log.debug("当前层数？" + cengshu);
+				log.debug("下一层为" + (cengshu + 1));
+				log.debug("在上一层由" + controllers[cengshu].getWhoseTurn()
+						+ "走得到该层");
+			}
+
+			LocalResult result = null;
+			if (controllers[cengshu].getWhoseTurn() == MAX) {
+				result = temp.getLocalResultSelfFirst(pointInTargetBlock);
+			}
+			if (controllers[cengshu].getWhoseTurn() == MIN) {
+				result = temp.getLocalResultEnemyFirst(pointInTargetBlock);
+			}
+			if (log.isDebugEnabled()) {
+				log.debug("LocalResultOfZhengZ= " + result);
+			}
+
+			if (result.getScore()==0) {// 继续计算
+				if (cengshu >= (SEARTHDEPTH - 1)) {
+					if (log.isDebugEnabled()) {
+						log.debug("搜索到" + SEARTHDEPTH + "层，仍没有结果，返回不精确结果");
+					}
+					throw new RuntimeException("搜索到" + SEARTHDEPTH + "层，仍没有结果");
 				}
+
 				/*
 				 * 新层的层号。 当前工作所在的层，新的层(dang qian de gong zuo suo zai de ceng)
 				 * 层0是预先定义的(ceng 0 shi yu ding yi de.)
 				 */
 				cengshu++;
-				if (log.isDebugEnabled()) {
-					log.debug("\n\n新的当前层数为：" + cengshu);
-				}
 				/*
 				 * 新层的开始点。 当前层的局面从这里开始编号(dang qian ceng de ju mian cong zhe li
 				 * kaishi bian hao)
 				 */
-				controllers[cengshu].setIndexForJuMian(jumianIndex + 1);
+				controllers[cengshu].setIndexForJuMian(lastJumianIndex + 1);
 
 				if (log.isDebugEnabled()) {
-					log.debug("新层的开始局面索引为：" + (jumianIndex + 1));
+					log.debug("\n\n新的当前层数为：" + cengshu);
+					log.debug("新层的开始局面索引为：" + (lastJumianIndex + 1));
 				}
+
+				controllers[cengshu].setNumberOfJuMian(result
+						.getNumberOfCandidates());
+
+				int count = 0;
+				for (Candidate candidate : result.getCandidates()) {
+					count++;
+					go[lastJumianIndex + count] = candidate.getGoBoard();
+					if (go[lastJumianIndex + count] == null) {
+						throw new RuntimeException("go[jumianshu+count]==null");
+					}
+				}
+				System.out.println("count=" + count);
+				lastJumianIndex += result.getNumberOfCandidates();
+				System.out.println("jumianshu=" + lastJumianIndex);
 			}
-
-			log.debug("clone old board/state in index:" + jumianIndex);
-
-			blockToBeEaten = temp.getBlock(pointInTargetBlock);
-			// 征子方候选点数为
 			if (controllers[cengshu].getWhoseTurn() == MIN) {
-				if (log.isDebugEnabled()) {
-					log.debug("当前层数？" + cengshu);
-					log.debug("当前层轮谁走？" + "MIN");
-					log.debug("在上一层由MAX走得到该层");
-				}
-
-				LocalResultOfZhengZi result = temp
-						.getLocalResultSelfFirst(pointInTargetBlock);
-				if (log.isDebugEnabled()) {
-					log.debug("LocalResultOfZhengZ= " + result);
-				}
-				if (result.isSelfFail()) {					
+				if (result.isTargetBlockSucceed()==false) {
 					if (log.isDebugEnabled()) {
 						log.debug("有效点为0");
-					}				
+					}
 
-					if (cengshu == 1) { // 征子方直接无子可下，
+					if (cengshu == 0) { // 做活方直接无子可下，或者杀方
+						if (result.getCandidates().isEmpty() == false) {
+							simpleResult.setPoint(result.getCandidates()
+									.get(0).getPoint());
+						}
 						simpleResult.setSurvive(result.getScore());
 						return simpleResult;
 					}
 
 					while (true) {
-						cengshu -= 2; // 倒数两层已经确定。减后的层数需要重新展开
-						if (cengshu == -1) {
+						//cengshu -= 1; // 倒数两层已经确定。减后的层数需要重新展开
+						if (cengshu <= -1) {
+							if (result.getCandidates().isEmpty() == false) {
+								simpleResult.setPoint(result
+										.getCandidates().get(0).getPoint());
+							}
 							simpleResult.setSurvive(result.getScore());
 							return simpleResult;
 						}
-						
+
 						controllers[cengshu].decreaseJuMian();
 						if (controllers[cengshu].getNumberOfJuMian() != 0) {
-							jumianIndex = controllers[cengshu]
+							lastJumianIndex = controllers[cengshu]
 									.getLastIndexForJumian();
-							cleanJuMianAfter(jumianIndex, go);
+							cleanJuMianAfter(lastJumianIndex, go);
 							break;
+						}else{
+							cengshu -= 2; // 倒数两层已经确定。减后的层数需要重新展开
 						}
 					}
-				} else if (result.isTie()) {// 继续计算
+				} else if (result.isTargetBlockSucceed()) {
 
-					controllers[cengshu].setNumberOfJuMian(result
-							.getNumberOfCandidates());
-
-					int count = 0;
-					for (java.util.Iterator<GoBoard> iterator = result
-							.getCandidateJuMians().iterator(); iterator
-							.hasNext();) {
-						count++;
-						go[jumianIndex + count] = (GoBoard) iterator.next();
-						if (go[jumianIndex + count] == null) {
-							throw new RuntimeException(
-									"go[jumianshu+count]==null");
-						}
-					}
-					System.out.println("count=" + count);
-					jumianIndex += result.getNumberOfCandidates();
-					System.out.println("jumianshu=" + jumianIndex);
-				} else if (result.isSelfSuccess()) {
-					
 					while (true) {
-						cengshu -= 2; // 倒数两层已经确定。减后的层数需要重新展开
-						if (cengshu == -1) {
+						cengshu -= 1; // 倒数两层已经确定。减后的层数需要重新展开
+						if (cengshu <= -1) {
 							simpleResult.setSurvive(result.getScore());
 							return simpleResult;
 						}
-						
+
 						controllers[cengshu].decreaseJuMian();
 						if (controllers[cengshu].getNumberOfJuMian() != 0) {
-							jumianIndex = controllers[cengshu]
+							lastJumianIndex = controllers[cengshu]
 									.getLastIndexForJumian();
-							cleanJuMianAfter(jumianIndex, go);
+							cleanJuMianAfter(lastJumianIndex, go);
 							break;
 						}
 					}
-					
-//				
+
+					//
 				}
-				
 			}
+			// // } else if (controllers[cengshu].getWhoseTurn() == MAX) {//
+			// // 被征子方候选点数
+			// if (log.isDebugEnabled()) {
+			// log.debug("当前层数？" + cengshu);
+			// log.debug("当前层轮谁走？" + "MAX");
+			// log.debug("上一层轮谁走？" + "MIN");
+			//
+			// log.debug("在上一层由MIN走得到该层");
+			// }
+			//
+			// // 返回候选点.或者返回结果
+			//
+			// if (log.isDebugEnabled()) {
+			// log.debug("LocalResultOfZhengZi=" + result);
+			// }
+			// if (result.isSelfSuccess()) {
+			// cengshu -= 1; // 倒数两层已经确定。减后的层数需要重新展开
+			// controllers[cengshu].decreaseJuMian();
+			// if (controllers[cengshu].getNumberOfJuMian() != 0) {
+			// jumianIndex = controllers[cengshu].getLastIndexForJumian();
+			//
+			// } else {
+			// while (true) {
+			// cengshu -= 2; // 倒数两层已经确定。减后的层数需要重新展开
+			// if (cengshu == -1) {
+			// simpleResult.setSurvive(result.getScore());
+			// return simpleResult;
+			// }
+			// jumianIndex = dealWithCeng(jumianIndex, cengshu,
+			// controllers);
+			// }
+			// }
+			// } else if (result.isSelfFail()) {
+			// while (true) {
+			// cengshu -= 2; // 倒数两层已经确定。减后的层数需要重新展开
+			// if (cengshu == 0) {
+			// simpleResult.setSurvive(result.getScore());
+			// return simpleResult;
+			// }
+			// //
+			// // byte lins = 0;
+			// // for (lins = 2; st[lins][0] != 0; lins++) {
+			// // if (log.isDebugEnabled()) {
+			// // log.debug("点为:(" + za[st[lins][0] - 1]
+			// // + "," + zb[st[lins][0] - 1] + ")");
+			// // } //
+			// // this.cgcl(za[st[lins][0]-1],zb[st[lins][0]-1]);
+			// // zhengzijieguo[lins - 1][0] = za[st[lins][0] - 1];
+			// // zhengzijieguo[lins - 1][1] = zb[st[lins][0] - 1];
+			// //
+			// // }
+			// // zhengzijieguo[0][1] = (byte) (lins - 2);
+			// // return zhengzijieguo;
+			// // }
+			//
+			// controllers[cengshu].setNumberOfJuMian(controllers[cengshu]
+			// .getNumberOfJuMian() - 1);
+			// if (controllers[cengshu].getNumberOfJuMian() != 0) {
+			// jumianIndex = controllers[cengshu]
+			// .getLastIndexForJumian();
+			// // st[cengshu - 2][3] = 127;
+			// this.cleanJuMianAfter(jumianIndex, go);
+			// break;
+			// }
+			// }
+			//
+			// } else if (result.isTie()) {
+			// controllers[cengshu].setNumberOfJuMian(result
+			// .getNumberOfCandidates());
+			// int count = 0;
+			// for (java.util.Iterator<GoBoard> iterator = result
+			// .getCandidateJuMians().iterator(); iterator.hasNext();) {
+			// count++;
+			// go[jumianIndex + count] = (GoBoard) iterator.next();
+			// if (go[jumianIndex + count] == null) {
+			// throw new RuntimeException(
+			// "go[jumianshu+count-1]==null");
+			// }
+			// }
+			// System.out.println("count=" + count);
+			// jumianIndex += result.getNumberOfCandidates();
+			// System.out.println("jumianshu=" + jumianIndex);
+			// }
+			// } // max
 
 		} // while
 	}

@@ -4,11 +4,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import eddie.wu.domain.Block;
+import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
-import eddie.wu.linkedblock.BoardColorState;
 import eddie.wu.linkedblock.ColorUtil;
-import eddie.wu.linkedblock.Controller;
-import eddie.wu.linkedblock.GoBoard;
 import eddie.wu.linkedblock.LocalResultOfZhengZi;
 
 /**
@@ -46,7 +45,7 @@ public class ZhengZiCalculate {
 	/*
 	 * 当前已有局面索引号。
 	 */
-	int jumianIndex = 0;
+	int lastJumianIndex = 0;
 
 	/**
 	 * 初始状态，层0只有有一个局面。他在栈中的编号是0
@@ -163,7 +162,7 @@ public class ZhengZiCalculate {
 				}
 				return zhengzijieguo;
 			} else {
-				temp = (go[jumianIndex]).getGoBoardCopy();
+				temp = (go[lastJumianIndex]).getGoBoardCopy();
 				if (cengshu != 0) {
 					Point lastPoint = temp.getLastPoint();
 					zhengzijieguo[cengshu][0] = (byte) lastPoint.getRow();
@@ -182,14 +181,14 @@ public class ZhengZiCalculate {
 				 * 新层的开始点。 当前层的局面从这里开始编号(dang qian ceng de ju mian cong zhe li
 				 * kaishi bian hao)
 				 */
-				controllers[cengshu].setIndexForJuMian(jumianIndex + 1);
+				controllers[cengshu].setIndexForJuMian(lastJumianIndex + 1);
 
 				if (log.isDebugEnabled()) {
-					log.debug("新层的开始局面索引为：" + (jumianIndex + 1));
+					log.debug("新层的开始局面索引为：" + (lastJumianIndex + 1));
 				}
 			}
 
-			log.debug("clone old board/state in index:" + jumianIndex);
+			log.debug("clone old board/state in index:" + lastJumianIndex);
 
 			// temp.initPoints();
 			// 要展开的局面。
@@ -240,9 +239,9 @@ public class ZhengZiCalculate {
 						// }
 						controllers[cengshu].decreaseJuMian();
 						if (controllers[cengshu].getNumberOfJuMian() != 0) {
-							jumianIndex = controllers[cengshu]
+							lastJumianIndex = controllers[cengshu]
 									.getLastIndexForJumian();
-							cleanJuMianAfter(jumianIndex, go);
+							cleanJuMianAfter(lastJumianIndex, go);
 							break;
 						}
 					}
@@ -256,15 +255,15 @@ public class ZhengZiCalculate {
 							.getCandidateJuMians().iterator(); iterator
 							.hasNext();) {
 						count++;
-						go[jumianIndex + count] = (GoBoard) iterator.next();
-						if (go[jumianIndex + count] == null) {
+						go[lastJumianIndex + count] = (GoBoard) iterator.next();
+						if (go[lastJumianIndex + count] == null) {
 							throw new RuntimeException(
 									"go[jumianshu+count]==null");
 						}
 					}
 					System.out.println("count=" + count);
-					jumianIndex += result.getNumberOfCandidates();
-					System.out.println("jumianshu=" + jumianIndex);
+					lastJumianIndex += result.getNumberOfCandidates();
+					System.out.println("jumianshu=" + lastJumianIndex);
 				} else if (result.isSelfSuccess()) {// impossible
 					// 征子成功只能是被征子方不能长气。
 				}
@@ -289,7 +288,7 @@ public class ZhengZiCalculate {
 					cengshu -= 1; // 倒数两层已经确定。减后的层数需要重新展开
 					controllers[cengshu].decreaseJuMian();
 					if (controllers[cengshu].getNumberOfJuMian() != 0) {
-						jumianIndex = controllers[cengshu]
+						lastJumianIndex = controllers[cengshu]
 								.getLastIndexForJumian();
 
 					} else {
@@ -299,7 +298,7 @@ public class ZhengZiCalculate {
 								zhengzijieguo[0][0] = -127;
 								return zhengzijieguo;
 							}
-							jumianIndex = dealWithCeng(jumianIndex, cengshu,
+							lastJumianIndex = dealWithCeng(lastJumianIndex, cengshu,
 									controllers);
 						}
 					}
@@ -308,7 +307,7 @@ public class ZhengZiCalculate {
 						cengshu -= 2; // 倒数两层已经确定。减后的层数需要重新展开
 						if (cengshu == 0) {
 							zhengzijieguo[0][0] = 127;
-							byte[][] hui = go[jumianIndex].getStepHistory().hui;
+							//byte[][] hui = go[lastJumianIndex].getStepHistory().hui;
 							// for(int j=0;j<512;j++){
 							// System.out.println("["+hui[j][0]+","+hui[j][1]+"];");
 							// }
@@ -334,10 +333,10 @@ public class ZhengZiCalculate {
 								.setNumberOfJuMian(controllers[cengshu]
 										.getNumberOfJuMian() - 1);
 						if (controllers[cengshu].getNumberOfJuMian() != 0) {
-							jumianIndex = controllers[cengshu]
+							lastJumianIndex = controllers[cengshu]
 									.getLastIndexForJumian();
 							// st[cengshu - 2][3] = 127;
-							this.cleanJuMianAfter(jumianIndex, go);
+							this.cleanJuMianAfter(lastJumianIndex, go);
 							break;
 						}
 					}
@@ -350,15 +349,15 @@ public class ZhengZiCalculate {
 							.getCandidateJuMians().iterator(); iterator
 							.hasNext();) {
 						count++;
-						go[jumianIndex + count] = (GoBoard) iterator.next();
-						if (go[jumianIndex + count] == null) {
+						go[lastJumianIndex + count] = (GoBoard) iterator.next();
+						if (go[lastJumianIndex + count] == null) {
 							throw new RuntimeException(
 									"go[jumianshu+count-1]==null");
 						}
 					}
 					System.out.println("count=" + count);
-					jumianIndex += result.getNumberOfCandidates();
-					System.out.println("jumianshu=" + jumianIndex);
+					lastJumianIndex += result.getNumberOfCandidates();
+					System.out.println("jumianshu=" + lastJumianIndex);
 				}
 			} // max
 
@@ -378,7 +377,7 @@ public class ZhengZiCalculate {
 		}
 	}
 
-	private int dealWithCeng(int jumianshu, byte cengshu,
+	protected int dealWithCeng(int jumianshu, byte cengshu,
 			Controller[] controllers) {
 		controllers[cengshu].setNumberOfJuMian(controllers[cengshu]
 				.getNumberOfJuMian() - 1);

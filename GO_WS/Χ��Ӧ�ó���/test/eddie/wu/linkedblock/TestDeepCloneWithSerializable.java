@@ -7,6 +7,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.GoBoard;
 import eddie.wu.manual.LoadGoManual;
 
 public class TestDeepCloneWithSerializable extends TestCase{

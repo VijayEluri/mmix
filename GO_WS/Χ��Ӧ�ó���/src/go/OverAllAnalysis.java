@@ -7,8 +7,11 @@ import java.util.List;
 import eddie.wu.domain.Block;
 import eddie.wu.domain.comp.BlockBreathComparator;
 import eddie.wu.domain.comp.BlockSizeComparator;
+import eddie.wu.domain.survive.BreathPattern;
+import eddie.wu.domain.survive.SmallEyeKnowledge;
+import eddie.wu.domain.survive.RelativeSurviveResult;
 
-public class OverAllAnalysis extends BothLive{ 
+public class OverAllAnalysis extends BothLiveAnalysis{ 
 	public OverAllAnalysis (byte[][] state){
 		super(state);
 	}
@@ -20,6 +23,15 @@ public class OverAllAnalysis extends BothLive{
 		List<Block> eyes = new ArrayList<Block>(eyeBlocks);
 		Collections.sort(eyes, new BlockSizeComparator());
 		Collections.reverse(eyes);
+		for(Block block: eyes){
+			if(block.getTotalNumberOfPoint()>6){
+				
+			}else{
+				BreathPattern bp = BreathPattern.getBreathPattern(block);
+				RelativeSurviveResult surviveResult = SmallEyeKnowledge.getResult(bp);
+			}
+		}
+		
 		
 		
 		

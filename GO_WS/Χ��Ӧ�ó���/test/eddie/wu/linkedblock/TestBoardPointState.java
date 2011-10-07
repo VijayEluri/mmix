@@ -8,6 +8,7 @@ package eddie.wu.linkedblock;
 import java.util.HashSet;
 import java.util.Set;
 
+import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Point;
 
 import junit.framework.TestCase;

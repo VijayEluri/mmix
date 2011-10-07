@@ -9,7 +9,7 @@
 ///**
 // * To test the clone method of java_commons_lang package.
 // * If we can understand the clone framework, then we have understand
-// * the key feature of java, such as dynamic binding or polymorphism.
+// * the key feature of java, such as dynamic binding or poly-morphism.
 // * when the subclass of Object call the clone method, this method is running
 // * on the subclass instance. and because the subclass has implements the 
 // * Cloneable interface. so the superclass method's behavior will change.

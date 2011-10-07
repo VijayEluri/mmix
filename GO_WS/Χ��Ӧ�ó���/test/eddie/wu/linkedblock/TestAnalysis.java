@@ -1,5 +1,6 @@
 package eddie.wu.linkedblock;
 
+import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Point;
 import go.StateAnalysis;
 

@@ -16,17 +16,23 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.Constant;
+import eddie.wu.domain.GoBoard;
 import eddie.wu.manual.LoadGoManual;
 
 /**
+ * "Internally" means check the internal status instead of comparison with other
+ * implementation.
+ * 
  * @author eddie
  * 
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
+ * 
  */
 public class TestGoBoardInternally extends TestCase {
 	Log log = LogFactory.getLog(TestGoBoardInternally.class);
-	private static final String rootDir = "doc/Î§Æå´òÆ×Èí¼þ/";
+	private static final String rootDir = Constant.rootDir;//"doc/Î§Æå´òÆ×Èí¼þ/";
+
 	public TestGoBoardInternally(String string) {
 		super(string);
 	}
@@ -34,7 +40,7 @@ public class TestGoBoardInternally extends TestCase {
 	/**
 	 * test internally--is data structure consistent for first go manual.
 	 */
-	public void testForwardNextStepSingleGoManualInternally() {
+	public void testForwardNextStep_SingleGoManualInternally() {
 		Logger logger = Logger.getLogger(GoBoard.class);
 		if (logger.getLevel().isGreaterOrEqual(Level.INFO)) {
 
@@ -42,12 +48,12 @@ public class TestGoBoardInternally extends TestCase {
 			logger.setLevel(Level.INFO);
 		}
 		byte[] original = null;
-		original =new LoadGoManual(rootDir).loadSingleGoManual();
+		original = new LoadGoManual(rootDir).loadSingleGoManual();
 		helperTestMethod(original);
 		log.info("success of testForwardNextStepSingleGoManualInternally");
 	}
 
-	public void helperTestMethodCountTime(byte[] original) {
+	public void helperTestMethod_CountTime(byte[] original) {
 		GoBoard goBoard = new GoBoard();
 		GoBoard goBoard2 = null;
 		GoBoard goBoard4 = null;
@@ -87,22 +93,22 @@ public class TestGoBoardInternally extends TestCase {
 			boardState2 = goBoard2.getBoardColorState();
 			log.debug("boardState:" + boardState);
 			log.debug("boardState2:" + boardState2);
-			assertEquals("state should equal internally!", boardState, goBoard2
-					.getBoardColorState());
+			assertEquals("state should equal internally!", boardState,
+					goBoard2.getBoardColorState());
 			log.debug("getBlackBlocksFromState:"
 					+ goBoard.getBlackBlocksFromState());
 			log.debug("getBlackBlocksFromState:"
 					+ goBoard2.getBlackBlocksFromState());
-			assertEquals("black block should equal!", goBoard
-					.getBlackBlocksFromState(), goBoard2
-					.getBlackBlocksFromState());
+			assertEquals("black block should equal!",
+					goBoard.getBlackBlocksFromState(),
+					goBoard2.getBlackBlocksFromState());
 			log.debug("getWhiteBlocksFromState:"
 					+ goBoard.getWhiteBlocksFromState());
 			log.debug("getWhiteBlocksFromState:"
 					+ goBoard2.getWhiteBlocksFromState());
-			assertEquals("white block should equal!", goBoard
-					.getWhiteBlocksFromState(), goBoard2
-					.getWhiteBlocksFromState());
+			assertEquals("white block should equal!",
+					goBoard.getWhiteBlocksFromState(),
+					goBoard2.getWhiteBlocksFromState());
 
 			// test clone
 			GoBoard goBoard3 = goBoard2.deepClone();
@@ -112,13 +118,13 @@ public class TestGoBoardInternally extends TestCase {
 			assertEquals("state should equal internally!", boardState2,
 					goBoard3.getBoardColorState());
 
-			assertEquals("black block should equal!", goBoard2
-					.getBlackBlocksFromState(), goBoard3
-					.getBlackBlocksFromState());
+			assertEquals("black block should equal!",
+					goBoard2.getBlackBlocksFromState(),
+					goBoard3.getBlackBlocksFromState());
 
-			assertEquals("white block should equal!", goBoard2
-					.getWhiteBlocksFromState(), goBoard3
-					.getWhiteBlocksFromState());
+			assertEquals("white block should equal!",
+					goBoard2.getWhiteBlocksFromState(),
+					goBoard3.getWhiteBlocksFromState());
 			assertNotNull(goBoard3.getPoints());
 			byte ii, j;
 			for (ii = 1; ii < 20; ii++) {
@@ -134,13 +140,13 @@ public class TestGoBoardInternally extends TestCase {
 				assertEquals("state should equal internally!", boardState,
 						goBoard4.getBoardColorState());
 
-				assertEquals("black block should equal!", goBoard
-						.getBlackBlocksFromState(), goBoard4
-						.getBlackBlocksFromState());
+				assertEquals("black block should equal!",
+						goBoard.getBlackBlocksFromState(),
+						goBoard4.getBlackBlocksFromState());
 
-				assertEquals("white block should equal!", goBoard
-						.getWhiteBlocksFromState(), goBoard4
-						.getWhiteBlocksFromState());
+				assertEquals("white block should equal!",
+						goBoard.getWhiteBlocksFromState(),
+						goBoard4.getWhiteBlocksFromState());
 			} else {
 				goBoard4 = goBoard2;
 			}
@@ -152,13 +158,13 @@ public class TestGoBoardInternally extends TestCase {
 				assertEquals("state should equal internally!", boardState,
 						goBoard5.getBoardColorState());
 
-				assertEquals("black block should equal!", goBoard
-						.getBlackBlocksFromState(), goBoard5
-						.getBlackBlocksFromState());
+				assertEquals("black block should equal!",
+						goBoard.getBlackBlocksFromState(),
+						goBoard5.getBlackBlocksFromState());
 
-				assertEquals("white block should equal!", goBoard
-						.getWhiteBlocksFromState(), goBoard5
-						.getWhiteBlocksFromState());
+				assertEquals("white block should equal!",
+						goBoard.getWhiteBlocksFromState(),
+						goBoard5.getWhiteBlocksFromState());
 			} else {
 				goBoard5 = goBoard3;
 			}
@@ -185,12 +191,11 @@ public class TestGoBoardInternally extends TestCase {
 			log.info("shoushu=" + (i + 3) / 2);
 			log.info("a=" + original[i]);
 			log.info("b=" + original[i + 1]);
-			
-			
+
 			goBoard.deepClone();
-			log.info("new created goboard clone succes:"+i);
+			log.info("new created goboard clone succes:" + i);
 			goBoard.oneStepForward(original[i], original[i + 1]);
-			
+
 			boardState = goBoard.getBoardColorState();
 
 			goBoard2 = new GoBoard(boardState, (i + 3) / 2);
@@ -199,22 +204,22 @@ public class TestGoBoardInternally extends TestCase {
 			boardState2 = goBoard2.getBoardColorState();
 			log.debug("boardState:" + boardState);
 			log.debug("boardState2:" + boardState2);
-			assertEquals("state should equal internally!", boardState, goBoard2
-					.getBoardColorState());
+			assertEquals("state should equal internally!", boardState,
+					goBoard2.getBoardColorState());
 			log.debug("getBlackBlocksFromState:"
 					+ goBoard.getBlackBlocksFromState());
 			log.debug("getBlackBlocksFromState:"
 					+ goBoard2.getBlackBlocksFromState());
-			assertEquals("black block should equal!", goBoard
-					.getBlackBlocksFromState(), goBoard2
-					.getBlackBlocksFromState());
+			assertEquals("black block should equal!",
+					goBoard.getBlackBlocksFromState(),
+					goBoard2.getBlackBlocksFromState());
 			log.debug("getWhiteBlocksFromState:"
 					+ goBoard.getWhiteBlocksFromState());
 			log.debug("getWhiteBlocksFromState:"
 					+ goBoard2.getWhiteBlocksFromState());
-			assertEquals("white block should equal!", goBoard
-					.getWhiteBlocksFromState(), goBoard2
-					.getWhiteBlocksFromState());
+			assertEquals("white block should equal!",
+					goBoard.getWhiteBlocksFromState(),
+					goBoard2.getWhiteBlocksFromState());
 
 			// test clone
 			GoBoard goBoard3 = goBoard2.deepClone();
@@ -227,13 +232,13 @@ public class TestGoBoardInternally extends TestCase {
 			assertEquals("state should equal internally!", boardState2,
 					goBoard3.getBoardColorState());
 
-			assertEquals("black block should equal!", goBoard2
-					.getBlackBlocksFromState(), goBoard3
-					.getBlackBlocksFromState());
+			assertEquals("black block should equal!",
+					goBoard2.getBlackBlocksFromState(),
+					goBoard3.getBlackBlocksFromState());
 
-			assertEquals("white block should equal!", goBoard2
-					.getWhiteBlocksFromState(), goBoard3
-					.getWhiteBlocksFromState());
+			assertEquals("white block should equal!",
+					goBoard2.getWhiteBlocksFromState(),
+					goBoard3.getWhiteBlocksFromState());
 			assertNotNull(goBoard3.getPoints());
 			byte ii, j;
 			for (ii = 1; ii < 20; ii++) {
@@ -249,13 +254,13 @@ public class TestGoBoardInternally extends TestCase {
 				assertEquals("state should equal internally!", boardState,
 						goBoard4.getBoardColorState());
 
-				assertEquals("black block should equal!", goBoard
-						.getBlackBlocksFromState(), goBoard4
-						.getBlackBlocksFromState());
+				assertEquals("black block should equal!",
+						goBoard.getBlackBlocksFromState(),
+						goBoard4.getBlackBlocksFromState());
 
-				assertEquals("white block should equal!", goBoard
-						.getWhiteBlocksFromState(), goBoard4
-						.getWhiteBlocksFromState());
+				assertEquals("white block should equal!",
+						goBoard.getWhiteBlocksFromState(),
+						goBoard4.getWhiteBlocksFromState());
 			} else {
 				goBoard4 = goBoard2;
 			}
@@ -267,13 +272,13 @@ public class TestGoBoardInternally extends TestCase {
 				assertEquals("state should equal internally!", boardState,
 						goBoard5.getBoardColorState());
 
-				assertEquals("black block should equal!", goBoard
-						.getBlackBlocksFromState(), goBoard5
-						.getBlackBlocksFromState());
+				assertEquals("black block should equal!",
+						goBoard.getBlackBlocksFromState(),
+						goBoard5.getBlackBlocksFromState());
 
-				assertEquals("white block should equal!", goBoard
-						.getWhiteBlocksFromState(), goBoard5
-						.getWhiteBlocksFromState());
+				assertEquals("white block should equal!",
+						goBoard.getWhiteBlocksFromState(),
+						goBoard5.getWhiteBlocksFromState());
 			} else {
 				goBoard5 = goBoard3;
 			}
@@ -286,7 +291,7 @@ public class TestGoBoardInternally extends TestCase {
 	public void testForwardNextStepFirstLibGoManualInternally() {
 
 		byte count = 0;
-		List list =new LoadGoManual(rootDir).loadMultiGoManualFromLib0();
+		List list = new LoadGoManual(rootDir).loadMultiGoManualFromLib0();
 		byte[] original = null;
 		for (Iterator iter = list.iterator(); iter.hasNext();) {
 			count++;
@@ -306,7 +311,7 @@ public class TestGoBoardInternally extends TestCase {
 	public void testForwardNextStepForAllGoManualInternally() {
 
 		int count = 0;
-		List list =new LoadGoManual(rootDir).loadMultiGoManualFromLib0();
+		List list = new LoadGoManual(rootDir).loadMultiGoManualFromLib0();
 
 		byte[] original = null;
 		// for (Iterator iter = list.iterator(); iter.hasNext();) {

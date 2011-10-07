@@ -27,7 +27,7 @@ public class ColorUtil {
 
 	public final static byte Mixture = 3; // 3表示普通的空百块.不是气块;
 
-	public final static byte BREATH = 4; // 大眼死活模式识别时表示提子形成的气块
+	//public final static byte BREATH = 4; // 大眼死活模式识别时表示提子形成的气块
 
 	// 或者是没有加以确认.相当于UNKnown
 	public final static byte OutOfBound = 10; // 2表示白子;

@@ -5,9 +5,9 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
-import eddie.wu.linkedblock.BoardColorState;
 import eddie.wu.linkedblock.BoardPoint;
 
 public class StateLoader {

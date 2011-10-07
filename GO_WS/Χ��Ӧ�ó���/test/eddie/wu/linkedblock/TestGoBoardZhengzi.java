@@ -1,5 +1,7 @@
 package eddie.wu.linkedblock;
 
+import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.GoBoard;
 import eddie.wu.manual.StateLoader;
 import junit.framework.TestCase;
 /**

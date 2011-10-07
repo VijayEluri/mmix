@@ -1,7 +1,10 @@
 package eddie.wu.linkedblock;
-import java.util.Vector;
 
-
+/**
+ * similar to QiKuai1, only clone() is removed.
+ * @author wueddie-wym-wrz
+ *
+ */
 public class QiKuai2 implements Cloneable{
 
 

@@ -23,7 +23,7 @@ public class BoardPoint implements Cloneable, Serializable {
 	private Point point;
 	private Point twinForKo;
 
-	private byte color = ColorUtil.BLANK_POINT;
+	private int color = ColorUtil.BLANK_POINT;
 
 	/**
 	 * flag used in calculate breath and divide the blank point blank.
@@ -31,7 +31,8 @@ public class BoardPoint implements Cloneable, Serializable {
 	private boolean calculatedFlag = false;
 
 	/**
-	 * use to decide DAJIE
+	 * use to decide DAJIE(打劫)<br/>
+	 * 比如第50步提劫，那么第51步就不能立即在twinForKo处回提。
 	 */
 	private short prohibitStep = 0;
 
@@ -77,21 +78,17 @@ public class BoardPoint implements Cloneable, Serializable {
 	public BoardPoint(Point point) {
 		this(point, ColorUtil.BLANK_POINT);
 	}
+	
 
-	public BoardPoint(Point point, byte color) {
-		super();
+	public BoardPoint(Point point, int color) {
 		this.point = point;
 		this.color = color;
 	}
 
-	public BoardPoint(Point point, int color) {
-		this(point, (byte) color);
-	}
-
-	// extensin for other coordinate representation.
+	// extension for other coordinate representation.
 	// public BoardPoint(byte a, byte b,byte type){
-	//		
-	//	
+	//
+	//
 	// }
 
 	/**
@@ -119,7 +116,7 @@ public class BoardPoint implements Cloneable, Serializable {
 	/**
 	 * @return Returns the color.
 	 */
-	public byte getColor() {
+	public int getColor() {
 		return color;
 	}
 
@@ -136,7 +133,7 @@ public class BoardPoint implements Cloneable, Serializable {
 	 * @param color
 	 *            The color to set.
 	 */
-	public void setColor(byte color) {
+	public void setColor(int color) {
 		this.color = color;
 	}
 
@@ -229,18 +226,12 @@ public class BoardPoint implements Cloneable, Serializable {
 		return temp;
 	}
 
-	public boolean isLeftTop() {
-		if (this.point.getRow() < Constant.COORDINATEOFTIANYUAN
-				&& this.point.getColumn() < Constant.COORDINATEOFTIANYUAN) {
-			return true;
-		}
-		return false;
+	public boolean isLeftTop() {		
+		return point.isLeftTop();
 	}
 
 	public boolean isValidCoordinate() {
-		// TODO Auto-generated method stub
 		return point.isValid();
-		// return false;
 	}
 
 	/**

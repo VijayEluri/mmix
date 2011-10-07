@@ -17,7 +17,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
+import eddie.wu.domain.GoBoard;
 import eddie.wu.manual.LoadGoManual;
 
 /**
@@ -45,7 +47,7 @@ public class TestGoBoardExternally extends TestCase {
      * 
      * @author eddie
      */
-    public void testForwardNextStepSingleGoManual() {
+    public void testForwardNextStep_SingleGoManual() {
     	Logger logger=Logger.getLogger(GoBoard.class);
     	if(logger.getLevel().isGreaterOrEqual(Level.INFO)){
     		
@@ -74,7 +76,7 @@ public class TestGoBoardExternally extends TestCase {
      * 
      * @author eddie
      */
-    public void testForwardNextStepMultiGoManual() {
+    public void testForwardNextStep_MultiGoManual() {
     	Logger logger=Logger.getLogger(GoBoard.class);
     	if(logger.getLevel().isGreaterOrEqual(Level.ERROR)){
     		
@@ -126,7 +128,7 @@ public class TestGoBoardExternally extends TestCase {
 since Array go Board is not so good.
      *
      */
-    public void testForwardNextStepFromOneOfMultiGoManualLib1() {
+    public void testForwardNextStep_FromOneOfMultiGoManualLib1() {
         byte[] original = null;
         //byte count = 0;
         //List list = LoadGoManual.loadOneFromAllGoManual(1,88);

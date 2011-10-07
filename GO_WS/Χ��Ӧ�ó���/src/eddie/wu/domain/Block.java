@@ -52,14 +52,40 @@ public class Block extends BasicBlock implements Cloneable,
 	private Set<Block> enemyBlocks = new HashSet<Block>();
 
 	private Set<Block> breathBlocks = new HashSet<Block>();
+	/**
+	 * true for blank block, false for normal black/white block.
+	 */
+	// private boolean breathBlock;
+	// private boolean sharedBreathBlock;
+	private boolean eyeBlock;
+
+	public boolean isEyeBlock() {
+		return eyeBlock;
+	}
+
+	// public boolean isSharedBreathBlock() {
+	// return sharedBreathBlock;
+	// }
+	// public void setSharedBreathBlock(boolean sharedBreathBlock) {
+	// this.sharedBreathBlock = sharedBreathBlock;
+	// }
+	public boolean isBreathBlock() {
+		return color == Constant.BLANK;
+	}
+
+	// public void setBreathBlock(boolean breathBlock) {
+	// this.breathBlock = breathBlock;
+	// }
+	public boolean setEyeBlock(boolean eyeBlock) {
+		return this.eyeBlock = eyeBlock;
+	}
 
 	public void changeBlockForEnemyBlock(Block newBlock) {
 		Block block = null;
-		for (Iterator iter = enemyBlocks.iterator(); iter.hasNext();) {
-			block = (Block) iter.next();
+		for (Iterator<Block> iter = enemyBlocks.iterator(); iter.hasNext();) {
+			block = iter.next();
 			block.removeEnemyBlock(this);
 			block.addEnemyBlock(newBlock);
-
 		}
 
 	}
@@ -157,40 +183,42 @@ public class Block extends BasicBlock implements Cloneable,
 		StringBuffer temp = new StringBuffer("\r\n[color=");
 		List<Point> list = new ArrayList<Point>(allPoints.size());
 		list.addAll(allPoints);
-		Collections.sort(list,new RowColumnComparator());
+		Collections.sort(list, new RowColumnComparator());
 		if (color == ColorUtil.BLACK || color == ColorUtil.WHITE) {
 			temp.append(color);
 			temp.append(", points=" + this.getTotalNumberOfPoint());
 			temp.append(", breaths = " + this.getBreaths());
-			
-			temp.append(",\r\nallPoints=");			
-			temp.append(list);			
+
+			temp.append(",\r\nallPoints=");
+			temp.append(list);
 			temp.append(",\r\nallBreathPoints=");
-			//temp.append(allBreathPoints);
+			// temp.append(allBreathPoints);
 			list = new ArrayList<Point>(allBreathPoints.size());
 			list.addAll(allBreathPoints);
-			Collections.sort(list,new RowColumnComparator());
+			Collections.sort(list, new RowColumnComparator());
 			temp.append(list);
 
 			if (this.breathBlocks.isEmpty() == false) {
 				temp.append(",\r\nbreathBlocks=[");
-				for(Block tempBlock : this.breathBlocks){				
-					temp.append(tempBlock.getTopLeftPoint()+ ", ");
+				for (Block tempBlock : this.breathBlocks) {
+					temp.append(tempBlock.getTopLeftPoint());
+					temp.append(",eyeBlock=" + tempBlock.eyeBlock + ", ");
 				}
 				temp.append("]");
 			}
 			if (this.enemyBlocks.isEmpty() == false) {
 				temp.append(",\r\nenemyBlocks=[");
-				for(Block tempBlock : this.enemyBlocks){				
-					temp.append(tempBlock.getTopLeftPoint()+ ", ");
+				for (Block tempBlock : this.enemyBlocks) {
+					temp.append(tempBlock.getTopLeftPoint() + ", ");
 				}
 				temp.append("]");
 			}
 		} else {
 			temp.append(color);
 			temp.append(",\r\nallPoints=");
-			//temp.append(allPoints);
+			// temp.append(allPoints);
 			temp.append(list);
+			temp.append(", eyeBlock=" + this.eyeBlock);
 		}
 
 		/*
@@ -296,30 +324,6 @@ public class Block extends BasicBlock implements Cloneable,
 		return temp;
 	}
 
-	public Shape getShape() {
-		int minX = 20, minY = 20, maxX = 0, maxY = 0;
-		for (Point point : getAllPoints()) {
-			if (point.getRow() < minX)
-				minX = point.getRow();
-
-			if (point.getRow() > maxX)
-				maxX = point.getRow();
-
-			if (point.getColumn() < minY)
-				minY = point.getColumn();
-			if (point.getColumn() < maxY)
-				maxY = point.getColumn();
-		}
-		Shape shape = new Shape();
-		shape.setMaxX(maxX);
-		shape.setMaxY(maxY);
-		shape.setMinX(minX);
-		shape.setMinY(minY);
-
-		return shape;
-
-	}
-
 	public boolean isBreathCalculated() {
 		return breathCalculated;
 	}
@@ -328,4 +332,34 @@ public class Block extends BasicBlock implements Cloneable,
 		this.breathCalculated = breathCalculated;
 	}
 
+	public boolean isBlack() {
+		return getColor() == Constant.BLACK;
+	}
+
+	public boolean isBlank() {
+		return getColor() == Constant.BLANK;
+	}
+
+	public boolean isWhite() {
+		return getColor() == Constant.WHITE;
+	}
+
+	/**
+	 * 气块是否在角上。
+	 * 
+	 * @return
+	 */
+	public boolean isBreathCorner() {
+		int count = 0;
+		boolean includeCorner = false;
+		for (Point point : allPoints) {
+			if (point.isCorner()) {
+				includeCorner = true;
+				count++;
+			} else if (point.isBorder()) {
+				count++;
+			}
+		}
+		return includeCorner && 2 * count > allPoints.size();
+	}
 }
