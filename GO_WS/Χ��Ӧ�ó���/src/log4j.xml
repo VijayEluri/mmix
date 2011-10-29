@@ -16,7 +16,7 @@
 	<category name="eddie.wu.linkedblock.TestDeepCloneWithSerializable">
 		<priority value="DEBUG"/>			
 	</category>
-	<category name="eddie.wu.linkedblock.TestGoBoardExternally">
+	<category name="eddie.wu.arrayblock.TestArrayGoBoardExternally">
 		<priority value="DEBUG"/>			
 	</category>
 	
@@ -24,7 +24,11 @@
 		<priority value="DEBUG"/>			
 	</category>
 	
-	<category name="eddie.wu.linkedblock.GoBoard">
+	<category name="eddie.wu.manual.SGFGoManual">
+		<priority value="DEBUG"/>			
+	</category>
+	
+	<category name="eddie.wu.domain.GoBoard">
 		<priority value="WARN"/>			
 	</category>
 	<category name="eddie.wu.linkedblock.GoBoardZhengzi">
@@ -54,7 +58,7 @@
 	</category>	
 	
 	<root>
-		<priority value="WARN"/>
+		<priority value="ERROR"/>
 		<appender-ref ref="STDOUT"/>		
 	</root>
 	

@@ -1,5 +1,7 @@
 package eddie.wu.linkedblock;
 
+import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.GoBoard;
 import eddie.wu.manual.StateLoader;
 import junit.framework.TestCase;
 /**
@@ -21,13 +23,10 @@ public class TestGoBoardZhengzi extends TestCase {
         	//new LoadExercise().loadZhengZi();
         System.out.println("state"+state);
         GoBoard linkedBlockGoBoard = new GoBoard(state);
-        System.out.println("points"+linkedBlockGoBoard.getPoints());
-        System.out.println("points"+linkedBlockGoBoard.getPoints()[16	][14]);
-        System.out.println("points"+linkedBlockGoBoard.getPoints()[16	][13]);
-        System.out.println("points"+linkedBlockGoBoard.getPoints()[16	][15]);
+       
         linkedBlockGoBoard.generateHighLevelState();
-        System.out.println("black Block"+linkedBlockGoBoard.getBlackBlocksFromState());
-        System.out.println("white Block"+linkedBlockGoBoard.getWhiteBlocksFromState());
+        System.out.println("black Block"+linkedBlockGoBoard.getBlackBlocks());
+        System.out.println("white Block"+linkedBlockGoBoard.getWhiteBlocks());
         result = linkedBlockGoBoard.jiSuanZhengZi(m1, n1);
         if (result[126][0] == 1) {
             //goapplet.goboard.qiquan();

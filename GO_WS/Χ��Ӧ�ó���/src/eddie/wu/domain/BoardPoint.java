@@ -20,7 +20,7 @@ public class BoardPoint implements Cloneable, Serializable {
 	private Point point;
 	private Point twinForKo;
 
-	private byte color = ColorUtil.BLANK_POINT;
+	private int color = ColorUtil.BLANK;
 
 	/**
 	 * flag used in calculate breath and divide the blank point blank.
@@ -28,7 +28,8 @@ public class BoardPoint implements Cloneable, Serializable {
 	private boolean calculatedFlag = false;
 
 	/**
-	 * use to decide DAJIE
+	 * use to decide DAJIE(打劫)<br/>
+	 * 比如第50步提劫，那么第51步就不能立即在twinForKo处回提。
 	 */
 	private short prohibitStep = 0;
 
@@ -71,24 +72,23 @@ public class BoardPoint implements Cloneable, Serializable {
 
 	}
 
+	/**
+	 * default color is blank
+	 * @param point
+	 */
 	public BoardPoint(Point point) {
-		this(point, ColorUtil.BLANK_POINT);
+		this(point, ColorUtil.BLANK);
 	}
 
-	public BoardPoint(Point point, byte color) {
-		super();
+	public BoardPoint(Point point, int color) {
 		this.point = point;
 		this.color = color;
 	}
 
-	public BoardPoint(Point point, int color) {
-		this(point, (byte) color);
-	}
-
-	// extensin for other coordinate representation.
+	// extension for other coordinate representation.
 	// public BoardPoint(byte a, byte b,byte type){
-	//		
-	//	
+	//
+	//
 	// }
 
 	/**
@@ -116,7 +116,7 @@ public class BoardPoint implements Cloneable, Serializable {
 	/**
 	 * @return Returns the color.
 	 */
-	public byte getColor() {
+	public int getColor() {
 		return color;
 	}
 
@@ -133,7 +133,7 @@ public class BoardPoint implements Cloneable, Serializable {
 	 * @param color
 	 *            The color to set.
 	 */
-	public void setColor(byte color) {
+	public void setColor(int color) {
 		this.color = color;
 	}
 
@@ -187,31 +187,22 @@ public class BoardPoint implements Cloneable, Serializable {
 		return point.hashCode();
 	}
 
-	public boolean equals(Object o) {
-		if (o instanceof BoardPoint) {
-			BoardPoint other = (BoardPoint) o;
-			if (other.getColor() == color) {
-				if (other.getPoint().equals(point)) {
-					if (block == null) {
-						if (other.getBlock() != null) {
-							return false;
-						} else {
-							return true;
-						}
-					} else if (block.equals(other.getBlock())) {
-						return true;
-					}
-				} else {
-					return false;
-				}
-
-			} else {
-				return false;
-			}
-
+	public boolean equals(Object object) {
+		if (object instanceof BoardPoint == false) {
+			return false;
 		}
-		return false;
-
+		BoardPoint other = (BoardPoint) object;
+		if (other.getColor() != color) {
+			return false;
+		}
+		if (other.getPoint().equals(point)==false) {
+			return false;
+		}
+		if (block == null) {
+			return other.getBlock() == null;
+		} else {
+			return block.equals(other.getBlock());
+		}
 	}
 
 	public Object clone() {
@@ -227,17 +218,11 @@ public class BoardPoint implements Cloneable, Serializable {
 	}
 
 	public boolean isLeftTop() {
-		if (this.point.getRow() < Constant.COORDINATEOFTIANYUAN
-				&& this.point.getColumn() < Constant.COORDINATEOFTIANYUAN) {
-			return true;
-		}
-		return false;
+		return point.isLeftTop();
 	}
 
 	public boolean isValidCoordinate() {
-		// TODO Auto-generated method stub
 		return point.isValid();
-		// return false;
 	}
 
 	/**

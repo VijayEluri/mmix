@@ -22,7 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import eddie.wu.domain.Constant;
-import eddie.wu.ui.applet.EmbedBoardCanvas;
+import eddie.wu.ui.canvas.EmbedBoardCanvas;
 
 /**
  * 生成某种局面。（按照功能划分）
@@ -36,9 +36,10 @@ public class RecordState extends Frame {
 	public final byte[][] state = new byte[21][21]; // 0.4k;
 	private byte color = Constant.BLACK;
 
-	EmbedBoardCanvas embedApplet = new EmbedBoardCanvas();
+	EmbedBoardCanvas embedCanvas = new EmbedBoardCanvas();
 	Label currentColor = new Label("current color");
 	TextField currentColorT = new TextField("Black");
+	
 
 	Button changeColor = new Button("切换黑白");
 	Button storeState = new Button("保存局面");
@@ -62,15 +63,15 @@ public class RecordState extends Frame {
 	}
 
 	public RecordState() {
-		embedApplet.setState(state);
-		embedApplet.setRepaint(true);
-
+		embedCanvas.setState(state);	
 		changeColor.addActionListener(new ChangeColorActionListener());
+		currentColorT.setColumns(8);
+		currentColorT.setEditable(false);
 		loadState.addActionListener(new LoadStateActionListener(this));
 		storeState.addActionListener(new StoreStateActionListener(this));
 		clearBoard.addActionListener(new ClearBoardActionListener());
 		clearPoint.addActionListener(new ClearPointActionListener());
-		add(embedApplet);
+		add(embedCanvas);
 		add(currentColor);
 		add(currentColorT);
 		add(changeColor);
@@ -81,13 +82,13 @@ public class RecordState extends Frame {
 
 		currentColor.setVisible(true);
 		currentColorT.setVisible(true);
-		embedApplet.setVisible(true);
+		embedCanvas.setVisible(true);
 		changeColor.setVisible(true);
 		loadState.setVisible(true);
 		clearBoard.setVisible(true);
 		setLayout(null);
 
-		embedApplet.setBounds(30, 30, 560, 560);
+		embedCanvas.setBounds(30, 30, 560, 560);
 		currentColor.setBounds(600, 60, 100, 30);
 		currentColorT.setBounds(700, 60, 30, 30);
 		changeColor.setBounds(600, 100, 100, 30);
@@ -117,7 +118,7 @@ public class RecordState extends Frame {
 
 		state[b][a] = color;// vs. state[a][b]=color;
 		repaint();
-		embedApplet.repaint();
+		embedCanvas.repaint();
 		return true;
 	}
 
@@ -185,7 +186,7 @@ public class RecordState extends Frame {
 	@Override
 	public void repaint() {
 		super.repaint();
-		embedApplet.repaint();
+		embedCanvas.repaint();
 	}
 
 	class StoreStateActionListener implements ActionListener {

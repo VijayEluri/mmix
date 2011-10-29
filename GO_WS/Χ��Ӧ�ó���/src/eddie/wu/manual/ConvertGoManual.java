@@ -4,9 +4,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import eddie.wu.domain.Constant;
+import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
-import eddie.wu.linkedblock.GoBoard;
-import eddie.wu.linkedblock.SimpleGoBoard;
 
 /**
  * convert between symmetry GoManual
@@ -50,7 +49,7 @@ public class ConvertGoManual {
 	public byte[] convertFormat(final byte[] row, final byte[] column) {
 		validateParam(row, column);
 		GoBoard goBoard = new GoBoard();
-		SimpleGoBoard simpleGoBoard = new SimpleGoBoard();
+		GoBoardSymmetry simpleGoBoard = new GoBoardSymmetry();
 		/**
 		 * standard format, first step in left top and row>column! then can be
 		 * easily convert into usual format.
@@ -62,7 +61,7 @@ public class ConvertGoManual {
 		for (int i = 0; i < row.length; i++) {
 			if (simpleGoBoard.numberOfSymmetry() == 0) {
 				goBoard.oneStepForward(row[i], column[i]);
-				simpleGoBoard=new SimpleGoBoard(goBoard.getBoardColorState());
+				simpleGoBoard=new GoBoardSymmetry(goBoard.getBoardColorState());
 				continue;
 			} else if (simpleGoBoard.numberOfSymmetry() == 15) {
 				timesOfSymmetry++;
@@ -70,7 +69,7 @@ public class ConvertGoManual {
 						";numberOfSymmetry="+simpleGoBoard.numberOfSymmetry());
 				a = row[i];
 				b = column[i];
-				point = new Point(a, b);
+				point = Point.getPoint(a, b);
 				if (point.isLeftTop()) {
 					if (a < b) {
 						backwardSlashLineConvert(row, column, i);
@@ -86,7 +85,7 @@ public class ConvertGoManual {
 					conditionalBackwardConvert(row, column, i);
 				}
 				goBoard.oneStepForward(row[i], column[i]);
-				simpleGoBoard=new SimpleGoBoard(goBoard.getBoardColorState());
+				simpleGoBoard=new GoBoardSymmetry(goBoard.getBoardColorState());
 				continue;
 			} else if (simpleGoBoard.numberOfSymmetry() == 1||
 					simpleGoBoard.numberOfSymmetry() == 2||
@@ -112,7 +111,7 @@ public class ConvertGoManual {
 					this.backwardSlashLineConvert(row, column, i);
 				}
 				goBoard.oneStepForward(row[i], column[i]);
-				simpleGoBoard=new SimpleGoBoard(goBoard.getBoardColorState());
+				simpleGoBoard=new GoBoardSymmetry(goBoard.getBoardColorState());
 				continue;
 			} else if(simpleGoBoard.numberOfSymmetry() == 3||
 					simpleGoBoard.numberOfSymmetry() == 12) {
@@ -181,7 +180,7 @@ public class ConvertGoManual {
 					}
 				}
 				goBoard.oneStepForward(row[i], column[i]);
-				simpleGoBoard=new SimpleGoBoard(goBoard.getBoardColorState());
+				simpleGoBoard=new GoBoardSymmetry(goBoard.getBoardColorState());
 				
 
 			}

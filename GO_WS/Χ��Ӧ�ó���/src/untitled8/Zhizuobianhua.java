@@ -5,6 +5,8 @@ import java.applet.Applet;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+
+import eddie.wu.domain.Constant;
 import untitled8.*;
 import untitled3.DsNode;
 public class Zhizuobianhua
@@ -71,7 +73,7 @@ public class Zhizuobianhua
          boolean ykhjs = false; //是否已经有右括号。
          DataInputStream in = new DataInputStream(
             new BufferedInputStream(
-            new FileInputStream("H:\\weiqidata\\" + "定式树")));
+            new FileInputStream(Constant.DING_SHI_SHU)));
          if (in.available() == 0) {
             return;
          }

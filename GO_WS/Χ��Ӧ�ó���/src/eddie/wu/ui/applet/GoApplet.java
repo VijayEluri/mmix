@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import eddie.wu.arrayblock.GoBoard;
 import eddie.wu.arrayblock.GoBoard1;
 import eddie.wu.arrayblock.JisuanBoard;
+import eddie.wu.ui.canvas.EmbedBoardCanvas;
 
 /**
  * <p>

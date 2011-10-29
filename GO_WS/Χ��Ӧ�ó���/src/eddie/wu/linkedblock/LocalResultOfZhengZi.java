@@ -3,6 +3,7 @@ package eddie.wu.linkedblock;
 import java.util.ArrayList;
 import java.util.List;
 
+import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
 
 /**
@@ -14,7 +15,9 @@ import eddie.wu.domain.Point;
 public class LocalResultOfZhengZi {
 	/**
 	 * 在Controller中暂时采用统一计分法. 不论对哪一方而言.都是用正分表示甲方胜利.所以是 MIN and Max.
-	 * 但是在这里采用相对计分法.正分表示本方胜利.Controller需要对结果进行转换.
+	 * 但是在这里采用相对计分法.正分表示本方胜利.Controller需要对结果进行转换.<br/>
+	 * 其实只要Controller和Goboard中的计算对分数的见解互相协调就好.死活计算时,self fail
+	 * 表示要做活的块死了, self success 表示要做活的块活了.
 	 */
 	private int score = 0;
 	/**
@@ -23,7 +26,7 @@ public class LocalResultOfZhengZi {
 	private List<Point> candidatePoints = new ArrayList<Point>(4);
 
 	/**
-	 * set of GoBoard
+	 * set of GoBoard (we arrive at the state AFTER move at point.
 	 */
 	private List<GoBoard> candidateJuMians = new ArrayList<GoBoard>(4);
 

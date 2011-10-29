@@ -11,7 +11,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import eddie.wu.manual.ConvertGoManual;
-import eddie.wu.manual.LoadGoManual;
+import eddie.wu.manual.LoadGMDGoManual;
 
 public class TestConvertGoManual extends TestCase {
 	private static final Log log = LogFactory.getLog(TestConvertGoManual.class);
@@ -19,14 +19,14 @@ public class TestConvertGoManual extends TestCase {
 	/**
 	 * iterator all manuals.
 	 * search the one has special characters.
-	 *
+	 * @deprecated failed because of lib1 is lost.
 	 */
 	public void testConvert() {
 		Logger logger=Logger.getLogger(ConvertGoManual.class);
 		logger.setLevel(Level.ERROR);
 		Logger logger1=Logger.getLogger(TestConvertGoManual.class);
 		logger1.setLevel(Level.ERROR);
-		byte[] temp = new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadSingleGoManual();
+		byte[] temp = new LoadGMDGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadSingleGoManual();
 
 		ConvertGoManual convert = new ConvertGoManual();
 		byte[] result = convert.convertFormat(temp);
@@ -38,13 +38,13 @@ public class TestConvertGoManual extends TestCase {
 			}
 		}
 		  int count = 0;
-	        List list = new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadMultiGoManualFromLib0();
+	        List list = new LoadGMDGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadMultiGoManualFromLib0();
 
 	        byte[] original = null;
 
 	        for (int j = 1; j < 2; j++) {
 	        	
-	            list = new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadMultiGoManual(j);
+	            list = new LoadGMDGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadMultiGoManual(j);
 	            for (Iterator iter = list.iterator(); iter.hasNext();) {
 	                count++;
 	                //if(count<760) continue;
@@ -59,10 +59,14 @@ public class TestConvertGoManual extends TestCase {
 	        }
 	        
 	}
+	
+	/**
+	 * @deprecated failed because of lib1 is lost.
+	 */
 	public void testSimgleGoManual(){
 		Logger logger=Logger.getLogger(ConvertGoManual.class);
 		logger.setLevel(Level.DEBUG);
-		byte[] temp =new LoadGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadOneFromAllGoManual(1,760);
+		byte[] temp =new LoadGMDGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadOneFromAllGoManual(1,760);
 		ConvertGoManual convert = new ConvertGoManual();
 		byte[] result = convert.convertFormat(temp);
 		for (int i = 0; i < temp.length / 2; i++) {

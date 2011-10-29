@@ -13,6 +13,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import eddie.wu.domain.Constant;
+
 import untitled3.DsNode;
 
 public class Zhizuodingshi
@@ -62,7 +64,7 @@ public class Zhizuodingshi
          boolean ykhjs = false; //是否已经有右括号。
          DataInputStream in = new DataInputStream(
             new BufferedInputStream(
-            new FileInputStream("H:\\weiqidata\\" + "定式树")));
+            new FileInputStream(Constant.DING_SHI_SHU)));
          if (in.available() == 0) {
             return;
          }
@@ -316,7 +318,7 @@ public class Zhizuodingshi
          try {
             out = new DataOutputStream(
                new BufferedOutputStream(
-               new FileOutputStream("H:\\weiqidata\\" + "定式树")));
+               new FileOutputStream(Constant.DING_SHI_SHU)));
             write(out, root);
             out.close();
          }

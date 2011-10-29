@@ -1,8 +1,8 @@
 package untitled4;
 
 /**
- * <p>Title:脦搂脝氓脣脌禄卯脤芒脨隆鲁脤脨貌 </p>
- * <p>Description: 脫脙脫脷脣脌禄卯脤芒脩碌脕路</p>
+ * <p>Title:演示死活的。变化的内容是硬编码存储的。 </p>
+ * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: SE</p>
  * @author wueddie

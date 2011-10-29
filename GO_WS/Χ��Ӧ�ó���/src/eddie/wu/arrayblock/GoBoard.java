@@ -7,8 +7,8 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import eddie.wu.linkedblock.BoardBreathState;
-import eddie.wu.linkedblock.BoardColorState;
+import eddie.wu.domain.BoardBreathState;
+import eddie.wu.domain.BoardColorState;
 
 /**
  * <p>

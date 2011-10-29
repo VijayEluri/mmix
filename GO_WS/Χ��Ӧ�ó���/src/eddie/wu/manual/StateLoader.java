@@ -5,10 +5,17 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+<<<<<<< HEAD
 import eddie.wu.domain.BoardPoint;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
 import eddie.wu.linkedblock.BoardColorState;
+=======
+import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.Constant;
+import eddie.wu.domain.Point;
+import eddie.wu.linkedblock.BoardPoint;
+>>>>>>> 3d8aa49ce83f747c9170d697ba2d051c700809f6
 
 public class StateLoader {
 	/**
@@ -46,7 +53,7 @@ public class StateLoader {
 			a = jmin.readByte();
 			b = jmin.readByte();
 			color = jmin.readByte();
-			an.add(new BoardPoint(new Point(b, a), color));
+			an.add(new BoardPoint(Point.getPoint(b, a), color));
 
 			if (a < 1 || a > 19 || b < 1 || b > 19 || color < 1 || color > 2) {
 				if (Constant.DEBUG_CGCL) {

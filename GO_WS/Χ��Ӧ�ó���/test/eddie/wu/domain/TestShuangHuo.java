@@ -1,6 +1,6 @@
 package eddie.wu.domain;
 
-import go.BothLive;
+import go.BothLiveAnalysis;
 import go.StateAnalysis;
 import junit.framework.TestCase;
 
@@ -17,13 +17,13 @@ public class TestShuangHuo extends TestCase {
 
 	public void test1() {
 		byte[][] state = StateAnalysis.LoadState(root + name1);
-		BothLive bl = new BothLive(state);
+		BothLiveAnalysis bl = new BothLiveAnalysis(state);
 		assertTrue(bl.isBothLive(Point.getPoint(3, 13)) > 0);
 
 	}
 	public void test() {
 		byte[][] state = StateAnalysis.LoadState(root + name);
-		BothLive bl = new BothLive(state);
+		BothLiveAnalysis bl = new BothLiveAnalysis(state);
 		assertTrue(bl.isBothLive(Point.getPoint(18, 2)) > 0);
 
 	}

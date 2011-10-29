@@ -1,5 +1,7 @@
 package eddie.wu.domain;
 
+import java.util.Set;
+
 /**
  * 描述一块棋的轮廓形状，所有的棋子都在（minX,minY）到（maxX,maxY）的矩形内。 这里的X,Y分别指行和列。
  * 
@@ -86,5 +88,34 @@ public class Shape {
 
 	public void setMaxY(int maxY) {
 		this.maxY = maxY;
+	}
+
+	/**
+	 * 根据一块棋中的所有点来判断棋块的形状。
+	 * @param allPoints
+	 * @return
+	 */
+	public static Shape getShape(Set<Point> allPoints) {
+		int minX = 20, minY = 20, maxX = 0, maxY = 0;
+		for (Point point : allPoints) {
+			if (point.getRow() < minX)
+				minX = point.getRow();
+
+			if (point.getRow() > maxX)
+				maxX = point.getRow();
+
+			if (point.getColumn() < minY)
+				minY = point.getColumn();
+			if (point.getColumn() > maxY)
+				maxY = point.getColumn();
+		}
+		Shape shape = new Shape();
+		shape.setMaxX(maxX);
+		shape.setMaxY(maxY);
+		shape.setMinX(minX);
+		shape.setMinY(minY);
+
+		return shape;
+		
 	}
 }

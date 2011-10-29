@@ -3,18 +3,33 @@
  */
 package eddie.wu.domain;
 
-import go.Board;
+import go.OpeningAnalysis;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
  * @author eddie may be no use to separate out this class at the first glance.
  *         but I believe it will be a good choice with the future in the mind.
  * 
- *         FLY WEIGHT Design Pattern
+ *         FLY WEIGHT Design Pattern 享元设计模式
  */
 public class Point implements java.io.Serializable {
+	public static Set<Point> zhanJiao;
+	public static Point XING;
+	public static Set<Point> xings;// 星
+	public static Point XIAOMU;
+	public static Set<Point> xiaomus;// 小目
+	public static Point MUWAI;
+	public static Set<Point> muwais;// 目外
+	public static Point GAOMU;
+	public static Set<Point> gaomus;// 高目
+	public static Point SANSAN;
+	public static Set<Point> sansans;// 三三
+	public static Point[][] points = new Point[OpeningAnalysis.BOARD_SIZE + 2][OpeningAnalysis.BOARD_SIZE + 2];
+
 	/*
 	 * valid scope 1-19
 	 */
@@ -27,6 +42,26 @@ public class Point implements java.io.Serializable {
 
 	public static Point getPoint(byte row, byte column) {
 		return points[row][column];
+	}
+
+	public boolean isCorner() {
+		Point p = this.Normalize();
+		return p.getRow() == 1 && p.getColumn() == 1;
+	}
+
+	public boolean nearConer() {
+		Point temp = this.Normalize();
+		return temp.getRow() <= 5 && temp.getColumn() <= 5;
+	}
+
+	public boolean isBorder() {
+		Point p = this.Normalize();
+		return p.getRow() == 1;// || p.getColumn() == 1
+	}
+
+	public boolean nearBorder() {
+		Point p = this.Normalize();
+		return p.getRow() >= 2 && p.getRow() <= 5 && p.getColumn() > 5;
 	}
 
 	/**
@@ -45,16 +80,16 @@ public class Point implements java.io.Serializable {
 		return points[row][column];
 	}
 
-	public Point() {
+	private Point() {
 
 	}
 
-	public Point(byte row, byte column) {
+	private Point(byte row, byte column) {
 		this.row = row;
 		this.column = column;
 	}
 
-	public Point(int row, int column) {
+	private Point(int row, int column) {
 		this.row = (byte) row;
 		this.column = (byte) column;
 	}
@@ -107,6 +142,7 @@ public class Point implements java.io.Serializable {
 
 	/**
 	 * from 1 to 361
+	 * 
 	 * @return
 	 */
 	public short getOneDimensionCoordinate() {
@@ -114,12 +150,22 @@ public class Point implements java.io.Serializable {
 				.getColumn());
 	}
 
+	/**
+	 * BUG FIX comments:<br/>
+	 * even the singleton pattern is used, it is not enough to ensure the
+	 * uniqueness. in the application, clone is used, and it will create another
+	 * Point instance with equal [row, column]
+	 */
 	public boolean equals(Object object) {
-		if (object instanceof Point) {
-			Point point = (Point) object;
-			return point == this;
-		} else
+		if (object instanceof Point == false) {
 			return false;
+		}
+		Point point = (Point) object;
+		if (point == this) {
+			return true;
+		} else {
+			return this.row == point.row && this.column == point.column;
+		}
 	}
 
 	public int hashCode() {
@@ -177,48 +223,49 @@ public class Point implements java.io.Serializable {
 		return !isValid();
 	}
 
-	public static Set<Point> zhanJiao;
-
-	public static Set<Point> xing;// 星
-	public static Set<Point> xiaomu;// 小目
-	public static Set<Point> muwai;// 目外
-	public static Set<Point> gaomu;// 高目
-	public static Set<Point> sansan;// 三三
-	public static Point[][] points = new Point[Board.BOARD_SIZE + 2][Board.BOARD_SIZE + 2];
-
 	public Set<Point> getReflection() {
 		Point point = this;
 		int row = point.getRow();
 		int col = point.getColumn();
 		Set<Point> points = new HashSet<Point>();
 		points.add(point);
-		points.add(Point.getPoint(row, Board.BOARD_SIZE + 1 - col));
-		points.add(Point.getPoint(Board.BOARD_SIZE + 1 - row, col));
-		points.add(Point.getPoint(Board.BOARD_SIZE + 1 - row, Board.BOARD_SIZE
-				+ 1 - col));
+		points.add(Point.getPoint(row, OpeningAnalysis.BOARD_SIZE + 1 - col));
+		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row, col));
+		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row,
+				OpeningAnalysis.BOARD_SIZE + 1 - col));
 
 		col = point.getRow();
 		row = point.getColumn();
 		points.add(Point.getPoint(row, col));
-		points.add(Point.getPoint(row, Board.BOARD_SIZE + 1 - col));
-		points.add(Point.getPoint(Board.BOARD_SIZE + 1 - row, col));
-		points.add(Point.getPoint(Board.BOARD_SIZE + 1 - row, Board.BOARD_SIZE
-				+ 1 - col));
+		points.add(Point.getPoint(row, OpeningAnalysis.BOARD_SIZE + 1 - col));
+		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row, col));
+		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row,
+				OpeningAnalysis.BOARD_SIZE + 1 - col));
 		return points;
 	}
 
 	static {
-		for (int i = 1; i <= Board.BOARD_SIZE; i++) {
-			for (int j = 1; j <= Board.BOARD_SIZE; j++) {
+		for (int i = 1; i <= OpeningAnalysis.BOARD_SIZE; i++) {
+			for (int j = 1; j <= OpeningAnalysis.BOARD_SIZE; j++) {
 				points[i][j] = new Point(i, j);
 			}
 		}
-
-		xing = Point.getPoint(4, 4).getReflection();
-		xiaomu = Point.getPoint(3, 4).getReflection();
-		gaomu = Point.getPoint(4, 5).getReflection();
-		muwai = Point.getPoint(3, 5).getReflection();
-		sansan = Point.getPoint(3, 3).getReflection();
+		zhanJiao = new HashSet<Point>();
+		XING = Point.getPoint(4, 4);
+		xings = XING.getReflection();
+		zhanJiao.addAll(xings);
+		XIAOMU = Point.getPoint(3, 4);
+		xiaomus = XIAOMU.getReflection();
+		zhanJiao.addAll(xiaomus);
+		GAOMU = Point.getPoint(4, 5);
+		gaomus = GAOMU.getReflection();
+		zhanJiao.addAll(gaomus);
+		MUWAI = Point.getPoint(3, 5);
+		muwais = MUWAI.getReflection();
+		zhanJiao.addAll(muwais);
+		SANSAN = Point.getPoint(3, 3);
+		sansans = SANSAN.getReflection();
+		zhanJiao.addAll(sansans);
 	}
 
 	public int getMinCoordinate() {
@@ -237,6 +284,7 @@ public class Point implements java.io.Serializable {
 
 	/**
 	 * 棋子在几线上？取低的。
+	 * 
 	 * @return
 	 */
 	public int getMinLine() {
@@ -255,12 +303,13 @@ public class Point implements java.io.Serializable {
 		else
 			return column;
 	}
-	
+
 	/**
 	 * 棋子在几线上？取高的。
+	 * 
 	 * @return
 	 */
-	
+
 	public int getMaxLine() {
 		int row;
 		int column;
@@ -276,5 +325,44 @@ public class Point implements java.io.Serializable {
 			return column;
 		else
 			return row;
+	}
+
+	public boolean isDiagonal(Point other) {
+		if (Math.abs(this.getRow() - other.getRow()) == 1
+				&& Math.abs(this.getColumn() - other.getColumn()) == 1) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isSameline(Point other) {
+		if (this.getRow() == other.getRow()
+				|| this.getColumn() == other.getColumn()) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 将点[4,16]规范为[4,4],易于识别出是星位。 [5,3]规范为[3,5],row<=column
+	 * 
+	 * @return
+	 */
+	public Point Normalize() {
+		int row, column;
+		if (this.getRow() > Constant.COORDINATEOFTIANYUAN) {
+			row = 20 - this.row;
+		} else {
+			row = this.row;
+		}
+		if (this.getColumn() > Constant.COORDINATEOFTIANYUAN) {
+			column = 20 - this.column;
+		} else {
+			column = this.column;
+		}
+		if (row <= column)
+			return Point.getPoint(row, column);
+		else
+			return Point.getPoint(column, row);
 	}
 }

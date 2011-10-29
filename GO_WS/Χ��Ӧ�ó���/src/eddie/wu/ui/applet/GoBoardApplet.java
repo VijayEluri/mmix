@@ -14,9 +14,9 @@ import java.awt.Image;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
-import eddie.wu.linkedblock.BoardColorState;
-import eddie.wu.linkedblock.GoBoard;
 
 /**
  * @author eddie
