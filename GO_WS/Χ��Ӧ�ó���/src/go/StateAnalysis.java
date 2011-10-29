@@ -11,11 +11,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import eddie.wu.domain.Block;
+import eddie.wu.domain.BoardPoint;
+import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
-import eddie.wu.linkedblock.BoardPoint;
 import eddie.wu.linkedblock.CS;
-import eddie.wu.linkedblock.ColorUtil;
 import eddie.wu.ui.RecordState;
 
 public class StateAnalysis {

@@ -1,9 +1,9 @@
 package go;
 
 import eddie.wu.domain.Block;
+import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
-import eddie.wu.linkedblock.ColorUtil;
 
 import java.util.Arrays;
 import java.util.Collections;

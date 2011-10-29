@@ -9,6 +9,7 @@ package eddie.wu.linkedblock;
 import java.util.ArrayList;
 import java.util.List;
 
+import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Point;
 
 /**

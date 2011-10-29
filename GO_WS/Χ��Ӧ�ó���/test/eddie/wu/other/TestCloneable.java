@@ -7,9 +7,9 @@
 package eddie.wu.other;
 
 import eddie.wu.domain.Block;
+import eddie.wu.domain.BoardPoint;
+import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Point;
-import eddie.wu.linkedblock.BoardPoint;
-import eddie.wu.linkedblock.ColorUtil;
 import junit.framework.TestCase;
 
 /**

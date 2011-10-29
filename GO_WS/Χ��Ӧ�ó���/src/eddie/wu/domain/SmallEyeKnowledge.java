@@ -3,7 +3,6 @@ package eddie.wu.domain;
 import java.util.HashMap;
 import java.util.Map;
 
-import eddie.wu.linkedblock.ColorUtil;
 
 public class SmallEyeKnowledge {
 	private static Map<BreathPattern, SurviveResult> map = new HashMap<BreathPattern, SurviveResult>();

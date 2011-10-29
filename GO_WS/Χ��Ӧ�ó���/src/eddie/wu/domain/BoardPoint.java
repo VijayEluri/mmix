@@ -4,13 +4,10 @@
 
 
  */
-package eddie.wu.linkedblock;
+package eddie.wu.domain;
 
 import java.io.Serializable;
 
-import eddie.wu.domain.Block;
-import eddie.wu.domain.Constant;
-import eddie.wu.domain.Point;
 
 /**
  * @author eddie

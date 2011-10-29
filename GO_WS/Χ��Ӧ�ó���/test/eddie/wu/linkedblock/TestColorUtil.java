@@ -5,6 +5,7 @@
 
  */
 package eddie.wu.linkedblock;
+import eddie.wu.domain.ColorUtil;
 import junit.framework.TestCase;
 /**
  * @author eddie

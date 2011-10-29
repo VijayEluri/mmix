@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import eddie.wu.domain.BoardPoint;
+import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Point;
 
 /**

@@ -4,7 +4,7 @@
 
 
  */
-package eddie.wu.linkedblock;
+package eddie.wu.domain;
 
 import com.sun.corba.se.impl.orbutil.closure.Constant;
 

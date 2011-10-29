@@ -2,7 +2,6 @@ package eddie.wu.domain;
 
 import java.util.Arrays;
 
-import eddie.wu.linkedblock.ColorUtil;
 
 /**
  * the first difficulty is that some time it is not enough to only consider

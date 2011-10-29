@@ -19,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import eddie.wu.domain.BoardPoint;
 import eddie.wu.domain.Point;
 import eddie.wu.search.ZhengZiCalculate;
 /**
