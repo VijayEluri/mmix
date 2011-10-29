@@ -58,9 +58,17 @@ public class Block extends BasicBlock implements Cloneable,
 	// private boolean breathBlock;
 	// private boolean sharedBreathBlock;
 	private boolean eyeBlock;
-
+	/**
+	 * only meaningful when it is an eye block.
+	 */
+	private boolean blackEye;
+	
 	public boolean isEyeBlock() {
 		return eyeBlock;
+	}
+	
+	public boolean isBlackEye(){
+		return blackEye;
 	}
 
 	// public boolean isSharedBreathBlock() {
@@ -216,8 +224,9 @@ public class Block extends BasicBlock implements Cloneable,
 		} else {
 			temp.append(color);
 			temp.append(",\r\nallPoints=");
-			// temp.append(allPoints);
-			temp.append(list);
+			temp.append(allPoints.size());
+			temp.append( ", representative=");
+			temp.append(this.getTopLeftPoint());
 			temp.append(", eyeBlock=" + this.eyeBlock);
 		}
 
@@ -246,8 +255,15 @@ public class Block extends BasicBlock implements Cloneable,
 		return false;
 	}
 
+	/**
+	 * To prevent the has code change after the block content change. we use as
+	 * less member as possible. to put it into a map, ensure the allPoints is
+	 * correctly initialized and will not change during map operation.
+	 */
 	public int hashCode() {
-		return this.allPoints.hashCode() + this.allBreathPoints.hashCode() * 17;
+		return this.allPoints.hashCode();
+		// return this.allPoints.hashCode() + this.allBreathPoints.hashCode() *
+		// 17;
 	}
 
 	/**
@@ -256,7 +272,7 @@ public class Block extends BasicBlock implements Cloneable,
 	public void changeColorToBlank() {
 		// TODO Auto-generated method stub
 		allBreathPoints.clear();
-		color = ColorUtil.BLANK_POINT;
+		color = ColorUtil.BLANK;
 		enemyBlocks = null;
 		breathBlocks = null;
 	}
@@ -361,5 +377,10 @@ public class Block extends BasicBlock implements Cloneable,
 			}
 		}
 		return includeCorner && 2 * count > allPoints.size();
+	}
+
+	public void setBlackEye(boolean hasBlack) {
+		this.blackEye = hasBlack;
+		
 	}
 }

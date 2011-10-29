@@ -46,7 +46,7 @@ public class StateLoader {
 			a = jmin.readByte();
 			b = jmin.readByte();
 			color = jmin.readByte();
-			an.add(new BoardPoint(new Point(b, a), color));
+			an.add(new BoardPoint(Point.getPoint(b, a), color));
 
 			if (a < 1 || a > 19 || b < 1 || b > 19 || color < 1 || color > 2) {
 				if (Constant.DEBUG_CGCL) {

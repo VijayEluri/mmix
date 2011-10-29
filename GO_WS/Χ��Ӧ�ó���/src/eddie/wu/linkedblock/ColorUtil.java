@@ -19,7 +19,7 @@ public class ColorUtil {
 	/**
 	 * color for single point
 	 */
-	public final static byte BLANK_POINT = eddie.wu.domain.Constant.BLANK; // 0表示空白点.
+	public final static byte BLANK = eddie.wu.domain.Constant.BLANK; // 0表示空白点.
 
 	public final static byte BLACK = eddie.wu.domain.Constant.BLACK; // 1表示黑子;
 

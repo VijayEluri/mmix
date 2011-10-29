@@ -39,6 +39,7 @@ public class RecordState extends Frame {
 	EmbedBoardCanvas embedCanvas = new EmbedBoardCanvas();
 	Label currentColor = new Label("current color");
 	TextField currentColorT = new TextField("Black");
+	
 
 	Button changeColor = new Button("ÇÐ»»ºÚ°×");
 	Button storeState = new Button("±£´æ¾ÖÃæ");
@@ -64,6 +65,8 @@ public class RecordState extends Frame {
 	public RecordState() {
 		embedCanvas.setState(state);	
 		changeColor.addActionListener(new ChangeColorActionListener());
+		currentColorT.setColumns(8);
+		currentColorT.setEditable(false);
 		loadState.addActionListener(new LoadStateActionListener(this));
 		storeState.addActionListener(new StoreStateActionListener(this));
 		clearBoard.addActionListener(new ClearBoardActionListener());

@@ -12,7 +12,7 @@ import java.awt.Event;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import eddie.wu.manual.LoadGoManual;
+import eddie.wu.manual.LoadGMDGoManual;
 import eddie.wu.ui.applet.GoApplet1;
 
 /**
@@ -32,7 +32,7 @@ extends GoApplet1 {
 
 	int count = 0;
 
-	byte[] temp = new LoadGoManual("../doc/Î§Æå´òÆ×Èí¼þ/").loadOneFromAllGoManual(1,453);
+	byte[] temp = new LoadGMDGoManual("../doc/Î§Æå´òÆ×Èí¼þ/").loadOneFromAllGoManual(1,453);
 
 	public void init() {
 		this.setBackground(Color.ORANGE);

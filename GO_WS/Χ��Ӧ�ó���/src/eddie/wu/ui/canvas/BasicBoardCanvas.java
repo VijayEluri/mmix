@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Event;
 import java.awt.Graphics;
 
+import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
 
 public class BasicBoardCanvas extends Canvas {
@@ -41,6 +42,7 @@ public class BasicBoardCanvas extends Canvas {
 
 	/**
 	 * default font is approximately 4*8.
+	 * 
 	 * @param g
 	 * @param row
 	 * @param column
@@ -48,19 +50,19 @@ public class BasicBoardCanvas extends Canvas {
 	 */
 	protected void drawMoveNumber_OneDigit(Graphics g, int row, int column,
 			int moveNumber) {
-		g.setColor(Color.green);
+
 		g.drawString("" + moveNumber, 28 * column - 13, 28 * row - 5);
 	}
 
 	protected void drawMoveNumber_TwoDigit(Graphics g, int row, int column,
 			int moveNumber) {
-		g.setColor(Color.green);
+
 		g.drawString("" + moveNumber, 28 * column - 17, 28 * row - 5);
 	}
-	
+
 	protected void drawMoveNumber_ThreeDigit(Graphics g, int row, int column,
 			int moveNumber) {
-		g.setColor(Color.green);
+
 		g.drawString("" + moveNumber, 28 * column - 21, 28 * row - 5);
 	}
 
@@ -68,8 +70,6 @@ public class BasicBoardCanvas extends Canvas {
 		g.setColor(Color.orange);
 		g.fillRect(0, 0, 560, 560);
 	}
-	
-	
 
 	public boolean mouseDown(Event e, int x, int y) {// 接受鼠标输入
 
@@ -96,11 +96,35 @@ public class BasicBoardCanvas extends Canvas {
 	}
 
 	protected void drawMoveNumber(Graphics g, Point point, int stepCount) {
+		g.setColor(Color.green);
+		_drawMoveNumber(g, point, stepCount);
+	}
+
+	/**
+	 * 反显手数。
+	 * @param g
+	 * @param point
+	 * @param stepCount
+	 * @param color
+	 */
+	protected void drawMoveNumber(Graphics g, Point point, int stepCount,
+			int color) {
+		if (color == Constant.BLACK)
+			g.setColor(Color.white);
+		else if (color == Constant.WHITE)
+			g.setColor(Color.black);
+		_drawMoveNumber(g, point, stepCount);
+	}
+
+	protected void _drawMoveNumber(Graphics g, Point point, int stepCount) {
 		if (stepCount < 10) {
 			drawMoveNumber_OneDigit(g, point.getRow(), point.getColumn(),
 					stepCount);
 		} else if (stepCount < 100) {
 			drawMoveNumber_TwoDigit(g, point.getRow(), point.getColumn(),
+					stepCount);
+		} else {
+			drawMoveNumber_ThreeDigit(g, point.getRow(), point.getColumn(),
 					stepCount);
 		}
 	}

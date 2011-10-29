@@ -69,7 +69,7 @@ public class ConvertGoManual {
 						";numberOfSymmetry="+simpleGoBoard.numberOfSymmetry());
 				a = row[i];
 				b = column[i];
-				point = new Point(a, b);
+				point = Point.getPoint(a, b);
 				if (point.isLeftTop()) {
 					if (a < b) {
 						backwardSlashLineConvert(row, column, i);

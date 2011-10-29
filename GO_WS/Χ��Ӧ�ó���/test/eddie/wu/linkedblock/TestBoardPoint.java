@@ -22,7 +22,7 @@ public class TestBoardPoint extends TestCase {
 	public void testEquals() {
 		
 		
-		Point a=new Point();
+		Point a=Point.getPoint(4,3);
 		a.setColumn((byte)4);
 		a.setRow((byte)3);
 		
@@ -31,8 +31,8 @@ public class TestBoardPoint extends TestCase {
 		assertEquals(a.getColumn(),b.getColumn());
 		assertEquals(a.getOneDimensionCoordinate(),b.getOneDimensionCoordinate());
 	
-		Point aa = new Point((byte) 5, (byte) 6);
-		Point bb = new Point((byte) 5, (byte) 6);		
+		Point aa = Point.getPoint((byte) 5, (byte) 6);
+		Point bb = Point.getPoint((byte) 5, (byte) 6);		
 		BoardPoint pointa=new BoardPoint();
 		BoardPoint pointb=new BoardPoint();
 		pointa.setPoint(aa);

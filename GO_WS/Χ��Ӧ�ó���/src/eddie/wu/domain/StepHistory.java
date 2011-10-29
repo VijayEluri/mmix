@@ -27,15 +27,27 @@ public class StepHistory implements java.io.Serializable {
 
 	List<StepMemo> allSteps = new ArrayList<StepMemo>(256);
 
+	public List<StepMemo> getAllSteps() {
+		return allSteps;
+	}
+
 	public void setStep(short shoushu, byte row, byte column, byte color) {
 		if (shoushu - 1 != allSteps.size()) {
-			throw new RuntimeException("Internal error: shoushu=" + shoushu
+			throw new RuntimeException("Internal error-setStep: shoushu=" + shoushu
 					+ ", step history size=" + allSteps.size());
 		}
 		StepMemo stepMemo = new StepMemo();
 		stepMemo.setColor(color);
 		stepMemo.setCurrentStepPoint(Point.getPoint(row, column));
 		allSteps.add(shoushu - 1, stepMemo);
+	}
+	
+	public StepMemo removeStep(short shoushu) {
+		if (shoushu  != allSteps.size()) {
+			throw new RuntimeException("Internal error-removeStep: shoushu=" + shoushu
+					+ ", step history size=" + allSteps.size());
+		}		
+		return allSteps.remove(shoushu-1);
 	}
 
 	/**
@@ -80,7 +92,7 @@ public class StepHistory implements java.io.Serializable {
 		return maxTotalPointsAfterWhite;
 	}
 
-	public StepMemo getStep(int shoushu) {
-		return allSteps.get(shoushu);
+	public StepMemo getStep(int index) {
+		return allSteps.get(index);
 	}
 }

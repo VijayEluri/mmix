@@ -23,7 +23,7 @@ public class BoardPoint implements Cloneable, Serializable {
 	private Point point;
 	private Point twinForKo;
 
-	private int color = ColorUtil.BLANK_POINT;
+	private int color = ColorUtil.BLANK;
 
 	/**
 	 * flag used in calculate breath and divide the blank point blank.
@@ -75,10 +75,13 @@ public class BoardPoint implements Cloneable, Serializable {
 
 	}
 
+	/**
+	 * default color is blank
+	 * @param point
+	 */
 	public BoardPoint(Point point) {
-		this(point, ColorUtil.BLANK_POINT);
+		this(point, ColorUtil.BLANK);
 	}
-	
 
 	public BoardPoint(Point point, int color) {
 		this.point = point;
@@ -187,31 +190,22 @@ public class BoardPoint implements Cloneable, Serializable {
 		return point.hashCode();
 	}
 
-	public boolean equals(Object o) {
-		if (o instanceof BoardPoint) {
-			BoardPoint other = (BoardPoint) o;
-			if (other.getColor() == color) {
-				if (other.getPoint().equals(point)) {
-					if (block == null) {
-						if (other.getBlock() != null) {
-							return false;
-						} else {
-							return true;
-						}
-					} else if (block.equals(other.getBlock())) {
-						return true;
-					}
-				} else {
-					return false;
-				}
-
-			} else {
-				return false;
-			}
-
+	public boolean equals(Object object) {
+		if (object instanceof BoardPoint == false) {
+			return false;
 		}
-		return false;
-
+		BoardPoint other = (BoardPoint) object;
+		if (other.getColor() != color) {
+			return false;
+		}
+		if (other.getPoint().equals(point)==false) {
+			return false;
+		}
+		if (block == null) {
+			return other.getBlock() == null;
+		} else {
+			return block.equals(other.getBlock());
+		}
 	}
 
 	public Object clone() {
@@ -226,7 +220,7 @@ public class BoardPoint implements Cloneable, Serializable {
 		return temp;
 	}
 
-	public boolean isLeftTop() {		
+	public boolean isLeftTop() {
 		return point.isLeftTop();
 	}
 

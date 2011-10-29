@@ -1,14 +1,14 @@
 package eddie.wu.domain;
 
 import junit.framework.TestCase;
-import eddie.wu.manual.LoadGoManual;
+import eddie.wu.manual.LoadGMDGoManual;
 import go.ActionAnalysis;
 
 public class TestActionAnalysis extends TestCase {
 	private static final String rootDir = "doc/Î§Æå´òÆ×Èí¼þ/";
 
 	public void test() {
-		byte[] temp = new LoadGoManual(rootDir).loadSingleGoManual();
+		byte[] temp = new LoadGMDGoManual(rootDir).loadSingleGoManual();
 		GoBoard go = new GoBoard();
 		for (int i = 0; i < temp.length / 2; i++) {
 			Step step = new Step();

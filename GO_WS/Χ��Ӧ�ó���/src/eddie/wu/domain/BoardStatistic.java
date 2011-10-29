@@ -1,6 +1,8 @@
 package eddie.wu.domain;
 
-public class BoardStatistic {
+import java.io.Serializable;
+
+public class BoardStatistic implements Serializable{
 	// 意义不大，不过顺带算出来，形势判断或许有用。
 	private byte numberOfWhitePointEaten = 0;
 

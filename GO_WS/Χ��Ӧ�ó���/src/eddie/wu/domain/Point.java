@@ -29,7 +29,7 @@ public class Point implements java.io.Serializable {
 	public static Point SANSAN;
 	public static Set<Point> sansans;// ÈýÈý
 	public static Point[][] points = new Point[OpeningAnalysis.BOARD_SIZE + 2][OpeningAnalysis.BOARD_SIZE + 2];
-	
+
 	/*
 	 * valid scope 1-19
 	 */
@@ -56,7 +56,7 @@ public class Point implements java.io.Serializable {
 
 	public boolean isBorder() {
 		Point p = this.Normalize();
-		return p.getRow() == 1 ;//|| p.getColumn() == 1
+		return p.getRow() == 1;// || p.getColumn() == 1
 	}
 
 	public boolean nearBorder() {
@@ -80,16 +80,16 @@ public class Point implements java.io.Serializable {
 		return points[row][column];
 	}
 
-	public Point() {
+	private Point() {
 
 	}
 
-	public Point(byte row, byte column) {
+	private Point(byte row, byte column) {
 		this.row = row;
 		this.column = column;
 	}
 
-	public Point(int row, int column) {
+	private Point(int row, int column) {
 		this.row = (byte) row;
 		this.column = (byte) column;
 	}
@@ -150,12 +150,22 @@ public class Point implements java.io.Serializable {
 				.getColumn());
 	}
 
+	/**
+	 * BUG FIX comments:<br/>
+	 * even the singleton pattern is used, it is not enough to ensure the
+	 * uniqueness. in the application, clone is used, and it will create another
+	 * Point instance with equal [row, column]
+	 */
 	public boolean equals(Object object) {
-		if (object instanceof Point) {
-			Point point = (Point) object;
-			return point == this;
-		} else
+		if (object instanceof Point == false) {
 			return false;
+		}
+		Point point = (Point) object;
+		if (point == this) {
+			return true;
+		} else {
+			return this.row == point.row && this.column == point.column;
+		}
 	}
 
 	public int hashCode() {
@@ -213,8 +223,6 @@ public class Point implements java.io.Serializable {
 		return !isValid();
 	}
 
-	
-
 	public Set<Point> getReflection() {
 		Point point = this;
 		int row = point.getRow();
@@ -223,16 +231,16 @@ public class Point implements java.io.Serializable {
 		points.add(point);
 		points.add(Point.getPoint(row, OpeningAnalysis.BOARD_SIZE + 1 - col));
 		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row, col));
-		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row, OpeningAnalysis.BOARD_SIZE
-				+ 1 - col));
+		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row,
+				OpeningAnalysis.BOARD_SIZE + 1 - col));
 
 		col = point.getRow();
 		row = point.getColumn();
 		points.add(Point.getPoint(row, col));
 		points.add(Point.getPoint(row, OpeningAnalysis.BOARD_SIZE + 1 - col));
 		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row, col));
-		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row, OpeningAnalysis.BOARD_SIZE
-				+ 1 - col));
+		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row,
+				OpeningAnalysis.BOARD_SIZE + 1 - col));
 		return points;
 	}
 

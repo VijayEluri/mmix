@@ -44,8 +44,6 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	// 两维是棋盘的坐标,数组下标从1到19;
 	private BoardPoint[][] boardPoints = new BoardPoint[Constant.SIZEOFMATRIX][Constant.SIZEOFMATRIX];
 
-	private Point[][] points = new Point[Constant.SIZEOFMATRIX][Constant.SIZEOFMATRIX];
-
 	// 气块和子块分开，气块是子块的附属。
 	private short shoushu = 0; // 当前已有手数,处理之前递增.从1开始;
 
@@ -53,53 +51,38 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 
 	private StepHistory stepHistory = new StepHistory();
 
-	public void initPoints() {
-		byte i, j;
-		for (i = 1; i < Constant.ZBSX; i++) {
-			for (j = 1; j < Constant.ZBSX; j++) {
-				points[i][j] = new Point(i, j);
-
-			}
-		}
-		log.debug("init points");
-	}
-
 	/**
 	 * 
 	 * really used Constructor.
 	 * 
 	 */
 	public GoBoard() {
-
-		byte i, j;
+		byte row, column;
 		Block originalBlankBlock = new Block();
-		for (i = 1; i < Constant.ZBSX; i++) {
-			for (j = 1; j < Constant.ZBSX; j++) {
-				points[i][j] = new Point(i, j);
-				boardPoints[i][j] = new BoardPoint(points[i][j]);
-				boardPoints[i][j].setBlock(originalBlankBlock);
-				originalBlankBlock.addPoint(points[i][j]);
-
+		for (row = 1; row < Constant.ZBSX; row++) {
+			for (column = 1; column < Constant.ZBSX; column++) {
+				Point point = Point.getPoint(row, column);
+				boardPoints[row][column] = new BoardPoint(point);
+				boardPoints[row][column].setBlock(originalBlankBlock);
+				originalBlankBlock.addPoint(point);
 			}
 		}
-		for (i = Constant.ZBXX; i <= Constant.ZBSX; i++) { // 2月22日加
-			points[Constant.ZBXX][i] = new Point(Constant.ZBXX, i);
-			points[Constant.ZBSX][i] = new Point(Constant.ZBSX, i);
-			points[i][Constant.ZBXX] = new Point(i, Constant.ZBXX);
-			points[i][Constant.ZBSX] = new Point(i, Constant.ZBSX);
-			boardPoints[Constant.ZBXX][i] = new BoardPoint(
-					points[Constant.ZBXX][i], (byte) ColorUtil.OutOfBound);
-			boardPoints[Constant.ZBSX][i] = new BoardPoint(
-					points[Constant.ZBSX][i], (byte) ColorUtil.OutOfBound);
-			boardPoints[i][Constant.ZBXX] = new BoardPoint(
-					points[i][Constant.ZBXX], (byte) ColorUtil.OutOfBound);
-			boardPoints[i][Constant.ZBSX] = new BoardPoint(
-					points[i][Constant.ZBSX], (byte) ColorUtil.OutOfBound);
+		for (row = Constant.ZBXX; row <= Constant.ZBSX; row++) {
+			boardPoints[row][Constant.ZBXX] = new BoardPoint(null,
+					ColorUtil.OutOfBound);
+			boardPoints[row][Constant.ZBSX] = new BoardPoint(null,
+					ColorUtil.OutOfBound);
+		} // 2月22日加
+		for (column = Constant.ZBXX; column <= Constant.ZBSX; column++) {
+			boardPoints[Constant.ZBXX][column] = new BoardPoint(null,
+					ColorUtil.OutOfBound);
+			boardPoints[Constant.ZBSX][column] = new BoardPoint(null,
+					ColorUtil.OutOfBound);
+
 		} // 2月22日加
 
 		if (log.isDebugEnabled()) {
 			log.debug("originalBlankBlock" + originalBlankBlock);
-
 		}
 	}
 
@@ -109,37 +92,21 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	 * 
 	 */
 	GoBoard(BoardColorState boardState, short numberOfSteps, boolean isBlackTurn) {
-		this();
-
-		final Set blackPoints = boardState.getBlackPoints();
-		final Set whitePoints = boardState.getWhitePoints();
-		Point tempPoint = null;
-		for (Iterator iter = blackPoints.iterator(); iter.hasNext();) {
-			tempPoint = (Point) iter.next();
-			boardPoints[tempPoint.getRow()][tempPoint.getColumn()]
-					.setColor(ColorUtil.BLACK);
-		}
-		for (Iterator iter = whitePoints.iterator(); iter.hasNext();) {
-			tempPoint = (Point) iter.next();
-			boardPoints[tempPoint.getRow()][tempPoint.getColumn()]
-					.setColor(ColorUtil.WHITE);
-		}
+		this(boardState, (int) numberOfSteps);
 		if (numberOfSteps % 2 == 0) {
 			if (isBlackTurn) {
 				this.shoushu = numberOfSteps;
-
 			} else {
 				throw new RuntimeException("whose turn is not right");
 			}
 		} else {
 			if (isBlackTurn) {
-
 				throw new RuntimeException("whose turn is not right");
 			} else {
 				this.shoushu = numberOfSteps;
 			}
 		}
-		// now the original block is not synchronized.
+
 	}
 
 	/**
@@ -148,17 +115,14 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	 */
 	public GoBoard(BoardColorState boardState, int numberOfSteps) {
 		this();
+		final Set<Point> blackPoints = boardState.getBlackPoints();
+		final Set<Point> whitePoints = boardState.getWhitePoints();
 
-		final Set blackPoints = boardState.getBlackPoints();
-		final Set whitePoints = boardState.getWhitePoints();
-		Point tempPoint = null;
-		for (Iterator iter = blackPoints.iterator(); iter.hasNext();) {
-			tempPoint = (Point) iter.next();
+		for (Point tempPoint : blackPoints) {
 			boardPoints[tempPoint.getRow()][tempPoint.getColumn()]
 					.setColor(ColorUtil.BLACK);
 		}
-		for (Iterator iter = whitePoints.iterator(); iter.hasNext();) {
-			tempPoint = (Point) iter.next();
+		for (Point tempPoint : whitePoints) {
 			boardPoints[tempPoint.getRow()][tempPoint.getColumn()]
 					.setColor(ColorUtil.WHITE);
 		}
@@ -172,21 +136,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	 * 
 	 */
 	public GoBoard(BoardColorState boardState) {
-		this();
-
-		final Set blackPoints = boardState.getBlackPoints();
-		final Set whitePoints = boardState.getWhitePoints();
-		Point tempPoint = null;
-		for (Iterator iter = blackPoints.iterator(); iter.hasNext();) {
-			tempPoint = (Point) iter.next();
-			boardPoints[tempPoint.getRow()][tempPoint.getColumn()]
-					.setColor(ColorUtil.BLACK);
-		}
-		for (Iterator iter = whitePoints.iterator(); iter.hasNext();) {
-			tempPoint = (Point) iter.next();
-			boardPoints[tempPoint.getRow()][tempPoint.getColumn()]
-					.setColor(ColorUtil.WHITE);
-		}
+		this(boardState, 0);
 
 	}
 
@@ -278,7 +228,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		for (byte i = 0; i < 4; i++) {
 			m = (byte) (row + Constant.szld[i][0]);
 			n = (byte) (column + Constant.szld[i][1]);
-			if (boardPoints[m][n].getColor() == ColorUtil.BLANK_POINT) {
+			if (boardPoints[m][n].getColor() == ColorUtil.BLANK) {
 				return true;
 			} else if (boardPoints[m][n].getColor() == enemyColor) {
 				if (boardPoints[m][n].getBreaths() == 1) {
@@ -311,7 +261,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	private boolean basicValidate(final byte row, final byte column) {
 		return row > Constant.ZBXX && row < Constant.ZBSX
 				&& column > Constant.ZBXX && column < Constant.ZBSX
-				&& boardPoints[row][column].getColor() == ColorUtil.BLANK_POINT;
+				&& boardPoints[row][column].getColor() == ColorUtil.BLANK;
 	}
 
 	/**
@@ -362,9 +312,9 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			addBreathForEatenPoint(boardPoint);
 			// sequence is important, must set color after deal with eaten
 			// point.
-			boardPoint.setColor(ColorUtil.BLANK_POINT);
+			boardPoint.setColor(ColorUtil.BLANK);
 		}
-		eaten.setColor(ColorUtil.BLANK_POINT);
+		eaten.setColor(ColorUtil.BLANK);
 		eaten.initAfterChangeToBlankblock();
 
 	}
@@ -442,9 +392,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		byte m, n;
 		byte j;
 
-		for (java.util.Iterator iter = block.getAllPoints().iterator(); iter
-				.hasNext();) {
-			Point point = (Point) iter.next();
+		for (Point point: block.getAllPoints()) {			
 			m = point.getRow();
 			n = point.getColumn();
 
@@ -452,12 +400,10 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 				a = (byte) (m + Constant.szld[j][0]);
 				b = (byte) (n + Constant.szld[j][1]);
 				if (log.isDebugEnabled()) {
-					log.debug("a=" + a);
-				}
-				if (log.isDebugEnabled()) {
+					log.debug("a=" + a);				
 					log.debug("b=" + b);
 				}
-				if (boardPoints[a][b].getColor() == ColorUtil.BLANK_POINT
+				if (boardPoints[a][b].getColor() == ColorUtil.BLANK
 						&& boardPoints[a][b].isCalculatedFlag() == false) {
 					// tempBreath++;
 
@@ -468,7 +414,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 						log.debug("add breath for block:"
 								+ block.getTopLeftPoint());
 					}
-					block.addBreathPoint(points[a][b]);
+					block.addBreathPoint(Point.getPoint(a, b));
 
 				}
 
@@ -517,7 +463,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 
 	private Point lastPoint;
 
-	boolean oneStepForward(final Point point) {
+	public boolean oneStepForward(final Point point) {
 		final byte row = point.getRow();
 		final byte column = point.getColumn();
 		lastPoint = point;
@@ -548,6 +494,13 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	public boolean oneStepBackward(final Point point) {
 		return this.oneStepBackward(point.getRow(), point.getColumn());
 	}
+	
+	public boolean oneStepBackward() {
+		int index = getStepHistory().getAllSteps().size()-1;
+		StepMemo memo = this.getStepHistory().getAllSteps().get(index );
+		Point step = memo.getCurrentStepPoint();
+		return oneStepBackward(step.getRow(),step.getColumn());
+	}
 
 	/**
 	 * 打谱用的。
@@ -558,9 +511,9 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	 */
 	public boolean oneStepBackward(final int row, final int column) {
 
-		BoardPoint boardPoint = this.getBoardPoint(row, column);
-		BoardPoint enemyPoint;
-		BoardPoint enemyNeighborPoint;
+		BoardPoint boardPoint = this.getBoardPoint(row, column);		
+		BoardPoint neighborP;
+		BoardPoint enemyNeighborP;
 		int myColor = boardPoint.getColor();
 		int enemyColor = ColorUtil.enemyColor(myColor);
 		int m1, n1;
@@ -569,40 +522,107 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		for (int i = 0; i < 4; i++) {
 			m1 = (row + Constant.szld[i][0]);
 			n1 = (column + Constant.szld[i][1]);
-			enemyPoint = boardPoints[m1][n1];
-			if (enemyPoint.getColor() == enemyColor) {
-				enemyPoint.getBlock().addBreathPoint(boardPoint.getPoint());
+			neighborP = boardPoints[m1][n1];
+			if (neighborP.getColor() == enemyColor) {
+				neighborP.getBlock().addBreathPoint(boardPoint.getPoint());
 			}
 		}
-
+		StepMemo memo = this.getStepHistory().removeStep(shoushu);
 		shoushu--;
-		StepMemo memo = this.getStepHistory().getStep(shoushu);
+		//this.getStepHistory().getStep(shoushu);
 		recal.addAll(memo.getEatenBlocks());
 		recal.addAll(memo.getMergedBlocks());
 
+		// 处理被提吃的棋块。
 		for (Block eatenB : memo.getEatenBlocks()) {
 			for (Point eatenP : eatenB.allPoints) {
+				this.getBoardPoint(eatenP).setColor(enemyColor);
 				this.getBoardPoint(eatenP).setBlock(eatenB);
 				for (int i = 0; i < 4; i++) {
 					m1 = (eatenP.getRow() + Constant.szld[i][0]);
 					n1 = (eatenP.getColumn() + Constant.szld[i][1]);
-					enemyNeighborPoint = boardPoints[m1][n1];
-					if (enemyNeighborPoint.getColor() == myColor) {
-						recal.add(enemyNeighborPoint.getBlock());
+					enemyNeighborP = boardPoints[m1][n1];
+					if (enemyNeighborP.getColor() == myColor) {
+						recal.add(enemyNeighborP.getBlock());
 					}
 				}
 			}
 		}
+		// 处理被合并的棋块。
 		for (Block mergedB : memo.getMergedBlocks()) {
 			for (Point mergedP : mergedB.allPoints) {
 				this.getBoardPoint(mergedP).setBlock(mergedB);
 			}
 		}
 
+		// 更新必要的棋块的气数。
 		for (Block recalB : recal) {
 			this.calculateBreath(recalB);
 		}
 
+		// 合并气块。
+		
+		Block blankB = new Block();
+		Point point = boardPoint.getPoint();
+		if(row==3&&column==14){
+			System.out.println(point);
+		}
+		Set<Point> representatives = new HashSet<Point>();
+		for (int i = 0; i < 4; i++) {
+			m1 = (row + Constant.szld[i][0]);
+			n1 = (column + Constant.szld[i][1]);
+			neighborP = boardPoints[m1][n1];
+			if (neighborP.getColor() == Constant.BLANK) {
+				representatives.add(neighborP.getPoint());
+			}
+		}
+		if (representatives.isEmpty()) {// 恢复单点块
+			blankB.addPoint(point);
+			boardPoint.setBlock(blankB);
+		} else if (representatives.size() == 1) {
+			//reuse existing block
+			blankB = getBlock(representatives.iterator().next());
+			blankB.addPoint(point);
+			boardPoint.setBlock(blankB);
+		} else {
+			for (Point representative : representatives) {
+				blankB.addPoints(getBlock(representative));
+			}
+			blankB.addPoint(point);
+			for (Point blankP : blankB.getAllPoints()) {
+				this.getBoardPoint(blankP).setBlock(blankB);
+			}
+		}
+		
+		boolean hasBlack = false;
+		boolean hasWhite = false;
+
+		for (Point blankP : blankB.getAllPoints()) {			
+			for (int i = 0; i < 4; i++) {
+				m1 = blankP.getRow() + Constant.szld[i][0];
+				n1 = blankP.getColumn() + Constant.szld[i][1];
+				neighborP = boardPoints[m1][n1];
+				if (neighborP.getColor() == Constant.BLACK) {
+					hasBlack = true;
+				}
+				if (neighborP.getColor() == Constant.WHITE) {
+					hasWhite = true;
+				}
+			}
+		}
+		if ((hasWhite == true && hasBlack == false)
+				|| (hasWhite == false && hasBlack == true)) {
+			blankB.setEyeBlock(true);
+		}
+		
+		boardPoint.setColor(Constant.BLANK);
+		
+		// }
+		// for (Block dividedB : memo.getDividedBlocks()) {
+		// for (Point mergedP : mergedB.allPoints) {
+		// this.getBoardPoint(mergedP).setBlock(mergedB);
+		// }
+		// }
 		return true;
 	}
 
@@ -724,7 +744,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 				temp.setProhibitStep((short) (shoushu + 1));
 				// 将互为打劫的两点联系在一起.
 				this.getBoardPoint(row, column).setTwinForKo(tempPoint);
-				temp.setTwinForKo(this.getPoint(row, column));
+				temp.setTwinForKo(Point.getPoint(row, column));
 
 			} else {
 				if (log.isDebugEnabled()) {
@@ -741,6 +761,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	 * @param column
 	 */
 	private void dealBlankPoint(final byte row, final byte column) {
+		Point point = Point.getPoint(row, column);
 		byte m1;
 		byte n1;
 		byte i;
@@ -752,8 +773,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			log.debug("落子点所在空白子数为：" + blankPointBlock.getTotalNumberOfPoint());
 			log.debug(boardPoints[row][column].getBlock().toString());
 		}
-		boolean removeSuccess = blankPointBlock
-				.removePoint(points[row][column]);
+		boolean removeSuccess = blankPointBlock.removePoint(point);
 		if (log.isDebugEnabled()) {
 			log.debug("does fail or success to delete " + removeSuccess);
 		}
@@ -763,25 +783,25 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			log.debug(boardPoints[row][column].getBlock().toString());
 			// 原气块落子后的子数；
 		}
-		if (blankPointBlock.getTotalNumberOfPoint() == 0) {
+		if (blankPointBlock.getTotalNumberOfPoint() == 0) {// 粘上
 			boardPoints[row][column].setBlock(null);
 		} else {
-			if (blankPointBlock.getColor() == ColorUtil.BLANK_POINT) {
+			if (blankPointBlock.getColor() == ColorUtil.BLANK) {
 				if (log.isDebugEnabled()) {
 					log.debug("点眼!---");
 				}
 			}
 			List<Point> blankPoint = new ArrayList<Point>(5);
-			blankPoint.add(points[row][column]);
+			blankPoint.add(point);
 			if (log.isDebugEnabled()) {
 				log.debug("一、记录直接气。直接气点为");
 			}
 			for (i = 0; i < 4; i++) { // 直接的气，而非提子生成的气。
 				m1 = (byte) (row + Constant.szld[i][0]);
 				n1 = (byte) (column + Constant.szld[i][1]);
-				if (boardPoints[m1][n1].getColor() == ColorUtil.BLANK_POINT) {
+				if (boardPoints[m1][n1].getColor() == ColorUtil.BLANK) {
 					// 2.1the breath of blank
-					blankPoint.add(points[m1][n1]);
+					blankPoint.add(Point.getPoint(m1, n1));
 				}
 			}
 			if (log.isDebugEnabled()) {
@@ -837,7 +857,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 								+ boardPoints[m1][n1].getBlock()
 										.getTopLeftPoint());
 					}
-					this.getStepHistory().getStep(shoushu-1)
+					this.getStepHistory().getStep(shoushu - 1)
 							.addEatenBlock(tempEnemyBlock);
 					dealEatenBlock(row, column, m1, n1);
 					// TODO:生成新的二级块，周围的块有指针指向该二级块。
@@ -871,7 +891,8 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		// TODO:record these bugs
 		// boardPoints[m1][n1].getBlock().removeBreathPoint(points[m1][n1]);
 		// fix a big bug.--20050807. number 1 gomanual 97th step error.
-		boardPoints[m1][n1].getBlock().removeBreathPoint(points[row][column]);
+		boardPoints[m1][n1].getBlock().removeBreathPoint(
+				Point.getPoint(row, column));
 		boardPoints[m1][n1].getBlock().addEnemyBlock(sameColorBlock);
 		sameColorBlock.addEnemyBlock(boardPoints[m1][n1].getBlock());
 		if (log.isDebugEnabled()) {
@@ -902,7 +923,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			log.debug("形成新的气块；");
 		}
 		boardPoints[m1][n1].getBlock().changeColorToBlank();
-		boardPoints[m1][n1].setColor(ColorUtil.BLANK_POINT);
+		boardPoints[m1][n1].setColor(ColorUtil.BLANK);
 
 		boardPoints[row][column].getBlock().addBreathBlock(
 				boardPoints[m1][n1].getBlock());
@@ -930,7 +951,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		Block sameColorBlock = new Block();
 
 		boardPoints[row][column].setBlock(sameColorBlock);
-		sameColorBlock.addPoint(points[row][column]);
+		sameColorBlock.addPoint(Point.getPoint(row, column));
 		sameColorBlock.setColor(selfColor);
 		// if (selfColor == ColorUtil.BLACK) {
 		// this.blackBlocks.add(sameColorBlock);
@@ -950,7 +971,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 					log.debug("同色点：a=" + m1 + ",b=" + n1);
 				}
 
-				sameColorBlock.addPoint(boardPoints[m1][n1].getBlock());
+				sameColorBlock.addPoints(boardPoints[m1][n1].getBlock());
 				changeColorForAllPoints(boardPoints[m1][n1].getBlock(),
 						sameColorBlock);
 				boardPoints[m1][n1].getBlock().changeBlockForEnemyBlock(
@@ -973,11 +994,11 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		for (i = 1; i < 20; i++) {
 			for (j = 1; j < 20; j++) {
 				if (boardPoints[i][j].isCalculatedFlag()) {
-					if (log.isDebugEnabled()) {
-						log.debug("Flag Error: [" + i + "," + j + "]");
-					}
-					boardPoints[i][j].setCalculatedFlag(false);
-					throw new RuntimeException("Flag Error");
+					String string = "Flag Error: [" + i + "," + j + "]";
+					if (log.isErrorEnabled()) {						
+						log.error(string);
+					}					
+					throw new RuntimeException(string);
 				}
 			}
 		}
@@ -997,10 +1018,12 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	}
 
 	/**
-	 * 落子后导致原先的空白块可能分裂.
+	 * 落子后导致原先的空白块可能分裂.<br/>
+	 * 复杂的处理主要是为了避免不必要的分裂棋块的尝试。尤其在开局有一个非常大的原始棋块的情况下。<br/>
+	 * 但是可能处理的过头了，细节过多。
 	 * 
 	 * @param blankPoint
-	 *            List 0: the original point--step location 1 .... neighbour
+	 *            List 0: the original point--step location 1 .... neighbor
 	 *            blank point
 	 */
 	private void divideBlankPointBlock(List<Point> blankPoint) {
@@ -1008,25 +1031,18 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		byte row = ((Point) blankPoint.get(0)).getRow();
 		byte column = ((Point) blankPoint.get(0)).getColumn();
 		// necessary!
-		boardPoints[row][column].setCalculatedFlag(true);
-		// TODO:now is not suitable to access like this
-		int numberOfBlankPoints = boardPoints[row][column].getBlock()
-				.getTotalNumberOfPoint();
+		boardPoints[row][column].setCalculatedFlag(true);		
 		/* 11月22日，first处理气块的生成(divide) */
-		byte m1, n1, m2, n2, m3, n3, m4, n4, x, y;
+		byte m1, n1, m2, n2, m3, n3,  x, y;
 		switch ((blankPoint.size() - 1)) {
 
 		case 1: {
 			if (log.isDebugEnabled()) {
 				log.debug("直接气数为1，没有新块生成。");
 			}
-			// only consider breath block, not other blank point block.
-			// zikuai[zikuaishu].addqikuaihao(yuanqikuaisuoyin);
 			break;
 		}
-			/*
-		 * 
-		 */
+			
 		case 2: {
 			if (log.isDebugEnabled()) {
 				log.debug("直接气数为2，");
@@ -1047,7 +1063,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 				}
 				x = (byte) (m1 + m2 - row);
 				y = (byte) (n1 + n2 - column);
-				if (boardPoints[x][y].getColor() == ColorUtil.BLANK_POINT) {
+				if (boardPoints[x][y].getColor() == ColorUtil.BLANK) {
 					if (log.isDebugEnabled()) {
 						log.debug("对角点为空，没有新块生成。");
 					}
@@ -1078,7 +1094,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			} else {
 				x = (byte) (m1 + m2 - row);
 				y = (byte) (n1 + n2 - column);
-				if (boardPoints[x][y].getColor() == ColorUtil.BLANK_POINT) {
+				if (boardPoints[x][y].getColor() == ColorUtil.BLANK) {
 					lianjieshu++;
 				} else if (jgzs(x, y) == 1) {
 					lianjieshu++;
@@ -1090,7 +1106,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			} else {
 				x = (byte) (m1 + m3 - row);
 				y = (byte) (n1 + n3 - column);
-				if (boardPoints[x][y].getColor() == ColorUtil.BLANK_POINT) {
+				if (boardPoints[x][y].getColor() == ColorUtil.BLANK) {
 					lianjieshu++;
 
 				} else if (jgzs(x, y) == 1) {
@@ -1104,7 +1120,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			} else {
 				x = (byte) (m2 + m3 - row);
 				y = (byte) (n2 + n3 - column);
-				if (boardPoints[x][y].getColor() == ColorUtil.BLANK_POINT) {
+				if (boardPoints[x][y].getColor() == ColorUtil.BLANK) {
 					lianjieshu++;
 				} else if (jgzs(x, y) == 1) {
 					lianjieshu++;
@@ -1128,7 +1144,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			for (byte bianli = 0; bianli < 4; bianli++) {
 				m1 = (byte) (row + Constant.szdjd[bianli][0]);
 				n1 = (byte) (column + Constant.szdjd[bianli][1]);
-				if (boardPoints[m1][n1].getColor() == ColorUtil.BLANK_POINT) {
+				if (boardPoints[m1][n1].getColor() == ColorUtil.BLANK) {
 					lianjieshu++;
 					// 通过对角点连接
 				} else if (jgzs(m1, n1) == 1) {
@@ -1171,7 +1187,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		for (i = 0; i < 4; i++) {
 			a = (byte) (m + Constant.szld[i][0]);
 			b = (byte) (n + Constant.szld[i][1]);
-			if (boardPoints[a][b].getColor() != ColorUtil.BLANK_POINT) { // 2.1the
+			if (boardPoints[a][b].getColor() != ColorUtil.BLANK) { // 2.1the
 				// breath
 				// of
 				// blank
@@ -1181,7 +1197,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		for (i = 0; i < 4; i++) {
 			a = (byte) (m + Constant.szdjd[i][0]);
 			b = (byte) (n + Constant.szdjd[i][1]);
-			if (boardPoints[a][b].getColor() != ColorUtil.BLANK_POINT) { // 2.1the
+			if (boardPoints[a][b].getColor() != ColorUtil.BLANK) { // 2.1the
 				// breath
 				// of
 				// blank
@@ -1193,18 +1209,12 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 
 	}
 
-	private short makeBlankPointBlock(byte a, byte b, Block newBlock) {
+	private short makeBlankPointBlock(final byte a, final byte b, Block newBlock) {
 		// 因为形势判断调用时无需每次调用都清除标志，所以
 		// 函数本身不清除标志。
 		byte m1, n1;
 
-		newBlock.addPoint(points[a][b]);
-		// if (log.isDebugEnabled()) {
-		// log.debug("气块增加点：" + a + "/" + b);
-		// }
-		// if (shoushu==145) {
-		// log.debug("气块增加点：" + a + "/" + b);
-		// }
+		newBlock.addPoint(Point.getPoint(a, b));
 		boardPoints[a][b].setCalculatedFlag(true);
 		boardPoints[a][b].setBlock(newBlock);
 
@@ -1215,7 +1225,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 				continue;
 			}
 
-			if (boardPoints[m1][n1].getColor() == ColorUtil.BLANK_POINT) {
+			if (boardPoints[m1][n1].getColor() == ColorUtil.BLANK) {
 				makeBlankPointBlock(m1, n1, newBlock);
 
 			} else if (boardPoints[m1][n1].getColor() == ColorUtil.BLACK
@@ -1225,7 +1235,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			}
 		}
 		return newBlock.getTotalNumberOfPoint();
-	} // 成块的点SQBZXB==1;
+	}
 
 	/**
 	 * general make Block
@@ -1241,7 +1251,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		// 函数本身不清除标志。
 		byte m1, n1;
 
-		newBlock.addPoint(points[a][b]);
+		newBlock.addPoint(Point.getPoint(a, b));
 		// if (log.isDebugEnabled()) {
 		// log.debug("气块增加点：" + a + "/" + b);
 		// }
@@ -1262,10 +1272,6 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			}
 		}
 		return newBlock.getTotalNumberOfPoint();
-	}
-
-	private Point getPoint(int row, int column) {
-		return boardPoints[row][column].getPoint();
 	}
 
 	public BoardPoint getBoardPoint(int row, int column) {
@@ -1306,15 +1312,17 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 				.getTotalNumberOfPoint();
 		// 20050523 fix bug
 		// this.blankPointBlocks.remove(boardPoints[row][column].getBlock());
+
+		// 最多分裂为四块。
 		Block[] newBlock = new Block[5];
 		newBlock[1] = new Block();
 		newBlock[2] = new Block();
 		newBlock[3] = new Block();
 		newBlock[4] = new Block();
-		// for (byte bianli = 1; bianli <= blankPoint.size(); bianli++) {
+
 		for (byte bianli = 1; bianli < blankPoint.size(); bianli++) {
-			m1 = ((Point) blankPoint.get(bianli)).getRow();
-			n1 = ((Point) blankPoint.get(bianli)).getColumn();
+			m1 = blankPoint.get(bianli).getRow();
+			n1 = blankPoint.get(bianli).getColumn();
 
 			// bug fix for number inconsistent begin!
 			if (boardPoints[m1][n1].isCalculatedFlag()) {
@@ -1323,17 +1331,17 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			// bug fix for number inconsistent end!
 
 			zishujishu += makeBlankPointBlock(m1, n1, newBlock[bianli]);
-			// if (zishujishu == numberOfBlankPoints) { // 已经扫描完毕
-			// this.blankPointBlocks.add(newBlock[bianli]);
-			// return;
-			//
-			// }
+			if(log.isWarnEnabled()){
+				log.warn("New blnak block generated:"+newBlock[bianli].getTopLeftPoint());
+			}
 		}
+		
+		
 		if (zishujishu != numberOfBlankPoints) {
 
 			for (int ii = 1; ii < 20; ii++) {
 				for (int jj = 1; jj < 20; jj++) {
-					if (boardPoints[ii][jj].getColor() == ColorUtil.BLANK_POINT
+					if (boardPoints[ii][jj].getColor() == ColorUtil.BLANK
 							&& !newBlock[1].getAllPoints().contains(
 									boardPoints[ii][jj])) {
 						log.debug("ii=" + ii + ",jj=" + jj + "state="
@@ -1638,12 +1646,11 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 								+ boardPoints[j][i].getBlock().hashCode());
 					}
 					whiteBlocks.add(boardPoints[j][i].getBlock());
-				} else if (boardPoints[j][i].getColor() == ColorUtil.BLANK_POINT) {
+				} else if (boardPoints[j][i].getColor() == ColorUtil.BLANK) {
 					if (log.isDebugEnabled()) {
 						log.debug("blank:j=" + j + "," + "i=" + i);
 					}
-					makeBlock(j, i, ColorUtil.BLANK_POINT, new Block(
-							ColorUtil.BLANK_POINT));
+					makeBlock(j, i, ColorUtil.BLANK, new Block(ColorUtil.BLANK));
 					if (log.isDebugEnabled()) {
 						log.debug("added block:" + boardPoints[j][i].getBlock());
 						log.debug("hashcode of added block"
@@ -1663,7 +1670,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	 * 
 	 * @return Set
 	 */
-	public Set<Block> getBlackBlocksFromState() {
+	public Set<Block> getBlackBlocks() {
 
 		return getSetFromState(ColorUtil.BLACK);
 	}
@@ -1673,13 +1680,12 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	 * 
 	 * @return Set
 	 */
-	public Set<Block> getBlankPointBlocksFromState() {
-		return getSetFromState(ColorUtil.BLANK_POINT);
+	public Set<Block> getBlankBlocks() {
+		return getSetFromState(ColorUtil.BLANK);
 	}
 
-	Set<Block> blocks = new HashSet<Block>();
-
 	public Set<Block> getSetFromState(int color) {
+		Set<Block> blocks = new HashSet<Block>();
 		Block temp = null;
 		for (int i = 1; i <= 19; i++) {
 			for (int j = 1; j <= 19; j++) {
@@ -1722,7 +1728,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	 * 
 	 * @return Set
 	 */
-	public Set<Block> getWhiteBlocksFromState() {
+	public Set<Block> getWhiteBlocks() {
 		return getSetFromState(ColorUtil.WHITE);
 	}
 
@@ -2186,14 +2192,14 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 			// points[Constant.ZBSX][i] = new Point(Constant.ZBSX, i);
 			// points[i][Constant.ZBXX] = new Point(i, Constant.ZBXX);
 			// points[i][Constant.ZBSX] = new Point(i, Constant.ZBSX);
-			boardPoints[Constant.ZBXX][i] = new BoardPoint(
-					points[Constant.ZBXX][i], (byte) ColorUtil.OutOfBound);
-			boardPoints[Constant.ZBSX][i] = new BoardPoint(
-					points[Constant.ZBSX][i], (byte) ColorUtil.OutOfBound);
-			boardPoints[i][Constant.ZBXX] = new BoardPoint(
-					points[i][Constant.ZBXX], (byte) ColorUtil.OutOfBound);
-			boardPoints[i][Constant.ZBSX] = new BoardPoint(
-					points[i][Constant.ZBSX], (byte) ColorUtil.OutOfBound);
+			boardPoints[Constant.ZBXX][i] = new BoardPoint(null,
+					(byte) ColorUtil.OutOfBound);
+			boardPoints[Constant.ZBSX][i] = new BoardPoint(null,
+					(byte) ColorUtil.OutOfBound);
+			boardPoints[i][Constant.ZBXX] = new BoardPoint(null,
+					(byte) ColorUtil.OutOfBound);
+			boardPoints[i][Constant.ZBSX] = new BoardPoint(null,
+					(byte) ColorUtil.OutOfBound);
 		}
 		for (i = 1; i <= 19; i++) {
 			for (j = 1; j <= 19; j++) {
@@ -2242,7 +2248,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	public int pointsInVerticalLine() {
 		int count = 0;
 		for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-			if (boardPoints[i][Constant.COORDINATEOFTIANYUAN].getColor() != ColorUtil.BLANK_POINT) {
+			if (boardPoints[i][Constant.COORDINATEOFTIANYUAN].getColor() != ColorUtil.BLANK) {
 				count++;
 			}
 		}
@@ -2252,7 +2258,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	public int pointsInForwardSlashLine() {
 		int count = 0;
 		for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-			if (boardPoints[Constant.SIZEOFBOARD + 1 - i][i].getColor() != ColorUtil.BLANK_POINT) {
+			if (boardPoints[Constant.SIZEOFBOARD + 1 - i][i].getColor() != ColorUtil.BLANK) {
 				count++;
 			}
 		}
@@ -2262,7 +2268,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	public int pointsInBackwardSlashLine() {
 		int count = 0;
 		for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-			if (boardPoints[i][i].getColor() != ColorUtil.BLANK_POINT) {
+			if (boardPoints[i][i].getColor() != ColorUtil.BLANK) {
 				count++;
 			}
 		}
@@ -2272,7 +2278,7 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	public int pointsInHorizontalLine() {
 		int count = 0;
 		for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-			if (boardPoints[Constant.COORDINATEOFTIANYUAN][i].getColor() != ColorUtil.BLANK_POINT) {
+			if (boardPoints[Constant.COORDINATEOFTIANYUAN][i].getColor() != ColorUtil.BLANK) {
 				count++;
 			}
 		}
@@ -2396,7 +2402,10 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 
 	/**
 	 * The clone done by serialization/deserialization
+	 * 原先的想法是通过clone来复制局面，避免重新生成局面的数据结构。<br/>
+	 * 现在觉得这样性能未必好（通用序列号框架实现带来性能开销），而且代码复杂，不好维护。
 	 * 
+	 * @deprecated during clone, the Block of boradPoint is initial
 	 * @return
 	 */
 	public GoBoard deepClone() {
@@ -2419,14 +2428,6 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 
 	}
 
-	public Point[][] getPoints() {
-		return points;
-	}
-
-	public void setPoints(Point[][] points) {
-		this.points = points;
-	}
-
 	public short getShoushu() {
 		return shoushu;
 	}
@@ -2442,14 +2443,18 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 	public boolean equals(Object object) {
 		if (object instanceof GoBoard) {
 			GoBoard goBoard = (GoBoard) object;
-			for (int ii = 1; ii < Constant.ZBSX; ii++) {
-				for (int j = 1; j < Constant.ZBSX; j++) {
-					if (boardPoints[ii][j] == null) {
-						if (goBoard.boardPoints[ii][j] != null) {
+			for (int row = 1; row < Constant.ZBSX; row++) {
+				for (int column = 1; column < Constant.ZBSX; column++) {
+					if (boardPoints[row][column] == null) {
+						if (goBoard.boardPoints[row][column] != null) {
+							System.out.println("null==false at [row=" + row
+									+ ", column=" + column + "]");
 							return false;
 						}
-					} else if (!boardPoints[ii][j]
-							.equals(goBoard.boardPoints[ii][j])) {
+					} else if (!boardPoints[row][column]
+							.equals(goBoard.boardPoints[row][column])) {
+						System.out.println("equal==false at [row=" + row
+								+ ", column=" + column + "]");
 						return false;
 					}
 				}
@@ -2796,4 +2801,5 @@ public class GoBoard implements Cloneable, Serializable, GoBoardInterface,
 		}
 		return list;
 	}
+
 }

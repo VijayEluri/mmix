@@ -259,7 +259,7 @@ public class ZhengZiJiSuanFrame extends Frame {
 	            //m1= Integer.valueOf(zuobiaoa.getText()).byteValue();
 	            n1 = (byte) Integer.parseInt(zuobiaob.getText());
             }
-            BoardPoint point=new BoardPoint(new Point(m1,n1));
+            BoardPoint point=new BoardPoint(Point.getPoint(m1,n1));
             if(!point.isValidCoordinate()){
             	return;
             	
@@ -272,15 +272,15 @@ public class ZhengZiJiSuanFrame extends Frame {
                     .getStateArray());
             System.out.print("state"+state);
             GoBoard linkedBlockGoBoard = new GoBoard(state);
-            System.out.print("points"+linkedBlockGoBoard.getPoints());
-            System.out.println("points"+linkedBlockGoBoard.getPoints()[16	][14]);
-            System.out.println("points"+linkedBlockGoBoard.getPoints()[16	][13]);
-            System.out.println("points"+linkedBlockGoBoard.getPoints()[16	][15]);
+           
+            System.out.println("points"+Point.getPoint(16,14));
+            System.out.println("points"+Point.getPoint(16,13));
+            System.out.println("points"+Point.getPoint(16,15));
             
             
             linkedBlockGoBoard.generateHighLevelState();
-            System.out.println("black Block"+linkedBlockGoBoard.getBlackBlocksFromState());
-            System.out.println("white Block"+linkedBlockGoBoard.getWhiteBlocksFromState());
+            System.out.println("black Block"+linkedBlockGoBoard.getBlackBlocks());
+            System.out.println("white Block"+linkedBlockGoBoard.getWhiteBlocks());
             //result = linkedBlockGoBoard.jiSuanZhengZi(m1, n1);
             //result = linkedBlockGoBoard.jisuanzhengziWithClone(m1, n1);
             

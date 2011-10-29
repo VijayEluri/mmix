@@ -94,7 +94,7 @@ public class StateAnalysis {
 		for (i = 1; i < 20; i++) {
 			for (j = 1; j < 20; j++) {
 				block = boardPoints[i][j].getBlock();
-				if (block.getColor() == ColorUtil.BLANK_POINT) {
+				if (block.getColor() == ColorUtil.BLANK) {
 					if (sharedBlankBlocks.contains(block))
 						continue;
 					if (eyeBlocks.contains(block))
@@ -186,11 +186,12 @@ public class StateAnalysis {
 		if (hasBlack && hasWhite) {// 公气块
 			sharedBlankBlocks.add(block);
 			block.setEyeBlock(false);
-		} else if (hasBlack == false && hasWhite == false) {// 公气块
+		} else if (hasBlack == false && hasWhite == false) {
 			// 棋盘初始状态。
 		} else {// 眼位气块
 			eyeBlocks.add(block);
 			block.setEyeBlock(true);
+			block.setBlackEye(hasBlack);
 		}
 
 		if (hasWhite) {
@@ -252,7 +253,7 @@ public class StateAnalysis {
 					for (int i = 0; i < 4; i++) {
 						row = point.getRow() + Constant.szld[i][0];
 						column = point.getRow() + Constant.szld[i][1];
-						if (state[row][column] == ColorUtil.BLANK_POINT) {
+						if (state[row][column] == ColorUtil.BLANK) {
 
 						}
 					}

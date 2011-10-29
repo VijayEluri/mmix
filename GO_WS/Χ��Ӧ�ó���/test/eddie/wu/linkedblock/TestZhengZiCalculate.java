@@ -37,7 +37,7 @@ public class TestZhengZiCalculate extends TestCase {
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 
 		logger.setLevel(Level.DEBUG);
-		Point point = new Point(16, 14);
+		Point point = Point.getPoint(16, 14);
 		testZhengzi(fileName, point);
 
 	}
@@ -46,7 +46,7 @@ public class TestZhengZiCalculate extends TestCase {
 		String fileName = "doc/征子局面/征子2";
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 		logger.setLevel(Level.DEBUG);
-		Point point = new Point(14, 14);
+		Point point = Point.getPoint(14, 14);
 		testZhengzi(fileName, point);
 
 	}
@@ -59,7 +59,7 @@ public class TestZhengZiCalculate extends TestCase {
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 		logger.setLevel(Level.DEBUG);
 		//Point point = new Point(3, 17);
-		Point point = new Point(17, 3);
+		Point point = Point.getPoint(17, 3);
 		testZhengzi(fileName, point);
 
 	}

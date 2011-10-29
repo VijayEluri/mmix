@@ -9,6 +9,7 @@ import eddie.wu.domain.UIPoint;
 public class ReviewManualCanvas extends BasicBoardCanvas {
 	List<UIPoint> points;
 	int lastMoveNumber;
+
 	public void setLastMoveNumber(int lastMoveNumber) {
 		this.lastMoveNumber = lastMoveNumber;
 	}
@@ -37,12 +38,11 @@ public class ReviewManualCanvas extends BasicBoardCanvas {
 			} else if (step.getColor() == Constant.WHITE) {
 				drawWhitePoint(g, step.getPoint());
 			}
-			if(step.getMoveNumber()>0){
-				drawMoveNumber(g, step.getPoint(), step.getMoveNumber()-this.lastMoveNumber);
+			if (step.getMoveNumber() > 0) {
+				drawMoveNumber(g, step.getPoint(), step.getMoveNumber()
+						- this.lastMoveNumber, step.getColor());
 			}
 		}
 	}
-
-
 
 }

@@ -2,11 +2,16 @@ package eddie.wu.ui;
 
 import java.awt.Button;
 import java.awt.Event;
+import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +24,9 @@ import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
 import eddie.wu.domain.UIPoint;
-import eddie.wu.manual.LoadGoManual;
+import eddie.wu.manual.GoManual;
+import eddie.wu.manual.LoadGMDGoManual;
+import eddie.wu.manual.SGFGoManual;
 import eddie.wu.ui.canvas.ReviewManualCanvas;
 
 /**
@@ -45,10 +52,13 @@ public class ReviewManual extends Frame {
 	private List<Step> steps = new ArrayList<Step>();
 	private int moves = 0;//
 	private int startMove = 0;//
+
+	private List<Integer> sectionStart = new ArrayList<Integer>();
 	/*
 	 * UI elements
 	 */
 	private ReviewManualCanvas embedCanvas = new ReviewManualCanvas();
+	private Button load = new Button("载入棋谱");//
 	private Button forward = new Button("下一步");// 前进
 	private Button backward = new Button("上一步");// 后退
 	/**
@@ -61,7 +71,7 @@ public class ReviewManual extends Frame {
 		if (args.length > 1) {
 			rootDir = args[1];
 		}
-		byte[] stepArray = new LoadGoManual(rootDir).loadSingleGoManual();
+		byte[] stepArray = new LoadGMDGoManual(rootDir).loadSingleGoManual();
 		List<Step> steps = new ArrayList<Step>();
 		int color = 0;
 		for (int i = 0; i < stepArray.length / 2; i++) {
@@ -97,21 +107,27 @@ public class ReviewManual extends Frame {
 		embedCanvas.setVisible(true);
 
 		add(embedCanvas);
+		add(load);
 		add(forward);
 		add(backward);
 		add(forwardManual);
 		add(backwardManual);
+		load.addActionListener(new LoadActionListener());
 		forward.addActionListener(new ForwardActionListener());
 		backward.addActionListener(new BackwardActionListener());
 		forwardManual.addActionListener(new ForwardManualActionListener());
 		backwardManual.addActionListener(new BackwardManualActionListener());
+		load.setVisible(true);
 		forward.setVisible(true);
 		backward.setVisible(true);
 		forwardManual.setVisible(true);
 		backwardManual.setVisible(true);
+		backwardManual.setEnabled(false);
+		backward.setEnabled(false);
 		setLayout(null);
 
 		embedCanvas.setBounds(30, 30, 560, 560);
+		load.setBounds(600, 40, 100, 30);
 		forward.setBounds(600, 100, 100, 30);
 		backward.setBounds(600, 160, 100, 30);
 		forwardManual.setBounds(600, 220, 100, 30);
@@ -144,9 +160,14 @@ public class ReviewManual extends Frame {
 
 	class ForwardActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			backward.setEnabled(true);
 			points.clear();
 			Step step = steps.get(moves++);
 			go.oneStepForward(step);
+			if (moves == steps.size()) {
+				forward.setEnabled(false);
+			}
+
 			UIPoint uPoint;
 			byte[][] matrixState = go.getBoardColorState().getMatrixState();
 			int color;
@@ -161,6 +182,8 @@ public class ReviewManual extends Frame {
 					uPoint.setMoveNumber(i + 1);
 					uPoint.setPoint(step.getPoint());
 					points.add(uPoint);
+				} else {
+					// TODO: better way to display eaten point.
 				}
 			}
 			repaint();
@@ -170,10 +193,14 @@ public class ReviewManual extends Frame {
 
 	class BackwardActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-
+			forward.setEnabled(true);
 			points.clear();
 			Step step = steps.get(--moves);
 			go.oneStepBackward(step.getPoint());
+			if (moves == 0) {
+				backward.setEnabled(false);
+			}
+
 			UIPoint uPoint;
 			byte[][] matrixState = go.getBoardColorState().getMatrixState();
 			int color;
@@ -202,17 +229,19 @@ public class ReviewManual extends Frame {
 			// 前进到有提子的情况出现。
 			int count = 1;
 			startMove = moves;
+			sectionStart.add(moves);
+			backwardManual.setEnabled(true);
 			while (moves < steps.size()
 					&& count < Constant.MAX_STEPS_IN_ONE_MANUAL_SHOW) {
 				step = steps.get(moves++);
 				go.oneStepForward(step);
 				count++;
-				if (go.getStepHistory().getStep(moves-1).getEatenBlocks()
+				if (go.getStepHistory().getStep(moves - 1).getEatenBlocks()
 						.isEmpty() == false) {
 					break;
 				}
 			}
-			if(moves==steps.size()){
+			if (moves == steps.size()) {
 				forwardManual.setEnabled(false);
 			}
 			UIPoint uPoint;
@@ -227,7 +256,7 @@ public class ReviewManual extends Frame {
 				if (color == Constant.BLACK || color == Constant.WHITE) {
 					uPoint = new UIPoint();
 					uPoint.setColor(step.getColor());
-					//前谱的棋子不再显示数字
+					// 前谱的棋子不再显示数字
 					if (i >= startMove) {
 						uPoint.setMoveNumber(i + 1 - startMove);
 					}
@@ -242,12 +271,88 @@ public class ReviewManual extends Frame {
 	}
 
 	/**
-	 * TODO: 
+	 * TODO:
+	 * 
 	 * @author wueddie-wym-wrz
-	 *
+	 * 
 	 */
 	class BackwardManualActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			points.clear();
+			forwardManual.setEnabled(true);
+			Step step;
+			// 后退到上一谱。
+			int count = 1;
+			startMove = sectionStart.remove(sectionStart.size() - 1);
+			if (sectionStart.isEmpty()) {
+				backwardManual.setEnabled(false);
+			}
+			int endMove = moves;// inclusive
+			while (moves > startMove) {
+				step = steps.get(--moves);
+				go.oneStepBackward(step.getPoint());
+				count++;
+			}
+			if (log.isInfoEnabled())
+				log.info("back ward " + count + "steps.");
+
+			UIPoint uPoint;
+			byte[][] matrixState = go.getBoardColorState().getMatrixState();
+			int color;
+
+			for (int i = 0; i < endMove; i++) {
+				step = steps.get(i);
+				color = matrixState[step.getPoint().getRow()][step.getPoint()
+						.getColumn()];
+				// 如果这一步（点）没有被提吃的话。
+				if (color == Constant.BLACK || color == Constant.WHITE) {
+					uPoint = new UIPoint();
+					uPoint.setColor(step.getColor());
+					// 前谱的棋子不再显示数字
+					if (i >= startMove) {
+						uPoint.setMoveNumber(i + 1 - startMove);
+					}
+					uPoint.setPoint(step.getPoint());
+					points.add(uPoint);
+				}
+			}
+
+			repaint();
+			embedCanvas.repaint();
+		}
+	}
+
+	private Frame parent = this;
+
+	class LoadActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+
+			// 载入局面
+			FileDialog fd = new FileDialog(parent, "载入局面的位置", FileDialog.LOAD);
+			fd.setFile("1.wjm");
+			fd.setDirectory(Constant.rootDir);
+			fd.show();
+
+			String inname = fd.getFile();
+			String dir = fd.getDirectory();
+			if (inname == null || inname.isEmpty())
+				return;
+			GoManual manual = SGFGoManual.loadGoManual(dir + inname);
+			steps.clear();
+			int color = Constant.BLACK;
+			for (Point point : manual.getSteps()) {
+				Step step = new Step();
+				step.setColor(color);
+				if (color == Constant.BLACK)
+					color = Constant.WHITE;
+				else if (color == Constant.WHITE)
+					color = Constant.BLACK;
+				step.setPoint(point);
+				steps.add(step);
+			}
+
+			log.debug("载入局面");
+			repaint();
 
 		}
 	}

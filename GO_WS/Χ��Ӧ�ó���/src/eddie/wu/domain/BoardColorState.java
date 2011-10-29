@@ -39,9 +39,9 @@ public class BoardColorState {
 		for (byte i = 1; i <= 19; i++) {
 			for (byte j = 1; j <= 19; j++) {
 				if (board[i][j] == ColorUtil.BLACK) {
-					black.set(new Point(i, j).getOneDimensionCoordinate());
+					black.set( Point.getPoint(i, j).getOneDimensionCoordinate());
 				} else if (board[i][j] == ColorUtil.WHITE) {
-					white.set(new Point(i, j).getOneDimensionCoordinate());
+					white.set(Point.getPoint(i, j).getOneDimensionCoordinate());
 				}
 			}
 		}

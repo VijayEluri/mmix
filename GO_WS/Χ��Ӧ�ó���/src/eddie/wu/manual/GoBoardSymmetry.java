@@ -46,10 +46,10 @@ public class GoBoardSymmetry {
 			}
 		}
 		for (i = Constant.ZBXX; i <= Constant.ZBSX; i++) { // 2ÔÂ22ÈÕ¼Ó
-			points[Constant.ZBXX][i] = new Point(Constant.ZBXX, i);
-			points[Constant.ZBSX][i] = new Point(Constant.ZBSX, i);
-			points[i][Constant.ZBXX] = new Point(i, Constant.ZBXX);
-			points[i][Constant.ZBSX] = new Point(i, Constant.ZBSX);
+//			points[Constant.ZBXX][i] = new Point(Constant.ZBXX, i);
+//			points[Constant.ZBSX][i] = new Point(Constant.ZBSX, i);
+//			points[i][Constant.ZBXX] = new Point(i, Constant.ZBXX);
+//			points[i][Constant.ZBSX] = new Point(i, Constant.ZBSX);
 			boardPoints[Constant.ZBXX][i] = new BoardPoint(
 					points[Constant.ZBXX][i], (byte) ColorUtil.OutOfBound);
 			boardPoints[Constant.ZBSX][i] = new BoardPoint(
@@ -121,7 +121,7 @@ public class GoBoardSymmetry {
 	public int pointsInVerticalLine() {
 		int count = 0;
 		for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-			if (boardPoints[i][Constant.COORDINATEOFTIANYUAN].getColor() != ColorUtil.BLANK_POINT) {
+			if (boardPoints[i][Constant.COORDINATEOFTIANYUAN].getColor() != ColorUtil.BLANK) {
 				count++;
 			}
 		}
@@ -131,7 +131,7 @@ public class GoBoardSymmetry {
 	public int pointsInForwardSlashLine() {
 		int count = 0;
 		for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-			if (boardPoints[Constant.SIZEOFBOARD + 1 - i][i].getColor() != ColorUtil.BLANK_POINT) {
+			if (boardPoints[Constant.SIZEOFBOARD + 1 - i][i].getColor() != ColorUtil.BLANK) {
 				count++;
 			}
 		}
@@ -141,7 +141,7 @@ public class GoBoardSymmetry {
 	public int pointsInBackwardSlashLine() {
 		int count = 0;
 		for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-			if (boardPoints[i][i].getColor() != ColorUtil.BLANK_POINT) {
+			if (boardPoints[i][i].getColor() != ColorUtil.BLANK) {
 				count++;
 			}
 		}
@@ -151,7 +151,7 @@ public class GoBoardSymmetry {
 	public int pointsInHorizontalLine() {
 		int count = 0;
 		for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-			if (boardPoints[Constant.COORDINATEOFTIANYUAN][i].getColor() != ColorUtil.BLANK_POINT) {
+			if (boardPoints[Constant.COORDINATEOFTIANYUAN][i].getColor() != ColorUtil.BLANK) {
 				count++;
 			}
 		}

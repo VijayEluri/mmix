@@ -28,10 +28,10 @@ public class TestBlock extends TestCase {
 	public void testEquals(){
 		Block blocka=new Block();
 		Block blockb=new Block();
-		blocka.addPoint(new Point((byte)4,(byte)16));
-		blockb.addPoint(new Point((byte)4,(byte)16));
-		blocka.addPoint(new Point((byte)4,(byte)17));
-		blockb.addPoint(new Point((byte)4,(byte)17));
+		blocka.addPoint( Point.getPoint((byte)4,(byte)16));
+		blockb.addPoint(Point.getPoint((byte)4,(byte)16));
+		blocka.addPoint(Point.getPoint((byte)4,(byte)17));
+		blockb.addPoint(Point.getPoint((byte)4,(byte)17));
 		assertEquals(blocka, blockb);
 		Set<Block> seta=new HashSet<Block>();
 		assertTrue(seta.add(blocka));

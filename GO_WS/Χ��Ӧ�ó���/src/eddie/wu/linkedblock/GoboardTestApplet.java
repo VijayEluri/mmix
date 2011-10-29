@@ -20,7 +20,7 @@ import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
 import eddie.wu.manual.ConvertGoManual;
-import eddie.wu.manual.LoadGoManual;
+import eddie.wu.manual.LoadGMDGoManual;
 
 
 /**
@@ -56,7 +56,7 @@ extends Applet {
 	int count = 0;
 	
 	//byte[] temp = LoadGoManual.loadOneFromAllGoManual(1, 453);
-	byte[] temp = new LoadGoManual("../doc/Î§Æå´òÆ×Èí¼þ/").loadSingleGoManual();
+	byte[] temp = new LoadGMDGoManual("../doc/Î§Æå´òÆ×Èí¼þ/").loadSingleGoManual();
 	public void init() {
 		this.setBackground(Color.ORANGE);
 		work = this.createImage(560, 560);

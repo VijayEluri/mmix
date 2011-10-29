@@ -6,6 +6,7 @@
  */
 package eddie.wu.linkedblock;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -13,50 +14,57 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import eddie.wu.manual.LoadGoManual;
+import eddie.wu.domain.Constant;
+import eddie.wu.manual.GMDGoManual;
+import eddie.wu.manual.LoadGMDGoManual;
 
 /**
+ * @deprecated
  * @author eddie
  * 
- *         TODO To change the template for this generated type comment go to
  */
 public class TestLoadGoManual extends TestCase {
+	public static final int MOVES_THRESHOLD = 100;
 	private static final Log log = LogFactory.getLog(TestLoadGoManual.class);
-	private static final String rootDir = "doc/围棋打谱软件/";
+	private static final String rootDir = Constant.rootDir;// "doc/围棋打谱软件/";
 
 	public void testOneFromMultiGoManual() {
-		byte[] temp = new LoadGoManual(rootDir).loadSingleGoManual();
+		byte[] temp = new LoadGMDGoManual(rootDir).loadSingleGoManual();
 		log.debug(temp.toString());
-		byte[] temp1 = new LoadGoManual(rootDir).loadOneFromLib0(0);
+		byte[] temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(0);
 		assertEquals(temp.length, temp1.length);
 		for (int i = 0; i < temp.length; i++) {
 			assertEquals(temp[i], temp1[i]);
 		}
-		temp1 = new LoadGoManual(rootDir).loadOneFromLib0(1);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(1);
 		assertEquals(temp1.length, 247 * 2);
-		temp1 = new LoadGoManual(rootDir).loadOneFromLib0(2);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(2);
 		assertEquals(temp1.length, 223 * 2);
-		temp1 = new LoadGoManual(rootDir).loadOneFromLib0(3);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(3);
 		assertEquals(temp1.length, 349 * 2);// 93
-		temp1 = new LoadGoManual(rootDir).loadOneFromLib0(4);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(4);
 		assertEquals(temp1.length, 183 * 2);
 
-		temp1 = new LoadGoManual(rootDir).loadOneFromLib0(5);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(5);
 		assertEquals(temp1.length, 203 * 2);
-		temp1 = new LoadGoManual(rootDir).loadOneFromLib0(6);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(6);
 		assertEquals(temp1.length, 152 * 2);
-		temp1 = new LoadGoManual(rootDir).loadOneFromLib0(7);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(7);
 		assertEquals(temp1.length, 245 * 2);
 
-		temp1 = new LoadGoManual(rootDir).loadOneFromLib0(8);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(8);
 		assertEquals(temp1.length, 270 * 2);// 14
 
 	}
 
+	/**
+	 * failed because lib1 is lost.
+	 */
 	public void testLoadMultiGoManual() {
-		List list = new LoadGoManual(rootDir).loadMultiGoManualFromLib0();
+		List<GMDGoManual> list = new LoadGMDGoManual(rootDir)
+				.loadMultiGoManualFromLib0();
 		assertEquals(9, list.size());
-		list = new LoadGoManual(rootDir).loadMultiGoManual(1);
+		list = new LoadGMDGoManual(rootDir).loadMultiGoManual(1);
 		assertEquals(1000, list.size());
 		int[] tempLength = new int[1000];
 		// in.available()=1024000
@@ -76,12 +84,50 @@ public class TestLoadGoManual extends TestCase {
 	}
 
 	public void testLoadOneFromAllGoManual() {
-		byte[] temp = new LoadGoManual(rootDir).loadSingleGoManual();
+		byte[] temp = new LoadGMDGoManual(rootDir).loadSingleGoManual();
 		log.debug(temp.toString());
-		byte[] temp1 = new LoadGoManual(rootDir).loadOneFromAllGoManual(0, 0);
+		byte[] temp1 = new LoadGMDGoManual(rootDir).loadOneFromAllGoManual(0, 0);
 		assertEquals(temp.length, temp1.length);
 		for (int i = 0; i < temp.length; i++) {
 			assertEquals(temp[i], temp1[i]);
+		}
+	}
+
+	/**
+	 * GMDGoManual [ id=6356, moves=2, blackName=陈临新, whiteName=王伯刚]<br/>
+	 * GMDGoManual [ id=5490, moves=2, blackName=刘小光, whiteName=钱宇平]<br/>
+	 * GMDGoManual [ id=6054, moves=1, blackName=淡路修三, whiteName=刘小光]<br>
+	 * A few new manual has some problem.
+	 */
+	public void testLoadAllGoManual() {
+		List<GMDGoManual> manuals = GMDGoManual.loadMultiGoManual(
+				Constant.GLOBAL_MANUAL, 6391);
+		int maxMove = 0;
+		GMDGoManual maxMoveManual = null;
+		GMDGoManual minMoveManual = null;
+		int minMove = 512;
+		List<GMDGoManual> list = new ArrayList<GMDGoManual>();
+		for (GMDGoManual manual : manuals) {
+
+			int moves = manual.getSteps().size();
+			if (moves > maxMove) {
+				maxMove = moves;
+				maxMoveManual = manual;
+			}
+			if (moves < minMove) {
+				minMove = moves;
+				minMoveManual = manual;
+			}
+			if (moves < MOVES_THRESHOLD) {
+				list.add(manual);
+			}
+		}
+		System.out.println("maxMove=" + maxMove);
+		System.out.println("maxMoveManual=" + maxMoveManual);
+		System.out.println("minMoveManual=" + minMoveManual);
+		System.out.println("manual less than " + MOVES_THRESHOLD + " moves:");
+		for (GMDGoManual manual : list) {
+			System.out.println(manual);
 		}
 	}
 }

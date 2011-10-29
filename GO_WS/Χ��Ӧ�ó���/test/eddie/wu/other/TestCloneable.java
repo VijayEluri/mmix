@@ -39,10 +39,10 @@ public class TestCloneable extends TestCase {
     public void testCloneable(){
         BoardPoint point=new BoardPoint();
         point.setColor(ColorUtil.BLACK);
-        point.setPoint(new Point(4,4));
+        point.setPoint(Point.getPoint(4,4));
         Block block=new Block();
-        block.addPoint(new Point(4,4));
-        block.addBreathPoint(new Point(4,5));
+        block.addPoint(Point.getPoint(4,4));
+        block.addBreathPoint(Point.getPoint(4,5));
         block.setColor(ColorUtil.BLACK);
         point.setBlock(block);
         BoardPoint pointNew=(BoardPoint)point.clone();
@@ -70,8 +70,8 @@ public class TestCloneable extends TestCase {
         oldTime=System.currentTimeMillis();
     	for(int i=0;i<1000;i++){
     		blocks [i]=new Block();
-    		blocks [i].addPoint(new Point(4,4));
-    		blocks [i].addBreathPoint(new Point(4,5));
+    		blocks [i].addPoint(Point.getPoint(4,4));
+    		blocks [i].addBreathPoint(Point.getPoint(4,5));
     		blocks [i].setColor(ColorUtil.BLACK);
     	}
     	newTime=System.currentTimeMillis();
@@ -96,7 +96,7 @@ class  TestForArray implements Cloneable{
 	public void init(){
 		point[0][1]=new BoardPoint();
 		point[0][1].setColor(ColorUtil.BLACK);
-		point[0][1].setPoint(new Point(5,5));
+		point[0][1].setPoint(Point.getPoint(5,5));
 	}
 	public Object clone() throws CloneNotSupportedException{
 		return super.clone();

@@ -16,6 +16,7 @@ import java.util.List;
  */
 public class Constant {
 	public static final String rootDir = "doc/围棋打谱软件/";
+	public static final String GLOBAL_MANUAL = Constant.rootDir + "weiqigo/go/go.gmd";
 	// basic constant
 	public static final byte SIZEOFBOARD = 19;
 
@@ -81,6 +82,7 @@ public class Constant {
 	public static final boolean DEBUG_JSKQ = false;
 	public static final boolean DEBUG_JISUANZHENGZI = true;
 	public static final int MAX_STEPS_IN_ONE_MANUAL_SHOW = 100;
+	public static final String DING_SHI_SHU = "C:/scm/git/git-hub/mmix/GO_WS/围棋应用程序/doc/围棋程序数据/" + "定式树";
 
 }
 //

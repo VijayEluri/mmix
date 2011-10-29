@@ -86,7 +86,7 @@ public class ZhengZiCalculate {
 			byte[] temp = result[i];
 			if (temp[0] == 0 && temp[1] == 0)
 				break;
-			points[i] = new Point(temp[0], temp[1]);
+			points[i] = Point.getPoint(temp[0], temp[1]);
 		}
 		return points;
 	}

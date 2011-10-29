@@ -49,7 +49,7 @@ public class SurviveAnalysis extends StateAnalysis {
 			for (int i = 0; i < 4; i++) {
 				a = (byte) (eye.getRow() + Constant.szdjd[i][0]);
 				b = (byte) (eye.getColumn() + Constant.szdjd[i][1]);
-				if (boardPoints[a][b].getColor() == ColorUtil.BLANK_POINT
+				if (boardPoints[a][b].getColor() == ColorUtil.BLANK
 						|| boardPoints[a][b].getColor() == enemyColor) {
 					count++;
 				}
@@ -63,7 +63,7 @@ public class SurviveAnalysis extends StateAnalysis {
 			for (int i = 0; i < 4; i++) {
 				a = (byte) (eye.getRow() + Constant.szdjd[i][0]);
 				b = (byte) (eye.getColumn() + Constant.szdjd[i][1]);
-				if (boardPoints[a][b].getColor() == ColorUtil.BLANK_POINT
+				if (boardPoints[a][b].getColor() == ColorUtil.BLANK
 						|| boardPoints[a][b].getColor() == enemyColor) {
 					return false;
 				}
@@ -298,7 +298,7 @@ public class SurviveAnalysis extends StateAnalysis {
 
 				if (this.getBlock(Point.getPoint(m, n)) != block)
 					return false;
-			} else if (state[m][n] == ColorUtil.BLANK_POINT) {
+			} else if (state[m][n] == ColorUtil.BLANK) {
 				// 不是单子眼。眼位为二子或以上的气块。这里不予识别和考虑。
 				return false;
 			}

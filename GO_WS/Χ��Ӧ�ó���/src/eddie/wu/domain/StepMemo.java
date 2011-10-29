@@ -1,5 +1,6 @@
 package eddie.wu.domain;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 /**
@@ -8,7 +9,7 @@ import java.util.Set;
  * @author wueddie-wym-wrz
  *
  */
-public class StepMemo {
+public class StepMemo implements Serializable{
 	private Point currentStepPoint;
 	private byte color;
 
@@ -22,8 +23,29 @@ public class StepMemo {
 	 * the prohibited move after this step. 处理打劫用的。
 	 */
 	private Point prohibittedPoint;
-	private Set<Block> eatenBlocks = new HashSet<Block>();;
-	private Set<Block> mergedBlocks = new HashSet<Block>();;
+	/**
+	 * 被提吃 的棋块  
+	 */
+	private Set<Block> eatenBlocks = new HashSet<Block>();
+	/**
+	 * 被合并的棋块
+	 */
+	
+	private Set<Block> mergedBlocks = new HashSet<Block>();
+	/**
+	 * 被分裂出的气块
+	 */
+	private Set<Block> dividedBlocks = new HashSet<Block>();
+
+	//private Block originalBlankBlock;
+	
+	public Set<Block> getDividedBlocks() {
+		return dividedBlocks;
+	}
+
+	public void addDividedBlocks(Block block) {
+		this.dividedBlocks.add(block);
+	}
 
 	public StepMemo(Point currentStepPoint, byte color, short totalPoints,
 			Point prohibittedPoint) {

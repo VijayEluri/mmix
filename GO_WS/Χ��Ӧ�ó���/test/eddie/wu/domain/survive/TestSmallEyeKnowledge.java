@@ -23,7 +23,7 @@ public class TestSmallEyeKnowledge extends TestCase {
 		
 		byte[][] pattern = new byte[1][2];
 		 for (int i = 0; i < pattern[0].length; i++) {
-			 pattern[0][i] = ColorUtil.BLANK_POINT;
+			 pattern[0][i] = ColorUtil.BLANK;
 		 }
 		 pattern[1][1]=ColorUtil.BLACK;
 		BreathPattern bp = new BreathPattern(pattern);

@@ -10,7 +10,8 @@ import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
-import eddie.wu.manual.LoadGoManual;
+import eddie.wu.manual.GoManual;
+import eddie.wu.manual.SGFGoManual;
 import eddie.wu.ui.canvas.EmbedBoardCanvas;
 
 /**
@@ -27,13 +28,15 @@ public class ShowManual extends Frame {
 	
 	public static void main(String[] args) {
 		
-		byte[] stepArray = new LoadGoManual(Constant.rootDir).loadSingleGoManual();
-		
+		String fileName = Constant.rootDir+"吴清源番棋263局/吴清源番棋002.SGF";;
+		//GoManual manual = GMDGoManual.loadGoManual(Constant.GLOBAL_MANUAL,0);
+		GoManual manual = SGFGoManual.loadGoManual(fileName);
+		 byte[] stepArray= manual.getMoves();
 		List<Step> steps = new ArrayList<Step>();
 		GoBoard go = new GoBoard();
 		int color = 0;
 		// for (int i = 0; i < stepArray.length / 2; i++) {
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < manual.getShouShu(); i++) {
 			if (i % 2 == 0) {
 				color = Constant.BLACK;
 			} else {

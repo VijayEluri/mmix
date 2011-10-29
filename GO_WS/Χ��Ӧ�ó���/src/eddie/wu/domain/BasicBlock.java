@@ -41,7 +41,7 @@ public abstract class BasicBlock {
 		allPoints.add(Point);
 	}
 
-	public void addPoint(BasicBlock block) {
+	public void addPoints(BasicBlock block) {
 		allPoints.addAll(block.getAllPoints());
 	}
 
