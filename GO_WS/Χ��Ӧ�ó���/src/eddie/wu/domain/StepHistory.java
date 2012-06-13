@@ -11,8 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import eddie.wu.linkedblock.ColorUtil;
-
 /**
  * 
  * @author eddie
@@ -31,23 +29,41 @@ public class StepHistory implements java.io.Serializable {
 		return allSteps;
 	}
 
-	public void setStep(short shoushu, byte row, byte column, byte color) {
-		if (shoushu - 1 != allSteps.size()) {
-			throw new RuntimeException("Internal error-setStep: shoushu=" + shoushu
-					+ ", step history size=" + allSteps.size());
-		}
-		StepMemo stepMemo = new StepMemo();
-		stepMemo.setColor(color);
-		stepMemo.setCurrentStepPoint(Point.getPoint(row, column));
-		allSteps.add(shoushu - 1, stepMemo);
+	public StepHistory getCopy() {
+		StepHistory his = new StepHistory();
+
+		// Collections.copy(his.allSteps, steps);
+		his.allSteps.addAll(this.allSteps);
+		return his;
+
 	}
-	
-	public StepMemo removeStep(short shoushu) {
-		if (shoushu  != allSteps.size()) {
-			throw new RuntimeException("Internal error-removeStep: shoushu=" + shoushu
-					+ ", step history size=" + allSteps.size());
-		}		
-		return allSteps.remove(shoushu-1);
+
+	/**
+	 * 
+	 * @param shoushu
+	 *            index from 1.
+	 * @param point
+	 * @param color
+	 */
+	public void setStep(int shoushu, Point point, int color) {
+		if (shoushu - 1 != allSteps.size()) {
+			throw new RuntimeException("Internal error-setStep: shoushu="
+					+ shoushu + ", step history size=" + allSteps.size());
+		}
+		StepMemo stepMemo = new StepMemo(point, color);
+		stepMemo.getStep().setIndex(shoushu);
+		allSteps.add(shoushu - 1, stepMemo);
+
+	}
+
+	public StepMemo removeStep(int shoushu) {
+		if (shoushu != allSteps.size()) {
+			throw new RuntimeException("Internal error-removeStep: shoushu="
+					+ shoushu + ", step history size=" + allSteps.size());
+		}
+		// 回退时删除记录的历史状态.
+		colorStates.remove(this.getLastStep().getColorState());
+		return allSteps.remove(shoushu - 1);
 	}
 
 	/**
@@ -95,4 +111,20 @@ public class StepHistory implements java.io.Serializable {
 	public StepMemo getStep(int index) {
 		return allSteps.get(index);
 	}
+
+	public StepMemo getLastStep() {
+		return allSteps.get(allSteps.size() - 1);
+	}
+
+	Set<BoardColorState> colorStates = new HashSet<BoardColorState>();
+
+	public boolean setColorState(BoardColorState colorState) {
+		if (colorStates.contains(colorState)) {
+			return false;
+		}
+		colorStates.add(colorState);
+		getLastStep().setColorState(colorState);
+		return true;
+	}
+
 }

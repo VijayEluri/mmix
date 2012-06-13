@@ -1,10 +1,10 @@
 package eddie.wu.arrayblock;
 /**
- * <p>Title:¼ÆËãÕ÷×Ó </p>
+ * <p>Title:è®¡ç®—å¾å­ </p>
  */
-public class JisuanBoard extends GoBoard{
-   public JisuanBoard(GoBoard goboard) {
-      super();
+public class JisuanBoard extends ArrayGoBoard{
+   public JisuanBoard(ArrayGoBoard goboard) {
+      super(goboard.getBoardSize());
       for(int i=ZBXX;i<=ZBSX;i++){
          for(int j=ZBXX;j<=ZBSX;j++){
               zb[i][j][ZTXB]=goboard.zb[i][j][ZTXB];
@@ -16,7 +16,7 @@ public class JisuanBoard extends GoBoard{
               zb[i][j][6]=goboard.zb[i][j][6];
               zb[i][j][7]=goboard.zb[i][j][7];
          }
-      }//zbÊı×éµÄ³õÊ¼»¯
+      }//zbæ•°ç»„çš„åˆå§‹åŒ–
 
       shoushu=goboard.shoushu;
       ki=goboard.ki;
@@ -37,8 +37,8 @@ public class JisuanBoard extends GoBoard{
       ktb=goboard.ktb;
       ktw=goboard.ktw;
    }
-   public boolean yiqichi(byte ydm,byte ydn){//·µ»Ø´ò³ÔµãµÄÒ»Î¬×ø±ê
-      //½èÓÃ0¿é´¢´æĞÅÏ¢,Í³Ò»µ½º¯Êıyiqichi(int kin)
+   public boolean yiqichi(byte ydm,byte ydn){//è¿”å›æ‰“åƒç‚¹çš„ä¸€ç»´åæ ‡
+      //å€Ÿç”¨0å—å‚¨å­˜ä¿¡æ¯,ç»Ÿä¸€åˆ°å‡½æ•°yiqichi(int kin)
       boolean zzcl=false;
       kuai[0][0][0]=2;
       kuai[0][0][1]=1;
@@ -52,35 +52,35 @@ public class JisuanBoard extends GoBoard{
       for(byte i=0;i<70;i++){
          kuai[0][i][0]=0;
          kuai[0][i][1]=0;
-      }//¼°Ê±Çå³ş¸±×÷ÓÃ;
+      }//åŠæ—¶æ¸…æ¥šå‰¯ä½œç”¨;
       return zzcl;
    }
-   public boolean yiqichi(byte kin){//Õ÷×Ó¼ÆËãÊÇÔ¤Ñİ,Ó¦¸Ã¾ßÓĞ»Ö¸´µ½Ô­¾ÖÃæµÄ
-   //¹¦ÄÜ,»òÕß¸´ÖÆÔ­¾ÖÃæ,ÓÃ¸±±¾½øĞĞ¼ÆËã.¿ÉÄÜÇ°Õß¸ü¼Ñ,ÒòÎª¼ÆËãÊ±Ò²Òªµ¹ÍË
-   //kinÊÇ±»Õ÷×ÓµÄ¿éµÄË÷Òı.
-      byte i=0,j=0;//Ñ­»·±äÁ¿.
-      byte m1=0,n1=0,m2=0,n2=0;//m1,n1ÎªÆøµãÖ®Ò»,m2,n2ÎªÆøµãÖ®¶ş.
-      byte a,b;//ÓÃÓÚ´«¸øcgcl()º¯ÊıµÄ×ø±êÎ»ÖÃ.
-      byte cq1=0,cq2=0;//µ¥×ÓÂäÏÂºó¼×·½µÄÆø,ÅĞ¶Ï³ö½û×ÅµãºÍÆø>=2;Æø==1±íÊ¾Î´Ã÷È·
-      byte q1=0,q2=0;//q1,q2Îª½»»»Á½ÊÖºóÒÒ·½µÄÆø.
-      byte beitia=0,beitib=0,tizia=0,tizib=0;//Õ÷×Ó·´´òÓĞ¹Ø,Ç°Îª±»ÌáµãºóÎªÌá×Óµã.
-      boolean huitui=false;//»ØÍË,ÊÇÔÚÌ½Ë÷ĞÂ¾ÖÃæ,»¹ÊÇ»Øµ½Ô­¾ÖÃæ½øĞĞĞÂµÄÑ¡Ôñ.
-      boolean fanda=false;//·´´ò
-      byte [][]hou=new byte[40][8];//hou xuan qi bu,ºòÑ¡Æå²½Êı×é,´Ó1ËãÆğ
-      //0:ÄÄÒ»ÊÖ(ÒË´Ó1ËãÆğ);1-4Îª×ø±ê,5Îª·´´ò±êÖ¾.40ÊÇÖ¸×î¶àÓĞ40´¦ÓĞÁ½ÖÖÑ¡Ôñ.
-      byte ch=0;//chÎªºòÑ¡Æå²½¼ÆÊı.
-      short ss=shoushu;//¼ÇÂ¼ÒÑÓĞÊÖÊı
+   public boolean yiqichi(byte kin){//å¾å­è®¡ç®—æ˜¯é¢„æ¼”,åº”è¯¥å…·æœ‰æ¢å¤åˆ°åŸå±€é¢çš„
+   //åŠŸèƒ½,æˆ–è€…å¤åˆ¶åŸå±€é¢,ç”¨å‰¯æœ¬è¿›è¡Œè®¡ç®—.å¯èƒ½å‰è€…æ›´ä½³,å› ä¸ºè®¡ç®—æ—¶ä¹Ÿè¦å€’é€€
+   //kinæ˜¯è¢«å¾å­çš„å—çš„ç´¢å¼•.
+      byte i=0,j=0;//å¾ªç¯å˜é‡.
+      byte m1=0,n1=0,m2=0,n2=0;//m1,n1ä¸ºæ°”ç‚¹ä¹‹ä¸€,m2,n2ä¸ºæ°”ç‚¹ä¹‹äºŒ.
+      byte a,b;//ç”¨äºä¼ ç»™cgcl()å‡½æ•°çš„åæ ‡ä½ç½®.
+      byte cq1=0,cq2=0;//å•å­è½ä¸‹åç”²æ–¹çš„æ°”,åˆ¤æ–­å‡ºç¦ç€ç‚¹å’Œæ°”>=2;æ°”==1è¡¨ç¤ºæœªæ˜ç¡®
+      byte q1=0,q2=0;//q1,q2ä¸ºäº¤æ¢ä¸¤æ‰‹åä¹™æ–¹çš„æ°”.
+      byte beitia=0,beitib=0,tizia=0,tizib=0;//å¾å­åæ‰“æœ‰å…³,å‰ä¸ºè¢«æç‚¹åä¸ºæå­ç‚¹.
+      boolean huitui=false;//å›é€€,æ˜¯åœ¨æ¢ç´¢æ–°å±€é¢,è¿˜æ˜¯å›åˆ°åŸå±€é¢è¿›è¡Œæ–°çš„é€‰æ‹©.
+      boolean fanda=false;//åæ‰“
+      byte [][]hou=new byte[40][8];//hou xuan qi bu,å€™é€‰æ£‹æ­¥æ•°ç»„,ä»1ç®—èµ·
+      //0:å“ªä¸€æ‰‹(å®œä»1ç®—èµ·);1-4ä¸ºåæ ‡,5ä¸ºåæ‰“æ ‡å¿—.40æ˜¯æŒ‡æœ€å¤šæœ‰40å¤„æœ‰ä¸¤ç§é€‰æ‹©.
+      byte ch=0;//chä¸ºå€™é€‰æ£‹æ­¥è®¡æ•°.
+      short ss=shoushu;//è®°å½•å·²æœ‰æ‰‹æ•°
       byte  qi=0;
       byte m,n;
-      byte bzzfyanse=zb[kuai[kin][1][0]][kuai[kin][1][1]][0];//±»Õ÷×Ó·½ÑÕÉ«
-      byte zzfyanse;//Õ÷×Ó·½µÄÑÕÉ«
+      byte bzzfyanse=zb[kuai[kin][1][0]][kuai[kin][1][1]][0];//è¢«å¾å­æ–¹é¢œè‰²
+      byte zzfyanse;//å¾å­æ–¹çš„é¢œè‰²
       if(bzzfyanse==1)zzfyanse=2;
       else zzfyanse=1;
-     //×¢Òâ±êÊ¾Ä£ĞÍ,·ñÔòÄÑÒÔÀí½â.
+     //æ³¨æ„æ ‡ç¤ºæ¨¡å‹,å¦åˆ™éš¾ä»¥ç†è§£.
 
-      while(true)    {//±ØĞëÖªµÀ±»·´´òµÄ×ø±ê
-         if (huitui==true){//¸ÄÓÃÒÑ¾­´æ´¢µÄÁíÒ»Â·Ñ¡Ôñ
-            huitui=false;//¼°Ôç¸Ä»Ø
+      while(true)    {//å¿…é¡»çŸ¥é“è¢«åæ‰“çš„åæ ‡
+         if (huitui==true){//æ”¹ç”¨å·²ç»å­˜å‚¨çš„å¦ä¸€è·¯é€‰æ‹©
+            huitui=false;//åŠæ—©æ”¹å›
             for(i=(byte)(shoushu-ss);i>=hou[ch][0];i--){
                clhuiqi();
             }
@@ -91,36 +91,36 @@ public class JisuanBoard extends GoBoard{
              hou[ch][6]=0;
              hou[ch][7]=0;
            }
-           else fanda=false;//»Ö¸´³¡¾°
-            m1=hou[ch][1];//´«¸øÈ«¾Ö±äÁ¿
+           else fanda=false;//æ¢å¤åœºæ™¯
+            m1=hou[ch][1];//ä¼ ç»™å…¨å±€å˜é‡
             n1=hou[ch][2];//?
-            m2=hou[ch][3];//´«¸øÈ«¾Ö±äÁ¿
+            m2=hou[ch][3];//ä¼ ç»™å…¨å±€å˜é‡
             n2=hou[ch][4];
 
             ch--;
-            q2=2; //Ïàµ±ÓÚÖ»ÓĞÒ»¸öºòÑ¡µã,¿ÉÒÔºÏ²¢´úÂë
+            q2=2; //ç›¸å½“äºåªæœ‰ä¸€ä¸ªå€™é€‰ç‚¹,å¯ä»¥åˆå¹¶ä»£ç 
             q1=3;
          }
 
-         else{//´ÓÍ·Ì½Ë÷ĞÂµÄ¾ÖÃæ
-            m1=kuai[kin][50][0];//Õ÷×ÓµãaµÄ×ø±ê,Ò²¼´kin¿éµÄÆøµã
-            n1=kuai[kin][50][1];//50~69´æ´¢ÆøµÄĞÅÏ¢.
-            m2=kuai[kin][51][0];//Õ÷×ÓµãbµÄ×ø±ê,Ò²ÊÇkin¿éµÄÆøµã
+         else{//ä»å¤´æ¢ç´¢æ–°çš„å±€é¢
+            m1=kuai[kin][50][0];//å¾å­ç‚¹açš„åæ ‡,ä¹Ÿå³kinå—çš„æ°”ç‚¹
+            n1=kuai[kin][50][1];//50~69å­˜å‚¨æ°”çš„ä¿¡æ¯.
+            m2=kuai[kin][51][0];//å¾å­ç‚¹bçš„åæ ‡,ä¹Ÿæ˜¯kinå—çš„æ°”ç‚¹
             n2=kuai[kin][51][1];
 
-            cq1=zzddq(m1,n1);//Âä×ÓÓÚm1,n1ºó¸Ãµã»òËùÔÚ¿éµÄÆøÊı
+            cq1=zzddq(m1,n1);//è½å­äºm1,n1åè¯¥ç‚¹æˆ–æ‰€åœ¨å—çš„æ°”æ•°
             cq2=zzddq(m2,n2);
            if(cq1>=1){
-               q2=jhhdq(m2,n2,m1,n1);//Âä×ÓÓÚm1,n1.ÇÒm2,n2³¤Æøºó¸Ãµã»òËùÔÚ¿éµÄÆøÊı
+               q2=jhhdq(m2,n2,m1,n1);//è½å­äºm1,n1.ä¸”m2,n2é•¿æ°”åè¯¥ç‚¹æˆ–æ‰€åœ¨å—çš„æ°”æ•°
             }
            else q2=3 ;
            if(cq2>=1){
-               q1=jhhdq(m1,n1,m2,n2);//q1<2,²»Ìá×ÓÔòÎŞÒÔ½áÊø.
+               q1=jhhdq(m1,n1,m2,n2);//q1<2,ä¸æå­åˆ™æ— ä»¥ç»“æŸ.
             }
            else q1=3;
          }//else huitui==false
 
-         if (q1>2&&q2>2){//kzzd=0;Ã»ÓĞ¿ÉÒÔÕ÷×ÓµÄµã
+         if (q1>2&&q2>2){//kzzd=0;æ²¡æœ‰å¯ä»¥å¾å­çš„ç‚¹
             if(ch==0)return false;
             else {
                 huitui=true;
@@ -128,20 +128,20 @@ public class JisuanBoard extends GoBoard{
             }
          }
          else if(q1>=2&&q2>=2){
-         //ĞèÒªÌ½Ë÷,²»ÂÛÊÇÖ±½Ó»¹ÊÇ¼ä½Ó;²»ÂÛhuituiÕæ¼Ù
-           if(q1==2&&q2==2){//Í¬Ê±Îª2
+         //éœ€è¦æ¢ç´¢,ä¸è®ºæ˜¯ç›´æ¥è¿˜æ˜¯é—´æ¥;ä¸è®ºhuituiçœŸå‡
+           if(q1==2&&q2==2){//åŒæ—¶ä¸º2
               if(fanda==true){
                    hou[++ch][5]=1;
                    hou[ch][6]=tizia;
                    hou[ch][7]=tizib;
               }
               else hou[++ch][5]=0;
-               hou[ch][1]=m2;//Õ÷×Óµã
+               hou[ch][1]=m2;//å¾å­ç‚¹
                hou[ch][2]=n2;
                hou[ch][3]=m1;
                hou[ch][4]=n1;
 
-               hou[ch][0]=(byte)(shoushu+1-ss);//µÚ¼¸ÊÖµÄ±ä»¯
+               hou[ch][0]=(byte)(shoushu+1-ss);//ç¬¬å‡ æ‰‹çš„å˜åŒ–
             }
            if(q1==2&&q2!=2){
               byte t1=m1;
@@ -149,24 +149,24 @@ public class JisuanBoard extends GoBoard{
                m1=m2;
                n1=n2;
                m2=t1;
-               n2=t2; //Õ÷×ÓµãÎ¨Ò»Ê±,Ê¼ÖÕÓÃm1,n1 ±íÊ¾´ò
+               n2=t2; //å¾å­ç‚¹å”¯ä¸€æ—¶,å§‹ç»ˆç”¨m1,n1 è¡¨ç¤ºæ‰“
                q1=q2;
                q2=2;
             }
          }
-         else if(q2<2||q1<2){//ÓĞÄ³´¦¿É¾Ö²¿½áÊøÕ÷×Ókzzd=0
-            if(q1<2&&q2<2){//Í¬Ê±Îª2
+         else if(q2<2||q1<2){//æœ‰æŸå¤„å¯å±€éƒ¨ç»“æŸå¾å­kzzd=0
+            if(q1<2&&q2<2){//åŒæ—¶ä¸º2
                if(fanda==true){
                   hou[++ch][5]=1;
                   hou[ch][6]=tizia;
                   hou[ch][7]=tizib;
                }
                else hou[++ch][5]=0;
-               hou[ch][1]=m2;//Õ÷×Óµã
+               hou[ch][1]=m2;//å¾å­ç‚¹
                hou[ch][2]=n2;
                hou[ch][3]=m1;
                hou[ch][4]=n1;
-               hou[ch][0]=(byte)(shoushu+1-ss);//µÚ¼¸ÊÖµÄ±ä»¯
+               hou[ch][0]=(byte)(shoushu+1-ss);//ç¬¬å‡ æ‰‹çš„å˜åŒ–
             }
             if(q1<2&&q2>=2){
                byte t1=m1;
@@ -177,11 +177,11 @@ public class JisuanBoard extends GoBoard{
                n2=t2;
             }
          }
-         a=m1;//Ò»¸öÕ÷×Óµã»òÕßÑ¡ÔñÁËÁ½µãÖĞµÄÒ»µã
+         a=m1;//ä¸€ä¸ªå¾å­ç‚¹æˆ–è€…é€‰æ‹©äº†ä¸¤ç‚¹ä¸­çš„ä¸€ç‚¹
          b=n1;
          cgcl(a,b);
-         if(zb[a][b][2]==1) {//Òª¿¼ÂÇ·´´òµÄÎÊÌâ,
-            byte ksyi=zb[a][b][KSYXB];//¿ÉÄÜ¿é±»Ìá?¿¼ÂÇ¿éµÄ´óĞ¡
+         if(zb[a][b][2]==1) {//è¦è€ƒè™‘åæ‰“çš„é—®é¢˜,
+            byte ksyi=zb[a][b][KSYXB];//å¯èƒ½å—è¢«æ?è€ƒè™‘å—çš„å¤§å°
             if(fanda==true){
                if(ch==0)return false;
                else {
@@ -206,35 +206,35 @@ public class JisuanBoard extends GoBoard{
             else{
                tizia=kuai[ksyi][50][0];
                tizib=kuai[ksyi][50][1];
-               beitia=0;//±íÊ¾¿é±»Ìá
-               beitib=0;//ÓĞÆËÈëµÄÑ¡Ôñ
+               beitia=0;//è¡¨ç¤ºå—è¢«æ
+               beitib=0;//æœ‰æ‰‘å…¥çš„é€‰æ‹©
             }
          }
          if(q1>=2&&q2>=2){
             a=m2;
             b=n2;
             cgcl(a,b);
-           if(kuai[ki][0][0]<2) {//¿ÉÄÜĞèÒªÅĞ¶Ï½áÊøÓë·ñ
+           if(kuai[ki][0][0]<2) {//å¯èƒ½éœ€è¦åˆ¤æ–­ç»“æŸä¸å¦
                clhuiqi();
                q2=1;
             }
          }
 
-         if(q2<2||q1<2){//ÓĞÄ³´¦¿É¾Ö²¿½áÊøÕ÷×Ókzzd=0
+         if(q2<2||q1<2){//æœ‰æŸå¤„å¯å±€éƒ¨ç»“æŸå¾å­kzzd=0
             if (fanda==false) return true;
             else{
                if(ltdd(tizia,tizib,zzfyanse)==true) return false;
-               a=tizia;//ÔÚ·´´ò´¦Ìá×Ó
-               b=tizib;//ÒÑ¾­ÅĞÃ÷Ã»ÓĞÁ¬Ìá´ø´ò?
+               a=tizia;//åœ¨åæ‰“å¤„æå­
+               b=tizib;//å·²ç»åˆ¤æ˜æ²¡æœ‰è¿æå¸¦æ‰“?
                fanda=false;
                tizia=0;
                tizib=0;
                cgcl(a,b);
-                  //   if(jszq(m2,n2)<=1) return 0;//ÊÇ·ñ?²»ÈëÆø
-                   //²»¿ÉÄÜ,fanda=trueÊ±,ÆäĞ¡ÓÚ1,Æä=3;
-               if(beitia==0){//ÌáÁËÒ»¿é
-               //  if(zb[kin][0][0]<2) return true;   //¼ÓÉÏÅĞ¶Ï
-                  if(kuai[ki][0][0]>2){//²»±Ø¿¼ÂÇq1,Í¬ÑùÌá×Ó
+                  //   if(jszq(m2,n2)<=1) return 0;//æ˜¯å¦?ä¸å…¥æ°”
+                   //ä¸å¯èƒ½,fanda=trueæ—¶,å…¶å°äº1,å…¶=3;
+               if(beitia==0){//æäº†ä¸€å—
+               //  if(zb[kin][0][0]<2) return true;   //åŠ ä¸Šåˆ¤æ–­
+                  if(kuai[ki][0][0]>2){//ä¸å¿…è€ƒè™‘q1,åŒæ ·æå­
                      if(ch==0)return false;
                      else {
                         huitui=true;
@@ -243,18 +243,18 @@ public class JisuanBoard extends GoBoard{
                   }//else
                   else continue;
                }
-               a=m2;//ÌáÒ»×ÓÔò¶µ³Ô
+               a=m2;//æä¸€å­åˆ™å…œåƒ
                b=n2;
                cgcl(a,b);
-               a=beitia;//Õ³ÉÏ
+               a=beitia;//ç²˜ä¸Š
                b=beitib;
                beitia=0;
                beitib=0;
                cgcl(a,b);
             } //else
          }
-         if(zb[kin][0][0]<2) return true;//½»»»ºóµÄ×ÜÌåÅĞ¶Ï
-         else if(zb[kin][0][0]>2){//²»±Ø¿¼ÂÇq1,Í¬ÑùÌá×Ó
+         if(zb[kin][0][0]<2) return true;//äº¤æ¢åçš„æ€»ä½“åˆ¤æ–­
+         else if(zb[kin][0][0]>2){//ä¸å¿…è€ƒè™‘q1,åŒæ ·æå­
             if(ch==0)return false;
             else {
                huitui=true;
@@ -262,7 +262,7 @@ public class JisuanBoard extends GoBoard{
             }
          }//else
          else {
-            if(hui[shoushu][27]>=0){//´ò³ÔÒ»×Ó
+            if(hui[shoushu][27]>=0){//æ‰“åƒä¸€å­
                if(fanda==true) {
                   if(ch==0)return false;
                   else{
@@ -279,7 +279,7 @@ public class JisuanBoard extends GoBoard{
                   continue;
                }
             }
-            else if(hui[shoushu][33]>0){//´ò³Ô¿é,½üËÆÊ§°Ü
+            else if(hui[shoushu][33]>0){//æ‰“åƒå—,è¿‘ä¼¼å¤±è´¥
                if(ch==0)return false;
                else{
                   huitui=true;
@@ -289,14 +289,14 @@ public class JisuanBoard extends GoBoard{
             if(fanda==true&&ltdd(tizia,tizib,zzfyanse)){
                if(ch==0) return false;
                else{
-                  huitui=true;//ºóÍËµ½Ç°Ò»·Ö²æ
+                  huitui=true;//åé€€åˆ°å‰ä¸€åˆ†å‰
                   continue;
                }
             }
          }
       }//do
    }//yiqichi
-   public short xiayishou(){//·µ»ØÏÂÒ»ÊÖµÄÒ»Î¬±íÊ¾
+   public short xiayishou(){//è¿”å›ä¸‹ä¸€æ‰‹çš„ä¸€ç»´è¡¨ç¤º
       byte a,b;
       while(true){
          a=(byte)(Math.random()*19+1);
@@ -304,8 +304,8 @@ public class JisuanBoard extends GoBoard{
          if(zb[a][b][ZTXB]==0)  return(short)(b*19+a-19);
       }
    }
-   public boolean ltdd(byte m1,byte n1,byte  zzfys){//m1,n1ÎªÌá×Óµã
-      byte tongse=zzfys;//Õ÷×Ó·½ÑÕÉ«
+   public boolean ltdd(byte m1,byte n1,byte  zzfys){//m1,n1ä¸ºæå­ç‚¹
+      byte tongse=zzfys;//å¾å­æ–¹é¢œè‰²
       byte m,n;
       for(byte i=0;i<4;i++){
          m=(byte)(m1+szld[i][0]);
@@ -316,38 +316,38 @@ public class JisuanBoard extends GoBoard{
 
   }
    public byte  jhhdq(byte m1,byte n1,byte m2,byte n2){
-    //½»»»ºóµÄÆø,´òÔÚm2,n2,m1,n1ÄÜ³¤Îª¼¸Æø;m2,n2>=1Æø²Åµ÷ÓÃ¸Ãº¯Êı
-   //·µ»Ø1±íÊ¾Ö»ÓĞÌá×ÓÒ»ÖÖÑ¡Ôñ
-      byte qi=0;//±ØĞëÖØĞ´ĞÂµÄº¯Êı,ÒòÎª²»ÄÜÕæÕıÂä×Ó(³õ²½ÅĞ¶Ï,½ÚÊ¡¼ÆËã)
+    //äº¤æ¢åçš„æ°”,æ‰“åœ¨m2,n2,m1,n1èƒ½é•¿ä¸ºå‡ æ°”;m2,n2>=1æ°”æ‰è°ƒç”¨è¯¥å‡½æ•°
+   //è¿”å›1è¡¨ç¤ºåªæœ‰æå­ä¸€ç§é€‰æ‹©
+      byte qi=0;//å¿…é¡»é‡å†™æ–°çš„å‡½æ•°,å› ä¸ºä¸èƒ½çœŸæ­£è½å­(åˆæ­¥åˆ¤æ–­,èŠ‚çœè®¡ç®—)
       byte tongse=(byte)(shoushu%2+1);
       byte  m,n;
       for(byte i=0;i<4;i++){
          m=(byte)(m1+szld[i][0]);
          n=(byte)(n1+szld[i][1]);
         if(zb[m][n][ZTXB]==BLANK){//2.1the breath of blank
-           if(m==m2&&n==n2) {//m1+1µã¿ÉÄÜ²»ÄÜÔöÆø.Á½µã»¥ÏàÎªÆø.
-              // if(jszq(m2,n2)==1) qi++;//Ìá×ÓÔòÄÜÔöÆø??==1Î´±ØÊÇÒ»Æø
-              //²»¿ÉÄÜÌá×Ó!Ô­Æø>=2;
-              //Èç¹ûm2,n2±»Ìá,ÔòÉÙËãÁËÒ»Æø
+           if(m==m2&&n==n2) {//m1+1ç‚¹å¯èƒ½ä¸èƒ½å¢æ°”.ä¸¤ç‚¹äº’ç›¸ä¸ºæ°”.
+              // if(jszq(m2,n2)==1) qi++;//æå­åˆ™èƒ½å¢æ°”??==1æœªå¿…æ˜¯ä¸€æ°”
+              //ä¸å¯èƒ½æå­!åŸæ°”>=2;
+              //å¦‚æœm2,n2è¢«æ,åˆ™å°‘ç®—äº†ä¸€æ°”
             }else qi++;
          }
       }
-      if (qi==3) return 3;//¸Ã·½ÏòµÄÕ÷×ÓÒÑ¾­²»¿ÉÄÜ³ÉÁ¢
-    //  else  return 0;//ĞŞ¸Ä,2ÔÂ22ÈÕ,Ö»¼ÆËã¿Õ°×´¦,µÍÏÂ´úÂëÃ»ÓÃ
+      if (qi==3) return 3;//è¯¥æ–¹å‘çš„å¾å­å·²ç»ä¸å¯èƒ½æˆç«‹
+    //  else  return 0;//ä¿®æ”¹,2æœˆ22æ—¥,åªè®¡ç®—ç©ºç™½å¤„,ä½ä¸‹ä»£ç æ²¡ç”¨
       for(byte i=0;i<4;i++){
          m=(byte)(m1+szld[i][0]);
          n=(byte)(n1+szld[i][1]);
          if(zb[m][n][ZTXB]==tongse){//2.1the breath of blank
             qi+=zb[m][n][QSXB];
             qi--;
-         } //¿ÉÄÜÖÜÎ§Á½µãÎªÍ¬Ò»¿é,ÆøÊı¶àËãÁË.
+         } //å¯èƒ½å‘¨å›´ä¸¤ç‚¹ä¸ºåŒä¸€å—,æ°”æ•°å¤šç®—äº†.
       }
-      if(qi>1) return 2;//2ÊÇ²»È·¶¨µÄ,ËùÒÔÒªÊµ¼Ê¼ÆËã
-      else return qi;//0ÊÇÕæÊµµÄ,1ÊÇÓĞĞ§µÃµÄ(1¿ÉÄÜÎª0)
+      if(qi>1) return 2;//2æ˜¯ä¸ç¡®å®šçš„,æ‰€ä»¥è¦å®é™…è®¡ç®—
+      else return qi;//0æ˜¯çœŸå®çš„,1æ˜¯æœ‰æ•ˆå¾—çš„(1å¯èƒ½ä¸º0)
    }
-   public byte zzddq(byte m1, byte n1){//Ô¤ËãÕ÷×ÓµãµÄÆø
-      byte qi=0;//ÆøÊı±äÁ¿
-      byte tongse=(byte)(shoushu%2+1);//´ËÊ±ÊÖÊıÃ»ÓĞµİÔö
+   public byte zzddq(byte m1, byte n1){//é¢„ç®—å¾å­ç‚¹çš„æ°”
+      byte qi=0;//æ°”æ•°å˜é‡
+      byte tongse=(byte)(shoushu%2+1);//æ­¤æ—¶æ‰‹æ•°æ²¡æœ‰é€’å¢
       byte m,n;
       for(byte i=0;i<4;i++){
          m=(byte)(m1+szld[i][0]);
@@ -355,10 +355,10 @@ public class JisuanBoard extends GoBoard{
         if(zb[m][n][ZTXB]==BLANK){//2.1the breath of blank
             qi++;
          }
-      }//Ö»¿¼ÂÇÖ±½ÓµÄÆø,¼òµ¥ºÜ¶à,¶øÇÒ´ïµ½ÁËÔ¤ËãµÄÄ¿µÄ,ÒòÎª´ó¶àÊıµÄÕ÷×ÓÊÇÕâÖÖÇé¿ö
-      if(qi>=1)return qi;//qi==3,Ó¦ºóÈÔ>=2Æø;qi==2,Ó¦ºó¿ÉÄÜ±»·´´ò
-      //qi==1;ÒÑ¾­´¦ÓÚ·´´ò×´Ì¬(´íÎó, ¿ÉÄÜ³É¿é,Ö»ÄÜ±íÃ÷ÓĞÒ»¸öÖ±½ÓµÄÆø).
-      //qi==1Ö»±íÊ¾ĞèÒª½øÒ»²½¼ÆËã,Êµ¼Ê>=1Æø.qi==0±íÊ¾½û×Åµã.
+      }//åªè€ƒè™‘ç›´æ¥çš„æ°”,ç®€å•å¾ˆå¤š,è€Œä¸”è¾¾åˆ°äº†é¢„ç®—çš„ç›®çš„,å› ä¸ºå¤§å¤šæ•°çš„å¾å­æ˜¯è¿™ç§æƒ…å†µ
+      if(qi>=1)return qi;//qi==3,åº”åä»>=2æ°”;qi==2,åº”åå¯èƒ½è¢«åæ‰“
+      //qi==1;å·²ç»å¤„äºåæ‰“çŠ¶æ€(é”™è¯¯, å¯èƒ½æˆå—,åªèƒ½è¡¨æ˜æœ‰ä¸€ä¸ªç›´æ¥çš„æ°”).
+      //qi==1åªè¡¨ç¤ºéœ€è¦è¿›ä¸€æ­¥è®¡ç®—,å®é™…>=1æ°”.qi==0è¡¨ç¤ºç¦ç€ç‚¹.
       else if(qi==0){
          for(byte i=0;i<4;i++){
             m=(byte)(m1+szld[i][0]);
@@ -374,13 +374,13 @@ public class JisuanBoard extends GoBoard{
                m=(byte)(m1+szld[i][0]);
                n=(byte)(n1+szld[i][1]);
               if(zb[m][n][ZTXB]==yise&&zb[m][n][QSXB]==1){
-                 return 1;//ĞèÒª½øÒ»²½ÅĞ¶Ï
+                 return 1;//éœ€è¦è¿›ä¸€æ­¥åˆ¤æ–­
                }
             }
            return 0;
          }
-        else return 1;//±íÊ¾ĞèÒª½øÒ»²½¼ÆËã.
+        else return 1;//è¡¨ç¤ºéœ€è¦è¿›ä¸€æ­¥è®¡ç®—.
       }
-      return 1;//±àÒëÆ÷ÓĞÎÊÌâ,Ã»ÓĞÕâÒ»¾ä¾Í²»ÄÜÍ¨¹ı
-   }//Ö»ÄÜÇø±ğÓĞÃ»ÓĞÆø.¶øÇÒÃ»ÓĞ¿¼ÂÇ´ò½Ù(ËäÈ»Ã»ÓĞÆø,µ«ÊÇÌá×Óºó¿ÉÒÔÔöÒ»Æø).
-}//return boolean ¼´¿É ,Õ÷×Ó¹ı³Ì±£´æÔÚhuiÊı×éÖĞ.
+      return 1;//ç¼–è¯‘å™¨æœ‰é—®é¢˜,æ²¡æœ‰è¿™ä¸€å¥å°±ä¸èƒ½é€šè¿‡
+   }//åªèƒ½åŒºåˆ«æœ‰æ²¡æœ‰æ°”.è€Œä¸”æ²¡æœ‰è€ƒè™‘æ‰“åŠ«(è™½ç„¶æ²¡æœ‰æ°”,ä½†æ˜¯æå­åå¯ä»¥å¢ä¸€æ°”).
+}//return boolean å³å¯ ,å¾å­è¿‡ç¨‹ä¿å­˜åœ¨huiæ•°ç»„ä¸­.

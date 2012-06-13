@@ -3,12 +3,16 @@ package eddie.wu.arrayblock;
 import java.applet.Applet;
 import java.awt.*;
 
-import eddie.wu.arrayblock.GoBoard;
-//²âÊÔGoBoard1
+import org.apache.log4j.Logger;
+
+import eddie.wu.arrayblock.ArrayGoBoard;
+import eddie.wu.domain.Constant;
+//æµ‹è¯•GoBoard1
 public class GoApplet3 extends Applet {
+	private static final Logger log = Logger.getLogger(GoApplet3.class);
    boolean KEXIA=true;
    boolean CHONGHUI=true;
-   GoBoard go=new GoBoard();
+   ArrayGoBoard go=new ArrayGoBoard(Constant.BOARD_SIZE);
    GoBoard1 goboard=new GoBoard1(go);
    public void update (Graphics g){
       paint(g);
@@ -23,46 +27,46 @@ public class GoApplet3 extends Applet {
       //g.setColor(Color.yellow);
       //g.fillRect(0,0,560,560);
       g.setColor(Color.black) ;
-      for (int i=1; i<=19; i++)//»­Ïß
+      for (int i=1; i<=19; i++)//ç”»çº¿
       {
          g.drawLine(18,28*i-10,522,28*i-10);//hor
          g.drawLine(28*i-10,18,28*i-10,522);//ver
       }
-      //  System.out.println("// paint the ver and hor line.");
-      for (int i=0; i<3;i++){//»­ÐÇÎ»
+      //  if(log.isDebugEnabled()) log.debug("// paint the ver and hor line.");
+      for (int i=0; i<3;i++){//ç”»æ˜Ÿä½
          for ( int j=0; j<3;j++){
             g.fillOval(168*i+99,168*j+99,6,6);
          }
       }
-        // System.out.println("//paint the star point.");
-      for(int i=1;i<=19;i++){//»­×Å×Óµã
+        // if(log.isDebugEnabled()) log.debug("//paint the star point.");
+      for(int i=1;i<=19;i++){//ç”»ç€å­ç‚¹
          for(int j=1;j<=19;j++){
             if(goboard.zb[i][j][0]==1) {
                g.setColor (Color.black);
                g.fillOval(28*i-24,28*j-24,28,28);
-               //System.out.println("//paint the black point.");
+               //if(log.isDebugEnabled()) log.debug("//paint the black point.");
             }
             else  if(goboard.zb[i][j][0]==2){
                g.setColor(Color.white);
                g.fillOval(28*i-24,28*j-24,28,28);
-               // System.out.println("//paint the white point.");
+               // if(log.isDebugEnabled()) log.debug("//paint the white point.");
             }
          }
       }//for: paint all the points owned by black and white.
-      //µ±Ç°²½µÄÌá×Ó.
-   }//else»­Õû¸öÆåÅÌºÍÆå×Ó
+      //å½“å‰æ­¥çš„æå­.
+   }//elseç”»æ•´ä¸ªæ£‹ç›˜å’Œæ£‹å­
 
-   public boolean mouseDown(Event e,int x,int y){//½ÓÊÜÊó±êÊäÈë
+   public boolean mouseDown(Event e,int x,int y){//æŽ¥å—é¼ æ ‡è¾“å…¥
       if(KEXIA==true){
-         //KEXIA=false;//Ö»ÓÐ»úÆ÷Íê³ÉÒ»ÊÖ,²ÅÄÜ¼ÌÐø.
-         byte a=(byte)((x-4)/28+1);//Íê³ÉÊýÆøÌá×ÓµÈ.
+         //KEXIA=false;//åªæœ‰æœºå™¨å®Œæˆä¸€æ‰‹,æ‰èƒ½ç»§ç»­.
+         byte a=(byte)((x-4)/28+1);//å®Œæˆæ•°æ°”æå­ç­‰.
          byte b=(byte)((y-4)/28+1);
          goboard.cgcl(a,b);
-         //System.out.println("weiqiFrame de mousedown");
+         //if(log.isDebugEnabled()) log.debug("weiqiFrame de mousedown");
          repaint();
 
-         System.out.println("Gocanvas de mousedown");
-         return false;//ÏòÈÝÆ÷´«²¥,ÓÉFrame´¦Àí
+         if(log.isDebugEnabled()) log.debug("Gocanvas de mousedown");
+         return false;//å‘å®¹å™¨ä¼ æ’­,ç”±Frameå¤„ç†
       }
       else  return true;
    }

@@ -1,28 +1,23 @@
 package eddie.wu.search;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.Arrays;
+
+import org.apache.log4j.Logger;
 
 import eddie.wu.domain.Block;
-<<<<<<< HEAD
-import eddie.wu.domain.ColorUtil;
-import eddie.wu.domain.Point;
-import eddie.wu.linkedblock.BoardColorState;
-import eddie.wu.linkedblock.Controller;
-import eddie.wu.linkedblock.GoBoard;
-=======
 import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
+import eddie.wu.domain.GoBoardLadder;
 import eddie.wu.domain.Point;
-import eddie.wu.linkedblock.ColorUtil;
->>>>>>> 3d8aa49ce83f747c9170d697ba2d051c700809f6
+import eddie.wu.domain.StepMemo;
 import eddie.wu.linkedblock.LocalResultOfZhengZi;
 
 /**
  * (zheng zi ji suan hai shi fang zai du li de Class zhong jiao hao.)
- * Õ÷×Ó¼ÆËã»¹ÊÇ·ÅÔÚ¶ÀÁ¢µÄÀàÖĞ½ÏºÃ¡£ÕâÑùËÑË÷Ëã·¨²ÅÓĞ¿ÉÖØÓÃĞÔ¡£ ÒÔºó¿ÉÒÔÍÆ¹ã µ½ËùÓĞµÄµĞ¶ÔËÑË÷£¬¶ø²»½ö½öÏŞÓÚÕ÷×Ó¼ÆËã¡£ 2005/08 Óöµ½ÁËÉî¶È¿ËÂ¡µÄÎÊÌâ.
- * ÓÃĞòÁĞ»¯ÊµÏÖÉî¶È¿ËÂ¡Ò²Óöµ½ÁËÎÊÌâ. Decision 1: ÓÃMomentoÄ£Ê½À´ÊµÏÖ×´Ì¬ * µÄ¿½±´. Ò²ĞíĞ§ÂÊ²»Èç¿ËÂ¡,ÒòÎªĞèÒªÖØĞÂÊÕ¼¯Æå¾ÖĞÅÏ¢.
- * µ«ÊÇÏÈ±£Ö¤³ÌĞò¿ÉÒÔÔËĞĞ¸üÖØÒª. ĞÔÄÜ¿ÉÒÔÁô´ı½«À´½â¾ö.
+ * å¾å­è®¡ç®—è¿˜æ˜¯æ”¾åœ¨ç‹¬ç«‹çš„ç±»ä¸­è¾ƒå¥½ã€‚è¿™æ ·æœç´¢ç®—æ³•æ‰æœ‰å¯é‡ç”¨æ€§ã€‚ ä»¥åå¯ä»¥æ¨å¹¿ åˆ°æ‰€æœ‰çš„æ•Œå¯¹æœç´¢ï¼Œè€Œä¸ä»…ä»…é™äºå¾å­è®¡ç®—ã€‚ 2005/08 é‡åˆ°äº†æ·±åº¦å…‹éš†çš„é—®é¢˜.
+ * ç”¨åºåˆ—åŒ–å®ç°æ·±åº¦å…‹éš†ä¹Ÿé‡åˆ°äº†é—®é¢˜. Decision 1: ç”¨Momentoæ¨¡å¼æ¥å®ç°çŠ¶æ€ * çš„æ‹·è´. ä¹Ÿè®¸æ•ˆç‡ä¸å¦‚å…‹éš†,å› ä¸ºéœ€è¦é‡æ–°æ”¶é›†æ£‹å±€ä¿¡æ¯.
+ * ä½†æ˜¯å…ˆä¿è¯ç¨‹åºå¯ä»¥è¿è¡Œæ›´é‡è¦. æ€§èƒ½å¯ä»¥ç•™å¾…å°†æ¥è§£å†³.
  * 
  * depends on linked.block.GoBoard
  * 
@@ -30,14 +25,12 @@ import eddie.wu.linkedblock.LocalResultOfZhengZi;
  * 
  */
 public class ZhengZiCalculate {
-	private static final Log log = LogFactory.getLog(ZhengZiCalculate.class);
-	static final int SEARTHDEPTH = 120;
+	private static final Logger log = Logger.getLogger(ZhengZiCalculate.class);
+	protected static final int SEARTHDEPTH = 120;
 
-	static final int MAX = 1; // ´ú±íÕ÷×Ó·½
+	
 
-	static final int MIN = 2; // ´ú±í±»Õ÷×Ó·½
-
-	static final int numberOfNodes = 100000; // ¾ÖÃæÊı,¼´Õ¹¿ªµÄ½ÚµãÊı.
+	protected static final int numberOfNodes = 100000; // å±€é¢æ•°,å³å±•å¼€çš„èŠ‚ç‚¹æ•°.
 
 	/**
 	 * instance level fields
@@ -46,55 +39,63 @@ public class ZhengZiCalculate {
 	byte zhengzijieguo[][] = new byte[127][2];
 
 	/*
-	 * µ±Ç°ÒÑÓĞ²ãÊı¡£
+	 * å½“å‰å·²æœ‰å±‚æ•°ã€‚
 	 */
-	byte cengshu = 0;
+	protected byte cengshu = 0;
 
 	/*
-	 * µ±Ç°ÒÑÓĞ¾ÖÃæË÷ÒıºÅ¡£
+	 * å½“å‰å·²æœ‰å±€é¢ç´¢å¼•å·ã€‚
 	 */
-	int lastJumianIndex = 0;
+	protected int lastJumianIndex = 0;
 
 	/**
-	 * ³õÊ¼×´Ì¬£¬²ã0Ö»ÓĞÓĞÒ»¸ö¾ÖÃæ¡£ËûÔÚÕ»ÖĞµÄ±àºÅÊÇ0
+	 * åˆå§‹çŠ¶æ€ï¼Œå±‚0åªæœ‰æœ‰ä¸€ä¸ªå±€é¢ã€‚ä»–åœ¨æ ˆä¸­çš„ç¼–å·æ˜¯0
 	 */
-	Controller[] controllers;
+	protected Controller[] controllers;
 
-	GoBoard[] go = new GoBoard[numberOfNodes];
+	GoBoardLadder[] go = new GoBoardLadder[numberOfNodes];
 	/*
-	 * Éú³ÉÓëgo¶ÔÓ¦¾ÖÃæËù×ßµãµÄºá×ø±ê¡£ Éú³ÉÓëgo¶ÔÓ¦¾ÖÃæËù×ßµãµÄ×İ×ø±ê¡£ <br/> go[0] have no corresponding
+	 * ç”Ÿæˆä¸goå¯¹åº”å±€é¢æ‰€èµ°ç‚¹çš„æ¨ªåæ ‡ã€‚ ç”Ÿæˆä¸goå¯¹åº”å±€é¢æ‰€èµ°ç‚¹çš„çºµåæ ‡ã€‚ <br/> go[0] have no corresponding
 	 * za,zb. go[0] move to go[1] with step (za[1,zb[1]). since there are
 	 * several options in each state. we can not store the option/step in
 	 * starting state.
 	 */
 	byte[] za = new byte[numberOfNodes];
 	byte[] zb = new byte[numberOfNodes];
-	GoBoard temp;
+	GoBoardLadder temp;
 
 	/**
 	 * 
 	 * @param state
-	 *            ĞèÒª¼ÆËãÕ÷×ÓµÄ¾ÖÃæ
+	 *            éœ€è¦è®¡ç®—å¾å­çš„å±€é¢
 	 * @param pointInTargetBlock
-	 *            ±»Õ÷×ÓµÄ¿éµÄÄ³Ò»µã.ÓÃÓÚÖ¸¶¨±»Õ÷×ÓµÄ¿é.
-	 * @return Points[] ÓÃÓÚ±íÊ¾Õı½â.
+	 *            è¢«å¾å­çš„å—çš„æŸä¸€ç‚¹.ç”¨äºæŒ‡å®šè¢«å¾å­çš„å—.
+	 * @return Points[] ç”¨äºè¡¨ç¤ºæ­£è§£.
 	 */
 	public Point[] jisuanzhengziWithClone(BoardColorState state,
 			Point pointInTargetBlock) {
 		byte[][] result = zhengziCalculate(state, pointInTargetBlock.getRow(),
 				pointInTargetBlock.getColumn());
-		Point[] points = convertArrayToPoints(result);
+		if(log.isDebugEnabled()) log.debug(Arrays.deepToString(result));
+		Point[] points = convertArrayToPoints(boardSize, result);
 		return points;
 	}
 
-	public static Point[] convertArrayToPoints(byte[][] result) {
-		Point[] points = new Point[result.length];
-		for (int i = 0; i < result.length; i++) {
+	/**
+	 * result[0][0]ä»£è¡¨èƒœè´Ÿç»“æœ
+	 * 
+	 * @param result
+	 * @return
+	 */
+	public static Point[] convertArrayToPoints(int boardSize, byte[][] result) {
+		Point[] points = new Point[result.length - 1];
+		for (int i = 1; i < result.length; i++) {
 
 			byte[] temp = result[i];
 			if (temp[0] == 0 && temp[1] == 0)
 				break;
-			points[i] = Point.getPoint(temp[0], temp[1]);
+			points[i - 1] = Point.getPoint(boardSize, temp[0], temp[1]);
+			if(log.isDebugEnabled()) log.debug(points[i - 1]);
 		}
 		return points;
 	}
@@ -111,27 +112,34 @@ public class ZhengZiCalculate {
 		return result;
 	}
 
+	public byte[][] zhengziCalculate(BoardColorState state, Point point) {
+		return zhengziCalculate(state, point.getRow(), point.getColumn());
+	}
+
+	private int boardSize;
+
 	/**
 	 * 
 	 * 
 	 * 
 	 * @param state
-	 *            ĞèÒª¼ÆËãÕ÷×ÓµÄ¾ÖÃæ
+	 *            éœ€è¦è®¡ç®—å¾å­çš„å±€é¢
 	 * @param row
-	 *            ±»Õ÷×ÓµÄ¿éµÄÄ³Ò»µãĞĞ×ø±ê
+	 *            è¢«å¾å­çš„å—çš„æŸä¸€ç‚¹è¡Œåæ ‡
 	 * @param column
-	 *            ±»Õ÷×ÓµÄ¿éµÄÄ³Ò»µãÁĞ×ø±ê
-	 * @return byte[][] ÓÃÓÚ±íÊ¾Õı½â.
+	 *            è¢«å¾å­çš„å—çš„æŸä¸€ç‚¹åˆ—åæ ‡
+	 * @return byte[][] ç”¨äºè¡¨ç¤ºæ­£è§£.
 	 */
 	public byte[][] zhengziCalculate(BoardColorState state, byte row,
 			byte column) {
+		boardSize = state.boardSize;
 		controllers = initControllersMaxMin();
 		controllers[0].setIndexForJuMian(0);
 		controllers[0].setNumberOfJuMian(1);
 
-		// ×ö»îÖ÷ÌåµÄ¿é¡£
-		GoBoard linkedBlockGoBoard = new GoBoard(state);
-		linkedBlockGoBoard.generateHighLevelState();
+		// åšæ´»ä¸»ä½“çš„å—ã€‚
+		GoBoardLadder linkedBlockGoBoard = new GoBoardLadder(state);
+		// linkedBlockGoBoard.generateHighLevelState();
 
 		Block blockToBeEaten = linkedBlockGoBoard.getBlock(row, column);
 		if (log.isDebugEnabled()) {
@@ -141,12 +149,12 @@ public class ZhengZiCalculate {
 		// if (blockToBeEaten.getColor() == ColorUtil.BLACK) {
 		// linkedBlockGoBoard.setShoushu(1);// ?
 		// if (log.isDebugEnabled()) {
-		// log.debug("ÒªÌÓÕ÷×ÓµÄÆå¿éÎªºÚÉ«£¬ÂÖ°×·½×ßÄÜ·ñÕ÷×Ó£¿");
+		// log.debug("è¦é€ƒå¾å­çš„æ£‹å—ä¸ºé»‘è‰²ï¼Œè½®ç™½æ–¹èµ°èƒ½å¦å¾å­ï¼Ÿ");
 		// }
 		// } else if (blockToBeEaten.getColor() == ColorUtil.WHITE) {
 		// linkedBlockGoBoard.setShoushu(0);// ?
 		// if (log.isDebugEnabled()) {
-		// log.debug("ÒªÌÓÅÜµÄÆå¿éÎª°×É«£¬ÂÖºÚ·½×ßÄÜ·ñÕ÷×Ó£¿");
+		// log.debug("è¦é€ƒè·‘çš„æ£‹å—ä¸ºç™½è‰²ï¼Œè½®é»‘æ–¹èµ°èƒ½å¦å¾å­ï¼Ÿ");
 		// }
 		// }
 
@@ -155,22 +163,22 @@ public class ZhengZiCalculate {
 		 */
 
 		log.debug("clone in index:" + 0);
-		go[0] = this.getGoBoardCopy(linkedBlockGoBoard);
+		go[0] = this.getGoBoardLadderCopy(linkedBlockGoBoard);
 		// linkedBlockGoBoard itself will be forwarded.
 
 		/*
-		 * 2.¿ªÊ¼¼ÆËã¡£ µÚÒ»²ãÑ­»·£ºÕ¹¿ª×îºóÒ»¸ö¾ÖÃæ¡£
+		 * 2.å¼€å§‹è®¡ç®—ã€‚ ç¬¬ä¸€å±‚å¾ªç¯ï¼šå±•å¼€æœ€åä¸€ä¸ªå±€é¢ã€‚
 		 */
 
 		while (true) {
 
 			if (cengshu >= (SEARTHDEPTH - 1)) {
 				if (log.isDebugEnabled()) {
-					log.debug("ËÑË÷µ½" + SEARTHDEPTH + "²ã£¬ÈÔÃ»ÓĞ½á¹û£¬·µ»Ø²»¾«È·½á¹û");
+					log.debug("æœç´¢åˆ°" + SEARTHDEPTH + "å±‚ï¼Œä»æ²¡æœ‰ç»“æœï¼Œè¿”å›ä¸ç²¾ç¡®ç»“æœ");
 				}
 				return zhengzijieguo;
 			} else {
-				temp = (go[lastJumianIndex]).getGoBoardCopy();
+				temp = (go[lastJumianIndex]).getGoBoardLadderCopy();
 				if (cengshu != 0) {
 					Point lastPoint = temp.getLastPoint();
 					zhengzijieguo[cengshu][0] = (byte) lastPoint.getRow();
@@ -178,35 +186,35 @@ public class ZhengZiCalculate {
 					zhengzijieguo[0][1] = cengshu;
 				}
 				/*
-				 * ĞÂ²ãµÄ²ãºÅ¡£ µ±Ç°¹¤×÷ËùÔÚµÄ²ã£¬ĞÂµÄ²ã(dang qian de gong zuo suo zai de ceng)
-				 * ²ã0ÊÇÔ¤ÏÈ¶¨ÒåµÄ(ceng 0 shi yu ding yi de.)
+				 * æ–°å±‚çš„å±‚å·ã€‚ å½“å‰å·¥ä½œæ‰€åœ¨çš„å±‚ï¼Œæ–°çš„å±‚(dang qian de gong zuo suo zai de ceng)
+				 * å±‚0æ˜¯é¢„å…ˆå®šä¹‰çš„(ceng 0 shi yu ding yi de.)
 				 */
 				cengshu++;
 				if (log.isDebugEnabled()) {
-					log.debug("\n\nĞÂµÄµ±Ç°²ãÊıÎª£º" + cengshu);
+					log.debug("\n\næ–°çš„å½“å‰å±‚æ•°ä¸ºï¼š" + cengshu);
 				}
 				/*
-				 * ĞÂ²ãµÄ¿ªÊ¼µã¡£ µ±Ç°²ãµÄ¾ÖÃæ´ÓÕâÀï¿ªÊ¼±àºÅ(dang qian ceng de ju mian cong zhe li
+				 * æ–°å±‚çš„å¼€å§‹ç‚¹ã€‚ å½“å‰å±‚çš„å±€é¢ä»è¿™é‡Œå¼€å§‹ç¼–å·(dang qian ceng de ju mian cong zhe li
 				 * kaishi bian hao)
 				 */
 				controllers[cengshu].setIndexForJuMian(lastJumianIndex + 1);
 
 				if (log.isDebugEnabled()) {
-					log.debug("ĞÂ²ãµÄ¿ªÊ¼¾ÖÃæË÷ÒıÎª£º" + (lastJumianIndex + 1));
+					log.debug("æ–°å±‚çš„å¼€å§‹å±€é¢ç´¢å¼•ä¸ºï¼š" + (lastJumianIndex + 1));
 				}
 			}
 
 			log.debug("clone old board/state in index:" + lastJumianIndex);
 
 			// temp.initPoints();
-			// ÒªÕ¹¿ªµÄ¾ÖÃæ¡£
+			// è¦å±•å¼€çš„å±€é¢ã€‚
 			blockToBeEaten = temp.getBoardPoint(row, column).getBlock();
-			// Õ÷×Ó·½ºòÑ¡µãÊıÎª
-			if (controllers[cengshu].getWhoseTurn() == MIN) {
+			// å¾å­æ–¹å€™é€‰ç‚¹æ•°ä¸º
+			if (controllers[cengshu].getWhoseTurn() == Constant.MIN) {
 				if (log.isDebugEnabled()) {
-					log.debug("µ±Ç°²ãÊı£¿" + cengshu);
-					log.debug("µ±Ç°²ãÂÖË­×ß£¿" + "MIN");
-					log.debug("ÔÚÉÏÒ»²ãÓÉMAX×ßµÃµ½¸Ã²ã");
+					log.debug("å½“å‰å±‚æ•°ï¼Ÿ" + cengshu);
+					log.debug("å½“å‰å±‚è½®è°èµ°ï¼Ÿ" + "MIN");
+					log.debug("åœ¨ä¸Šä¸€å±‚ç”±MAXèµ°å¾—åˆ°è¯¥å±‚");
 				}
 
 				LocalResultOfZhengZi result = temp
@@ -215,27 +223,27 @@ public class ZhengZiCalculate {
 					log.debug("LocalResultOfZhengZ= " + result);
 				}
 				if (result.isSelfFail()) {
-					// ·µ»Ø£¬Ò»°ãÊÇÕ÷×Ó·½ÎŞ×Ó¿ÉÏÂ¡£
+					// è¿”å›ï¼Œä¸€èˆ¬æ˜¯å¾å­æ–¹æ— å­å¯ä¸‹ã€‚
 					if (log.isDebugEnabled()) {
-						log.debug("ÓĞĞ§µãÎª0");
+						log.debug("æœ‰æ•ˆç‚¹ä¸º0");
 
 					}
 					// TODO?st[cengshu][0] = 0;
 
-					if (cengshu == 1) { // Õ÷×Ó·½Ö±½ÓÎŞ×Ó¿ÉÏÂ£¬
+					if (cengshu == 1) { // å¾å­æ–¹ç›´æ¥æ— å­å¯ä¸‹ï¼Œ
 						zhengzijieguo[0][0] = -127;
 						return zhengzijieguo;
 					}
 
 					while (true) {
-						cengshu -= 2; // µ¹ÊıÁ½²ãÒÑ¾­È·¶¨¡£¼õºóµÄ²ãÊıĞèÒªÖØĞÂÕ¹¿ª
+						cengshu -= 2; // å€’æ•°ä¸¤å±‚å·²ç»ç¡®å®šã€‚å‡åçš„å±‚æ•°éœ€è¦é‡æ–°å±•å¼€
 						if (cengshu == -1) {
 							zhengzijieguo[0][0] = -127;
 							return zhengzijieguo;
 						}
 						// for (byte lins = 2; st[lins][0] != 0; lins++) {
 						// if (log.isDebugEnabled()) {
-						// log.debug("µãÎª:(" + za[st[lins][0] - 1]
+						// log.debug("ç‚¹ä¸º:(" + za[st[lins][0] - 1]
 						// + "," + zb[st[lins][0] - 1] + ")");
 						// }
 						// zhengzijieguo[lins - 1][0] = za[st[lins][0] - 1];
@@ -253,7 +261,7 @@ public class ZhengZiCalculate {
 							break;
 						}
 					}
-				} else if (result.isTie()) {// ¼ÌĞøÕ÷×Ó¼ÆËã
+				} else if (result.isTie()) {// ç»§ç»­å¾å­è®¡ç®—
 
 					controllers[cengshu].setNumberOfJuMian(result
 							.getNumberOfCandidates());
@@ -263,29 +271,30 @@ public class ZhengZiCalculate {
 							.getCandidateJuMians().iterator(); iterator
 							.hasNext();) {
 						count++;
-						go[lastJumianIndex + count] = (GoBoard) iterator.next();
+						go[lastJumianIndex + count] = (GoBoardLadder) iterator
+								.next();
 						if (go[lastJumianIndex + count] == null) {
 							throw new RuntimeException(
 									"go[jumianshu+count]==null");
 						}
 					}
-					System.out.println("count=" + count);
+					if(log.isDebugEnabled()) log.debug("count=" + count);
 					lastJumianIndex += result.getNumberOfCandidates();
-					System.out.println("jumianshu=" + lastJumianIndex);
+					if(log.isDebugEnabled()) log.debug("jumianshu=" + lastJumianIndex);
 				} else if (result.isSelfSuccess()) {// impossible
-					// Õ÷×Ó³É¹¦Ö»ÄÜÊÇ±»Õ÷×Ó·½²»ÄÜ³¤Æø¡£
+					// å¾å­æˆåŠŸåªèƒ½æ˜¯è¢«å¾å­æ–¹ä¸èƒ½é•¿æ°”ã€‚
 				}
 				// if min
-			} else if (controllers[cengshu].getWhoseTurn() == MAX) {// ±»Õ÷×Ó·½ºòÑ¡µãÊı
+			} else if (controllers[cengshu].getWhoseTurn() == Constant.MAX) {// è¢«å¾å­æ–¹å€™é€‰ç‚¹æ•°
 				if (log.isDebugEnabled()) {
-					log.debug("µ±Ç°²ãÊı£¿" + cengshu);
-					log.debug("µ±Ç°²ãÂÖË­×ß£¿" + "MAX");
-					log.debug("ÉÏÒ»²ãÂÖË­×ß£¿" + "MIN");
+					log.debug("å½“å‰å±‚æ•°ï¼Ÿ" + cengshu);
+					log.debug("å½“å‰å±‚è½®è°èµ°ï¼Ÿ" + "MAX");
+					log.debug("ä¸Šä¸€å±‚è½®è°èµ°ï¼Ÿ" + "MIN");
 
-					log.debug("ÔÚÉÏÒ»²ãÓÉMIN×ßµÃµ½¸Ã²ã");
+					log.debug("åœ¨ä¸Šä¸€å±‚ç”±MINèµ°å¾—åˆ°è¯¥å±‚");
 				}
 
-				// ·µ»ØºòÑ¡µã.»òÕß·µ»Ø½á¹û
+				// è¿”å›å€™é€‰ç‚¹.æˆ–è€…è¿”å›ç»“æœ
 
 				LocalResultOfZhengZi result = temp
 						.getLocalResultOfZhengZiForMIN(row, column);
@@ -293,7 +302,7 @@ public class ZhengZiCalculate {
 					log.debug("LocalResultOfZhengZi=" + result);
 				}
 				if (result.isSelfSuccess()) {
-					cengshu -= 1; // µ¹ÊıÁ½²ãÒÑ¾­È·¶¨¡£¼õºóµÄ²ãÊıĞèÒªÖØĞÂÕ¹¿ª
+					cengshu -= 1; // å€’æ•°ä¸¤å±‚å·²ç»ç¡®å®šã€‚å‡åçš„å±‚æ•°éœ€è¦é‡æ–°å±•å¼€
 					controllers[cengshu].decreaseJuMian();
 					if (controllers[cengshu].getNumberOfJuMian() != 0) {
 						lastJumianIndex = controllers[cengshu]
@@ -301,23 +310,32 @@ public class ZhengZiCalculate {
 
 					} else {
 						while (true) {
-							cengshu -= 2; // µ¹ÊıÁ½²ãÒÑ¾­È·¶¨¡£¼õºóµÄ²ãÊıĞèÒªÖØĞÂÕ¹¿ª
+							cengshu -= 2; // å€’æ•°ä¸¤å±‚å·²ç»ç¡®å®šã€‚å‡åçš„å±‚æ•°éœ€è¦é‡æ–°å±•å¼€
 							if (cengshu == -1) {
 								zhengzijieguo[0][0] = -127;
 								return zhengzijieguo;
 							}
-							lastJumianIndex = dealWithCeng(lastJumianIndex, cengshu,
-									controllers);
+							lastJumianIndex = dealWithCeng(lastJumianIndex,
+									cengshu, controllers);
 						}
 					}
 				} else if (result.isSelfFail()) {
 					while (true) {
-						cengshu -= 2; // µ¹ÊıÁ½²ãÒÑ¾­È·¶¨¡£¼õºóµÄ²ãÊıĞèÒªÖØĞÂÕ¹¿ª
+						cengshu -= 2; // å€’æ•°ä¸¤å±‚å·²ç»ç¡®å®šã€‚å‡åçš„å±‚æ•°éœ€è¦é‡æ–°å±•å¼€
 						if (cengshu == 0) {
 							zhengzijieguo[0][0] = 127;
-							//byte[][] hui = go[lastJumianIndex].getStepHistory().hui;
+							int count = 0;
+							for (StepMemo step : temp.getStepHistory()
+									.getAllSteps()) {
+								count++;
+								zhengzijieguo[count][0] = step
+										.getCurrentStepPoint().getRow();
+								zhengzijieguo[count][1] = step
+										.getCurrentStepPoint().getColumn();
+							}
+							// go[lastJumianIndex].getStepHistory().hui;
 							// for(int j=0;j<512;j++){
-							// System.out.println("["+hui[j][0]+","+hui[j][1]+"];");
+							// if(log.isDebugEnabled()) log.debug("["+hui[j][0]+","+hui[j][1]+"];");
 							// }
 							return zhengzijieguo;
 						}
@@ -325,7 +343,7 @@ public class ZhengZiCalculate {
 						// byte lins = 0;
 						// for (lins = 2; st[lins][0] != 0; lins++) {
 						// if (log.isDebugEnabled()) {
-						// log.debug("µãÎª:(" + za[st[lins][0] - 1]
+						// log.debug("ç‚¹ä¸º:(" + za[st[lins][0] - 1]
 						// + "," + zb[st[lins][0] - 1] + ")");
 						// } //
 						// this.cgcl(za[st[lins][0]-1],zb[st[lins][0]-1]);
@@ -357,15 +375,16 @@ public class ZhengZiCalculate {
 							.getCandidateJuMians().iterator(); iterator
 							.hasNext();) {
 						count++;
-						go[lastJumianIndex + count] = (GoBoard) iterator.next();
+						go[lastJumianIndex + count] = (GoBoardLadder) iterator
+								.next();
 						if (go[lastJumianIndex + count] == null) {
 							throw new RuntimeException(
 									"go[jumianshu+count-1]==null");
 						}
 					}
-					System.out.println("count=" + count);
+					if(log.isDebugEnabled()) log.debug("count=" + count);
 					lastJumianIndex += result.getNumberOfCandidates();
-					System.out.println("jumianshu=" + lastJumianIndex);
+					if(log.isDebugEnabled()) log.debug("jumianshu=" + lastJumianIndex);
 				}
 			} // max
 
@@ -373,7 +392,7 @@ public class ZhengZiCalculate {
 	}
 
 	/**
-	 * Çå³ıµ±Ç°¾ÖÃæÖ®ºóµÄ¾ÖÃæ
+	 * æ¸…é™¤å½“å‰å±€é¢ä¹‹åçš„å±€é¢
 	 * 
 	 * @param jumianshu
 	 * @param go
@@ -397,19 +416,19 @@ public class ZhengZiCalculate {
 	}
 
 	/*
-	 * ÏŞÖÆÁËËÑË÷Éî¶È¡£
+	 * é™åˆ¶äº†æœç´¢æ·±åº¦ã€‚
 	 */
-	Controller[] initControllersMaxMin() {
+	protected Controller[] initControllersMaxMin() {
 		Controller[] controllers = new Controller[SEARTHDEPTH];
 		Controller controller;
 
 		for (byte i = 0; i < controllers.length; i++) {
 			controller = new Controller();
-			controller.setWhoseTurn(MAX);
+			controller.setWhoseTurn(Constant.MAX);
 			controllers[i] = controller;
 			i++;
 			controller = new Controller();
-			controller.setWhoseTurn(MIN);
+			controller.setWhoseTurn(Constant.MIN);
 			controllers[i] = controller;
 
 		}
@@ -422,20 +441,18 @@ public class ZhengZiCalculate {
 
 		for (byte i = 0; i < controllers.length; i++) {
 			controller = new Controller();
-			controller.setWhoseTurn(MIN);
+			controller.setWhoseTurn(Constant.MIN);
 			controllers[i] = controller;
 			i++;
 			controller = new Controller();
-			controller.setWhoseTurn(MAX);
+			controller.setWhoseTurn(Constant.MAX);
 			controllers[i] = controller;
 
 		}
 		return controllers;
 	}
 
-	GoBoard getGoBoardCopy(GoBoard goBoard) {
-		GoBoard temp = new GoBoard(goBoard.getBoardColorState());
-		temp.generateHighLevelState();
-		return temp;
+	GoBoardLadder getGoBoardLadderCopy(GoBoardLadder goBoard) {
+		return goBoard.getGoBoardLadderCopy();
 	}
 }

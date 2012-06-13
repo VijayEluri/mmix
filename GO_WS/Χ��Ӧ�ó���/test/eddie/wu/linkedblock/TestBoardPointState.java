@@ -8,12 +8,12 @@ package eddie.wu.linkedblock;
 import java.util.HashSet;
 import java.util.Set;
 
+import junit.framework.TestCase;
+import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.BoardPoint;
 import eddie.wu.domain.ColorUtil;
-
+import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
-
-import junit.framework.TestCase;
 /**
  * @author eddie
  *
@@ -22,7 +22,7 @@ import junit.framework.TestCase;
  */
 public class TestBoardPointState extends TestCase {
 	public void testBoardState(){
-		BoardColorState state=new BoardColorState();
+		BoardColorState state=new BoardColorState(Constant.BOARD_SIZE);
 		state.add(new BoardPoint(Point.getPoint((byte)1,(byte)1),ColorUtil.BLACK));
 		state.add(new BoardPoint(Point.getPoint((byte)4,(byte)4),ColorUtil.WHITE));
 		

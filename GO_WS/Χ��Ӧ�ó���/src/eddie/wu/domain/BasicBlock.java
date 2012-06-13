@@ -6,43 +6,55 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.log4j.Logger;
+
+import eddie.wu.arrayblock.GoApplet;
+import eddie.wu.domain.comp.RowColumnComparator;
 import static eddie.wu.domain.survive.SmallEye.*;
 
 /**
  * This is the abstraction of Block, which is a group of stones connected
  * together. it could also be the blank point in the board, such as big eyes,
  * shared breath between two blocks. <br/>
- * Æå¿éµÄ¸ÅÄî¾ÍÊÇÁ¬½ÓÔÚÒ»ÆğµÄºÚ×ÓºÍ°××Ó¡£<br/>
- * Æø¿éÊÇ¶ÔÕâÒ»¸ÅÄîµÄ¼òµ¥À©Õ¹£¬µ«ÊÇÆø¿é¿ÉÄÜºÍ°×¿é£¬ºÚ¿é¶¼ÏàÁÚ£»¶øºÚ¿éÖ»ÄÜºÍ°×¿éÏàÁÚ¡£<br/>
- * Æø¿éÈç¹û½ö½öºÍÒ»¸öÑÕÉ«µÄÆå¿é£¨¿ÉÄÜÓĞ¶à¸ö£©ÏàÁÚ£¬ÄÇÃ´Ëû¾ÍÊÇÒ»¸öÑÛ¡£·ñÔò¾ÍÊÇ¹«Æø¡£¡£<br/>
- * Æå¿éÊÇ×î»ù±¾µÄµ¥Î»£¬ÒòÎªÒ»¸ö×ÓÒ²±»¿´³ÉÊÇÒ»¸öÆå¿é¡£<br/>
- * Æå¿éÓĞËùÓĞµĞ·½Æå¿éµÄÁ´±í¡£<br/>
- * Æø¿éÓĞËÄÖÜËùÓĞÆå¿éµÄÁ´±í<br/>
+ * æ£‹å—çš„æ¦‚å¿µå°±æ˜¯è¿æ¥åœ¨ä¸€èµ·çš„é»‘å­å’Œç™½å­ã€‚<br/>
+ * æ°”å—æ˜¯å¯¹è¿™ä¸€æ¦‚å¿µçš„ç®€å•æ‰©å±•ï¼Œä½†æ˜¯æ°”å—å¯èƒ½å’Œç™½å—ï¼Œé»‘å—éƒ½ç›¸é‚»ï¼›è€Œé»‘å—åªèƒ½å’Œç™½å—ç›¸é‚»ã€‚<br/>
+ * æ°”å—å¦‚æœä»…ä»…å’Œä¸€ä¸ªé¢œè‰²çš„æ£‹å—ï¼ˆå¯èƒ½æœ‰å¤šä¸ªï¼‰ç›¸é‚»ï¼Œé‚£ä¹ˆä»–å°±æ˜¯ä¸€ä¸ªçœ¼ã€‚å¦åˆ™å°±æ˜¯å…¬æ°”ã€‚ã€‚<br/>
+ * æ£‹å—æ˜¯æœ€åŸºæœ¬çš„å•ä½ï¼Œå› ä¸ºä¸€ä¸ªå­ä¹Ÿè¢«çœ‹æˆæ˜¯ä¸€ä¸ªæ£‹å—ã€‚<br/>
+ * æ£‹å—æœ‰æ‰€æœ‰æ•Œæ–¹æ£‹å—çš„é“¾è¡¨ã€‚<br/>
+ * æ°”å—æœ‰å››å‘¨æ‰€æœ‰æ£‹å—çš„é“¾è¡¨<br/>
  * 
  * @author wueddie-wym-wrz
  * 
  */
 public abstract class BasicBlock {
+	protected static final Logger log = Logger.getLogger(BasicBlock.class);
 
-	/* general/common attribute */
-	protected byte color;// Æå¿éÑÕÉ«
+	/**
+	 * æ£‹å—/æ°”å—é¢œè‰².ä¹Ÿç”¨äºåŒºåˆ«æ£‹å—å’Œæ£‹å—<br/>
+	 * general/common attribute
+	 */
+	protected byte color;
 
-	protected Set<Point> allPoints = new HashSet<Point>();// Æå¿é×Óµã¼¯ºÏ
+	/**
+	 * // æ£‹å—å­ç‚¹é›†åˆæˆ–è€…æ°”å—å­ç‚¹çš„é›†åˆ.
+	 */
+	protected Set<Point> allPoints = new HashSet<Point>();
+	
+	
+	private boolean calculated;
+	
 
-	public BasicBlock() {
+	// public BasicBlock() {
+	//
+	// }
 
-	}
-
-	public BasicBlock(byte color) {
-		this.color = color;
+	public BasicBlock(int color) {
+		this.color = (byte) color;
 	}
 
 	public void addPoint(Point Point) {
 		allPoints.add(Point);
-	}
-
-	public void addPoints(BasicBlock block) {
-		allPoints.addAll(block.getAllPoints());
 	}
 
 	public boolean removePoint(Point point) {
@@ -52,7 +64,7 @@ public abstract class BasicBlock {
 	/**
 	 * @return Returns the allPoints.
 	 */
-	public Set<Point> getAllPoints() {
+	public Set<Point> getPoints() {
 		return allPoints;
 	}
 
@@ -60,15 +72,20 @@ public abstract class BasicBlock {
 	 * @param allPoints
 	 *            The allPoints to set.
 	 */
-	public void setAllPoints(Set<Point> allPoints) {
+	public void setPoints(Set<Point> allPoints) {
 		this.allPoints = allPoints;
 	}
 
 	/**
 	 * @return Returns the color.
 	 */
-	public byte getColor() {
+	public int getColor() {
 		return color;
+	}
+
+	public int getEnemyColor() {
+		return ColorUtil.enemyColor(color);
+
 	}
 
 	/**
@@ -86,25 +103,50 @@ public abstract class BasicBlock {
 		List<Point> list = new ArrayList<Point>(allPoints.size());
 		list.addAll(this.allPoints);
 		Collections.sort(list, new PointComparator());
+		if (list.isEmpty()) {
+			if(log.isDebugEnabled()) log.debug("point list is empty!");
+			throw new RuntimeException("point list is empty!");
+		}
 		return list.get(0);
 	}
 
 	public Point getBehalfPoint() {
-		return (Point) allPoints.iterator().next();
+
+		return this.getTopLeftPoint();
+	}
+
+	public Point getUniquePoint() {
+		if (allPoints.size() != 1) {
+			throw new RuntimeException("allPoints.size()" + allPoints.size());
+		} else {
+			return allPoints.iterator().next();
+		}
 	}
 
 	public String toString() {
 		StringBuffer temp = new StringBuffer("[color=");
 		temp.append(color);
-		temp.append(",points=" + this.getTotalNumberOfPoint());
+		temp.append(",points=" + this.getNumberOfPoint());
 		temp.append(",allPoints=");
 		temp.append(allPoints);
 		temp.append("]");
 		return temp.toString();
 	}
 
-	public short getTotalNumberOfPoint() {
-		return (short) this.allPoints.size();
+	public int getNumberOfPoint() {
+		return this.allPoints.size();
+	}
+
+	public boolean isBlack() {
+		return getColor() == Constant.BLACK;
+	}
+
+	public boolean isBlank() {
+		return getColor() == Constant.BLANK;
+	}
+
+	public boolean isWhite() {
+		return getColor() == Constant.WHITE;
 	}
 
 	/**
@@ -113,34 +155,46 @@ public abstract class BasicBlock {
 	 * @return
 	 */
 	public Shape getShape() {
-		return Shape.getShape(this.getAllPoints());
+		return Shape.getShape(this.getPoints());
+	}
+
+	public static boolean equals(BasicBlock a, BasicBlock other) {
+		if (a instanceof Block && other instanceof Block) {
+			return Block.equals((Block) a, (Block) other);
+		} else if (a instanceof BlankBlock && other instanceof BlankBlock) {
+			return BlankBlock.equals((BlankBlock) a, (BlankBlock) other);
+		} else {
+			return false;
+		}
+
 	}
 
 	/**
 	 * 
 	 * @param shape
-	 * @return ¸ù¾İ¸ÃshapeËÄ¸ö¶¥µãÊÇ·ñÎªÆø¿éµÄÒ»²¿·Ö¡£·µ»Ø¼ÆÊı¡£
+	 * @return æ ¹æ®è¯¥shapeå››ä¸ªé¡¶ç‚¹æ˜¯å¦ä¸ºæ°”å—çš„ä¸€éƒ¨åˆ†ã€‚è¿”å›è®¡æ•°ã€‚
 	 */
 	public List<Point> getShapeCorners(Shape shape) {
 		List<Point> corners = new ArrayList<Point>();
 		int count = 0;
+		int boardSize = this.allPoints.iterator().next().boardSize;
 		Point point;
-		point = Point.getPoint(shape.getMinX(), shape.getMinY());
+		point = Point.getPoint(boardSize,shape.getMinX(), shape.getMinY());
 		if (allPoints.contains(point)) {
 			corners.add(point);
 			count++;
 		}
-		point = Point.getPoint(shape.getMinX(), shape.getMaxY());
+		point = Point.getPoint(boardSize,shape.getMinX(), shape.getMaxY());
 		if (allPoints.contains(point)) {
 			corners.add(point);
 			count++;
 		}
-		point = Point.getPoint(shape.getMaxX(), shape.getMinY());
+		point = Point.getPoint(boardSize,shape.getMaxX(), shape.getMinY());
 		if (allPoints.contains(point)) {
 			corners.add(point);
 			count++;
 		}
-		point = Point.getPoint(shape.getMaxX(), shape.getMaxY());
+		point = Point.getPoint(boardSize,shape.getMaxX(), shape.getMaxY());
 		if (allPoints.contains(point)) {
 			corners.add(point);
 			count++;
@@ -148,108 +202,39 @@ public abstract class BasicBlock {
 		return corners;
 	}
 
-	/**
-	 * brute force coding of the eye name.<br/>
-	 * better to use data to represent them.
-	 * 
-	 * @return
-	 */
-	public String getEyeName() {
-		int size = this.allPoints.size();
-		Shape shape = this.getShape();
-
-		switch (size) {
-		case 1: {
-			return SINGLE_STONE_EYE;
+	public static List<Point> getBehalfs(Set<? extends BasicBlock> blocks) {
+		List<Point> list = new ArrayList<Point>(blocks.size());
+		for (BasicBlock block : blocks) {
+			list.add(block.getTopLeftPoint());
 		}
-		case 2: {
-			return TWO_STONE_EYE;
-		}
-		case 3: {
-			if (shape.getMinDelta() == 1) {
-				return STRAIGHT_THREE_STONE_EYE;
-			} else {
-				return BEND_THREE_STONE_EYE;
-			}
-		}
-		case 4: {
-			if (shape.getMinDelta() == 1) {
-				return STRAIGHT_FOUR_STONE_EYE;
-			} else if (shape.getMaxDelta() == 2) {
-				return RECTANGLT_FOUR_STONE_EYE;
-			} else {// ==3
-				List<Point> shapeCorners = this.getShapeCorners(shape);
-				int count = shapeCorners.size();
-				if (count == 2) {
-					if (shapeCorners.get(0).isSameline(shapeCorners.get(1))) {
-						return T_FOUR_STONE_EYE;// óÒÃ±ËÄ
-					} else {
-						return Z_FOUR_STONE_EYE;
-					}
-				} else {// ==3
-					return RULER_FOUR_STONE_EYE;
-				}
-			}
-		}
-		case 5: {
-			if (shape.getMinDelta() == 1) {
-				return STRAIGHT_FIVE_STONE_EYE;
-			} else if (shape.getMinDelta() == 2) {
-				List<Point> shapeCorners = this.getShapeCorners(shape);
-				int count = shapeCorners.size();
-				if (count == 3) {
-					return KNIFE_HANDLER_FIVE_STONE_EYE;
-				} else {// ==4
-					return TRAP_FIVE_STONE_EYE;//
-				}
-			} else {// ==3
-				List<Point> shapeCorners = this.getShapeCorners(shape);
-				int count = shapeCorners.size();
-				if (count == 0) {
-					return FLOWER_FIVE_STONE_EYE;
-				} else if (count == 2) {
-					if (shapeCorners.get(0).isSameline(shapeCorners.get(1))) {
-						return T_FIVE_STONE_EYE;
-					} else {
-						return Z_FIVE_STONE_EYE;
-					}
-				} else if (count == 3) {
-					return RULER_FIVE_STONE_EYE;
-				} else {
-					return "Ã·»¨ÎåÖ®ÍâµÄĞÎ×´";
-				}
-			}
-		}
-		case 6: {
-			if (shape.getMinDelta() == 1) {
-				return STRAIGHT_SIX_STONE_EYE;
-			} else if (shape.getMinDelta() == 2) {
-				if (shape.getMaxDelta() == 3) {
-					return MATRIX_SIX_STONE_EYE;
-				} else if (shape.getMaxDelta() == 4) {
-					return "°åÁùÖ®ÍâµÄĞÎ×´";
-				} else {
-					return "°åÁùÖ®ÍâµÄĞÎ×´2";
-				}
-			}
-			// shape.getMinDelta() == 3
-			List<Point> shapeCorners = this.getShapeCorners(shape);
-			int count = shapeCorners.size();
-			if (count == 3) {
-				return FLOWER_SIX_STONE_EYE;
-			} else {
-				return "Ã·»¨ÁùÖ®ÍâµÄĞÎ×´";//
-			}
-
-		}
-		case 7: {
-			return "Æß×Ó¼°ÒÔÉÏÑÛ¿é";
-		}
-		}
-		return null;
+		Collections.sort(list, new RowColumnComparator());
+		return list;
 	}
+
+	public static List<Point> getPointList(Set<Point> points) {
+		List<Point> list = new ArrayList<Point>(points.size());
+		list.addAll(points);
+
+		Collections.sort(list, new RowColumnComparator());
+		return list;
+	}
+
+	public boolean isCalculated() {
+		return calculated;
+	}
+
+	public void setCalculated(boolean calculated) {
+		this.calculated = calculated;
+	}
+
 }
 
+/**
+ * æŒ‰yï¼xçš„æ–œçº¿æ¥è®¡ç®—å—çš„è¾¹ç¼˜ã€‚çº¿ä¸Šçš„ç‚¹ï¼ˆrow+column)éƒ½ä¸€è‡´ã€‚åŒä¸€æ¡çº¿ä¸Šé¡¶éƒ¨çš„ç‚¹ä¼˜å…ˆã€‚
+ * 
+ * @author Eddie
+ * 
+ */
 class PointComparator implements Comparator<Point> {
 
 	@Override
@@ -258,25 +243,12 @@ class PointComparator implements Comparator<Point> {
 		int b = o2.getRow() + o2.getColumn();
 		if (a == b) {
 			if (o1.getRow() < o2.getRow()) {// top one first.
-				return 1;
-			} else {
 				return -1;
+			} else {
+				return 1;
 			}
 		} else {
 			return a - b;
-		}
-
-	}
-
-}
-
-class RowColumnComparator implements Comparator<Point> {
-	@Override
-	public int compare(Point o1, Point o2) {
-		if (o1.getRow() == o2.getRow()) {
-			return o1.getColumn() - o2.getColumn();
-		} else {
-			return o1.getRow() - o2.getRow();
 		}
 
 	}

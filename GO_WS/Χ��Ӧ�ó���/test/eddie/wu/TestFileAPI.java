@@ -4,6 +4,10 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import org.apache.log4j.Logger;
+
+import util.GBKToUTF8;
+
 import eddie.wu.domain.Constant;
 
 import junit.framework.TestCase;
@@ -11,9 +15,9 @@ import junit.framework.TestCase;
 /**
  * finding: the current working directory is different between running test case
  * application, and Applet.<br/>
- * current working dir = C:\scm\git\git-hub\mmix\GO_WS\Œß∆Â”¶”√≥Ã–Ú for test case and
+ * current working dir = C:\scm\git\git-hub\mmix\GO_WS\Âõ¥Ê£ãÂ∫îÁî®Á®ãÂ∫è for test case and
  * application</br/> 
- * v.s. C:\scm\git\git-hub\mmix\GO_WS\Œß∆Â”¶”√≥Ã–Ú\bin for applet.<br/>
+ * v.s. C:\scm\git\git-hub\mmix\GO_WS\Âõ¥Ê£ãÂ∫îÁî®Á®ãÂ∫è\bin for applet.<br/>
  * that means Applet runs in class path as current working directory.
  * 
  * since current directory is environment dependent. it should be parameterized.
@@ -22,13 +26,13 @@ import junit.framework.TestCase;
  * 
  */
 public class TestFileAPI extends TestCase {
-
+	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
 	public void test() throws Exception {
 		String name = "user.dir";
 		String dir = System.getProperty(name);
-		System.out.println("current working dir = " + dir);
+		if(log.isDebugEnabled()) log.debug("current working dir = " + dir);
 
-		String goManualLibFileName = Constant.rootDir+"/vol0000.gmd";// "doc/Œß∆Â¥Ú∆◊»Ìº˛/vol0000.gmd";
+		String goManualLibFileName = Constant.rootDir+"/vol0000.gmd";// "doc/Âõ¥Ê£ãÊâìË∞±ËΩØ‰ª∂/vol0000.gmd";
 		byte[] manual = new byte[1024 * 4];
 		DataInputStream in = null;
 		in = new DataInputStream(new BufferedInputStream(new FileInputStream(

@@ -6,6 +6,8 @@
  */
 package eddie.wu.api;
 
+import eddie.wu.domain.Point;
+
 /**
  * @author eddie
  * 
@@ -13,9 +15,10 @@ package eddie.wu.api;
 public interface ZhengZiInterface {
 	/**
 	 * 
-	 * @param a
-	 * @param b
-	 * @return the steps to konquer the block.
+	 * @param point
+	 *            the point of attacked block
+	 * 
+	 * @return the steps to kill/capture/conquer the block.
 	 */
-	public byte[][] jiSuanZhengZi(int a, int b);
+	public byte[][] jiSuanZhengZi(Point point);
 }

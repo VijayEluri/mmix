@@ -2,7 +2,12 @@ package eddie.wu;
 import java.util.LinkedList;
 import java.util.Iterator;
 
+import org.apache.log4j.Logger;
+
+import util.GBKToUTF8;
+
 class LinkedBlock {
+	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
    LinkedList linkedList=new LinkedList();
    public static void main(String[] args){
      new LinkedBlock().test();
@@ -14,7 +19,7 @@ class LinkedBlock {
       //linkedList.add(4,"345:");//IndexOutOfBoundsException
       linkedList.add(3,"345:");
       linkedList.add(2,"15664");
-      linkedList.add(2,"345:");//“¿¥Œ∫Û“∆345:
+      linkedList.add(2,"345:");//‰æùÊ¨°ÂêéÁßª345:
                                //c00
                                //345:
 
@@ -22,18 +27,18 @@ class LinkedBlock {
       linkedList.addLast("sdfasdfa");
       Iterator eee=linkedList.iterator();
       while(eee.hasNext()){
-         System.out.println(eee.next());
+         if(log.isDebugEnabled()) log.debug(eee.next());
       }
-       System.out.println("rtr");
+       if(log.isDebugEnabled()) log.debug("rtr");
      for(eee=linkedList.iterator();eee.hasNext();){
-        System.out.println(eee.next());
+        if(log.isDebugEnabled()) log.debug(eee.next());
      }
-     System.out.println(linkedList.get(0));
-     System.out.println(linkedList.get(1));
-     System.out.println(linkedList.get(2));
-     System.out.println(linkedList.getLast());
-     System.out.println(linkedList.getFirst());
-     System.out.println(linkedList.size());
+     if(log.isDebugEnabled()) log.debug(linkedList.get(0));
+     if(log.isDebugEnabled()) log.debug(linkedList.get(1));
+     if(log.isDebugEnabled()) log.debug(linkedList.get(2));
+     if(log.isDebugEnabled()) log.debug(linkedList.getLast());
+     if(log.isDebugEnabled()) log.debug(linkedList.getFirst());
+     if(log.isDebugEnabled()) log.debug(linkedList.size());
 
    }
 

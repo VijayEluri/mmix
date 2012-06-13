@@ -12,11 +12,10 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import eddie.wu.domain.BlankBlock;
 import eddie.wu.domain.Block;
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
@@ -30,13 +29,13 @@ import eddie.wu.manual.LoadGMDGoManual;
  * 
  * @author eddie
  * 
- *         
+ * 
  */
 public class TestArrayGoBoardExternally extends TestCase {
 	private static final String rootDir = Constant.rootDir;
 
-	private static final Log log = LogFactory
-			.getLog(TestArrayGoBoardExternally.class);
+	private static final Logger log = Logger
+			.getLogger(TestArrayGoBoardExternally.class);
 
 	public TestArrayGoBoardExternally(String string) {
 		super(string);
@@ -69,7 +68,7 @@ public class TestArrayGoBoardExternally extends TestCase {
 		}
 		// logger.setLevel(Level.DEBUG);
 		byte[] original = null;
-		original = new LoadGMDGoManual(rootDir).loadSingleGoManual();
+		original = new LoadGMDGoManual(rootDir).loadSingleGoManual().getMoves();
 		helperTestMethod(original);
 
 	}
@@ -87,10 +86,11 @@ public class TestArrayGoBoardExternally extends TestCase {
 		} else {
 			logger.setLevel(Level.ERROR);
 		}
-		
+
 		byte count = 0;
-		List<GMDGoManual> list = new LoadGMDGoManual(rootDir).loadMultiGoManualFromLib0();
-		for (GMDGoManual manual: list) {
+		List<GMDGoManual> list = new LoadGMDGoManual(rootDir)
+				.loadMultiGoManualFromLib0();
+		for (GMDGoManual manual : list) {
 			byte[] original = manual.getMoves();
 			count++;
 			log.debug("GOManual:" + count);
@@ -173,20 +173,21 @@ public class TestArrayGoBoardExternally extends TestCase {
 	 */
 	private void helperTestMethod_External(byte[] original) {
 		GoBoard linkedGoBoard = new GoBoard();
-		eddie.wu.arrayblock.GoBoard arrayGoBoard = new eddie.wu.arrayblock.GoBoard();
+		eddie.wu.arrayblock.ArrayGoBoard arrayGoBoard = new eddie.wu.arrayblock.ArrayGoBoard(
+				Constant.BOARD_SIZE);
 
 		BoardColorState colorStateLinked = null;
 		BoardColorState colorStateArrayed = null;
 		Constant.DEBUG_CGCL = false;
 
-		for (int i = 0; i < original.length; i+=2) {
+		for (int i = 0; i < original.length; i += 2) {
 			if (log.isInfoEnabled()) {
 				log.debug("shoushu=" + (i + 3) / 2);
 				log.debug("a=" + original[i]);
 				log.debug("b=" + original[i + 1]);
 			}
 			linkedGoBoard.oneStepForward(original[i], original[i + 1]);
-			arrayGoBoard.cgcl(original[i], original[i+1]);
+			arrayGoBoard.cgcl(original[i], original[i + 1]);
 
 			// 1.breath of every point should be equal!
 			assertEquals("breath of every point should be equal",
@@ -217,17 +218,15 @@ public class TestArrayGoBoardExternally extends TestCase {
 		Constant.DEBUG_CGCL = false;
 
 		for (int i = 0; i < original.length; i += 2) {
-			if (log.isWarnEnabled()) {
-				log.warn("shoushu=" + (i + 3) / 2);
-				log.warn("a=" + original[i]);
-				log.warn("b=" + original[i + 1]);
-			}
+			log.warn("shoushu=" + (i + 3) / 2);
+			log.warn("a=" + original[i]);
+			log.warn("b=" + original[i + 1]);
 			goBoard.oneStepForward(original[i], original[i + 1]);
 
 			// 3.redundant with the code in TEstGoBoardInternally
 			boardColorState = goBoard.getBoardColorState();
 			goBoard2 = new GoBoard(boardColorState, (i + 3) / 2);
-			goBoard2.generateHighLevelState();
+			// goBoard2.generateHighLevelState();
 
 			assertEquals("color state should equal internally!",
 					boardColorState, goBoard2.getBoardColorState());
@@ -238,9 +237,9 @@ public class TestArrayGoBoardExternally extends TestCase {
 			Set<Block> blackBlocks = goBoard.getBlackBlocks();
 			Set<Block> blackBlocks2 = goBoard2.getBlackBlocks();
 			// Block blackBlock = blackBlocksFromState.iterator().next();
-			// System.out.println(blackBlock.hashCode());
+			// if(log.isDebugEnabled()) log.debug(blackBlock.hashCode());
 			// Block blackBlock2 = blackBlocksFromState2.iterator().next();
-			// System.out.println(blackBlock2.hashCode());
+			// if(log.isDebugEnabled()) log.debug(blackBlock2.hashCode());
 			// found a bug because of fly weight pattern of class Point is
 			// broken.
 			// assertTrue(blackBlock.equals(blackBlock2));
@@ -254,8 +253,8 @@ public class TestArrayGoBoardExternally extends TestCase {
 			assertTrue(whiteBlocks.equals(whiteBlocks2));
 			assertEquals("white block should equal!", whiteBlocks, whiteBlocks2);
 
-			Set<Block> blankBlocks = goBoard.getBlankBlocks();
-			Set<Block> blankBlocks2 = goBoard2.getBlankBlocks();
+			Set<BlankBlock> blankBlocks = goBoard.getBlankBlocks();
+			Set<BlankBlock> blankBlocks2 = goBoard2.getBlankBlocks();
 			assertEquals("blank block should equal!", blankBlocks, blankBlocks2);
 
 		}

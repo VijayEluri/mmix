@@ -1,61 +1,96 @@
 package eddie.wu.domain.territoty;
 
+import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Shape;
-import eddie.wu.linkedblock.ColorUtil;
 
 /**
- * ¹Ù×ÓÒòÎªÊÇÉæ¼°µØÓòµÄ×îºóÕù¶á£¬Ïàµ±ÓÚÏóÆåµÄ²Ğ¾Ö½×¶Î¡£<br/>
- * ÔİÇÒ·­ÒëÎªTerritory¡£<br/>
- * µØÓòµÄ¼ÆËãÊÇ·Ç³£»ù±¾µÄ¡£ÔÚ¶à¸ö¿ÉÄÜ¾ÖÃæÖĞÑ¡ÔñÊ±£¬ĞèÒªÕâÖÖ¶¨Á¿µÄÅĞ¶Ï¡£<br/>
- * ¶øÕâÖÖ¶¨Á¿µÄÄÑ¶ÈÔÚÓÚÒª½«±ä»¯Ëãµ½¾¡Í·¡£
+ * å®˜å­å› ä¸ºæ˜¯æ¶‰åŠåœ°åŸŸçš„æœ€åäº‰å¤ºï¼Œç›¸å½“äºè±¡æ£‹çš„æ®‹å±€é˜¶æ®µã€‚<br/>
+ * æš‚ä¸”ç¿»è¯‘ä¸ºTerritoryã€‚<br/>
+ * åœ°åŸŸçš„è®¡ç®—æ˜¯éå¸¸åŸºæœ¬çš„ã€‚åœ¨å¤šä¸ªå¯èƒ½å±€é¢ä¸­é€‰æ‹©æ—¶ï¼Œéœ€è¦è¿™ç§å®šé‡çš„åˆ¤æ–­ã€‚<br/>
+ * è€Œè¿™ç§å®šé‡çš„éš¾åº¦åœ¨äºè¦å°†å˜åŒ–ç®—åˆ°å°½å¤´ã€‚
  * 
  * @author wueddie-wym-wrz
  * 
  */
 public class Territory {
 	/**
-	 * adjustment cause by the move it self, is done outside.<br/>
-	 * ×ÅÊÖ±¾ÉúÔì³ÉµÄÄ¿Êı²îÒì£¬ĞèÒªÔÚµ÷ÓÃµÄµØ·½´¦Àí¡£Ë«·½ºóÊÖµÄÒ»Ä¿¹Ù×Ó£¬ÕâÀïµÄ¼ÆËã½á¹ûÎª3Ä¿¡£
-	 * <br/>µ¥¹ÙÔòËã³ÉÁ½Ä¿¡£
-	 * @param myState
-	 *            eye belong to its owner. so stateA is adjusted to set the
-	 *            color for eye point before calling.<br/>
-	 *             ¿Õ°×µã¿ÉÄÜÊÇµ¥¹Ù£¬Ò²¿ÉÄÜÊÇÑÛÎ»¡£Çø±ğ¶Ô´ı¡£±¾Ëã·¨²»ÒªÇóÊÕÍêµ¥¹Ù¡£
-	 * @param enemyState
+	 * adjustment of difference caused by the move itself, is done outside.<br/>
+	 * ç€æ‰‹æœ¬ç”Ÿé€ æˆçš„ç›®æ•°å·®å¼‚ï¼Œéœ€è¦åœ¨è°ƒç”¨çš„åœ°æ–¹å¤„ç†ã€‚åŒæ–¹åæ‰‹çš„ä¸€ç›®å®˜å­ï¼Œè¿™é‡Œçš„è®¡ç®—ç»“æœä¸º3ç›®ã€‚ <br/>
+	 * å•å®˜åˆ™ç®—æˆä¸¤ç›®ã€‚
+	 * 
+	 * @param stateA
+	 *            The state when I play first.<br/>
+	 *            since eye belong to its owner. so stateA is adjusted to set
+	 *            the color for eye point before calling.<br/>
+	 *            ç©ºç™½ç‚¹å¯èƒ½æ˜¯å•å®˜ï¼Œä¹Ÿå¯èƒ½æ˜¯çœ¼ä½ã€‚åŒºåˆ«å¯¹å¾…ã€‚æœ¬ç®—æ³•ä¸è¦æ±‚æ”¶å®Œå•å®˜ã€‚
+	 * @param stateB
+	 *            the state when enemyState play first.
 	 * @param shape
+	 *            only consider the point in the scope specified by shape.
 	 * @param myColor
-	 * @return
+	 *            ä»¥å“ªä¸€æ–¹ä¸ºå‡ºå‘ç‚¹.
+	 * @return the difference between I play first and enemy play first.
 	 */
-	public int compare(byte[][] myState, byte[][] enemyState, Shape shape,
+	public int compare(byte[][] stateA, byte[][] stateB, Shape shape,
 			int myColor) {
 		int enemyColor = ColorUtil.enemyColor(myColor);
 		int myCount = 0;
 		int enemyCount = 0;
 		for (int row = shape.getMinX(); row <= shape.getMaxX(); row++) {
 			for (int column = shape.getMinY(); column <= shape.getMaxY(); column++) {
-				if (myState[row][column] == myColor) {
-					if (enemyState[row][column] == enemyColor) {
-						myCount+=2;
-					}else if (enemyState[row][column] == Constant.BLANK) {
-						myCount+=1;
+				if (stateA[row][column] == myColor) {
+					if (stateB[row][column] == enemyColor) {
+						myCount += 2;
+					} else if (stateB[row][column] == Constant.BLANK) {
+						myCount += 1;
 					}
-				} else if (myState[row][column] == enemyColor) {
-					if (enemyState[row][column] == myColor) {
-						enemyCount+=2;
-					}else if (enemyState[row][column] == Constant.BLANK) {
-						enemyCount+=1;
+				} else if (stateA[row][column] == enemyColor) {
+					if (stateB[row][column] == myColor) {
+						enemyCount += 2;
+					} else if (stateB[row][column] == Constant.BLANK) {
+						enemyCount += 1;
 					}
-				}else if (myState[row][column] == Constant.BLANK) {
-					if (enemyState[row][column] == enemyColor) {
-						myCount+=1;
-					}else if (enemyState[row][column] == myColor) {
-						enemyCount+=1;
+				} else if (stateA[row][column] == Constant.BLANK) {
+					if (stateB[row][column] == enemyColor) {
+						myCount += 1;
+					} else if (stateB[row][column] == myColor) {
+						enemyCount += 1;
 					}
 				}
 			}
 		}
 		return myCount - enemyCount;
-		
+
+	}
+
+	/**
+	 * è®¡ç®—æœ€ç»ˆå±€é¢çš„èƒœè´Ÿ,ä¸è€ƒè™‘è´´å­/è®©ç›®,
+	 * 
+	 * @param state
+	 *            ä¹‹å‰å·²ç»å¤„ç†è¿‡,æ­»å­å·²ç»æèµ°,çœ¼ä½å·²ç»è®¾æˆæ‰€å±æ£‹å—çš„é¢œè‰²<br/>
+	 *            åŒæ´»çš„ç‚¹ä»æ˜¯ç©ºç™½ç‚¹
+	 * @return
+	 */
+	public int count(byte[][] state) { 
+		int boardSize = state.length-2;
+		int blank = 0;
+		int white = 0;
+		int black = 0;
+		for (int row = 1; row <= boardSize; row++) {
+			for (int column = 1; column <= boardSize; column++) {
+				if (state[row][column] == Constant.BLACK)
+					black++;
+				else if (state[row][column] == Constant.WHITE)
+					white++;
+				else if (state[row][column] == Constant.BLANK)
+					blank++;
+			}
+		}
+		if (black + white + blank != 361)
+			throw new RuntimeException("black+white+blank = "
+					+ (black + white + blank));
+
+		return black - white;
 	}
 }

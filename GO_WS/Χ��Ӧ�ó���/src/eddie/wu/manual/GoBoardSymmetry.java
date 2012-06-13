@@ -1,21 +1,15 @@
 package eddie.wu.manual;
 
-import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
-<<<<<<< HEAD
+import eddie.wu.domain.Block;
+import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.BoardPoint;
 import eddie.wu.domain.ColorUtil;
-=======
-import eddie.wu.domain.BoardColorState;
->>>>>>> 3d8aa49ce83f747c9170d697ba2d051c700809f6
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
-import eddie.wu.linkedblock.BoardPoint;
-import eddie.wu.linkedblock.ColorUtil;
 
 /**
  * this Go board is used for display and for go manual conversion. the data
@@ -28,42 +22,51 @@ import eddie.wu.linkedblock.ColorUtil;
  * 
  */
 public class GoBoardSymmetry {
-	private static final Log log = LogFactory.getLog(GoBoardSymmetry.class);
+	private static final Logger log = Logger.getLogger(GoBoardSymmetry.class);
 
-	// Ã¿¸öÂä×ÓµãµÄÇé¿ö£¬ËùÓĞÔ­Ê¼ĞÅÏ¢¶¼ÔÚÕâ¸öÊı×éÖĞ¡£×ãÒÔ´ú±íÒ»¸ö¾ÖÃæ¡£
-	// Á½Î¬ÊÇÆåÅÌµÄ×ø±ê,Êı×éÏÂ±ê´Ó1µ½19;
-	private BoardPoint[][] boardPoints = new BoardPoint[Constant.SIZEOFMATRIX][Constant.SIZEOFMATRIX];
+	// æ¯ä¸ªè½å­ç‚¹çš„æƒ…å†µï¼Œæ‰€æœ‰åŸå§‹ä¿¡æ¯éƒ½åœ¨è¿™ä¸ªæ•°ç»„ä¸­ã€‚è¶³ä»¥ä»£è¡¨ä¸€ä¸ªå±€é¢ã€‚
+	// ä¸¤ç»´æ˜¯æ£‹ç›˜çš„åæ ‡,æ•°ç»„ä¸‹æ ‡ä»1åˆ°19;
+	private BoardPoint[][] boardPoints = new BoardPoint[Constant.BOARD_MATRIX_SIZE][Constant.BOARD_MATRIX_SIZE];
 
-	private Point[][] points = new Point[Constant.SIZEOFMATRIX][Constant.SIZEOFMATRIX];
+	// private Point[][] points = new
+	// Point[Constant.BOARD_MATRIX_SIZE][Constant.BOARD_MATRIX_SIZE];
 
-	// Æø¿éºÍ×Ó¿é·Ö¿ª£¬Æø¿éÊÇ×Ó¿éµÄ¸½Êô¡£
-	private short numberOfPointsExisted = 0; // µ±Ç°ÒÑÓĞÊÖÊı,´¦ÀíÖ®Ç°µİÔö.´Ó1¿ªÊ¼;
+	// æ°”å—å’Œå­å—åˆ†å¼€ï¼Œæ°”å—æ˜¯å­å—çš„é™„å±ã€‚
+	private short numberOfPointsExisted = 0; // å½“å‰å·²æœ‰æ‰‹æ•°,å¤„ç†ä¹‹å‰é€’å¢.ä»1å¼€å§‹;
+
+	private final int boardSize;
+	private final int middleLine;
 
 	public GoBoardSymmetry() {
+		this(Constant.BOARD_SIZE);
+	}
 
+	public GoBoardSymmetry(int boardSize) {
+		this.boardSize = boardSize;
+		middleLine = (boardSize + 1) / 2;
 		byte i, j;
-		for (i = 1; i < Constant.ZBSX; i++) {
-			for (j = 1; j < Constant.ZBSX; j++) {
-				points[i][j] = Point.getPoint(i,j);//new Point(i, j);
-				boardPoints[i][j] = new BoardPoint(points[i][j]);
-				boardPoints[i][j].setBlock(null);// no need to use block here
+		for (i = 1; i <= boardSize; i++) {
+			for (j = 1; j <= boardSize; j++) {
+
+				boardPoints[i][j] = new BoardPoint(Point.getPoint(boardSize, i,
+						j));
 
 			}
 		}
-		for (i = Constant.ZBXX; i <= Constant.ZBSX; i++) { // 2ÔÂ22ÈÕ¼Ó
-//			points[Constant.ZBXX][i] = new Point(Constant.ZBXX, i);
-//			points[Constant.ZBSX][i] = new Point(Constant.ZBSX, i);
-//			points[i][Constant.ZBXX] = new Point(i, Constant.ZBXX);
-//			points[i][Constant.ZBSX] = new Point(i, Constant.ZBSX);
-			boardPoints[Constant.ZBXX][i] = new BoardPoint(
-					points[Constant.ZBXX][i], (byte) ColorUtil.OutOfBound);
-			boardPoints[Constant.ZBSX][i] = new BoardPoint(
-					points[Constant.ZBSX][i], (byte) ColorUtil.OutOfBound);
-			boardPoints[i][Constant.ZBXX] = new BoardPoint(
-					points[i][Constant.ZBXX], (byte) ColorUtil.OutOfBound);
-			boardPoints[i][Constant.ZBSX] = new BoardPoint(
-					points[i][Constant.ZBSX], (byte) ColorUtil.OutOfBound);
-		} // 2ÔÂ22ÈÕ¼Ó
+		// for (i = Constant.ZBXX; i <= Constant.ZBSX; i++) { // 2æœˆ22æ—¥åŠ 
+		// // points[Constant.ZBXX][i] = new Point(Constant.ZBXX, i);
+		// // points[Constant.ZBSX][i] = new Point(Constant.ZBSX, i);
+		// // points[i][Constant.ZBXX] = new Point(i, Constant.ZBXX);
+		// // points[i][Constant.ZBSX] = new Point(i, Constant.ZBSX);
+		// boardPoints[Constant.ZBXX][i] = new BoardPoint(
+		// points[Constant.ZBXX][i], (byte) ColorUtil.OutOfBoard);
+		// boardPoints[Constant.ZBSX][i] = new BoardPoint(
+		// points[Constant.ZBSX][i], (byte) ColorUtil.OutOfBoard);
+		// boardPoints[i][Constant.ZBXX] = new BoardPoint(
+		// points[i][Constant.ZBXX], (byte) ColorUtil.OutOfBoard);
+		// boardPoints[i][Constant.ZBSX] = new BoardPoint(
+		// points[i][Constant.ZBSX], (byte) ColorUtil.OutOfBoard);
+		// } // 2æœˆ22æ—¥åŠ 
 
 	}
 
@@ -72,16 +75,16 @@ public class GoBoardSymmetry {
 	 * 
 	 */
 	public GoBoardSymmetry(BoardColorState boardState) {
-		this();
+		this(boardState.boardSize);
 
 		final Set<Point> blackPoints = boardState.getBlackPoints();
 		final Set<Point> whitePoints = boardState.getWhitePoints();
-		 
-		for (Point tempPoint: blackPoints) {		
+
+		for (Point tempPoint : blackPoints) {
 			boardPoints[tempPoint.getRow()][tempPoint.getColumn()]
 					.setColor(ColorUtil.BLACK);
 		}
-		for (Point tempPoint : whitePoints) {		
+		for (Point tempPoint : whitePoints) {
 			boardPoints[tempPoint.getRow()][tempPoint.getColumn()]
 					.setColor(ColorUtil.WHITE);
 		}
@@ -125,8 +128,8 @@ public class GoBoardSymmetry {
 
 	public int pointsInVerticalLine() {
 		int count = 0;
-		for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-			if (boardPoints[i][Constant.COORDINATEOFTIANYUAN].getColor() != ColorUtil.BLANK) {
+		for (int i = 1; i <= boardSize; i++) {
+			if (boardPoints[i][middleLine].getColor() != ColorUtil.BLANK) {
 				count++;
 			}
 		}
@@ -135,8 +138,8 @@ public class GoBoardSymmetry {
 
 	public int pointsInForwardSlashLine() {
 		int count = 0;
-		for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-			if (boardPoints[Constant.SIZEOFBOARD + 1 - i][i].getColor() != ColorUtil.BLANK) {
+		for (int i = 1; i <= boardSize; i++) {
+			if (boardPoints[boardSize + 1 - i][i].getColor() != ColorUtil.BLANK) {
 				count++;
 			}
 		}
@@ -145,7 +148,7 @@ public class GoBoardSymmetry {
 
 	public int pointsInBackwardSlashLine() {
 		int count = 0;
-		for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
+		for (int i = 1; i <= boardSize; i++) {
 			if (boardPoints[i][i].getColor() != ColorUtil.BLANK) {
 				count++;
 			}
@@ -155,8 +158,8 @@ public class GoBoardSymmetry {
 
 	public int pointsInHorizontalLine() {
 		int count = 0;
-		for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-			if (boardPoints[Constant.COORDINATEOFTIANYUAN][i].getColor() != ColorUtil.BLANK) {
+		for (int i = 1; i <= boardSize; i++) {
+			if (boardPoints[middleLine][i].getColor() != ColorUtil.BLANK) {
 				count++;
 			}
 		}
@@ -170,21 +173,21 @@ public class GoBoardSymmetry {
 	 */
 	public boolean verticalSymmetry() {
 		if (possibleVerticalSymmetry()) {
-			for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-				for (int j = 1; j < Constant.COORDINATEOFTIANYUAN; j++) {
+			for (int i = 1; i <= boardSize; i++) {
+				for (int j = 1; j < middleLine; j++) {
 
-					if (boardPoints[i][j].getColor() != boardPoints[i][Constant.SIZEOFBOARD
+					if (boardPoints[i][j].getColor() != boardPoints[i][boardSize
 							+ 1 - j].getColor()) {
 						if (log.isDebugEnabled()) {
-							System.out.println("i="
+							if(log.isDebugEnabled()) log.debug("i="
 									+ i
 									+ ",j="
 									+ j
 									+ ",color="
 									+ boardPoints[i][j].getColor()
 									+ "color="
-									+ boardPoints[i][Constant.SIZEOFBOARD + 1
-											- j].getColor());
+									+ boardPoints[i][boardSize + 1 - j]
+											.getColor());
 						}
 						return false;
 					}
@@ -197,21 +200,20 @@ public class GoBoardSymmetry {
 
 	public boolean horizontalSymmetry() {
 		if (possibleHorizontalSymmetry()) {
-			for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-				for (int j = 1; j < Constant.COORDINATEOFTIANYUAN; j++) {
-					if (boardPoints[j][i].getColor() != boardPoints[Constant.SIZEOFBOARD
+			for (int i = 1; i <= boardSize; i++) {
+				for (int j = 1; j < middleLine; j++) {
+					if (boardPoints[j][i].getColor() != boardPoints[boardSize
 							+ 1 - j][i].getColor()) {
 						if (log.isDebugEnabled()) {
-							System.out
-									.println("i="
-											+ i
-											+ ",j="
-											+ j
-											+ ",color="
-											+ boardPoints[j][i].getColor()
-											+ "color="
-											+ boardPoints[Constant.SIZEOFBOARD
-													+ 1 - j][i].getColor());
+							if(log.isDebugEnabled()) log.debug("i="
+									+ i
+									+ ",j="
+									+ j
+									+ ",color="
+									+ boardPoints[j][i].getColor()
+									+ "color="
+									+ boardPoints[boardSize + 1 - j][i]
+											.getColor());
 						}
 						return false;
 
@@ -225,12 +227,12 @@ public class GoBoardSymmetry {
 
 	public boolean backwardSlashSymmetry() {
 		if (possibleBackwardSlashSymmetry()) {
-			for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-				for (int j = i + 1; j <= Constant.SIZEOFBOARD; j++) {
+			for (int i = 1; i <= boardSize; i++) {
+				for (int j = i + 1; j <= boardSize; j++) {
 					if (boardPoints[j][i].getColor() != boardPoints[i][j]
 							.getColor()) {
 						if (log.isDebugEnabled()) {
-							System.out.println("i=" + i + ",j=" + j + ",color="
+							if(log.isDebugEnabled()) log.debug("i=" + i + ",j=" + j + ",color="
 									+ boardPoints[j][i].getColor() + "color="
 									+ boardPoints[i][j].getColor());
 
@@ -247,13 +249,13 @@ public class GoBoardSymmetry {
 
 	public boolean forwardSlashSymmetry() {
 		if (possibleForwardSlashSymmetry()) {
-			for (int i = 1; i <= Constant.SIZEOFBOARD; i++) {
-				for (int j = 1; j < Constant.SIZEOFBOARD + 1 - i; j++) {
-					if (boardPoints[20 - j][20 - i].getColor() != boardPoints[i][j]
+			for (int i = 1; i <= boardSize; i++) {
+				for (int j = 1; j < boardSize + 1 - i; j++) {
+					if (boardPoints[boardSize+1 - j][boardSize+1 - i].getColor() != boardPoints[i][j]
 							.getColor()) {
 						if (log.isDebugEnabled()) {
-							System.out.println("i=" + i + ",j=" + j + ",color="
-									+ boardPoints[20 - j][20 - i].getColor()
+							if(log.isDebugEnabled()) log.debug("i=" + i + ",j=" + j + ",color="
+									+ boardPoints[boardSize+1 - j][boardSize+1 - i].getColor()
 									+ "color=" + boardPoints[i][j].getColor());
 						}
 						return false;

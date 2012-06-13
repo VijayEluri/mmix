@@ -9,57 +9,82 @@ package eddie.wu.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import eddie.wu.manual.SGFGoManual;
+
 /**
  * @author eddie
  * 
- *         TODO To change the template for this generated type comment go to
+ * 
  */
 public class Constant {
-	public static final String rootDir = "doc/Î§Æå´òÆ×Èí¼ş/";
-	public static final String GLOBAL_MANUAL = Constant.rootDir + "weiqigo/go/go.gmd";
+	public static final String rootDir = "doc/å›´æ£‹æ‰“è°±è½¯ä»¶/";
+
+	public static final int currentManualIndex = 1;
+	public static final String currentManual = SGFGoManual
+			.getFileName(currentManualIndex);
+
+	
+	public static final String GLOBAL_MANUAL = Constant.rootDir
+			+ "weiqigo/go/go.gmd";
 	// basic constant
-	public static final byte SIZEOFBOARD = 19;
+	public static final byte BOARD_SIZE = 19;
+	public static final byte SMALL_BOARD_SIZE = 11;
+	
+	public static final int MAX = 1; // ä»£è¡¨å¾å­æ–¹
+
+	public static final int MIN = 2; // ä»£è¡¨è¢«å¾å­æ–¹
 
 	// derived constant
-	public static final byte SIZEOFMATRIX = SIZEOFBOARD + 2;
-	public static final byte COORDINATEOFTIANYUAN = (SIZEOFBOARD + 1) / 2;
-	public static final short QIPANZONGDIANSHU = SIZEOFBOARD * SIZEOFBOARD;
-	public static final byte ZBSX = SIZEOFBOARD + 1; // ÆåÅÌ×ø±êÉÏÏŞ£¨ÈËÔì±ß½ç£©;
-	public static final byte ZBXX = 0; // ÆåÅÌ×ø±êÏÂÏŞ£¨ÈËÔì±ß½ç£©;
+	public static final byte BOARD_MATRIX_SIZE = BOARD_SIZE + 2;
+	//public static final byte COORDINATEOFTIANYUAN = (BOARD_SIZE + 1) / 2;
+	//public static final short QIPANZONGDIANSHU = BOARD_SIZE * BOARD_SIZE;
+//	public static final byte ZBSX = BOARD_SIZE + 1; // æ£‹ç›˜åæ ‡ä¸Šé™ï¼ˆäººé€ è¾¹ç•Œï¼‰;
+//	public static final byte ZBXX = 0; // æ£‹ç›˜åæ ‡ä¸‹é™ï¼ˆäººé€ è¾¹ç•Œï¼‰;
 
-	// ±éÀúËÄÖÜ£¨ºáÖáºÍ×İÖá£©ÁÚ×Óµã,Ë³Ğò¿Éµ÷.ÓÒ-ÏÂ-×ó-ÉÏ
-	public static final byte[][] szld = { { 1, 0 }, { 0, -1 }, { -1, 0 },
-			{ 0, 1 } };
+	// éå†å››å‘¨ï¼ˆæ¨ªè½´å’Œçºµè½´ï¼‰é‚»å­ç‚¹,é¡ºåºå¯è°ƒ.å³-ä¸‹-å·¦-ä¸Š
 
-	// ±éÀúËÄÖÜ¶Ô½Çµã,Ë³Ğò¿Éµ÷.ÓÒ-ÏÂ-×ó-ÉÏ
-	public static final byte[][] szdjd = { { 1, 1 }, { 1, -1 }, { -1, -1 },
-			{ -1, 1 } };
-	// ¼ç³å
+	// new solution
+	public static final Delta DELTA_ADJACENT = Delta.getDelta(1, 0);
+	public static final List<Delta> ADJACENTS = Delta
+			.getAppoachWays(DELTA_ADJACENT);
+
+	// éå†å››å‘¨å¯¹è§’ç‚¹,é¡ºåºå¯è°ƒ.å³-ä¸‹-å·¦-ä¸Š
+	// public static final byte[][] szdjd = { { 1, 1 }, { 1, -1 }, { -1, -1 },
+	// { -1, 1 } };
+
+	// è‚©å†² (ä¹Ÿå³ä¹å®«é¡¶ç‚¹)
 	public static final Delta DELTA_SHOULDER = Delta.getDelta(1, 1);
 	public static final List<Delta> SHOULDERS = Delta
 			.getAppoachWays(DELTA_SHOULDER);
-	// Ò»¼ä¸ß¹Ò
+	// ä¸€é—´é«˜æŒ‚
 	public static final Delta DELTA_ONE_DISTANCE = new Delta(2, 0);
 	public static List<Delta> ONE_DISTANCE = Delta
 			.getAppoachWays(DELTA_ONE_DISTANCE);
-	// Ğ¡·É
+	// å°é£
 	public static final Delta DELTA_SMALL_KNIGHT = Delta.getDelta(2, 1);
 	public static List<Delta> SMALL_KNIGHT = Delta
 			.getAppoachWays(DELTA_SMALL_KNIGHT);
-	// Ïó·É
+	// è±¡é£
 	public static final Delta DELTA_ELEPHANT_KNIGHT = Delta.getDelta(2, 2);
 	public static List<Delta> ELEPHANT_KNIGHT = Delta
 			.getAppoachWays(DELTA_ELEPHANT_KNIGHT);
-	// ¶ş¼ä¸ß¹Ò
+	// äºŒé—´é«˜æŒ‚
 	public static final Delta DELTA_TWO_DISTANCE = new Delta(3, 0);
 	public static List<Delta> TWO_DISTANCE = Delta
 			.getAppoachWays(DELTA_TWO_DISTANCE);
-	// ´ó·É
+	// å¤§é£
 	public static final Delta DELTA_BIG_KNIGHT = Delta.getDelta(3, 1);
 	public static List<Delta> BIG_KNIGHT = Delta
 			.getAppoachWays(DELTA_BIG_KNIGHT);
 
-	public static final List<List<Delta>> NEIGHBOR = new ArrayList<List<Delta>>();
+	// ä¸‰é—´æ¥è¿‘
+	public static final Delta DELTA_THREE_DISTANCE = new Delta(4, 0);
+	public static List<Delta> THREE_DISTANCE = Delta
+			.getAppoachWays(DELTA_TWO_DISTANCE);
+
+	public static final List<List<Delta>> NEIGHBOR = new ArrayList<List<Delta>>();	
+	public static final List<List<Delta>> CONNECTIONS = new ArrayList<List<Delta>>();
+	public static final List<List<Delta>> NEIGHBOR_FROM_ADJACENT = new ArrayList<List<Delta>>();
 
 	static {
 		NEIGHBOR.add(SHOULDERS);
@@ -68,39 +93,50 @@ public class Constant {
 		NEIGHBOR.add(ELEPHANT_KNIGHT);
 		NEIGHBOR.add(TWO_DISTANCE);
 		NEIGHBOR.add(BIG_KNIGHT);
-
+		
+		
+		NEIGHBOR_FROM_ADJACENT.add(SHOULDERS);
+		NEIGHBOR_FROM_ADJACENT.addAll(NEIGHBOR);
+		
+		CONNECTIONS.add(SHOULDERS);
+		CONNECTIONS.add(ONE_DISTANCE);
+		CONNECTIONS.add(SMALL_KNIGHT);
 	};
 
 	public static final byte OUT_OF_BOUND = -1;
 	public static final byte BLANK = 0;
-	public static final byte BLACK = 1; // 1±íÊ¾ºÚ×Ó;
-	public static final byte WHITE = 2; // 2±íÊ¾°××Ó;
+	public static final byte BLACK = 1; // 1è¡¨ç¤ºé»‘å­;
+	public static final byte WHITE = 2; // 2è¡¨ç¤ºç™½å­;
 
-	public static boolean DEBUG_CGCL = true; // cgcl()·½·¨µ÷ÊÔ
+	//
+	public static final byte EATEN = 100; // æ˜¾ç¤ºè¢«æåƒçš„å­;
+
+	public static boolean DEBUG_CGCL = true; // cgcl()æ–¹æ³•è°ƒè¯•
 	public static final boolean DEBUG_JISUANSIHUO = false;
 	public static final boolean DEBUG_KDQ = false;
 	public static final boolean DEBUG_JSKQ = false;
 	public static final boolean DEBUG_JISUANZHENGZI = true;
 	public static final int MAX_STEPS_IN_ONE_MANUAL_SHOW = 100;
-	public static final String DING_SHI_SHU = "C:/scm/git/git-hub/mmix/GO_WS/Î§ÆåÓ¦ÓÃ³ÌĞò/doc/Î§Æå³ÌĞòÊı¾İ/" + "¶¨Ê½Ê÷";
+	public static final String DING_SHI_SHU = "C:/scm/git/git-hub/mmix/GO_WS/å›´æ£‹åº”ç”¨ç¨‹åº/doc/å›´æ£‹ç¨‹åºæ•°æ®/"
+			+ "å®šå¼æ ‘";
 
 }
 //
-// public static final byte ZTXB = 0; // ÏÂ±ê0´æ´¢×´Ì¬Öµ£¨ÎŞ×Ó¡¢ºÚ×Ó¡¢°××Ó£©;
-// public static final byte SQBZXB = 1; // ÏÂ±ê1´æ´¢ËãÆø±êÖ¾;
-// public static final byte QSXB = 2; // ÏÂ±ê2´æ´¢ÆøÊı£¨µ¥×Ó»òÕßÆå¿éµÄÆøÊı£©;
-// public static final byte QKSYXB = 3; // ÏÂ±ê3´æ´¢Æø¿éË÷Òı£¨¿Õ°×µã¶øÑÔ£©
+// public static final byte ZTXB = 0; // ä¸‹æ ‡0å­˜å‚¨çŠ¶æ€å€¼ï¼ˆæ— å­ã€é»‘å­ã€ç™½å­ï¼‰;
+// public static final byte SQBZXB = 1; // ä¸‹æ ‡1å­˜å‚¨ç®—æ°”æ ‡å¿—;
+// public static final byte QSXB = 2; // ä¸‹æ ‡2å­˜å‚¨æ°”æ•°ï¼ˆå•å­æˆ–è€…æ£‹å—çš„æ°”æ•°ï¼‰;
+// public static final byte QKSYXB = 3; // ä¸‹æ ‡3å­˜å‚¨æ°”å—ç´¢å¼•ï¼ˆç©ºç™½ç‚¹è€Œè¨€ï¼‰
 
-// ÑÛÎ»Ïà¹ØµÄ²ÎÊı
-// 1.ÑÛµÄÎ»ÖÃ¡£
+// çœ¼ä½ç›¸å…³çš„å‚æ•°
+// 1.çœ¼çš„ä½ç½®ã€‚
 // public static final byte BIANYAN = 2;
 // public static final byte JIAOYAN = 1;
 // public static final byte ZHONGFUYAN = 3;
-// // 2.ÑÛµÄĞÔÖÊ¡£
+// // 2.çœ¼çš„æ€§è´¨ã€‚
 // public static final byte JIAYAN = 1;
 // public static final byte WEIDINGYAN = 2;
 // public static final byte ZHENYAN = 3;
-// // 3.Á¬½ÓĞÔ¡£
+// // 3.è¿æ¥æ€§ã€‚
 // public static final byte WEILIANJIE = 1;
 // public static final byte KELIANJIE = 2;
 // public static final byte YILIANJIE = 3;

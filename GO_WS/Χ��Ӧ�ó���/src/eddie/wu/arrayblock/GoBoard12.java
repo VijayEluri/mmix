@@ -1,14 +1,17 @@
 package eddie.wu.arrayblock;
-/**´ÓzbÊı×éÖ±½ÓÉú³É¾ÖÃæ£¬¶ø²»ÊÇ°´ÕÕ¹ı³ÌÖğ²½Éú³Éµ±Ç°¾ÖÃæ¡£
-Î´Íê³É¡£
- ËùÎ½¾ÖÃæµÄÉú³É¾ÍÊÇÖ¸Éú³É±íÊ¾µ±Ç°¾ÖÃæµÄÊı¾İ½á¹¹.
+/**ä»zbæ•°ç»„ç›´æ¥ç”Ÿæˆå±€é¢ï¼Œè€Œä¸æ˜¯æŒ‰ç…§è¿‡ç¨‹é€æ­¥ç”Ÿæˆå½“å‰å±€é¢ã€‚
+æœªå®Œæˆã€‚
+ æ‰€è°“å±€é¢çš„ç”Ÿæˆå°±æ˜¯æŒ‡ç”Ÿæˆè¡¨ç¤ºå½“å‰å±€é¢çš„æ•°æ®ç»“æ„.
  */
-import eddie.wu.arrayblock.GoBoard;
-public class GoBoard12 extends GoBoard {
+import org.apache.log4j.Logger;
+
+import eddie.wu.arrayblock.ArrayGoBoard;
+public class GoBoard12 extends ArrayGoBoard {
+	private static final Logger log = Logger.getLogger(ArrayGoBoard.class);
    byte zishu=0;
-   byte qiki=127;//ÆøµÄ¿éºÅ,ÓÃºó¼õ 1;
-   public GoBoard12(GoBoard goboard) {
-      super();
+   byte qiki=127;//æ°”çš„å—å·,ç”¨åå‡ 1;
+   public GoBoard12(ArrayGoBoard goboard) {
+      super(goboard.getBoardSize());
       for(int i=ZBXX;i<=ZBSX;i++){
          for(int j=ZBXX;j<=ZBSX;j++){
               zb[i][j][ZTXB]=goboard.zb[i][j][ZTXB];
@@ -20,7 +23,7 @@ public class GoBoard12 extends GoBoard {
               zb[i][j][6]=goboard.zb[i][j][6];
               zb[i][j][7]=goboard.zb[i][j][7];
          }
-      }//zbÊı×éµÄ³õÊ¼»¯
+      }//zbæ•°ç»„çš„åˆå§‹åŒ–
 
       shoushu=goboard.shoushu;
       ki=goboard.ki;
@@ -43,28 +46,28 @@ public class GoBoard12 extends GoBoard {
    }
 
    public void shengchengjumian(){
-   //´ÓÆåÆ×µÄÎ»Í¼±íÊ¾Éú³ÉkuaiºÍzbÊı×éµÄÏàÓ¦ĞÅÏ¢
+   //ä»æ£‹è°±çš„ä½å›¾è¡¨ç¤ºç”Ÿæˆkuaiå’Œzbæ•°ç»„çš„ç›¸åº”ä¿¡æ¯
       byte i,j;
-      for (i=1;i<20;i++){//iÊÇ×İ×ø±ê
-         for(j=1;j<20;j++){//jÊÇºá×ø±ê
-            if(zb[j][i][SQBZXB]==1) continue;//SQBZXB´Ë´¦Ïàµ±ÓÚ´¦Àí¹ıµÄ±êÖ¾.
+      for (i=1;i<20;i++){//iæ˜¯çºµåæ ‡
+         for(j=1;j<20;j++){//jæ˜¯æ¨ªåæ ‡
+            if(zb[j][i][SQBZXB]==1) continue;//SQBZXBæ­¤å¤„ç›¸å½“äºå¤„ç†è¿‡çš„æ ‡å¿—.
             zishu=0;
-            if (zb[j][i][ZTXB]==BLACK){//×ó.ÉÏ±ØÎª¿Õµã»òÒìÉ«×Ó
+            if (zb[j][i][ZTXB]==BLACK){//å·¦.ä¸Šå¿…ä¸ºç©ºç‚¹æˆ–å¼‚è‰²å­
                ki++;
-               chengkuai(j,i,BLACK); //ÅĞ¶ÏÓÒ.ÏÂÊÇ·ñÎªÍ¬É«×Ó.
+               chengkuai(j,i,BLACK); //åˆ¤æ–­å³.ä¸‹æ˜¯å¦ä¸ºåŒè‰²å­.
             }
-            else if(zb[j][i][ZTXB]==WHITE){//×ó.ÉÏ±ØÎª¿Õµã»òÒìÉ«×Ó
+            else if(zb[j][i][ZTXB]==WHITE){//å·¦.ä¸Šå¿…ä¸ºç©ºç‚¹æˆ–å¼‚è‰²å­
                ki++;
-               chengkuai(j,i,WHITE); //ÅĞ¶ÏÓÒ.ÏÂÊÇ·ñÎªÍ¬É«×Ó
+               chengkuai(j,i,WHITE); //åˆ¤æ–­å³.ä¸‹æ˜¯å¦ä¸ºåŒè‰²å­
             }
             else {
                ki++;
                chengkuai(j,i,BLANK);
-               if(zishu==1){//ÑÛÎ»
+               if(zishu==1){//çœ¼ä½
                   kuai[ki][1][0]=0;
                   kuai[ki--][1][1]=0;
-                  zb[j][i][KSYXB]=0;//·Ç¿é
-                  //todo:ÑÛÎ»µÄ´¦Àí
+                  zb[j][i][KSYXB]=0;//éå—
+                  //todo:çœ¼ä½çš„å¤„ç†
                }
                else if(zishu>1){
                   kuai[ki][0][1]=zishu;
@@ -78,7 +81,7 @@ public class GoBoard12 extends GoBoard {
                   qiki--;
                   ki--;
                }
-               else System.out.println("error:zishu<1");
+               else if(log.isDebugEnabled()) log.debug("error:zishu<1");
 
                continue;
             }
@@ -86,37 +89,37 @@ public class GoBoard12 extends GoBoard {
                //ki--;
                kuai[ki][1][0]=0;
                kuai[ki--][1][1]=0;
-               zb[j][i][KSYXB]=0;//·Ç¿é
+               zb[j][i][KSYXB]=0;//éå—
             }
             else if(zishu>1){
                kuai[ki][0][1]=zishu;
                zishu=0;
             }
-            else System.out.println("error:zishu<1");
+            else if(log.isDebugEnabled()) log.debug("error:zishu<1");
          }
-      }//Éú³É¿é
-      for (i=1;i<20;i++){//iÊÇ×İ×ø±ê
-         for(j=1;j<20;j++){//jÊÇºá×ø±ê
-            zb[j][i][SQBZXB]=0;//»Ö¸´Ã¿¸öµãµÄËãÆø±êÖ¾
+      }//ç”Ÿæˆå—
+      for (i=1;i<20;i++){//iæ˜¯çºµåæ ‡
+         for(j=1;j<20;j++){//jæ˜¯æ¨ªåæ ‡
+            zb[j][i][SQBZXB]=0;//æ¢å¤æ¯ä¸ªç‚¹çš„ç®—æ°”æ ‡å¿—
             if(zb[j][i][ZTXB]>0 & zb[j][i][KSYXB]==0){
                zb[j][i][QSXB]=jszq(j,i);
             }
          }
-      }//¼ÆËãµãÆø
+      }//è®¡ç®—ç‚¹æ°”
       for(i=1;i<=ki;i++){
-         //byte qi=jskq(ki);¼ÆËã¿éÆø¹ı³ÌÖĞÖ±½Ó´¢´æÆøµã.
+         //byte qi=jskq(ki);è®¡ç®—å—æ°”è¿‡ç¨‹ä¸­ç›´æ¥å‚¨å­˜æ°”ç‚¹.
          kuai[ki][0][0]=jskq(ki);
-      }//¼ÆËã¿éÆø
+      }//è®¡ç®—å—æ°”
    }
 
-   public void jushipanduan(){//¾ÖÊÆÅĞ¶Ï
+   public void jushipanduan(){//å±€åŠ¿åˆ¤æ–­
 
 
    }
 
    public void chengkuai(byte a,byte b,byte color){
-   //ÊÕ¼¯ĞÅÏ¢µÄ¹ı³ÌÖĞ,¿ÉÒÔÁîcolor=BLANK,µ÷ÓÃ¸Ãº¯Êı,µ«ÊÇÆø¿éµÄĞÅÏ¢
-   //²»ÄÜ×¤ÁôÔÚkuaiÊı×éÄÚ,±ØĞëÔçµãµ÷ÓÃ²¢Çå³ı.
+   //æ”¶é›†ä¿¡æ¯çš„è¿‡ç¨‹ä¸­,å¯ä»¥ä»¤color=BLANK,è°ƒç”¨è¯¥å‡½æ•°,ä½†æ˜¯æ°”å—çš„ä¿¡æ¯
+   //ä¸èƒ½é©»ç•™åœ¨kuaiæ•°ç»„å†…,å¿…é¡»æ—©ç‚¹è°ƒç”¨å¹¶æ¸…é™¤.
       byte m1,n1;
       //byte zishu=0;
       if(zishu<49){
@@ -125,7 +128,7 @@ public class GoBoard12 extends GoBoard {
       }
       else{
 
-         System.out.println("¸Ã¿éµÄ×ÓÊı³¬¹ı49,¿éºÅÎª:"+ki);
+         if(log.isDebugEnabled()) log.debug("è¯¥å—çš„å­æ•°è¶…è¿‡49,å—å·ä¸º:"+ki);
 
       }
       zb[a][b][SQBZXB]=1;
@@ -138,5 +141,5 @@ public class GoBoard12 extends GoBoard {
             chengkuai(m1,n1,color);
          }
       }
-   }//³É¿éµÄµãSQBZXB==1;
+   }//æˆå—çš„ç‚¹SQBZXB==1;
 }

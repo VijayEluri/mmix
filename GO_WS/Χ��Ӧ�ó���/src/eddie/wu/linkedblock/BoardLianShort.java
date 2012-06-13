@@ -2,18 +2,22 @@ package eddie.wu.linkedblock;
 
 import java.io.*;
 
-//Æø¿éºÍÆå¿é¶¼´æÔÚÁ´±íÖĞ¡£
-//¾¹È»Ã»ÓĞ±»³¹µ×²âÊÔ¹ı£¨ÀûÓÃÎåÇ§¾ÖÆåÆ×¿â£©£¬±»²âÊÔµÄÊÇGoBaord£¡
+import org.apache.log4j.Logger;
 
-//bugÖ®Ò»£ºĞ¡·É¹Ò£¬¼Ğ»÷£¬°×·½Ç¿ĞĞ³öÍ·£¬ºÚ·½Æå×ÓÈ¡ÊÆ£¬°×·¢
-//Á¬½ÓÊ±Î´ÄÜ³ÉĞÂ¿é¡£2004Äê2ÔÂ15ÈÕ¡£ÒÑ¾­ĞŞÕı
+import eddie.wu.domain.BoardBreathState;
+
+//æ°”å—å’Œæ£‹å—éƒ½å­˜åœ¨é“¾è¡¨ä¸­ã€‚
+//ç«Ÿç„¶æ²¡æœ‰è¢«å½»åº•æµ‹è¯•è¿‡ï¼ˆåˆ©ç”¨äº”åƒå±€æ£‹è°±åº“ï¼‰ï¼Œè¢«æµ‹è¯•çš„æ˜¯GoBaordï¼
+
+//bugä¹‹ä¸€ï¼šå°é£æŒ‚ï¼Œå¤¹å‡»ï¼Œç™½æ–¹å¼ºè¡Œå‡ºå¤´ï¼Œé»‘æ–¹æ£‹å­å–åŠ¿ï¼Œç™½å‘
+//è¿æ¥æ—¶æœªèƒ½æˆæ–°å—ã€‚2004å¹´2æœˆ15æ—¥ã€‚å·²ç»ä¿®æ­£
 /**
  * <p>
- * Title: Ã¿¸öÆå×Ó½»²æµã¶ÔÓ¦µÄ¿éºÅÓÃshort½á¹¹¡£Ôö´ó·¶Î§ ²¢ÇÒÊ¹»ÚÆåÃ»ÓĞ´íÎó£¬<br/>
- * ±ãÓÚËÑË÷Ê±µÄ·µ»Ø£¨ÏÖÔÚ¾ö¶¨¸ÄÎª¿½±´¾ÖÃæÊı×é£¬<br/>
- * ¾ÍÊÇ¿½±´¾ÖÃæ£¬²»ÔÚÒÀ¿¿»ÚÆå¹¦ÄÜ£¬»ÚÆå¹¦ÄÜÖ»ÔÚ½çÃæ³ÌĞòÖĞÊ¹ÓÃ£©¡£ <br/>
- * ÇÒµ¥µãÒ²×÷Îª¿é¡£Ôö¼Óµã¾Í±äÎªĞÂ¿é£¬»ÚÆå·µ»ØÊ±Ô­¿éÈÔÈ»¿ÉÓÃ¡£<br/>
- * Ã¿¸ö¿éµÄ×ÓÊ÷¼°Æä×ø±êÊÇÎ¨Ò»µÄ¡£ÆäËüĞÅÏ¢¿ÉÄÜËæÆå¾Ö ½ø³Ì¸Ä±ä¡£
+ * Title: æ¯ä¸ªæ£‹å­äº¤å‰ç‚¹å¯¹åº”çš„å—å·ç”¨shortç»“æ„ã€‚å¢å¤§èŒƒå›´ å¹¶ä¸”ä½¿æ‚”æ£‹æ²¡æœ‰é”™è¯¯ï¼Œ<br/>
+ * ä¾¿äºæœç´¢æ—¶çš„è¿”å›ï¼ˆç°åœ¨å†³å®šæ”¹ä¸ºæ‹·è´å±€é¢æ•°ç»„ï¼Œ<br/>
+ * å°±æ˜¯æ‹·è´å±€é¢ï¼Œä¸åœ¨ä¾é æ‚”æ£‹åŠŸèƒ½ï¼Œæ‚”æ£‹åŠŸèƒ½åªåœ¨ç•Œé¢ç¨‹åºä¸­ä½¿ç”¨ï¼‰ã€‚ <br/>
+ * ä¸”å•ç‚¹ä¹Ÿä½œä¸ºå—ã€‚å¢åŠ ç‚¹å°±å˜ä¸ºæ–°å—ï¼Œæ‚”æ£‹è¿”å›æ—¶åŸå—ä»ç„¶å¯ç”¨ã€‚<br/>
+ * æ¯ä¸ªå—çš„å­æ ‘åŠå…¶åæ ‡æ˜¯å”¯ä¸€çš„ã€‚å…¶å®ƒä¿¡æ¯å¯èƒ½éšæ£‹å±€ è¿›ç¨‹æ”¹å˜ã€‚
  * </p>
  * <p>
  * Description:
@@ -30,64 +34,64 @@ import java.io.*;
  */
 
 public class BoardLianShort implements Cloneable {
-
+	private static final Logger log = Logger.getLogger(BoardLianShort.class);
 	public static final boolean DEBUG = true;
 
-	public static final byte QIPANDAXIAO = 19; // ÆåÅÌ´óĞ¡
+	public static final byte QIPANDAXIAO = 19; // æ£‹ç›˜å¤§å°
 
-	public static final byte ZBSX = QIPANDAXIAO + 1; // ÆåÅÌ×ø±êÉÏÏŞ£¨ÈËÔì±ß½ç£©;
-	public static final byte ZBXX = 0; // ÆåÅÌ×ø±êÏÂÏŞ£¨ÈËÔì±ß½ç£©;
+	public static final byte ZBSX = QIPANDAXIAO + 1; // æ£‹ç›˜åæ ‡ä¸Šé™ï¼ˆäººé€ è¾¹ç•Œï¼‰;
+	public static final byte ZBXX = 0; // æ£‹ç›˜åæ ‡ä¸‹é™ï¼ˆäººé€ è¾¹ç•Œï¼‰;
 
 	public static final byte[][] szld = {
-			// ±éÀúËÄÖÜ£¨ºáÖáºÍ×İÖá£©ÁÚ×Óµã,Ë³Ğò¿Éµ÷.ÓÒ-ÏÂ-×ó-ÉÏ
+			// éå†å››å‘¨ï¼ˆæ¨ªè½´å’Œçºµè½´ï¼‰é‚»å­ç‚¹,é¡ºåºå¯è°ƒ.å³-ä¸‹-å·¦-ä¸Š
 			{ 1, 0 }, { 0, -1 }, { -1, 0 }, { 0, 1 } };
 	public static final byte[][] szdjd = {
-			// ±éÀúËÄÖÜ¶Ô½Çµã,Ë³Ğò¿Éµ÷.ÓÒÉÏ-ÓÒÏÂ-×óÏÂ-×óÉÏ
+			// éå†å››å‘¨å¯¹è§’ç‚¹,é¡ºåºå¯è°ƒ.å³ä¸Š-å³ä¸‹-å·¦ä¸‹-å·¦ä¸Š
 			{ 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } };
 
 	public byte[][][] zb = new byte[21][21][4];
-	// Ã¿¸öÂä×ÓµãµÄÇé¿ö£¬ËùÓĞÔ­Ê¼ĞÅÏ¢¶¼ÔÚÕâ¸öÊı×éÖĞ¡£×ãÒÔ´ú±íÒ»¸ö¾ÖÃæ¡£
-	// Ç°Á½Î¬ÊÇÆåÅÌµÄ×ø±ê,Êı×éÏÂ±ê´Ó1µ½19;
-	// µÚÈıÎ¬ÏÂ±ê0:¸÷µã×´Ì¬:ºÚ1°×2;£¨×ãÒÔ´ú±íÒ»¸ö¾ÖÃæ£©
-	// µÚÈıÎ¬ÏÂ±ê1:¼ÆËãÆøµÄ±êÖ¾;³ÉÆø¿éºÍÆå¿éÊ±Ò²ÓÃ×÷±êÖ¾¡£
-	// µÚÈıÎ¬ÏÂ±ê2:ÆøÊı;
-	// µÚÈıÎ¬ÏÂ±ê3:¿Õ°×µãËùÔÚÆø¿éµÄ±àºÅ¡£·Ç¿Õ°×µã±àºÅÎªÁã¡£
-	// ºóÈıÎ¬µÄÒâÒåÔÚÓÚ´¦Àí¹æÔò£¬Àí½âÆøºÍÆø¿é¡¢Æå¿éµÄ¸ÅÄî£¬Ö»ÓĞÊµÏÖÕâĞ©
-	// »ù±¾¸ÅÄî£¬²ÅÄÜÊµÏÖ¹æÔò£¬×Ô¶¯½øĞĞÂä×ÓºóµÄ´¦Àí¹ı³Ì¡£
+	// æ¯ä¸ªè½å­ç‚¹çš„æƒ…å†µï¼Œæ‰€æœ‰åŸå§‹ä¿¡æ¯éƒ½åœ¨è¿™ä¸ªæ•°ç»„ä¸­ã€‚è¶³ä»¥ä»£è¡¨ä¸€ä¸ªå±€é¢ã€‚
+	// å‰ä¸¤ç»´æ˜¯æ£‹ç›˜çš„åæ ‡,æ•°ç»„ä¸‹æ ‡ä»1åˆ°19;
+	// ç¬¬ä¸‰ç»´ä¸‹æ ‡0:å„ç‚¹çŠ¶æ€:é»‘1ç™½2;ï¼ˆè¶³ä»¥ä»£è¡¨ä¸€ä¸ªå±€é¢ï¼‰
+	// ç¬¬ä¸‰ç»´ä¸‹æ ‡1:è®¡ç®—æ°”çš„æ ‡å¿—;æˆæ°”å—å’Œæ£‹å—æ—¶ä¹Ÿç”¨ä½œæ ‡å¿—ã€‚
+	// ç¬¬ä¸‰ç»´ä¸‹æ ‡2:æ°”æ•°;
+	// ç¬¬ä¸‰ç»´ä¸‹æ ‡3:ç©ºç™½ç‚¹æ‰€åœ¨æ°”å—çš„ç¼–å·ã€‚éç©ºç™½ç‚¹ç¼–å·ä¸ºé›¶ã€‚
+	// åä¸‰ç»´çš„æ„ä¹‰åœ¨äºå¤„ç†è§„åˆ™ï¼Œç†è§£æ°”å’Œæ°”å—ã€æ£‹å—çš„æ¦‚å¿µï¼Œåªæœ‰å®ç°è¿™äº›
+	// åŸºæœ¬æ¦‚å¿µï¼Œæ‰èƒ½å®ç°è§„åˆ™ï¼Œè‡ªåŠ¨è¿›è¡Œè½å­åçš„å¤„ç†è¿‡ç¨‹ã€‚
 
-	public static final byte ZTXB = 0; // ÏÂ±ê0´æ´¢×´Ì¬Öµ£¨ÎŞ×Ó¡¢ºÚ×Ó¡¢°××Ó£©;
+	public static final byte ZTXB = 0; // ä¸‹æ ‡0å­˜å‚¨çŠ¶æ€å€¼ï¼ˆæ— å­ã€é»‘å­ã€ç™½å­ï¼‰;
 	public final byte BLANK = 0;
-	public final byte BLACK = 1; // 1±íÊ¾ºÚ×Ó;
-	public final byte WHITE = 2; // 2±íÊ¾°××Ó;
+	public final byte BLACK = 1; // 1è¡¨ç¤ºé»‘å­;
+	public final byte WHITE = 2; // 2è¡¨ç¤ºç™½å­;
 
-	public static final byte SQBZXB = 1; // ÏÂ±ê1´æ´¢ËãÆø±êÖ¾;
-	public static final byte QSXB = 2; // ÏÂ±ê2´æ´¢ÆøÊı£¨µ¥×Ó»òÕßÆå¿éµÄÆøÊı£©;
-	public static final byte QKSYXB = 3; // ÏÂ±ê3´æ´¢Æø¿éË÷Òı£¨¿Õ°×µã¶øÑÔ£©
+	public static final byte SQBZXB = 1; // ä¸‹æ ‡1å­˜å‚¨ç®—æ°”æ ‡å¿—;
+	public static final byte QSXB = 2; // ä¸‹æ ‡2å­˜å‚¨æ°”æ•°ï¼ˆå•å­æˆ–è€…æ£‹å—çš„æ°”æ•°ï¼‰;
+	public static final byte QKSYXB = 3; // ä¸‹æ ‡3å­˜å‚¨æ°”å—ç´¢å¼•ï¼ˆç©ºç™½ç‚¹è€Œè¨€ï¼‰
 
-	public short[][] zbk = new short[21][21]; // Ã¿¸öµãÊôÓÚµÄ¿éºÅ¡£
-	// Æø¿éºÍ×Ó¿é·Ö¿ª£¬Æø¿éÊÇ×Ó¿éµÄ¸½Êô¡£
+	public short[][] zbk = new short[21][21]; // æ¯ä¸ªç‚¹å±äºçš„å—å·ã€‚
+	// æ°”å—å’Œå­å—åˆ†å¼€ï¼Œæ°”å—æ˜¯å­å—çš„é™„å±ã€‚
 
-	public short shoushu = 0; // µ±Ç°ÒÑÓĞÊÖÊı,´¦ÀíÖ®Ç°µİÔö.´Ó1¿ªÊ¼;
-	// µ¥×Ó³É¿é£¬ÔòkiºÍshoushuµÈ¼Û£¨¿¼ÂÇµ½ÆúÈ¨£¬ÈÔÓĞÎ¢Ãî²î±ğ£©¡£
+	public short shoushu = 0; // å½“å‰å·²æœ‰æ‰‹æ•°,å¤„ç†ä¹‹å‰é€’å¢.ä»1å¼€å§‹;
+	// å•å­æˆå—ï¼Œåˆ™kiå’Œshoushuç­‰ä»·ï¼ˆè€ƒè™‘åˆ°å¼ƒæƒï¼Œä»æœ‰å¾®å¦™å·®åˆ«ï¼‰ã€‚
 
-	public byte tiheizishu = 0, tibaizishu = 0; // ºÚ°×±»³Ô×Ó¼ÆÊı
-	// ÒâÒå²»´ó£¬²»¹ıË³´øËã³öÀ´£¬ĞÎÊÆÅĞ¶Ï»òĞíÓĞÓÃ¡£
+	public byte tiheizishu = 0, tibaizishu = 0; // é»‘ç™½è¢«åƒå­è®¡æ•°
+	// æ„ä¹‰ä¸å¤§ï¼Œä¸è¿‡é¡ºå¸¦ç®—å‡ºæ¥ï¼Œå½¢åŠ¿åˆ¤æ–­æˆ–è®¸æœ‰ç”¨ã€‚
 
-	// ÏŞÖÆÖ®Ò»£ºÆåÆ×ÊÖÊı²»ÄÜ³¬¹ı512ÊÖ¡£
-	public short[][] huik = new short[512][12]; // ³É¿éµÄ¿éºÅ1£­4
-	// Ìá³ÔµÄ¿éºÅ5£­8£¬´ò³ÔµÄ¿éºÅ£º9£­11£»
-	// ÏàÍ¬ĞÔÖÊµÄ×ÓÖ±½ÓÁ¬½ÓÔÚÒ»Æğ¾ÍÊÇ¿é£¬ËùÒÔÓĞºÚ¿éºÍ°×¿é£¬ÒÔ¼°Æø¿é¡£
+	// é™åˆ¶ä¹‹ä¸€ï¼šæ£‹è°±æ‰‹æ•°ä¸èƒ½è¶…è¿‡512æ‰‹ã€‚
+	public short[][] huik = new short[512][12]; // æˆå—çš„å—å·1ï¼4
+	// æåƒçš„å—å·5ï¼8ï¼Œæ‰“åƒçš„å—å·ï¼š9ï¼11ï¼›
+	// ç›¸åŒæ€§è´¨çš„å­ç›´æ¥è¿æ¥åœ¨ä¸€èµ·å°±æ˜¯å—ï¼Œæ‰€ä»¥æœ‰é»‘å—å’Œç™½å—ï¼Œä»¥åŠæ°”å—ã€‚
 	public byte[][] hui = new byte[512][5];
-	// ¼ÇÂ¼Æå¾ÖµÄ¹ı³ÌĞÅÏ¢,ÓÃÓÚ»ÚÆå;3-4½û×Åµã£¬1£­2¸Ã²½Âäµã×ø±ê.
+	// è®°å½•æ£‹å±€çš„è¿‡ç¨‹ä¿¡æ¯,ç”¨äºæ‚”æ£‹;3-4ç¦ç€ç‚¹ï¼Œ1ï¼2è¯¥æ­¥è½ç‚¹åæ ‡.
 	public ZiKuai1[] zikuai = new ZiKuai1[512];
-	// ×Ó¿éµÄ´¦ÀíºÍÆø¿éµÄ´¦ÀíÓĞËù²»Í¬£¬×Ó¿éÃ»·¨ÊµÏÖÏÖÓĞµÄ¿é¶¼ÊÇ´æÔÚµÄ
-	// ¶øÆø¿é¿ÉÒÔ×öµ½ÕâÒ»µã
+	// å­å—çš„å¤„ç†å’Œæ°”å—çš„å¤„ç†æœ‰æ‰€ä¸åŒï¼Œå­å—æ²¡æ³•å®ç°ç°æœ‰çš„å—éƒ½æ˜¯å­˜åœ¨çš„
+	// è€Œæ°”å—å¯ä»¥åšåˆ°è¿™ä¸€ç‚¹
 	public QiKuai1[] qikuai = new QiKuai1[128];
 	public ErJiKuai[] erjikuai = new ErJiKuai[128];
-	public short zikuaishu = 0; // µ±Ç°ÒÑ¾­ÓÃµ½µÄ¿éºÅ,ÓÃÇ°µİÔö;
+	public short zikuaishu = 0; // å½“å‰å·²ç»ç”¨åˆ°çš„å—å·,ç”¨å‰é€’å¢;
 	public byte qikuaishu = 0;
 	public byte erjikuaishu = 0;
-	short qikuaizishu = 0; // ÆğÈ«¾ÖÁªÏµ×÷ÓÃµÄ¾Ö²¿±äÁ¿¡£
+	short qikuaizishu = 0; // èµ·å…¨å±€è”ç³»ä½œç”¨çš„å±€éƒ¨å˜é‡ã€‚
 
 	public BoardLianShort(BoardLianShort oldgo) {
 		super();
@@ -95,13 +99,13 @@ public class BoardLianShort implements Cloneable {
 		byte i, j, k;
 		short t;
 
-		final byte PANWAIDIAN = -1; // ÆåÅÌÖ®ÍâµÄ±êÖ¾;
-		for (i = ZBXX; i <= ZBSX; i++) { // 2ÔÂ22ÈÕ¼Ó
+		final byte PANWAIDIAN = -1; // æ£‹ç›˜ä¹‹å¤–çš„æ ‡å¿—;
+		for (i = ZBXX; i <= ZBSX; i++) { // 2æœˆ22æ—¥åŠ 
 			zb[ZBXX][i][ZTXB] = PANWAIDIAN;
 			zb[ZBSX][i][ZTXB] = PANWAIDIAN;
 			zb[i][ZBXX][ZTXB] = PANWAIDIAN;
 			zb[i][ZBSX][ZTXB] = PANWAIDIAN;
-		} // 2ÔÂ22ÈÕ¼Ó
+		} // 2æœˆ22æ—¥åŠ 
 
 		for (i = 1; i < 20; i++) {
 			for (j = 1; j < 20; j++) {
@@ -119,19 +123,19 @@ public class BoardLianShort implements Cloneable {
 		shoushu = oldgo.shoushu;
 
 		for (i = 1; i <= qikuaishu; i++) {
-			// if(CS.DEBUG_CGCL) System.out.println("qikuai="+i);
+			// if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("qikuai="+i);
 
 			qikuai[i] = new QiKuai1(oldgo.qikuai[i]);
 		}
 		for (t = 1; t <= zikuaishu; t++) {
-			// if(CS.DEBUG_CGCL) System.out.println("zikuai="+t);
+			// if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("zikuai="+t);
 			if (oldgo.zikuai[t] == null) {
-				// if(CS.DEBUG_CGCL) System.out.println("null is zikuai="+t);
+				// if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("null is zikuai="+t);
 			}
 			if (oldgo.zikuai[t].active) {
-				// if(CS.DEBUG_CGCL) System.out.println("ÓĞĞ§¿éÎª£º"+t);
+				// if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("æœ‰æ•ˆå—ä¸ºï¼š"+t);
 
-			} // Ö»¿½±´ÓĞÓÃµÄÆå¿é
+			} // åªæ‹·è´æœ‰ç”¨çš„æ£‹å—
 			zikuai[t] = new ZiKuai1(oldgo.zikuai[t]);
 		}
 
@@ -152,17 +156,17 @@ public class BoardLianShort implements Cloneable {
 	public BoardLianShort() {
 
 		byte i, j;
-		final byte PANWAIDIAN = -1; // ÆåÅÌÖ®ÍâµÄ±êÖ¾;
-		for (i = ZBXX; i <= ZBSX; i++) { // 2ÔÂ22ÈÕ¼Ó
+		final byte PANWAIDIAN = -1; // æ£‹ç›˜ä¹‹å¤–çš„æ ‡å¿—;
+		for (i = ZBXX; i <= ZBSX; i++) { // 2æœˆ22æ—¥åŠ 
 			zb[ZBXX][i][ZTXB] = PANWAIDIAN;
 			zb[ZBSX][i][ZTXB] = PANWAIDIAN;
 			zb[i][ZBXX][ZTXB] = PANWAIDIAN;
 			zb[i][ZBSX][ZTXB] = PANWAIDIAN;
-		} // 2ÔÂ22ÈÕ¼Ó
+		} // 2æœˆ22æ—¥åŠ 
 
 		qikuaishu = 1;
 		qikuai[qikuaishu] = new QiKuai1();
-		qikuai[qikuaishu].color = 0; // ?Ò²Ğí£­1¸üºÃ¡£
+		qikuai[qikuaishu].color = 0; // ?ä¹Ÿè®¸ï¼1æ›´å¥½ã€‚
 		// qikuai[qikuaishu].zishu = (byte) 361;
 		// qikuai[qikuaishu].init();
 		for (i = 1; i < 20; i++) {
@@ -172,7 +176,7 @@ public class BoardLianShort implements Cloneable {
 			}
 		}
 		if (CS.DEBUG_CGCL) {
-			System.out.println("qikuai[qikuaishu].zishu="
+			if(log.isDebugEnabled()) log.debug("qikuai[qikuaishu].zishu="
 					+ qikuai[qikuaishu].zishu);
 
 		}
@@ -185,13 +189,13 @@ public class BoardLianShort implements Cloneable {
 		byte j = 0;
 		byte m, n;
 		if (CS.DEBUG_CGCL) {
-			System.out.println("Êä³öÆø¿éµÄ×ÓÊı");
+			if(log.isDebugEnabled()) log.debug("è¾“å‡ºæ°”å—çš„å­æ•°");
 
 		}
 		temp = qikuai[i].zichuang;
 		zishu = qikuai[i].zishu;
 		if (CS.DEBUG_CGCL) {
-			System.out.println("¿éºÅ:" + i + "£»Æø¿é×ÓÊı:" + zishu);
+			if(log.isDebugEnabled()) log.debug("å—å·:" + i + "ï¼›æ°”å—å­æ•°:" + zishu);
 		}
 		if (zishu > 10) {
 			return;
@@ -203,7 +207,7 @@ public class BoardLianShort implements Cloneable {
 			m = temp.a;
 			n = temp.b;
 			if (CS.DEBUG_CGCL) {
-				System.out.println("(" + m + "," + n + ") ");
+				if(log.isDebugEnabled()) log.debug("(" + m + "," + n + ") ");
 			}
 			temp = temp.next;
 
@@ -212,18 +216,18 @@ public class BoardLianShort implements Cloneable {
 	}
 
 	public byte pingfen(byte a, byte b) {
-		byte fenshu = 0; // 0±íÊ¾²»È·¶¨¡£
+		byte fenshu = 0; // 0è¡¨ç¤ºä¸ç¡®å®šã€‚
 		short zikin = zbk[a][b];
 
 		return fenshu;
 	}
 
 	public byte yanxingpanduan(byte kin) {
-		// ÑÛĞÍÅĞ¶Ï¡£
+		// çœ¼å‹åˆ¤æ–­ã€‚
 		byte yanxing = 0;
 		byte i, j;
 		byte m, n;
-		byte a, b; // ÆøÑÛµÄ×ø±ê
+		byte a, b; // æ°”çœ¼çš„åæ ‡
 		byte color = qikuai[kin].color;
 		byte othercolor;
 		byte zwzkshu = qikuai[kin].zwzkshu;
@@ -231,7 +235,7 @@ public class BoardLianShort implements Cloneable {
 		HaoNode1 temp;
 		boolean danduqikuai = true;
 		byte yandeweizhi = 0;
-		// 1:½ÇÑÛ£»2£º±ßÑÛ£»3£ºÖĞ¸¹ÑÛ¡£
+		// 1:è§’çœ¼ï¼›2ï¼šè¾¹çœ¼ï¼›3ï¼šä¸­è…¹çœ¼ã€‚
 		temp = qikuai[kin].zwzkhao;
 		for (i = 1; i <= zwzkshu; i++) {
 
@@ -242,16 +246,16 @@ public class BoardLianShort implements Cloneable {
 			temp = temp.next;
 		}
 		if (danduqikuai) {
-			// ±¾ÉíÊÇµ¥¶ÀÆø¿é£¬¿ÉÄÜÓëÆäËüÓĞÑÛµÄ¿éÁ¬½Ó£¬µ«ÊÇ²»ÊÇ
-			// Í¨¹ıÆø¿éÁ¬½Ó¡£
+			// æœ¬èº«æ˜¯å•ç‹¬æ°”å—ï¼Œå¯èƒ½ä¸å…¶å®ƒæœ‰çœ¼çš„å—è¿æ¥ï¼Œä½†æ˜¯ä¸æ˜¯
+			// é€šè¿‡æ°”å—è¿æ¥ã€‚
 
 		} else {
-			// ÓĞ¶à¸öÆø¿éÏà¹Ø£¬ÓÃ±ğµÄËã·¨½â¾ö¡£
+			// æœ‰å¤šä¸ªæ°”å—ç›¸å…³ï¼Œç”¨åˆ«çš„ç®—æ³•è§£å†³ã€‚
 			return 0;
 		}
 
-		if (zishu == 1) { // Æø¿éµÄ×ÓÊı¡£
-			yandeweizhi = danyanweizhi(kin); // µ¥ÑÛµÄÎ»ÖÃ¡£
+		if (zishu == 1) { // æ°”å—çš„å­æ•°ã€‚
+			yandeweizhi = danyanweizhi(kin); // å•çœ¼çš„ä½ç½®ã€‚
 			color = qikuai[kin].color;
 			if (color == CS.BLACK) {
 				othercolor = CS.WHITE;
@@ -275,20 +279,20 @@ public class BoardLianShort implements Cloneable {
 				}
 			}
 
-			switch (zwzkshu) { // ×î¼òµ¥µÄÇé¿ö¡£
+			switch (zwzkshu) { // æœ€ç®€å•çš„æƒ…å†µã€‚
 			case 1: {
 				return CS.ZHENYAN;
 			}
 			case 2: {
-				// ÖÜÎ§¿é¶¼Ö»ÓĞÒ»¸öÆø¿é¡£
-				// ¿¼ÂÇÁ½¸ö×Ó¿éµÄÁ¬½ÓĞÔ¡£
+				// å‘¨å›´å—éƒ½åªæœ‰ä¸€ä¸ªæ°”å—ã€‚
+				// è€ƒè™‘ä¸¤ä¸ªå­å—çš„è¿æ¥æ€§ã€‚
 				if (yandeweizhi == 3) {
-					// ÓĞÁ½¸ö·Ç±¾·½Æå¿éµÄ¶Ô½Çµã¡£
+					// æœ‰ä¸¤ä¸ªéæœ¬æ–¹æ£‹å—çš„å¯¹è§’ç‚¹ã€‚
 				}
 			}
 			case 3: {
-				// ÑÛµÄÕæ¼Ù²¢·Ç¾ø¶ÔÖØÒª£¬³ı·ÇÖÜÎ§µÄµĞ×ÓºÜÇ¿¡£
-				// Ò²¾ÍÊÇËµÖ»ÓĞÔÚÉæ¼°·âËøºóµÄËÀ»î²ÅÓĞÒâÒå¡£
+				// çœ¼çš„çœŸå‡å¹¶éç»å¯¹é‡è¦ï¼Œé™¤éå‘¨å›´çš„æ•Œå­å¾ˆå¼ºã€‚
+				// ä¹Ÿå°±æ˜¯è¯´åªæœ‰åœ¨æ¶‰åŠå°é”åçš„æ­»æ´»æ‰æœ‰æ„ä¹‰ã€‚
 			}
 			case 4: {
 
@@ -303,28 +307,28 @@ public class BoardLianShort implements Cloneable {
 	}
 
 	public byte danyanweizhi(byte kin) {
-		// ÅĞ¶Ïµ¥¿éÆøÑÛµÄÎ»ÖÃ¡£
+		// åˆ¤æ–­å•å—æ°”çœ¼çš„ä½ç½®ã€‚
 		byte yandeweizhi = 0;
-		// ÏÈÇø±ğÖĞ¸¹ÑÛÎ»£¬±ß½ÇÑÛÎ»¡£
+		// å…ˆåŒºåˆ«ä¸­è…¹çœ¼ä½ï¼Œè¾¹è§’çœ¼ä½ã€‚
 		if (qikuai[kin].zwzkshu != 1) {
 			if (CS.DEBUG_CGCL) {
-				System.out.println("¸ÃÆø¿é×ÓÊı²»ÎªÒ»£º" + kin);
+				if(log.isDebugEnabled()) log.debug("è¯¥æ°”å—å­æ•°ä¸ä¸ºä¸€ï¼š" + kin);
 			}
 			return 0;
 		}
 		byte m = qikuai[kin].zichuang.a;
 		byte n = qikuai[kin].zichuang.b;
 		if (m == 1 || m == 19) {
-			if (n == 1 || n == 19) { // ½ÇÑÛ
+			if (n == 1 || n == 19) { // è§’çœ¼
 				yandeweizhi = CS.JIAOYAN;
-			} else { // ×óÓÒ±ßÑÛ¡£
+			} else { // å·¦å³è¾¹çœ¼ã€‚
 				yandeweizhi = CS.BIANYAN;
 			}
 
 		} else {
-			if (n == 1 || n == 19) { // ÉÏÏÂ±ßÑÛ
+			if (n == 1 || n == 19) { // ä¸Šä¸‹è¾¹çœ¼
 				yandeweizhi = CS.BIANYAN;
-			} else { // ÖĞ¸¹ÑÛ
+			} else { // ä¸­è…¹çœ¼
 				yandeweizhi = CS.ZHONGFUYAN;
 			}
 
@@ -335,22 +339,22 @@ public class BoardLianShort implements Cloneable {
 
 	public byte jskq(short rs) {
 		if (CS.DEBUG_CGCL) {
-			System.out.println("½øÈë·½·¨£º¼ÆËã¿éÆø£¨jskq£©");
-			// Ëã³ö¿éµÄÆø£¬²¢Íê³É¿éµÄËùÓĞĞÅÏ¢£ºÆøÊıºÍÆø´®¡£
+			if(log.isDebugEnabled()) log.debug("è¿›å…¥æ–¹æ³•ï¼šè®¡ç®—å—æ°”ï¼ˆjskqï¼‰");
+			// ç®—å‡ºå—çš„æ°”ï¼Œå¹¶å®Œæˆå—çš„æ‰€æœ‰ä¿¡æ¯ï¼šæ°”æ•°å’Œæ°”ä¸²ã€‚
 		}
-		byte qishu = 0; // ¿éµÄ×ÓÊıºÍ×Ó´®ÒÑ¾­È·¶¨¡£
+		byte qishu = 0; // å—çš„å­æ•°å’Œå­ä¸²å·²ç»ç¡®å®šã€‚
 		byte a = 0, b = 0;
 		byte m, n;
 		byte i, j;
-		short zishu = zikuai[rs].zishu; // ¿éµÄ×ÓÊı
+		short zishu = zikuai[rs].zishu; // å—çš„å­æ•°
 		DianNode1 temp = zikuai[rs].zichuang;
 		DianNode1 qich;
-		// if(CS.DEBUG_CGCL) System.out.println("kuaihao:" + rs);
-		// if(CS.DEBUG_CGCL) System.out.println("zishu:" + zishu);
+		// if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("kuaihao:" + rs);
+		// if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("zishu:" + zishu);
 		for (i = 1; i <= zishu; i++) {
 			m = temp.a;
 			n = temp.b;
-			zbk[m][n] = rs; // ¿éÖĞµãµÄÕıÈ·ÉèÖÃ
+			zbk[m][n] = rs; // å—ä¸­ç‚¹çš„æ­£ç¡®è®¾ç½®
 
 			for (j = 0; j < 4; j++) {
 				a = (byte) (m + szld[j][0]);
@@ -369,9 +373,9 @@ public class BoardLianShort implements Cloneable {
 				}
 				if (zb[a][b][ZTXB] == BLANK && zb[a][b][SQBZXB] == 0) {
 					qishu++;
-					// if(CS.DEBUG_CGCL) System.out.println(" ¼ÇÎªÒ»Æø¡£");
+					// if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug(" è®°ä¸ºä¸€æ°”ã€‚");
 					zb[a][b][SQBZXB] = 1;
-					// ½«Æøµã¼ÓÈëÆø´®¡£
+					// å°†æ°”ç‚¹åŠ å…¥æ°”ä¸²ã€‚
 					qich = new DianNode1(a, b);
 					qich.next = zikuai[rs].qichuang;
 					zikuai[rs].qichuang = qich;
@@ -382,7 +386,7 @@ public class BoardLianShort implements Cloneable {
 		zikuai[rs].qishu = qishu;
 
 		qich = zikuai[rs].qichuang;
-		for (i = 1; i <= qishu; i++) { // »Ö¸´±êÖ¾
+		for (i = 1; i <= qishu; i++) { // æ¢å¤æ ‡å¿—
 			a = qich.a;
 			b = qich.b;
 			zb[a][b][SQBZXB] = 0;
@@ -391,47 +395,47 @@ public class BoardLianShort implements Cloneable {
 			qich = qich.next;
 		}
 		if (CS.DEBUG_CGCL) {
-			System.out.println("¿éµÄÆøÊıÎª£º" + qishu);
+			if(log.isDebugEnabled()) log.debug("å—çš„æ°”æ•°ä¸ºï¼š" + qishu);
 		}
 		kdq(rs, qishu);
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨jskq£º·µ»Ø");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³•jskqï¼šè¿”å›");
 		}
 		return qishu;
-	} // 2ÔÂ22ÈÕ¸Ä,Ô­·½·¨ËäÃî,ÈÔÖ»ÄÜÈÌÍ´¸î°®.
+	} // 2æœˆ22æ—¥æ”¹,åŸæ–¹æ³•è™½å¦™,ä»åªèƒ½å¿ç—›å‰²çˆ±.
 
-	public void kdq(short kin, byte a) { // ¿é¶¨Æø
+	public void kdq(short kin, byte a) { // å—å®šæ°”
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨kdq£º½øÈë");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³•kdqï¼šè¿›å…¥");
 		}
 		byte m = 0, n = 0;
-		short p = 0; // ¿é¼õÉÙÒ»ÆøÊ±ÓÃ¡£
+		short p = 0; // å—å‡å°‘ä¸€æ°”æ—¶ç”¨ã€‚
 		short rs = kin;
 		p = zikuai[rs].zishu;
 		DianNode1 temp = zikuai[rs].zichuang;
 		for (byte i = 1; i <= p; i++) {
 			m = temp.a;
 			n = temp.b;
-			zb[m][n][QSXB] = a; // ÅäºÏkkhb£»
-			zbk[m][n] = kin; // ÈßÓà
+			zb[m][n][QSXB] = a; // é…åˆkkhbï¼›
+			zbk[m][n] = kin; // å†—ä½™
 			temp = temp.next;
 		}
 		zikuai[rs].qishu = a;
 		if (CS.DEBUG_CGCL) {
-			System.out.println("¿é" + rs + "µÄÆøÊıÎª" + a);
+			if(log.isDebugEnabled()) log.debug("å—" + rs + "çš„æ°”æ•°ä¸º" + a);
 		}
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨kdq£º·µ»Ø");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³•kdqï¼šè¿”å›");
 		}
 	}
 
-	public void qkdsy(byte kin) { // Æø¿é¶¨Ë÷Òı¡£
-		// Ôö¼Ó½¨Á¢ÖÜÎ§×Ó¿éÁ¬½ÓµÄ¹¦ÄÜ
+	public void qkdsy(byte kin) { // æ°”å—å®šç´¢å¼•ã€‚
+		// å¢åŠ å»ºç«‹å‘¨å›´å­å—è¿æ¥çš„åŠŸèƒ½
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨qkdsy£º½øÈë" + kin);
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³•qkdsyï¼šè¿›å…¥" + kin);
 		}
 		byte m = 0, n = 0;
-		short p = 0; // ¿é¼õÉÙÒ»ÆøÊ±ÓÃ¡£
+		short p = 0; // å—å‡å°‘ä¸€æ°”æ—¶ç”¨ã€‚
 		byte rs = kin;
 		p = qikuai[rs].zishu;
 		DianNode1 temp = qikuai[rs].zichuang;
@@ -439,8 +443,8 @@ public class BoardLianShort implements Cloneable {
 		for (short i = 1; i <= p; i++) {
 			m = temp.a;
 			n = temp.b;
-			zb[m][n][SQBZXB] = 0; // ÅäºÏkkhb£»
-			zb[m][n][QKSYXB] = kin; // ÈßÓà
+			zb[m][n][SQBZXB] = 0; // é…åˆkkhbï¼›
+			zb[m][n][QKSYXB] = kin; // å†—ä½™
 			temp = temp.next;
 		}
 		for (byte j = 1; j <= qikuai[kin].zwzkshu; j++) {
@@ -448,15 +452,15 @@ public class BoardLianShort implements Cloneable {
 			linshi = linshi.next;
 		}
 		// zikuai[rs].zishu = a;
-		// if(CS.DEBUG_CGCL) System.out.println("Æø¿é" + rs + "µÄÆøµãÎª" + a);
+		// if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("æ°”å—" + rs + "çš„æ°”ç‚¹ä¸º" + a);
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨qkdsy£º·µ»Ø");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³•qkdsyï¼šè¿”å›");
 		}
 	}
 
-	public void kjq(byte r, byte tiao) { // »ÚÆåÊ±,³É¿é»Ö¸´Ê¹Í¬É«×Ó¼õÆø
+	public void kjq(byte r, byte tiao) { // æ‚”æ£‹æ—¶,æˆå—æ¢å¤ä½¿åŒè‰²å­å‡æ°”
 		short n = 0; // the same color block is eaten
-		byte p = 0, q = 0; // Ã»ÓĞ×ÔÌáÊ±,tiaoÖ»ÄÜÊÇÍ¬É«.
+		byte p = 0, q = 0; // æ²¡æœ‰è‡ªææ—¶,tiaoåªèƒ½æ˜¯åŒè‰².
 		short rs = (short) (128 + r);
 		n = zikuai[rs].zishu;
 		DianNode1 temp = zikuai[rs].zichuang;
@@ -466,13 +470,13 @@ public class BoardLianShort implements Cloneable {
 			zjq(p, q, tiao);
 			temp = temp.next;
 		}
-		zikuai[rs].qishu = 1; // ±»Ìá¿é»Ö¸´,ÆøÊıÎª1.
-		// todo:Æø´®Îªa,b
+		zikuai[rs].qishu = 1; // è¢«æå—æ¢å¤,æ°”æ•°ä¸º1.
+		// todo:æ°”ä¸²ä¸ºa,b
 	}
 
-	public void kkhb(short rs1, short rs2) { // 8.2²¢ÈëÇ°¿é,ÆøÊıÎ´¶¨
+	public void kkhb(short rs1, short rs2) { // 8.2å¹¶å…¥å‰å—,æ°”æ•°æœªå®š
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨kkhb:¿é¿éºÏ²¢");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³•kkhb:å—å—åˆå¹¶");
 		}
 		DianNode1 temp = zikuai[rs1].zichuang;
 		DianNode1 temp1 = zikuai[rs2].zichuang;
@@ -490,30 +494,30 @@ public class BoardLianShort implements Cloneable {
 		temp.next = zikuai[rs2].zichuang;
 		zikuai[rs1].zishu += zikuai[rs2].zishu;
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨kkhb:¿é¿éºÏ²¢\n");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³•kkhb:å—å—åˆå¹¶\n");
 		}
 	}
 
-	public boolean validate(byte a, byte b) { // Âä×ÓÎ»ÖÃµÄÓĞĞ§ĞÔ¡£
+	public boolean validate(byte a, byte b) { // è½å­ä½ç½®çš„æœ‰æ•ˆæ€§ã€‚
 		byte m, n, qi = 0;
-		// ÔÚshoushuÔö¼ÓÖ®Ç°µ÷ÓÃ£¬yiseºÍtongseµÄ¼ÆËãÓĞËù²»Í¬¡£
+		// åœ¨shoushuå¢åŠ ä¹‹å‰è°ƒç”¨ï¼Œyiseå’Œtongseçš„è®¡ç®—æœ‰æ‰€ä¸åŒã€‚
 		byte tongse = (byte) (shoushu % 2 + 1);
-		// yi se=1»ò2,ºÚÏÈĞĞÎªÆæÊı
+		// yi se=1æˆ–2,é»‘å…ˆè¡Œä¸ºå¥‡æ•°
 		byte yise = (byte) ((1 + shoushu) % 2 + 1);
-		// tong se=1»ò2,°×ºóĞĞÎªÅ¼Êı
+		// tong se=1æˆ–2,ç™½åè¡Œä¸ºå¶æ•°
 		if (a > ZBXX && a < ZBSX && b > ZBXX && b < ZBSX
 				&& zb[a][b][ZTXB] == BLANK) {
-			// ÏÂ±êºÏ·¨,¸Ãµã¿Õ°×
-			if (a == hui[shoushu][3] && b == hui[shoushu][4]) { // ÊÇ·ñ½û×Åµã
+			// ä¸‹æ ‡åˆæ³•,è¯¥ç‚¹ç©ºç™½
+			if (a == hui[shoushu][3] && b == hui[shoushu][4]) { // æ˜¯å¦ç¦ç€ç‚¹
 				if (CS.DEBUG_CGCL) {
-					System.out.print("ÕâÊÇ´ò½ÙÊ±µÄ½û×Åµã,ÇëÏÈÕÒ½Ù²Ä!");
+					System.out.print("è¿™æ˜¯æ‰“åŠ«æ—¶çš„ç¦ç€ç‚¹,è¯·å…ˆæ‰¾åŠ«æ!");
 				}
 				if (CS.DEBUG_CGCL) {
-					System.out.println("ÂäµãÎª£ºa=" + a + ",b=" + b);
+					if(log.isDebugEnabled()) log.debug("è½ç‚¹ä¸ºï¼ša=" + a + ",b=" + b);
 				}
 				return false;
 			} else {
-				// if(CS.DEBUG_CGCL) System.out.println("ÂäµãÎª£ºa=" + a + ",b=" +
+				// if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("è½ç‚¹ä¸ºï¼ša=" + a + ",b=" +
 				// b);
 				for (byte i = 0; i < 4; i++) {
 					m = (byte) (a + szld[i][0]);
@@ -528,42 +532,42 @@ public class BoardLianShort implements Cloneable {
 						if (zb[m][n][QSXB] > 1) {
 							return true;
 						} else {
-							qi += zb[m][n][QSXB]; // ²»ÂÛ³É¿éÓë·ñ¶¼³ÉÁ¢
+							qi += zb[m][n][QSXB]; // ä¸è®ºæˆå—ä¸å¦éƒ½æˆç«‹
 							qi--;
 						}
 					}
 				}
 				if (qi == 0) {
 					if (CS.DEBUG_CGCL) {
-						System.out.print("ÕâÊÇ×ÔÉ±µÄ½û×Åµã£º");
+						System.out.print("è¿™æ˜¯è‡ªæ€çš„ç¦ç€ç‚¹ï¼š");
 					}
 					if (CS.DEBUG_CGCL) {
-						System.out.println("a=" + a + ",b=" + b);
+						if(log.isDebugEnabled()) log.debug("a=" + a + ",b=" + b);
 					}
 					return false;
 				} else {
 					if (CS.DEBUG_CGCL) {
-						System.out.print("ÕâÊÇºÏ·¨×Åµã£º");
+						System.out.print("è¿™æ˜¯åˆæ³•ç€ç‚¹ï¼š");
 					}
 					if (CS.DEBUG_CGCL) {
-						System.out.println("a=" + a + ",b=" + b);
+						if(log.isDebugEnabled()) log.debug("a=" + a + ",b=" + b);
 					}
 					return true;
 				}
 			}
-		} else { // µÚÒ»Àà²»ºÏ·¨µã.
+		} else { // ç¬¬ä¸€ç±»ä¸åˆæ³•ç‚¹.
 			if (CS.DEBUG_CGCL) {
-				System.out.print("¸Ãµã²»ºÏ·¨,ÔÚÆåÅÌÖ®Íâ»òÕß¸ÃµãÒÑ¾­ÓĞ×Ó£º");
+				System.out.print("è¯¥ç‚¹ä¸åˆæ³•,åœ¨æ£‹ç›˜ä¹‹å¤–æˆ–è€…è¯¥ç‚¹å·²ç»æœ‰å­ï¼š");
 			}
 			if (CS.DEBUG_CGCL) {
-				System.out.println("a=" + a + ",b=" + b);
+				if(log.isDebugEnabled()) log.debug("a=" + a + ",b=" + b);
 			}
 			return false;
 		}
 	}
 
-	public void output() { // Êä³öÃ¿¿éµÄĞÅÏ¢;
-		// todo:ÖÜÎ§Æø¿éµÄĞÅÏ¢ÈÔÈ»²»È«Ãæ¡£ĞèÒª½øÒ»²½ĞŞÕı¡£
+	public void output() { // è¾“å‡ºæ¯å—çš„ä¿¡æ¯;
+		// todo:å‘¨å›´æ°”å—çš„ä¿¡æ¯ä»ç„¶ä¸å…¨é¢ã€‚éœ€è¦è¿›ä¸€æ­¥ä¿®æ­£ã€‚
 		DianNode1 temp = null;
 		DianNode1 first = null;
 		short zishu = 0;
@@ -572,10 +576,10 @@ public class BoardLianShort implements Cloneable {
 		byte j = 0;
 		byte m, n;
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨ output");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³• output");
 		}
 		if (CS.DEBUG_CGCL) {
-			System.out.println("1.Êä³öÆå¿éµÄ×ÓÊı");
+			if(log.isDebugEnabled()) log.debug("1.è¾“å‡ºæ£‹å—çš„å­æ•°");
 		}
 		for (i = 1; i <= zikuaishu; i++) {
 			if (zikuai[i].active == false) {
@@ -584,7 +588,7 @@ public class BoardLianShort implements Cloneable {
 			temp = zikuai[i].zichuang;
 			zishu = zikuai[i].zishu;
 			if (CS.DEBUG_CGCL) {
-				System.out.print("¿éºÅ:" + i + "£»×ÓÊı:" + zishu);
+				System.out.print("å—å·:" + i + "ï¼›å­æ•°:" + zishu);
 			}
 			if (zishu > 10) {
 				continue;
@@ -594,7 +598,7 @@ public class BoardLianShort implements Cloneable {
 				n = temp.b;
 				if (zbk[m][n] != i) {
 					if (CS.DEBUG_CGCL) {
-						System.out.print("¿éË÷Òı´íÎó£¡" + i);
+						System.out.print("å—ç´¢å¼•é”™è¯¯ï¼" + i);
 					}
 				}
 				if (CS.DEBUG_CGCL) {
@@ -603,11 +607,11 @@ public class BoardLianShort implements Cloneable {
 				temp = temp.next;
 			}
 			if (CS.DEBUG_CGCL) {
-				System.out.println("");
+				if(log.isDebugEnabled()) log.debug("");
 			}
 		}
 		if (CS.DEBUG_CGCL) {
-			System.out.println("2.Êä³öÆå¿éµÄÆøÊı");
+			if(log.isDebugEnabled()) log.debug("2.è¾“å‡ºæ£‹å—çš„æ°”æ•°");
 
 		}
 		for (i = 1; i <= zikuaishu; i++) {
@@ -617,7 +621,7 @@ public class BoardLianShort implements Cloneable {
 			temp = zikuai[i].qichuang;
 			qishu = zikuai[i].qishu;
 			if (CS.DEBUG_CGCL) {
-				System.out.print("¿éºÅ:" + i + "£»ÆøÊı:" + qishu);
+				System.out.print("å—å·:" + i + "ï¼›æ°”æ•°:" + qishu);
 			}
 			if (qishu > 10) {
 				continue;
@@ -631,11 +635,11 @@ public class BoardLianShort implements Cloneable {
 				temp = temp.next;
 			}
 			if (CS.DEBUG_CGCL) {
-				System.out.println("");
+				if(log.isDebugEnabled()) log.debug("");
 			}
 		}
 		if (CS.DEBUG_CGCL) {
-			System.out.println("3.Êä³öÆå¿éµÄÖÜÎ§¿éºÅ");
+			if(log.isDebugEnabled()) log.debug("3.è¾“å‡ºæ£‹å—çš„å‘¨å›´å—å·");
 		}
 		for (i = 1; i <= zikuaishu; i++) {
 			if (zikuai[i].active == false) {
@@ -644,7 +648,7 @@ public class BoardLianShort implements Cloneable {
 			HaoNode1 temp1 = zikuai[i].zwyskhao;
 			short kuaishu = zikuai[i].zwyskshu;
 			if (CS.DEBUG_CGCL) {
-				System.out.print("¿éºÅ:" + i + "£»ÖÜÎ§¿éÊı:" + kuaishu);
+				System.out.print("å—å·:" + i + "ï¼›å‘¨å›´å—æ•°:" + kuaishu);
 			}
 			for (j = 1; j <= kuaishu; j++) {
 
@@ -654,12 +658,12 @@ public class BoardLianShort implements Cloneable {
 				temp1 = temp1.next;
 			}
 			if (CS.DEBUG_CGCL) {
-				System.out.println("");
+				if(log.isDebugEnabled()) log.debug("");
 			}
 		}
 
 		if (CS.DEBUG_CGCL) {
-			System.out.println("4.Êä³öÆå¿éÖÜÎ§µÄÆø¿éºÅ");
+			if(log.isDebugEnabled()) log.debug("4.è¾“å‡ºæ£‹å—å‘¨å›´çš„æ°”å—å·");
 		}
 		for (i = 1; i <= zikuaishu; i++) {
 			if (zikuai[i].active == false) {
@@ -668,7 +672,7 @@ public class BoardLianShort implements Cloneable {
 			HaoNode1 temp1 = zikuai[i].zwqkhao;
 			short kuaishu = zikuai[i].zwqkshu;
 			if (CS.DEBUG_CGCL) {
-				System.out.print("¿éºÅ:" + i + "£»ÖÜÎ§Æø¿éÊı:" + kuaishu);
+				System.out.print("å—å·:" + i + "ï¼›å‘¨å›´æ°”å—æ•°:" + kuaishu);
 			}
 			for (j = 1; j <= kuaishu; j++) {
 
@@ -678,19 +682,19 @@ public class BoardLianShort implements Cloneable {
 				temp1 = temp1.next;
 			}
 			if (CS.DEBUG_CGCL) {
-				System.out.println("");
+				if(log.isDebugEnabled()) log.debug("");
 			}
 		}
 
 		if (CS.DEBUG_CGCL) {
-			System.out.println("5.Êä³öÆø¿éµÄ×ÓÊı");
+			if(log.isDebugEnabled()) log.debug("5.è¾“å‡ºæ°”å—çš„å­æ•°");
 
 		}
 		for (i = 1; i <= qikuaishu; i++) {
 			temp = qikuai[i].zichuang;
 			zishu = qikuai[i].zishu;
 			if (CS.DEBUG_CGCL) {
-				System.out.println("¿éºÅ:" + i + "£»Æø¿é×ÓÊı:" + zishu);
+				if(log.isDebugEnabled()) log.debug("å—å·:" + i + "ï¼›æ°”å—å­æ•°:" + zishu);
 			}
 			if (zishu > 10) {
 				continue;
@@ -702,7 +706,7 @@ public class BoardLianShort implements Cloneable {
 				m = temp.a;
 				n = temp.b;
 				if (CS.DEBUG_CGCL) {
-					System.out.println("(" + m + "," + n + ") ");
+					if(log.isDebugEnabled()) log.debug("(" + m + "," + n + ") ");
 				}
 				temp = temp.next;
 
@@ -714,19 +718,19 @@ public class BoardLianShort implements Cloneable {
 			System.out.print("zikuaishu=" + zikuaishu + ";shoushu=" + shoushu);
 		}
 		if (CS.DEBUG_CGCL) {
-			System.out.println(";tibaizishu=" + tibaizishu + ";tiheizishu="
+			if(log.isDebugEnabled()) log.debug(";tibaizishu=" + tibaizishu + ";tiheizishu="
 					+ tiheizishu);
 		}
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨ output ½áÊø");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³• output ç»“æŸ");
 		}
 	}
 
 	public void zjq(byte a, byte b, byte tiao) { // function 6.1
-		// Ìá×ÓÔöÆøº¯Êı¡£
+		// æå­å¢æ°”å‡½æ•°ã€‚
 		byte i, m1, j, n1, yiseks = 0;
 		short c1 = 0;
-		short ysk[] = { // ºÍ±»Ìá×ÓÏà±ÈÎªÒìÉ«¡£
+		short ysk[] = { // å’Œè¢«æå­ç›¸æ¯”ä¸ºå¼‚è‰²ã€‚
 		0, 0, 0, 0 };
 		for (i = 0; i < 4; i++) {
 			m1 = (byte) (a + szld[i][0]);
@@ -735,7 +739,7 @@ public class BoardLianShort implements Cloneable {
 				c1 = zbk[m1][n1];
 				/*
 				 * if (c1 == 0) { zb[m1][n1][QSXB] -= 1; if (zb[m1][n1][QSXB] <
-				 * 1) { if(CS.DEBUG_CGCL) System.out.println("»ÚÆåÊ±ÆøÊı³ö´í:a=" + m1 +
+				 * 1) { if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("æ‚”æ£‹æ—¶æ°”æ•°å‡ºé”™:a=" + m1 +
 				 * ",b=" + n1); } }
 				 */
 				// else {
@@ -744,7 +748,7 @@ public class BoardLianShort implements Cloneable {
 						break;
 					}
 				}
-				if (j == yiseks) { // ²»ÖØ¸´
+				if (j == yiseks) { // ä¸é‡å¤
 					ysk[yiseks++] = c1;
 					delete(c1, a, b);
 					kdq(c1, zikuai[c1 + 128].qishu -= 1);
@@ -755,11 +759,11 @@ public class BoardLianShort implements Cloneable {
 	}
 
 	public void zzq(byte a, byte b, byte tiao)
-	// ÓÃÓÚ»ÚÆå£¨Ïàµ±ÓÚÂä×Ó±»Ìá£©;¼°Õı³£Ìá×ÓÊ±¼º·½ÔöÆø;
-	// ×ÜÖ®ÊÇÄ³×Ó±»³ÔÒıÆğ¶Ô·½µÄÔöÆø.tiaoÖ¸Ìá×Ó·½µÄÑÕÉ«¡£
+	// ç”¨äºæ‚”æ£‹ï¼ˆç›¸å½“äºè½å­è¢«æï¼‰;åŠæ­£å¸¸æå­æ—¶å·±æ–¹å¢æ°”;
+	// æ€»ä¹‹æ˜¯æŸå­è¢«åƒå¼•èµ·å¯¹æ–¹çš„å¢æ°”.tiaoæŒ‡æå­æ–¹çš„é¢œè‰²ã€‚
 	{
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨zzq()");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³•zzq()");
 		}
 		byte i, j, yiseks = 0;
 		short c1 = 0;
@@ -778,7 +782,7 @@ public class BoardLianShort implements Cloneable {
 						break;
 					}
 				}
-				if (j == yiseks) { // ²»ÖØ¸´
+				if (j == yiseks) { // ä¸é‡å¤
 					ysk[yiseks++] = c1;
 					cs = c1;
 					kdq(c1, zikuai[cs].qishu += 1);
@@ -795,30 +799,30 @@ public class BoardLianShort implements Cloneable {
 		zb[a][b][QSXB] = 0;
 		zbk[a][b] = 0;
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨zzq()");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³•zzq()");
 		}
 	}
 
 	public void kzq(short rs, byte tiao) { // 6.2 yi se kuai bei ti
-		// Ìá³ÔÒìÉ«¿éÊ±,Í¬É«¿éÆøÊıÔö¼Ó
+		// æåƒå¼‚è‰²å—æ—¶,åŒè‰²å—æ°”æ•°å¢åŠ 
 		short n = 0;
 		byte p = 0, q = 0;
 
 		n = zikuai[rs].zishu;
 		DianNode1 temp = zikuai[rs].zichuang;
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨kzq()");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³•kzq()");
 		}
 		for (byte i = 1; i <= n; i++) {
 			p = temp.a;
 			q = temp.b;
 			zzq(p, q, tiao);
 			temp = temp.next;
-			// ±£ÁôÔ­¿éĞÅÏ¢,Ö÷ÒªÊÇ×ÓÊıĞÅÏ¢,±ãÓÚ»ÚÆåÊ±»Ö¸´
+			// ä¿ç•™åŸå—ä¿¡æ¯,ä¸»è¦æ˜¯å­æ•°ä¿¡æ¯,ä¾¿äºæ‚”æ£‹æ—¶æ¢å¤
 		}
 		zikuai[rs].qishu = 0;
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨kzq()");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³•kzq()");
 		}
 	}
 
@@ -840,7 +844,7 @@ public class BoardLianShort implements Cloneable {
 		byte[][] fanhui = new byte[40][2];
 
 		if (CS.DEBUG_CGCL) {
-			System.out.println("Òª×ö»îµÄ¿éÎª£º" + zkin);
+			if(log.isDebugEnabled()) log.debug("è¦åšæ´»çš„å—ä¸ºï¼š" + zkin);
 
 		}
 		short qikin;
@@ -854,7 +858,7 @@ public class BoardLianShort implements Cloneable {
 
 			if (qikuai[qikin].color != 5) {
 				if (CS.DEBUG_CGCL) {
-					System.out.println("ËùÓµÓĞµÄÆø¿éÎª£º" + qikin);
+					if(log.isDebugEnabled()) log.debug("æ‰€æ‹¥æœ‰çš„æ°”å—ä¸ºï¼š" + qikin);
 				}
 				linshidian = qikuai[qikin].zichuang;
 				for (byte j = 1; j <= qikuai[qikin].zishu; j++) {
@@ -862,7 +866,7 @@ public class BoardLianShort implements Cloneable {
 					fanhui[++zijishu][0] = linshidian.a;
 					fanhui[zijishu][1] = linshidian.b;
 					if (CS.DEBUG_CGCL) {
-						System.out.println("ÆøµãÎª£º" + linshidian.a + "/"
+						if(log.isDebugEnabled()) log.debug("æ°”ç‚¹ä¸ºï¼š" + linshidian.a + "/"
 								+ linshidian.b);
 					}
 					if (zijishu >= 39) {
@@ -882,53 +886,53 @@ public class BoardLianShort implements Cloneable {
 		byte a = (byte) ((c - 1) % 19 + 1);
 		byte b = (byte) ((c - 1) / 19 + 1);
 		cgcl(a, b);
-	} // Ìá¹©Ò»Î¬×ø±êµÄ½Ó¿Ú
+	} // æä¾›ä¸€ç»´åæ ‡çš„æ¥å£
 
 	public byte jisuansihuo(byte a, byte b, boolean xianhou) {
-		// xianhÎªtrue;ÔòÎªMAXMIN¹ı³Ì¡¢·ñÔòÎªMINMAX¹ı³Ì¡£
-		// ¸Ã·½·¨ÕæÕıÓÃµ½ÁËËÑË÷Ëã·¨¡£
+		// xianhä¸ºtrue;åˆ™ä¸ºMAXMINè¿‡ç¨‹ã€å¦åˆ™ä¸ºMINMAXè¿‡ç¨‹ã€‚
+		// è¯¥æ–¹æ³•çœŸæ­£ç”¨åˆ°äº†æœç´¢ç®—æ³•ã€‚
 		byte j, k;
 		byte sihuo = 0;
-		byte MAX = 1; // ´ú±íÕ÷×Ó·½£¬Õ÷×Ó³ÉÁ¢ÓÃ127±êÖ¾
-		byte MIN = 2; // ´ú±í±»Õ÷×Ó·½£¬Õ÷×Ó²»³ÉÁ¢ÓÃ£­127±íÊ¾
-		byte turncolor1 = 0; // ¼ÆËãĞèÒªºÎ·½ÂÖ×ß¡£
-		byte turncolor2 = 0; // Ô­Ê¼¾ÖÃæÔ­±¾ÂÖË­×ß£¿
+		byte MAX = 1; // ä»£è¡¨å¾å­æ–¹ï¼Œå¾å­æˆç«‹ç”¨127æ ‡å¿—
+		byte MIN = 2; // ä»£è¡¨è¢«å¾å­æ–¹ï¼Œå¾å­ä¸æˆç«‹ç”¨ï¼127è¡¨ç¤º
+		byte turncolor1 = 0; // è®¡ç®—éœ€è¦ä½•æ–¹è½®èµ°ã€‚
+		byte turncolor2 = 0; // åŸå§‹å±€é¢åŸæœ¬è½®è°èµ°ï¼Ÿ
 		byte m1, n1;
 		byte SOUSUOSHENDU = 20;
-		int jumianshu = 0; // µ±Ç°ÒÑÓĞ¾ÖÃæºÅ¡£
-		byte cengshu = 0; // µ±Ç°ÒÑÓĞ²ãÊı¡£
-		// ×Ô¼ºÊµÏÖµÄ¶ÑÕ»¡£
+		int jumianshu = 0; // å½“å‰å·²æœ‰å±€é¢å·ã€‚
+		byte cengshu = 0; // å½“å‰å·²æœ‰å±‚æ•°ã€‚
+		// è‡ªå·±å®ç°çš„å †æ ˆã€‚
 		// boolean keyiqiquan = false;
-		short zkin = zbk[a][b]; // ×ö»îÖ÷ÌåµÄ¿éºÅ¡£
-		byte houxuan[][] = new byte[40][2]; // ºòÑ¡µã
+		short zkin = zbk[a][b]; // åšæ´»ä¸»ä½“çš„å—å·ã€‚
+		byte houxuan[][] = new byte[40][2]; // å€™é€‰ç‚¹
 		BoardLianShort[] go = new BoardLianShort[100000];
-		int[][] st = new int[SOUSUOSHENDU][5]; // ÏŞÖÆËÑË÷Éî¶ÈÎª20¡£
-		// 0:¸Ã²ãÆğÊ¼¾ÖÃæºÅ¡£
-		// 1:±¾²ã¶ÔÏÂÒ»²ãÈ¡max»¹ÊÇmin
-		// 2:ÉÏÒ»²ã¶Ô×Ô¼ºµÄ²ãÈ¡max»¹ÊÇmin
-		// 3:µ±Ç°²ãÒÑ¾­ÓĞÒ»¸ö¾ÖÃæÈ·¶¨ÁË¡£ÎªÏàÓ¦µÄÖµ¡£
-		// 4:¸Ã²ã»¹ÓĞ¶àÉÙ¾ÖÃæ¡££½0Ôò¸Ã²ãÃæ½áÊø
+		int[][] st = new int[SOUSUOSHENDU][5]; // é™åˆ¶æœç´¢æ·±åº¦ä¸º20ã€‚
+		// 0:è¯¥å±‚èµ·å§‹å±€é¢å·ã€‚
+		// 1:æœ¬å±‚å¯¹ä¸‹ä¸€å±‚å–maxè¿˜æ˜¯min
+		// 2:ä¸Šä¸€å±‚å¯¹è‡ªå·±çš„å±‚å–maxè¿˜æ˜¯min
+		// 3:å½“å‰å±‚å·²ç»æœ‰ä¸€ä¸ªå±€é¢ç¡®å®šäº†ã€‚ä¸ºç›¸åº”çš„å€¼ã€‚
+		// 4:è¯¥å±‚è¿˜æœ‰å¤šå°‘å±€é¢ã€‚ï¼0åˆ™è¯¥å±‚é¢ç»“æŸ
 		st[0][0] = 0;
 		st[0][4] = 1;
 
-		if (xianhou) { // Èç¹û×ö»î·½£¨a,b£©ÏÈÊÖ¡£
+		if (xianhou) { // å¦‚æœåšæ´»æ–¹ï¼ˆa,bï¼‰å…ˆæ‰‹ã€‚
 			for (byte i = 0; i < SOUSUOSHENDU; i++) {
-				// ÏŞÖÆÁËËÑË÷Éî¶È¡£
-				st[i][1] = MAX; // ¶ÔÏÂ²ãÈ¡MAX£»
-				// ¶ÔÏÂ²ã(×ß×ÓÖ®ºóµÄ×´Ì¬)È¡MAX£»
-				st[i][2] = MIN; // ¶ÔÍ¬Ò»²ãÈ¡MIN
+				// é™åˆ¶äº†æœç´¢æ·±åº¦ã€‚
+				st[i][1] = MAX; // å¯¹ä¸‹å±‚å–MAXï¼›
+				// å¯¹ä¸‹å±‚(èµ°å­ä¹‹åçš„çŠ¶æ€)å–MAXï¼›
+				st[i][2] = MIN; // å¯¹åŒä¸€å±‚å–MIN
 				i++;
-				st[i][1] = MIN; // ¶ÔÏÂ²ãÈ¡MAX£»
+				st[i][1] = MIN; // å¯¹ä¸‹å±‚å–MAXï¼›
 				st[i][2] = MAX;
 			}
-		} else { // Èç¹ûºóÊÖ¡£
+		} else { // å¦‚æœåæ‰‹ã€‚
 
 			for (byte i = 0; i < SOUSUOSHENDU; i++) {
-				st[i][1] = MIN; // ¶ÔÏÂ²ãÈ¡MAX£»
-				// ¶ÔÍ¬Ò»²ãÈ¡MIN
+				st[i][1] = MIN; // å¯¹ä¸‹å±‚å–MAXï¼›
+				// å¯¹åŒä¸€å±‚å–MIN
 				st[i][2] = MAX;
 				i++;
-				st[i][1] = MAX; // ¶ÔÏÂ²ãÈ¡MAX£»
+				st[i][1] = MAX; // å¯¹ä¸‹å±‚å–MAXï¼›
 				st[i][2] = MIN;
 
 			}
@@ -936,14 +940,14 @@ public class BoardLianShort implements Cloneable {
 
 		if (zikuai[zkin].color == CS.BLACK) {
 			if (xianhou) {
-				turncolor1 = CS.BLACK; // Ó¦¸ÃÂÖË­×ß¡£
+				turncolor1 = CS.BLACK; // åº”è¯¥è½®è°èµ°ã€‚
 				if (CS.DEBUG_CGCL) {
-					System.out.println("Òª×ö»îµÄÆå¿éÎªºÚÉ«£¬ÂÖºÚ·½×ßÄÜ·ñ×ö»î£¿");
+					if(log.isDebugEnabled()) log.debug("è¦åšæ´»çš„æ£‹å—ä¸ºé»‘è‰²ï¼Œè½®é»‘æ–¹èµ°èƒ½å¦åšæ´»ï¼Ÿ");
 				}
 			} else {
 				turncolor1 = CS.WHITE;
 				if (CS.DEBUG_CGCL) {
-					System.out.println("Òª×ö»îµÄÆå¿éÎªºÚÉ«£¬ÂÖ°×·½×ßÄÜ·ñÉ±Æå£¿");
+					if(log.isDebugEnabled()) log.debug("è¦åšæ´»çš„æ£‹å—ä¸ºé»‘è‰²ï¼Œè½®ç™½æ–¹èµ°èƒ½å¦æ€æ£‹ï¼Ÿ");
 
 				}
 			}
@@ -951,77 +955,77 @@ public class BoardLianShort implements Cloneable {
 			if (xianhou) {
 				turncolor1 = CS.WHITE;
 				if (CS.DEBUG_CGCL) {
-					System.out.println("Òª×ö»îµÄÆå¿éÎª°×É«£¬ÂÖ°×·½×ßÄÜ·ñ×ö»î£¿");
+					if(log.isDebugEnabled()) log.debug("è¦åšæ´»çš„æ£‹å—ä¸ºç™½è‰²ï¼Œè½®ç™½æ–¹èµ°èƒ½å¦åšæ´»ï¼Ÿ");
 
 				}
 			} else {
 				turncolor1 = CS.BLACK;
 				if (CS.DEBUG_CGCL) {
-					System.out.println("Òª×ö»îµÄÆå¿éÎª°×É«£¬ÂÖºÚ·½×ßÄÜ·ñÉ±Æå£¿");
+					if(log.isDebugEnabled()) log.debug("è¦åšæ´»çš„æ£‹å—ä¸ºç™½è‰²ï¼Œè½®é»‘æ–¹èµ°èƒ½å¦æ€æ£‹ï¼Ÿ");
 
 				}
 			}
 		}
 
-		if ((shoushu % 2) == 0) { // Êµ¼ÊÉÏÏÖÔÚÂÖË­×ß¡£
+		if ((shoushu % 2) == 0) { // å®é™…ä¸Šç°åœ¨è½®è°èµ°ã€‚
 			turncolor2 = CS.BLACK;
 			if (CS.DEBUG_CGCL) {
-				System.out.println("¾ÖÃæÉÏÓ¦¸ÃºÚ×ß¡£");
+				if(log.isDebugEnabled()) log.debug("å±€é¢ä¸Šåº”è¯¥é»‘èµ°ã€‚");
 
 			}
 		} else {
 			turncolor2 = CS.WHITE;
 			if (CS.DEBUG_CGCL) {
-				System.out.println("¾ÖÃæÉÏÓ¦¸Ã°××ß¡£");
+				if(log.isDebugEnabled()) log.debug("å±€é¢ä¸Šåº”è¯¥ç™½èµ°ã€‚");
 
 			}
 		}
 
 		if (turncolor1 == turncolor2) {
 			go[0] = new BoardLianShort(this);
-			// this±¾Éí²»¸Ä±ä¡£
+			// thisæœ¬èº«ä¸æ”¹å˜ã€‚
 		} else {
 			go[0] = new BoardLianShort(this);
 			go[0].qiquan();
 			if (CS.DEBUG_CGCL) {
-				System.out.println("ĞèÒªÆúÈ¨Ò»²½¡£");
+				if(log.isDebugEnabled()) log.debug("éœ€è¦å¼ƒæƒä¸€æ­¥ã€‚");
 
 			}
 		}
 
 		houxuan = houxuandian(zkin);
 
-		byte youxiaodian = 0; // ²»Î¥·´Âä×Ó¹æÔòµÄµã¡£
-		byte haodian = 0; // ´ÓÓĞĞ§µãÖĞÅÅ³ı¿ÉÒÔÖ±½ÓµÃ³ö½áÂÛµÄµã¡£
+		byte youxiaodian = 0; // ä¸è¿åè½å­è§„åˆ™çš„ç‚¹ã€‚
+		byte haodian = 0; // ä»æœ‰æ•ˆç‚¹ä¸­æ’é™¤å¯ä»¥ç›´æ¥å¾—å‡ºç»“è®ºçš„ç‚¹ã€‚
 		BoardLianShort temp;
 		boolean tichi;
 		while (true) {
-			// µÚÒ»²ãÑ­»·£ºÕ¹¿ª×îºóÒ»¸ö¾ÖÃæ¡£
-			cengshu++; // ĞÂ²ãµÄ²ãºÅ¡£
+			// ç¬¬ä¸€å±‚å¾ªç¯ï¼šå±•å¼€æœ€åä¸€ä¸ªå±€é¢ã€‚
+			cengshu++; // æ–°å±‚çš„å±‚å·ã€‚
 			if (cengshu >= SOUSUOSHENDU) {
 				if (CS.DEBUG_CGCL) {
-					System.out.println("ËÑË÷µ½20²ã£¬ÈÔÃ»ÓĞ½á¹û£¬·µ»Ø²»¾«È·½á¹û");
+					if(log.isDebugEnabled()) log.debug("æœç´¢åˆ°20å±‚ï¼Œä»æ²¡æœ‰ç»“æœï¼Œè¿”å›ä¸ç²¾ç¡®ç»“æœ");
 				}
 			}
 			if (CS.DEBUG_CGCL) {
-				System.out.println("ĞÂµÄµ±Ç°²ãÊıÎª£º" + cengshu);
+				if(log.isDebugEnabled()) log.debug("æ–°çš„å½“å‰å±‚æ•°ä¸ºï¼š" + cengshu);
 			}
 			if (st[cengshu][1] == MAX) {
 				if (CS.DEBUG_CGCL) {
-					System.out.println("µ±Ç°²ãÂÖË­×ß£¿" + "MAX");
+					if(log.isDebugEnabled()) log.debug("å½“å‰å±‚è½®è°èµ°ï¼Ÿ" + "MAX");
 
 				}
 			} else if (st[cengshu][1] == MIN) {
 				if (CS.DEBUG_CGCL) {
-					System.out.println("µ±Ç°²ãÂÖË­×ß£¿" + "MIN");
+					if(log.isDebugEnabled()) log.debug("å½“å‰å±‚è½®è°èµ°ï¼Ÿ" + "MIN");
 
 				}
 			}
 
 			st[cengshu][0] = jumianshu + 1;
-			// ĞÂ²ãµÄ¿ªÊ¼µã¡£
+			// æ–°å±‚çš„å¼€å§‹ç‚¹ã€‚
 			if (CS.DEBUG_CGCL) {
-				System.out.println("ĞÂ²ãµÄ¿ªÊ¼¾ÖÃæË÷ÒıÎª£º" + (jumianshu + 1));
+				if(log.isDebugEnabled()) log.debug("æ–°å±‚çš„å¼€å§‹å±€é¢ç´¢å¼•ä¸ºï¼š" + (jumianshu + 1));
 
 			}
 			youxiaodian = 0;
@@ -1029,81 +1033,81 @@ public class BoardLianShort implements Cloneable {
 			tichi = false;
 
 			for (byte i = 1; i <= houxuan[0][0]; i++) {
-				// Ä¿Ç°½ö½ö¿¼ÂÇºòÑ¡µãÒÑÖª¶øÇÒÔÚËÑË÷¹ı³ÌÖĞ²»¶¯Ì¬¸Ä±ä
-				// ÒÔºóÓ¦¸Ã½øĞĞ¸üÏ¸ÖÂµÄ´¦Àí£¬¸ù¾İÒªÕ¹¿ªµÄ¾ÖÃæÈ·¶¨¡£
+				// ç›®å‰ä»…ä»…è€ƒè™‘å€™é€‰ç‚¹å·²çŸ¥è€Œä¸”åœ¨æœç´¢è¿‡ç¨‹ä¸­ä¸åŠ¨æ€æ”¹å˜
+				// ä»¥ååº”è¯¥è¿›è¡Œæ›´ç»†è‡´çš„å¤„ç†ï¼Œæ ¹æ®è¦å±•å¼€çš„å±€é¢ç¡®å®šã€‚
 
 				m1 = houxuan[i][0];
 				n1 = houxuan[i][1];
 
 				temp = new BoardLianShort(go[jumianshu]);
-				// À©Õ¹×îºóµÄ¾ÖÃæ£¬À©Õ¹Í¬Ò»¸öÉÏ¼¶¾ÖÃæ¡£
-				if (temp.validate(m1, n1)) { // ÅĞ¶ÏºÏ·¨×Åµã
+				// æ‰©å±•æœ€åçš„å±€é¢ï¼Œæ‰©å±•åŒä¸€ä¸ªä¸Šçº§å±€é¢ã€‚
+				if (temp.validate(m1, n1)) { // åˆ¤æ–­åˆæ³•ç€ç‚¹
 					temp.cgcl(m1, n1);
 					youxiaodian++;
 					if (st[cengshu][1] == MIN) {
 						if (temp.zb[a][b][QSXB] == 1) {
 							if (CS.DEBUG_CGCL) {
-								System.out.println("×ö»îÖ÷ÌåÆøÊıÎª1");
-								// ÆøÊıÎª1£¬×ö»îÖ÷Ìå½«±»É±¡£
+								if(log.isDebugEnabled()) log.debug("åšæ´»ä¸»ä½“æ°”æ•°ä¸º1");
+								// æ°”æ•°ä¸º1ï¼Œåšæ´»ä¸»ä½“å°†è¢«æ€ã€‚
 								// keyiqiquan=true;
 							}
 							continue;
-						} else { // Ôö¼ÓÓĞÁ½¸öÑÛµÄÇé¿ö´¦Àí¡£
+						} else { // å¢åŠ æœ‰ä¸¤ä¸ªçœ¼çš„æƒ…å†µå¤„ç†ã€‚
 							haodian++;
 							if (CS.DEBUG_CGCL) {
-								System.out.println("Õ¹¿ªµãµÚ¼¸¸ö£º" + haodian);
+								if(log.isDebugEnabled()) log.debug("å±•å¼€ç‚¹ç¬¬å‡ ä¸ªï¼š" + haodian);
 							}
 							if (CS.DEBUG_CGCL) {
-								System.out.println("a=" + m1 + "b=" + n1);
+								if(log.isDebugEnabled()) log.debug("a=" + m1 + "b=" + n1);
 
 							}
 							go[jumianshu + haodian] = temp;
 						}
 					} else if (st[cengshu][1] == MAX) {
 						if (CS.DEBUG_CGCL) {
-							System.out.println("a=" + m1 + "b=" + n1);
-							// Õ¹¿ªµÃµ½µÄ²ãÂÖMAXÏÂ¡£ÓÉminÏÂµÃµ½µ±Ç°²ã
+							if(log.isDebugEnabled()) log.debug("a=" + m1 + "b=" + n1);
+							// å±•å¼€å¾—åˆ°çš„å±‚è½®MAXä¸‹ã€‚ç”±minä¸‹å¾—åˆ°å½“å‰å±‚
 
 						}
 						if (temp.zbk[a][b] == 0) {
-							// ±»Ìá³ÔµÄ¿éÃ»ÓĞ¿éºÅ£¬Ò²¾ÍÊÇzbk[a][b]==0
+							// è¢«æåƒçš„å—æ²¡æœ‰å—å·ï¼Œä¹Ÿå°±æ˜¯zbk[a][b]==0
 							if (CS.DEBUG_CGCL) {
-								System.out.println("ÒÑ¾­±»Ìá³Ô");
-								// ÒÑ¾­±»Ìá³Ô¡£
+								if(log.isDebugEnabled()) log.debug("å·²ç»è¢«æåƒ");
+								// å·²ç»è¢«æåƒã€‚
 							}
 							st[cengshu][0] = 0;
 							tichi = true;
-							break; // ¸Ã²ãÒÑ¾­ÓĞÈ·¶¨½á¹û£¬ÇÒ×ã¹»¿ÉÒÔ·µ»ØÉÏÒ»²ã¡£
+							break; // è¯¥å±‚å·²ç»æœ‰ç¡®å®šç»“æœï¼Œä¸”è¶³å¤Ÿå¯ä»¥è¿”å›ä¸Šä¸€å±‚ã€‚
 
 						} else {
 							haodian++;
 							if (CS.DEBUG_CGCL) {
-								System.out.println("Õ¹¿ªµãµÚ¼¸¸ö£º" + haodian);
+								if(log.isDebugEnabled()) log.debug("å±•å¼€ç‚¹ç¬¬å‡ ä¸ªï¼š" + haodian);
 							}
 							if (CS.DEBUG_CGCL) {
-								System.out.println("a=" + m1 + "b=" + n1);
+								if(log.isDebugEnabled()) log.debug("a=" + m1 + "b=" + n1);
 
 							}
 							go[jumianshu + haodian] = temp;
 						}
 					}
 
-					// jumianshu++;//²»ÄÜµİÔö¡£ÒòÎªÒªÕ¹¿ªÍ¬Ò»¸öÔ­Ê¼¾ÖÃæ¡£
+					// jumianshu++;//ä¸èƒ½é€’å¢ã€‚å› ä¸ºè¦å±•å¼€åŒä¸€ä¸ªåŸå§‹å±€é¢ã€‚
 
 				} // if is youxiaodian.
 			} // for
 
 			if (tichi == true && st[cengshu][1] == MAX) {
-				// ¸Ã²ãÒÑ¾­È·¶¨
+				// è¯¥å±‚å·²ç»ç¡®å®š
 				while (true) {
 					st[cengshu - 1][4] -= 1;
 					if (st[cengshu - 1][4] == 0) {
 						cengshu -= 2;
 						if (CS.DEBUG_CGCL) {
-							System.out.println("ÍËµ½²ãÊı£º" + cengshu);
+							if(log.isDebugEnabled()) log.debug("é€€åˆ°å±‚æ•°ï¼š" + cengshu);
 						}
 						if (CS.DEBUG_CGCL) {
-							System.out.println("ÇÒ¸Ã²ãÓĞÒ»¸öÎª-127£¬¸Ã²ã²»Ğè¼ÌĞøÕ¹¿ª");
+							if(log.isDebugEnabled()) log.debug("ä¸”è¯¥å±‚æœ‰ä¸€ä¸ªä¸º-127ï¼Œè¯¥å±‚ä¸éœ€ç»§ç»­å±•å¼€");
 
 						}
 						st[cengshu][3] = -127;
@@ -1126,26 +1130,26 @@ public class BoardLianShort implements Cloneable {
 			}
 
 			else if (youxiaodian == 0) {
-				// ·µ»Ø£¬Ò»°ãÊÇ¹¥»÷·½ÎŞ×Ó¿ÉÏÂ¡£
+				// è¿”å›ï¼Œä¸€èˆ¬æ˜¯æ”»å‡»æ–¹æ— å­å¯ä¸‹ã€‚
 				if (CS.DEBUG_CGCL) {
-					System.out.println("ÓĞĞ§µãÎª0");
+					if(log.isDebugEnabled()) log.debug("æœ‰æ•ˆç‚¹ä¸º0");
 
-					// µİ¼õÖ®ºóµÄ²ãÊıÓĞÒ»¸öÈ·¶¨×´Ì¬¡£
+					// é€’å‡ä¹‹åçš„å±‚æ•°æœ‰ä¸€ä¸ªç¡®å®šçŠ¶æ€ã€‚
 					/*
-					 * if (st[cengshu][1] == MIN) { //ÒòÎª²»ÄÜÌîÆø¶øÃ»ÓĞÓĞĞ§Âä×Óµã£¬×ÜÖ®Âä×ÓºóÆøÊıÎªÒ»£¬
-					 * //¿ÉÄÜÊÇÁ½ÑÛ»îÆå£¬Ò²¿ÉÄÜÊÇÒ»Æø±»³Ô¡£ BoardLianShort lt = new
+					 * if (st[cengshu][1] == MIN) { //å› ä¸ºä¸èƒ½å¡«æ°”è€Œæ²¡æœ‰æœ‰æ•ˆè½å­ç‚¹ï¼Œæ€»ä¹‹è½å­åæ°”æ•°ä¸ºä¸€ï¼Œ
+					 * //å¯èƒ½æ˜¯ä¸¤çœ¼æ´»æ£‹ï¼Œä¹Ÿå¯èƒ½æ˜¯ä¸€æ°”è¢«åƒã€‚ BoardLianShort lt = new
 					 * BoardLianShort(go[jumianshu]); jumianshu++; go[jumianshu]
 					 * = lt; lt.qiquan(); st[cengshu][0] = jumianshu;
 					 * st[cengshu][4] = 1; }
 					 */
 				}
-				if (st[cengshu][1] == MAX) { // »îÆå
+				if (st[cengshu][1] == MAX) { // æ´»æ£‹
 					st[cengshu][0] = 0;
 					// cengshu--;
 					// jumianshu=st[cengshu-1][0]-1;
-					// min²ãÓĞÒ»¸ö»îÆå¡£
-					// ÉÏÒ»¸ömin²ãĞèÖØĞÂ¿¼ÂÇ¡£
-					cengshu -= 2; // µ¹ÊıÁ½²ãÒÑ¾­È·¶¨¡£
+					// minå±‚æœ‰ä¸€ä¸ªæ´»æ£‹ã€‚
+					// ä¸Šä¸€ä¸ªminå±‚éœ€é‡æ–°è€ƒè™‘ã€‚
+					cengshu -= 2; // å€’æ•°ä¸¤å±‚å·²ç»ç¡®å®šã€‚
 					if (cengshu == 0) {
 						sihuo = 127;
 						return sihuo;
@@ -1171,10 +1175,10 @@ public class BoardLianShort implements Cloneable {
 					}
 					continue; //
 				}
-			} else { // ÓĞĞ§µã²»ÎªÁã¡£
-				if (haodian == 0) { // ×ö»î·½»¹¿ÉÒÔÆúÈ¨
+			} else { // æœ‰æ•ˆç‚¹ä¸ä¸ºé›¶ã€‚
+				if (haodian == 0) { // åšæ´»æ–¹è¿˜å¯ä»¥å¼ƒæƒ
 					if (CS.DEBUG_CGCL) {
-						System.out.println("ºÃµãÎª0");
+						if(log.isDebugEnabled()) log.debug("å¥½ç‚¹ä¸º0");
 					}
 					temp = new BoardLianShort(go[jumianshu]);
 					jumianshu++;
@@ -1185,7 +1189,7 @@ public class BoardLianShort implements Cloneable {
 
 				} else {
 					if (CS.DEBUG_CGCL) {
-						System.out.println("ºÃµã¸öÊıÎª£º" + haodian);
+						if(log.isDebugEnabled()) log.debug("å¥½ç‚¹ä¸ªæ•°ä¸ºï¼š" + haodian);
 					}
 					st[cengshu][4] = haodian;
 					jumianshu += haodian;
@@ -1197,71 +1201,71 @@ public class BoardLianShort implements Cloneable {
 	}
 
 	/**
-	 * ÓÃÏßĞÔ±íÀ´´æ´¢Õ÷×ÓµÄ½á¹û¡£ÒòÎªÕ÷×ÓÊ±±ä»¯ÉÙ£¬ÕâÑù´æ´¢ÊÇ³ÉÁ¢µÄ¡£ Õ÷×ÓÓĞÊ±ÓĞÁ½ÖÖÑ¡Ôñ¶¼³ÉÁ¢£¬ËæÒâÑ¡ÔñÒ»ÖÖ¼´¿É£¬¼ò»¯Õ÷×Ó½á¹ûµÄ±í´ï
+	 * ç”¨çº¿æ€§è¡¨æ¥å­˜å‚¨å¾å­çš„ç»“æœã€‚å› ä¸ºå¾å­æ—¶å˜åŒ–å°‘ï¼Œè¿™æ ·å­˜å‚¨æ˜¯æˆç«‹çš„ã€‚ å¾å­æœ‰æ—¶æœ‰ä¸¤ç§é€‰æ‹©éƒ½æˆç«‹ï¼Œéšæ„é€‰æ‹©ä¸€ç§å³å¯ï¼Œç®€åŒ–å¾å­ç»“æœçš„è¡¨è¾¾
 	 */
 	byte zhengzijieguo[][] = new byte[127][2];
 
 	public byte[][] jiSuanZhengZi(byte a, byte b) {
-		// ¼ÆËãÕ÷×Ó£¬µ«ÊÇ²»ÄÜÓÃÓÚº¬ÓĞ½ÙÕùµÄÇé¿ö¡£
-		// ÎªMAXMIN¹ı³Ì¡£
-		// ´ÓÕ÷×Ó·½³ö·¢£¬Õ÷×Ó³ÉÁ¢Îª127£¬Õ÷×Ó²»³ÉÁ¢Îª-127¡£
-		// Õ÷×Ó·½ÏÈ×ß¡£a,bÊÇ±»Õ÷×Ó·½Æå¿éÖĞµÄÒ»¸öµã¡£ÒòÎª¿éºÅ¿ÉÄÜ¸Ä±ä¡£
-		// ¸Ã·½·¨ÕæÕıÓÃµ½ÁËËÑË÷Ëã·¨¡£
+		// è®¡ç®—å¾å­ï¼Œä½†æ˜¯ä¸èƒ½ç”¨äºå«æœ‰åŠ«äº‰çš„æƒ…å†µã€‚
+		// ä¸ºMAXMINè¿‡ç¨‹ã€‚
+		// ä»å¾å­æ–¹å‡ºå‘ï¼Œå¾å­æˆç«‹ä¸º127ï¼Œå¾å­ä¸æˆç«‹ä¸º-127ã€‚
+		// å¾å­æ–¹å…ˆèµ°ã€‚a,bæ˜¯è¢«å¾å­æ–¹æ£‹å—ä¸­çš„ä¸€ä¸ªç‚¹ã€‚å› ä¸ºå—å·å¯èƒ½æ”¹å˜ã€‚
+		// è¯¥æ–¹æ³•çœŸæ­£ç”¨åˆ°äº†æœç´¢ç®—æ³•ã€‚
 
-		byte MAX = 1; // ´ú±íÕ÷×Ó·½
-		byte MIN = 2; // ´ú±í±»Õ÷×Ó·½
+		byte MAX = 1; // ä»£è¡¨å¾å­æ–¹
+		byte MIN = 2; // ä»£è¡¨è¢«å¾å­æ–¹
 
 		byte m1, n1;
 
-		short zkin = zbk[a][b]; // ×ö»îÖ÷ÌåµÄ¿éºÅ¡£
+		short zkin = zbk[a][b]; // åšæ´»ä¸»ä½“çš„å—å·ã€‚
 
-		byte houxuan[][] = new byte[5][2]; // ºòÑ¡µã¡²0¡³¡²0¡³´æ´¢×ÓÊı¡£
+		byte houxuan[][] = new byte[5][2]; // å€™é€‰ç‚¹ã€”0ã€•ã€”0ã€•å­˜å‚¨å­æ•°ã€‚
 		BoardLianShort[] go = new BoardLianShort[100000];
-		byte[] za = new byte[100000]; // Éú³ÉÓëgo¶ÔÓ¦¾ÖÃæËù×ßµãµÄºá×ø±ê¡£
-		byte[] zb = new byte[100000]; // Éú³ÉÓëgo¶ÔÓ¦¾ÖÃæËù×ßµãµÄ×İ×ø±ê¡£
-		int jumianshu = 0; // µ±Ç°ÒÑÓĞ¾ÖÃæºÅ¡£
+		byte[] za = new byte[100000]; // ç”Ÿæˆä¸goå¯¹åº”å±€é¢æ‰€èµ°ç‚¹çš„æ¨ªåæ ‡ã€‚
+		byte[] zb = new byte[100000]; // ç”Ÿæˆä¸goå¯¹åº”å±€é¢æ‰€èµ°ç‚¹çš„çºµåæ ‡ã€‚
+		int jumianshu = 0; // å½“å‰å·²æœ‰å±€é¢å·ã€‚
 		byte SOUSUOSHENDU = 120;
-		byte cengshu = 0; // µ±Ç°ÒÑÓĞ²ãÊı¡£
-		int[][] st = new int[SOUSUOSHENDU][5]; // ÏŞÖÆËÑË÷Éî¶ÈÎª100¡£
-		// 0:¸Ã²ãÆğÊ¼¾ÖÃæºÅ¡£
-		// 1:±¾²ã¶ÔÏÂÒ»²ãÈ¡max»¹ÊÇmin
-		// 2:ÉÏÒ»²ã¶Ô×Ô¼ºµÄ²ãÈ¡max»¹ÊÇmin
-		// 3:µ±Ç°²ãÒÑ¾­ÓĞÒ»¸ö¾ÖÃæÈ·¶¨ÁË¡£ÎªÏàÓ¦µÄÖµ¡£
-		// 4:¸Ã²ã»¹ÓĞ¶àÉÙ¾ÖÃæ¡££½0Ôò¸Ã²ãÃæ½áÊø
+		byte cengshu = 0; // å½“å‰å·²æœ‰å±‚æ•°ã€‚
+		int[][] st = new int[SOUSUOSHENDU][5]; // é™åˆ¶æœç´¢æ·±åº¦ä¸º100ã€‚
+		// 0:è¯¥å±‚èµ·å§‹å±€é¢å·ã€‚
+		// 1:æœ¬å±‚å¯¹ä¸‹ä¸€å±‚å–maxè¿˜æ˜¯min
+		// 2:ä¸Šä¸€å±‚å¯¹è‡ªå·±çš„å±‚å–maxè¿˜æ˜¯min
+		// 3:å½“å‰å±‚å·²ç»æœ‰ä¸€ä¸ªå±€é¢ç¡®å®šäº†ã€‚ä¸ºç›¸åº”çš„å€¼ã€‚
+		// 4:è¯¥å±‚è¿˜æœ‰å¤šå°‘å±€é¢ã€‚ï¼0åˆ™è¯¥å±‚é¢ç»“æŸ
 
 		for (byte i = 0; i < SOUSUOSHENDU; i++) {
-			// ÏŞÖÆÁËËÑË÷Éî¶È¡£
-			st[i][1] = MAX; // ¶ÔÏÂ²ãÈ¡MAX£»¸Ã²ãÓÉmaxÏÂ¡£
-			// ¶ÔÏÂ²ã(×ß×ÓÖ®ºóµÄ×´Ì¬)È¡MAX£»
-			st[i][2] = MIN; // ¶ÔÍ¬Ò»²ãÈ¡MIN
+			// é™åˆ¶äº†æœç´¢æ·±åº¦ã€‚
+			st[i][1] = MAX; // å¯¹ä¸‹å±‚å–MAXï¼›è¯¥å±‚ç”±maxä¸‹ã€‚
+			// å¯¹ä¸‹å±‚(èµ°å­ä¹‹åçš„çŠ¶æ€)å–MAXï¼›
+			st[i][2] = MIN; // å¯¹åŒä¸€å±‚å–MIN
 			i++;
-			st[i][1] = MIN; // ¶ÔÏÂ²ãÈ¡MAX£»
+			st[i][1] = MIN; // å¯¹ä¸‹å±‚å–MAXï¼›
 			st[i][2] = MAX;
 		}
 
-		byte turncolor1 = 0; // ¼ÆËã¼ÆËãĞèÒªºÎ·½ÂÖ×ß¡£
-		byte turncolor2 = 0; // Ô­Ê¼¾ÖÃæÔ­±¾ÂÖË­×ß£¿
+		byte turncolor1 = 0; // è®¡ç®—è®¡ç®—éœ€è¦ä½•æ–¹è½®èµ°ã€‚
+		byte turncolor2 = 0; // åŸå§‹å±€é¢åŸæœ¬è½®è°èµ°ï¼Ÿ
 		if (zikuai[zkin].color == CS.BLACK) {
 			turncolor1 = CS.WHITE;
 			if (CS.DEBUG_JISUANZHENGZI) {
-				System.out.println("Òª×ö»îµÄÆå¿éÎªºÚÉ«£¬ÂÖ°×·½×ßÄÜ·ñÕ÷×Ó£¿");
+				if(log.isDebugEnabled()) log.debug("è¦åšæ´»çš„æ£‹å—ä¸ºé»‘è‰²ï¼Œè½®ç™½æ–¹èµ°èƒ½å¦å¾å­ï¼Ÿ");
 			}
 		} else if (zikuai[zkin].color == CS.WHITE) {
 			turncolor1 = CS.BLACK;
 			if (CS.DEBUG_JISUANZHENGZI) {
-				System.out.println("Òª×ö»îµÄÆå¿éÎª°×É«£¬ÂÖºÚ·½×ßÄÜ·ñÕ÷×Ó£¿");
+				if(log.isDebugEnabled()) log.debug("è¦åšæ´»çš„æ£‹å—ä¸ºç™½è‰²ï¼Œè½®é»‘æ–¹èµ°èƒ½å¦å¾å­ï¼Ÿ");
 			}
 		}
 
-		if ((shoushu % 2) == 0) { // Êµ¼ÊÉÏÏÖÔÚÂÖË­×ß¡£
+		if ((shoushu % 2) == 0) { // å®é™…ä¸Šç°åœ¨è½®è°èµ°ã€‚
 			turncolor2 = CS.BLACK;
 			if (CS.DEBUG_JISUANZHENGZI) {
-				System.out.println("¾ÖÃæÉÏÓ¦¸ÃºÚ×ß¡£");
+				if(log.isDebugEnabled()) log.debug("å±€é¢ä¸Šåº”è¯¥é»‘èµ°ã€‚");
 			}
 		} else {
 			turncolor2 = CS.WHITE;
 			if (CS.DEBUG_JISUANZHENGZI) {
-				System.out.println("¾ÖÃæÉÏÓ¦¸Ã°××ß¡£");
+				if(log.isDebugEnabled()) log.debug("å±€é¢ä¸Šåº”è¯¥ç™½èµ°ã€‚");
 			}
 		}
 		go[0] = (BoardLianShort) this.clone();
@@ -1269,36 +1273,36 @@ public class BoardLianShort implements Cloneable {
 			go[0].qiquan();
 			zhengzijieguo[126][0] = 1;
 			if (CS.DEBUG_JISUANZHENGZI) {
-				System.out.println("ĞèÒªÆúÈ¨Ò»²½¡£");
+				if(log.isDebugEnabled()) log.debug("éœ€è¦å¼ƒæƒä¸€æ­¥ã€‚");
 			}
 		}
-		// 1.³õÊ¼»¯
-		byte youxiaodian = 0; // ²»Î¥·´Âä×Ó¹æÔòµÄµã¡£ÓÃÓÚÕ÷×Ó·½MAX.
-		byte haodian = 0; // ÓÃÓÚ±»Õ÷×Ó·½¡£´ÓÓĞĞ§µãÖĞÅÅ³ı¿ÉÒÔÖ±½ÓµÃ³ö½áÂÛµÄµã¡£
+		// 1.åˆå§‹åŒ–
+		byte youxiaodian = 0; // ä¸è¿åè½å­è§„åˆ™çš„ç‚¹ã€‚ç”¨äºå¾å­æ–¹MAX.
+		byte haodian = 0; // ç”¨äºè¢«å¾å­æ–¹ã€‚ä»æœ‰æ•ˆç‚¹ä¸­æ’é™¤å¯ä»¥ç›´æ¥å¾—å‡ºç»“è®ºçš„ç‚¹ã€‚
 		BoardLianShort temp;
 
 		st[0][0] = 0;
 		st[0][4] = 1;
 		jumianshu = 0;
 
-		// 2.¿ªÊ¼¼ÆËã¡£
+		// 2.å¼€å§‹è®¡ç®—ã€‚
 		while (true) {
-			// µÚÒ»²ãÑ­»·£ºÕ¹¿ª×îºóÒ»¸ö¾ÖÃæ¡£
+			// ç¬¬ä¸€å±‚å¾ªç¯ï¼šå±•å¼€æœ€åä¸€ä¸ªå±€é¢ã€‚
 
 			if (cengshu >= (SOUSUOSHENDU - 1)) {
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("ËÑË÷µ½100²ã£¬ÈÔÃ»ÓĞ½á¹û£¬·µ»Ø²»¾«È·½á¹û");
+					if(log.isDebugEnabled()) log.debug("æœç´¢åˆ°100å±‚ï¼Œä»æ²¡æœ‰ç»“æœï¼Œè¿”å›ä¸ç²¾ç¡®ç»“æœ");
 				}
 				return zhengzijieguo;
 			} else {
-				cengshu++; // ĞÂ²ãµÄ²ãºÅ¡£
+				cengshu++; // æ–°å±‚çš„å±‚å·ã€‚
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("ĞÂµÄµ±Ç°²ãÊıÎª£º" + cengshu);
+					if(log.isDebugEnabled()) log.debug("æ–°çš„å½“å‰å±‚æ•°ä¸ºï¼š" + cengshu);
 				}
 				st[cengshu][0] = jumianshu + 1;
-				// ĞÂ²ãµÄ¿ªÊ¼µã¡£
+				// æ–°å±‚çš„å¼€å§‹ç‚¹ã€‚
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("ĞÂ²ãµÄ¿ªÊ¼¾ÖÃæË÷ÒıÎª£º" + (jumianshu + 1));
+					if(log.isDebugEnabled()) log.debug("æ–°å±‚çš„å¼€å§‹å±€é¢ç´¢å¼•ä¸ºï¼š" + (jumianshu + 1));
 				}
 			}
 
@@ -1306,32 +1310,32 @@ public class BoardLianShort implements Cloneable {
 			haodian = 0;
 
 			temp = (BoardLianShort) (go[jumianshu].clone());
-			// ÒªÕ¹¿ªµÄ¾ÖÃæ¡£
+			// è¦å±•å¼€çš„å±€é¢ã€‚
 			zkin = temp.zbk[a][b];
 			if (st[cengshu][1] == MAX) {
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("µ±Ç°²ãÂÖË­×ß£¿" + "MAX");
+					if(log.isDebugEnabled()) log.debug("å½“å‰å±‚è½®è°èµ°ï¼Ÿ" + "MAX");
 				}
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("ÉÏÒ»²ãÂÖË­×ß£¿" + "MIN");
+					if(log.isDebugEnabled()) log.debug("ä¸Šä¸€å±‚è½®è°èµ°ï¼Ÿ" + "MIN");
 				}
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("ÔÚÉÏÒ»²ãÓÉMIN×ßµÃµ½¸Ã²ã");
+					if(log.isDebugEnabled()) log.debug("åœ¨ä¸Šä¸€å±‚ç”±MINèµ°å¾—åˆ°è¯¥å±‚");
 
 				}
 				DianNode1 lili;
-				HaoNode1 yskh; // ÒìÉ«¿éºÅ
-				byte ysks; // ÒìÉ«¿éÊı
+				HaoNode1 yskh; // å¼‚è‰²å—å·
+				byte ysks; // å¼‚è‰²å—æ•°
 				byte tizidianshu = 0;
 
 				ysks = temp.zikuai[zkin].zwyskshu;
 				yskh = temp.zikuai[zkin].zwyskhao;
-				for (byte jj = 1; jj <= ysks; jj++) { // ¼ÓÈë±»´ò³ÔµÄµã£»
-					// ¼ÇÂ¼ÖÜÎ§Ò»ÆøµÄµã¡£³öÏÖ´íÎó£¬´ò³ÔÒ»°ã²»ÊÊÉÏÒ»²½Éú³É¡£
+				for (byte jj = 1; jj <= ysks; jj++) { // åŠ å…¥è¢«æ‰“åƒçš„ç‚¹ï¼›
+					// è®°å½•å‘¨å›´ä¸€æ°”çš„ç‚¹ã€‚å‡ºç°é”™è¯¯ï¼Œæ‰“åƒä¸€èˆ¬ä¸é€‚ä¸Šä¸€æ­¥ç”Ÿæˆã€‚
 
 					if (yskh == null) {
 						if (CS.DEBUG_JISUANZHENGZI) {
-							System.out.println("¿éºÅ´íÎó¡£");
+							if(log.isDebugEnabled()) log.debug("å—å·é”™è¯¯ã€‚");
 						}
 						break;
 					}
@@ -1345,7 +1349,7 @@ public class BoardLianShort implements Cloneable {
 							houxuan[tizidianshu][1] = lili.b;
 						} else {
 							if (CS.DEBUG_JISUANZHENGZI) {
-								System.out.println("¿éºÅ´íÎó¡£");
+								if(log.isDebugEnabled()) log.debug("å—å·é”™è¯¯ã€‚");
 
 							}
 						}
@@ -1356,49 +1360,49 @@ public class BoardLianShort implements Cloneable {
 				lili = temp.zikuai[zkin].qichuang;
 				if (temp.zikuai[zkin].qishu != 1) {
 					if (CS.DEBUG_JISUANZHENGZI) {
-						System.out.println("´íÎó£ºÆøÊı²»Îª1¡£");
+						if(log.isDebugEnabled()) log.debug("é”™è¯¯ï¼šæ°”æ•°ä¸ä¸º1ã€‚");
 					}
 					zhengzijieguo[0][0] = -128;
-					return zhengzijieguo; // ±íÊ¾·½·¨Ê§°Ü¡£
+					return zhengzijieguo; // è¡¨ç¤ºæ–¹æ³•å¤±è´¥ã€‚
 				}
 
 				if (lili == null) {
 					if (CS.DEBUG_JISUANZHENGZI) {
-						System.out.println("ÆøÊı²»×ã1¡£");
+						if(log.isDebugEnabled()) log.debug("æ°”æ•°ä¸è¶³1ã€‚");
 					}
 					zhengzijieguo[0][0] = -128;
-					return zhengzijieguo; // ±íÊ¾·½·¨Ê§°Ü¡£
+					return zhengzijieguo; // è¡¨ç¤ºæ–¹æ³•å¤±è´¥ã€‚
 				}
 				tizidianshu++;
-				houxuan[tizidianshu][0] = lili.a; // ¿ÉÄÜÊÇÖØ¸´µÄ¡£
+				houxuan[tizidianshu][0] = lili.a; // å¯èƒ½æ˜¯é‡å¤çš„ã€‚
 				houxuan[tizidianshu][1] = lili.b;
 				houxuan[0][0] = tizidianshu;
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("±»Õ÷×Ó·½ºòÑ¡µãÊıÎª" + tizidianshu);
+					if(log.isDebugEnabled()) log.debug("è¢«å¾å­æ–¹å€™é€‰ç‚¹æ•°ä¸º" + tizidianshu);
 				}
 
-				// ±»Õ÷×Ó·½×ß¡£
+				// è¢«å¾å­æ–¹èµ°ã€‚
 				boolean queding = false;
 				for (byte i = 1; i <= houxuan[0][0]; i++) {
-					// Ä¿Ç°½ö½ö¿¼ÂÇºòÑ¡µãÒÑÖª¶øÇÒÔÚËÑË÷¹ı³ÌÖĞ²»¶¯Ì¬¸Ä±ä
-					// ÒÔºóÓ¦¸Ã½øĞĞ¸üÏ¸ÖÂµÄ´¦Àí£¬¸ù¾İÒªÕ¹¿ªµÄ¾ÖÃæÈ·¶¨¡£
+					// ç›®å‰ä»…ä»…è€ƒè™‘å€™é€‰ç‚¹å·²çŸ¥è€Œä¸”åœ¨æœç´¢è¿‡ç¨‹ä¸­ä¸åŠ¨æ€æ”¹å˜
+					// ä»¥ååº”è¯¥è¿›è¡Œæ›´ç»†è‡´çš„å¤„ç†ï¼Œæ ¹æ®è¦å±•å¼€çš„å±€é¢ç¡®å®šã€‚
 
 					m1 = houxuan[i][0];
 					n1 = houxuan[i][1];
 					temp = new BoardLianShort(go[jumianshu]);
-					// ÒòÎªtemp¿ÉÄÜÒÑ¾­±»¸Ä±ä£¬±ØĞëÖØĞÂ¸³Öµ¡£
-					// À©Õ¹×îºóµÄ¾ÖÃæ£¬À©Õ¹Í¬Ò»¸öÉÏ¼¶¾ÖÃæ¡£
-					if (temp.validate(m1, n1)) { // ÅĞ¶ÏºÏ·¨×Åµã
+					// å› ä¸ºtempå¯èƒ½å·²ç»è¢«æ”¹å˜ï¼Œå¿…é¡»é‡æ–°èµ‹å€¼ã€‚
+					// æ‰©å±•æœ€åçš„å±€é¢ï¼Œæ‰©å±•åŒä¸€ä¸ªä¸Šçº§å±€é¢ã€‚
+					if (temp.validate(m1, n1)) { // åˆ¤æ–­åˆæ³•ç€ç‚¹
 						temp.cgcl(m1, n1);
 						youxiaodian++;
 						if (CS.DEBUG_JISUANZHENGZI) {
-							System.out.println("µÚ" + youxiaodian + "¸öºòÑ¡µãÎª:("
+							if(log.isDebugEnabled()) log.debug("ç¬¬" + youxiaodian + "ä¸ªå€™é€‰ç‚¹ä¸º:("
 									+ m1 + "," + n1 + ")");
 						}
 
 						if (temp.zb[a][b][QSXB] == 1) {
 							if (CS.DEBUG_JISUANZHENGZI) {
-								System.out.println("Âä×Óºó±»Õ÷×Ó·½ÆøÊıÎª1");
+								if(log.isDebugEnabled()) log.debug("è½å­åè¢«å¾å­æ–¹æ°”æ•°ä¸º1");
 							}
 						} else if (temp.zb[a][b][QSXB] == 2) {
 							haodian++;
@@ -1406,26 +1410,26 @@ public class BoardLianShort implements Cloneable {
 							za[jumianshu + haodian] = m1;
 							zb[jumianshu + haodian] = n1;
 							if (CS.DEBUG_JISUANZHENGZI) {
-								System.out.println("min×ß" + "(" + m1 + "," + n1
+								if(log.isDebugEnabled()) log.debug("minèµ°" + "(" + m1 + "," + n1
 										+ ")");
 							}
 
 						} else if (temp.zb[a][b][QSXB] == 3) {
 							if (CS.DEBUG_JISUANZHENGZI) {
-								System.out.println("Âä×Óºó±»Õ÷×Ó·½ÆøÊıÎª3");
+								if(log.isDebugEnabled()) log.debug("è½å­åè¢«å¾å­æ–¹æ°”æ•°ä¸º3");
 							}
 
-							cengshu -= 1; // µ¹ÊıÁ½²ãÒÑ¾­È·¶¨¡£¼õºóµÄ²ãÊıĞèÒªÖØĞÂÕ¹¿ª
+							cengshu -= 1; // å€’æ•°ä¸¤å±‚å·²ç»ç¡®å®šã€‚å‡åçš„å±‚æ•°éœ€è¦é‡æ–°å±•å¼€
 
 							st[cengshu][4] -= 1;
 							if (st[cengshu][4] != 0) {
 								jumianshu = st[cengshu][0] + st[cengshu][4] - 1;
 								// st[cengshu - 2][3] = 127;
 								queding = true;
-								break; // Ìø³öforÑ­»·¡£
+								break; // è·³å‡ºforå¾ªç¯ã€‚
 							} else {
 								while (true) {
-									cengshu -= 2; // µ¹ÊıÁ½²ãÒÑ¾­È·¶¨¡£¼õºóµÄ²ãÊıĞèÒªÖØĞÂÕ¹¿ª
+									cengshu -= 2; // å€’æ•°ä¸¤å±‚å·²ç»ç¡®å®šã€‚å‡åçš„å±‚æ•°éœ€è¦é‡æ–°å±•å¼€
 									if (cengshu == -1) {
 										zhengzijieguo[0][0] = -127;
 										return zhengzijieguo;
@@ -1444,23 +1448,23 @@ public class BoardLianShort implements Cloneable {
 
 						}
 					}
-				} // forÑ­»·½áÊø
+				} // forå¾ªç¯ç»“æŸ
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("ÓĞĞ§µãÎª:" + youxiaodian);
+					if(log.isDebugEnabled()) log.debug("æœ‰æ•ˆç‚¹ä¸º:" + youxiaodian);
 				}
 
 				if (queding == true) {
 					continue;
 				} else if (haodian == 0) {
 					while (true) {
-						cengshu -= 2; // µ¹ÊıÁ½²ãÒÑ¾­È·¶¨¡£¼õºóµÄ²ãÊıĞèÒªÖØĞÂÕ¹¿ª
+						cengshu -= 2; // å€’æ•°ä¸¤å±‚å·²ç»ç¡®å®šã€‚å‡åçš„å±‚æ•°éœ€è¦é‡æ–°å±•å¼€
 						if (cengshu == 0) {
 							zhengzijieguo[0][0] = 127;
 
 							byte lins = 0;
 							for (lins = 2; st[lins][0] != 0; lins++) {
 								if (CS.DEBUG_JISUANZHENGZI) {
-									System.out.println("µãÎª:("
+									if(log.isDebugEnabled()) log.debug("ç‚¹ä¸º:("
 											+ za[st[lins][0] - 1] + ","
 											+ zb[st[lins][0] - 1] + ")");
 								} // this.cgcl(za[st[lins][0]-1],zb[st[lins][0]-1]);
@@ -1488,26 +1492,26 @@ public class BoardLianShort implements Cloneable {
 			} // max
 			else if (st[cengshu][1] == MIN) {
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("µ±Ç°²ãÂÖË­×ß£¿" + "MIN");
+					if(log.isDebugEnabled()) log.debug("å½“å‰å±‚è½®è°èµ°ï¼Ÿ" + "MIN");
 				}
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("ÔÚÉÏÒ»²ãÓÉMAX×ßµÃµ½¸Ã²ã");
+					if(log.isDebugEnabled()) log.debug("åœ¨ä¸Šä¸€å±‚ç”±MAXèµ°å¾—åˆ°è¯¥å±‚");
 				}
 				DianNode1 lili = temp.zikuai[zkin].qichuang;
 				if (temp.zikuai[zkin].qishu != 2) {
 					if (CS.DEBUG_JISUANZHENGZI) {
-						System.out.println("´íÎó£ºÆøÊı²»Îª¶ş¡£");
+						if(log.isDebugEnabled()) log.debug("é”™è¯¯ï¼šæ°”æ•°ä¸ä¸ºäºŒã€‚");
 					}
 					zhengzijieguo[0][0] = -127;
-					return zhengzijieguo; // ±íÊ¾·½·¨Ê§°Ü¡£
+					return zhengzijieguo; // è¡¨ç¤ºæ–¹æ³•å¤±è´¥ã€‚
 				}
 				for (byte i = 1; i <= 2; i++) {
 					if (lili == null) {
 						if (CS.DEBUG_JISUANZHENGZI) {
-							System.out.println("ÆøÊı²»×ã¶ş¡£");
+							if(log.isDebugEnabled()) log.debug("æ°”æ•°ä¸è¶³äºŒã€‚");
 						}
 						zhengzijieguo[0][0] = -127;
-						return zhengzijieguo; // ±íÊ¾·½·¨Ê§°Ü¡£
+						return zhengzijieguo; // è¡¨ç¤ºæ–¹æ³•å¤±è´¥ã€‚
 					}
 					houxuan[i][0] = lili.a;
 					houxuan[i][1] = lili.b;
@@ -1515,48 +1519,48 @@ public class BoardLianShort implements Cloneable {
 				}
 				houxuan[0][0] = 2;
 				for (byte i = 1; i <= houxuan[0][0]; i++) {
-					// Ä¿Ç°½ö½ö¿¼ÂÇºòÑ¡µãÒÑÖª¶øÇÒÔÚËÑË÷¹ı³ÌÖĞ²»¶¯Ì¬¸Ä±ä
-					// ÒÔºóÓ¦¸Ã½øĞĞ¸üÏ¸ÖÂµÄ´¦Àí£¬¸ù¾İÒªÕ¹¿ªµÄ¾ÖÃæÈ·¶¨¡£
+					// ç›®å‰ä»…ä»…è€ƒè™‘å€™é€‰ç‚¹å·²çŸ¥è€Œä¸”åœ¨æœç´¢è¿‡ç¨‹ä¸­ä¸åŠ¨æ€æ”¹å˜
+					// ä»¥ååº”è¯¥è¿›è¡Œæ›´ç»†è‡´çš„å¤„ç†ï¼Œæ ¹æ®è¦å±•å¼€çš„å±€é¢ç¡®å®šã€‚
 
 					m1 = houxuan[i][0];
 					n1 = houxuan[i][1];
 					temp = new BoardLianShort(go[jumianshu]);
 
-					// À©Õ¹×îºóµÄ¾ÖÃæ£¬À©Õ¹Í¬Ò»¸öÉÏ¼¶¾ÖÃæ¡£
-					if (temp.validate(m1, n1)) { // ÅĞ¶ÏºÏ·¨×Åµã
+					// æ‰©å±•æœ€åçš„å±€é¢ï¼Œæ‰©å±•åŒä¸€ä¸ªä¸Šçº§å±€é¢ã€‚
+					if (temp.validate(m1, n1)) { // åˆ¤æ–­åˆæ³•ç€ç‚¹
 						temp.cgcl(m1, n1);
 						youxiaodian++;
 						go[jumianshu + youxiaodian] = temp;
 						za[jumianshu + youxiaodian] = m1;
 						zb[jumianshu + youxiaodian] = n1;
 						if (CS.DEBUG_JISUANZHENGZI) {
-							System.out.println("max×ß" + "(" + m1 + "," + n1
+							if(log.isDebugEnabled()) log.debug("maxèµ°" + "(" + m1 + "," + n1
 									+ ")");
 						}
 
 					}
 				}
 				if (youxiaodian == 0) {
-					// ·µ»Ø£¬Ò»°ãÊÇÕ÷×Ó·½ÎŞ×Ó¿ÉÏÂ¡£
+					// è¿”å›ï¼Œä¸€èˆ¬æ˜¯å¾å­æ–¹æ— å­å¯ä¸‹ã€‚
 					if (CS.DEBUG_JISUANZHENGZI) {
-						System.out.println("ÓĞĞ§µãÎª0");
+						if(log.isDebugEnabled()) log.debug("æœ‰æ•ˆç‚¹ä¸º0");
 
 					}
 					st[cengshu][0] = 0;
 
-					if (cengshu == 1) { // Õ÷×Ó·½Ö±½ÓÎŞ×Ó¿ÉÏÂ£¬
+					if (cengshu == 1) { // å¾å­æ–¹ç›´æ¥æ— å­å¯ä¸‹ï¼Œ
 						zhengzijieguo[0][0] = -127;
 						return zhengzijieguo;
 					}
 
 					while (true) {
-						cengshu -= 2; // µ¹ÊıÁ½²ãÒÑ¾­È·¶¨¡£¼õºóµÄ²ãÊıĞèÒªÖØĞÂÕ¹¿ª
+						cengshu -= 2; // å€’æ•°ä¸¤å±‚å·²ç»ç¡®å®šã€‚å‡åçš„å±‚æ•°éœ€è¦é‡æ–°å±•å¼€
 						if (cengshu == -1) {
 							zhengzijieguo[0][0] = -127;
 
 							for (byte lins = 2; st[lins][0] != 0; lins++) {
 								if (CS.DEBUG_JISUANZHENGZI) {
-									System.out.println("µãÎª:("
+									if(log.isDebugEnabled()) log.debug("ç‚¹ä¸º:("
 											+ za[st[lins][0] - 1] + ","
 											+ zb[st[lins][0] - 1] + ")");
 								}
@@ -1587,72 +1591,72 @@ public class BoardLianShort implements Cloneable {
 	}
 
 	public byte[][] jisuanzhengzijiezheng(byte a, byte b) {
-		// ¼ÆËãÕ÷×Ó£¬µ«ÊÇ²»ÄÜÓÃÓÚº¬ÓĞ½ÙÕùµÄÇé¿ö¡£
-		// ÎªMAXMIN¹ı³Ì¡£
-		// ´ÓÕ÷×Ó·½³ö·¢£¬Õ÷×Ó³ÉÁ¢Îª127£¬Õ÷×Ó²»³ÉÁ¢Îª-127¡£
-		// Õ÷×Ó·½ÏÈ×ß¡£a,bÊÇ±»Õ÷×Ó·½Æå¿éÖĞµÄÒ»¸öµã¡£ÒòÎª¿éºÅ¿ÉÄÜ¸Ä±ä¡£
-		// ¸Ã·½·¨ÕæÕıÓÃµ½ÁËËÑË÷Ëã·¨¡£
+		// è®¡ç®—å¾å­ï¼Œä½†æ˜¯ä¸èƒ½ç”¨äºå«æœ‰åŠ«äº‰çš„æƒ…å†µã€‚
+		// ä¸ºMAXMINè¿‡ç¨‹ã€‚
+		// ä»å¾å­æ–¹å‡ºå‘ï¼Œå¾å­æˆç«‹ä¸º127ï¼Œå¾å­ä¸æˆç«‹ä¸º-127ã€‚
+		// å¾å­æ–¹å…ˆèµ°ã€‚a,bæ˜¯è¢«å¾å­æ–¹æ£‹å—ä¸­çš„ä¸€ä¸ªç‚¹ã€‚å› ä¸ºå—å·å¯èƒ½æ”¹å˜ã€‚
+		// è¯¥æ–¹æ³•çœŸæ­£ç”¨åˆ°äº†æœç´¢ç®—æ³•ã€‚
 
-		byte MAX = 1; // ´ú±íÕ÷×Ó·½
-		byte MIN = 2; // ´ú±í±»Õ÷×Ó·½
+		byte MAX = 1; // ä»£è¡¨å¾å­æ–¹
+		byte MIN = 2; // ä»£è¡¨è¢«å¾å­æ–¹
 		byte JIE = 3;
 		byte m1, n1;
 
-		short zkin = zbk[a][b]; // ×ö»îÖ÷ÌåµÄ¿éºÅ¡£
+		short zkin = zbk[a][b]; // åšæ´»ä¸»ä½“çš„å—å·ã€‚
 
-		byte houxuan[][] = new byte[5][2]; // ºòÑ¡µã¡²0¡³¡²0¡³´æ´¢×ÓÊı¡£
+		byte houxuan[][] = new byte[5][2]; // å€™é€‰ç‚¹ã€”0ã€•ã€”0ã€•å­˜å‚¨å­æ•°ã€‚
 		BoardLianShort[] go = new BoardLianShort[100000];
-		byte[] za = new byte[100000]; // Éú³ÉÓëgo¶ÔÓ¦¾ÖÃæËù×ßµãµÄºá×ø±ê¡£
-		byte[] zb = new byte[100000]; // Éú³ÉÓëgo¶ÔÓ¦¾ÖÃæËù×ßµãµÄ×İ×ø±ê¡£
+		byte[] za = new byte[100000]; // ç”Ÿæˆä¸goå¯¹åº”å±€é¢æ‰€èµ°ç‚¹çš„æ¨ªåæ ‡ã€‚
+		byte[] zb = new byte[100000]; // ç”Ÿæˆä¸goå¯¹åº”å±€é¢æ‰€èµ°ç‚¹çš„çºµåæ ‡ã€‚
 		byte[] zc = new byte[100000];
-		// ±êÖ¾×Å¸Ã¾ÖÃæÒÑ¾­½øÈë½ÙÕù£¬ÏÂÒ»ÊÖ²»ÄÜÖ±½ÓÌá¡£
+		// æ ‡å¿—ç€è¯¥å±€é¢å·²ç»è¿›å…¥åŠ«äº‰ï¼Œä¸‹ä¸€æ‰‹ä¸èƒ½ç›´æ¥æã€‚
 
-		int jumianshu = 0; // µ±Ç°ÒÑÓĞ¾ÖÃæºÅ¡£
+		int jumianshu = 0; // å½“å‰å·²æœ‰å±€é¢å·ã€‚
 		byte SOUSUOSHENDU = 120;
-		byte cengshu = 0; // µ±Ç°ÒÑÓĞ²ãÊı¡£
-		int[][] st = new int[SOUSUOSHENDU][5]; // ÏŞÖÆËÑË÷Éî¶ÈÎª100¡£
-		// 0:¸Ã²ãÆğÊ¼¾ÖÃæºÅ¡£
-		// 1:±¾²ã¶ÔÏÂÒ»²ãÈ¡max»¹ÊÇmin
-		// 2:±£Áô
-		// 3:µ±Ç°²ãÒÑ¾­È¡µÃµÄÏàÓ¦µÄÖµ¡£
-		// 4:¸Ã²ã»¹ÓĞ¶àÉÙ¾ÖÃæ¡££½0Ôò¸Ã²ãÃæ½áÊø
+		byte cengshu = 0; // å½“å‰å·²æœ‰å±‚æ•°ã€‚
+		int[][] st = new int[SOUSUOSHENDU][5]; // é™åˆ¶æœç´¢æ·±åº¦ä¸º100ã€‚
+		// 0:è¯¥å±‚èµ·å§‹å±€é¢å·ã€‚
+		// 1:æœ¬å±‚å¯¹ä¸‹ä¸€å±‚å–maxè¿˜æ˜¯min
+		// 2:ä¿ç•™
+		// 3:å½“å‰å±‚å·²ç»å–å¾—çš„ç›¸åº”çš„å€¼ã€‚
+		// 4:è¯¥å±‚è¿˜æœ‰å¤šå°‘å±€é¢ã€‚ï¼0åˆ™è¯¥å±‚é¢ç»“æŸ
 
 		for (byte i = 0; i < SOUSUOSHENDU; i++) {
-			// ÏŞÖÆÁËËÑË÷Éî¶È¡£
-			st[i][1] = MAX; // ¶ÔÏÂ²ãÈ¡MAX£»ÔÚ¸Ã²ã¾ÖÃæÏÂÓÉmaxÏÂ¡£
-			// ¶ÔÏÂ²ã(×ß×ÓÖ®ºóµÄ×´Ì¬)È¡MAX£»
-			st[i][2] = MIN; // ¶ÔÍ¬Ò»²ãÈ¡MIN
+			// é™åˆ¶äº†æœç´¢æ·±åº¦ã€‚
+			st[i][1] = MAX; // å¯¹ä¸‹å±‚å–MAXï¼›åœ¨è¯¥å±‚å±€é¢ä¸‹ç”±maxä¸‹ã€‚
+			// å¯¹ä¸‹å±‚(èµ°å­ä¹‹åçš„çŠ¶æ€)å–MAXï¼›
+			st[i][2] = MIN; // å¯¹åŒä¸€å±‚å–MIN
 			st[i][3] = -127;
 			i++;
-			st[i][1] = MIN; // ¶ÔÏÂ²ãÈ¡MIN£»ÔÚ¸Ã²ã¾ÖÃæÏÂÓÉmINÏÂ¡£
-			// ¶ÔÏÂ²ã(×ß×ÓÖ®ºóµÄ×´Ì¬)È¡MIN£»
+			st[i][1] = MIN; // å¯¹ä¸‹å±‚å–MINï¼›åœ¨è¯¥å±‚å±€é¢ä¸‹ç”±mINä¸‹ã€‚
+			// å¯¹ä¸‹å±‚(èµ°å­ä¹‹åçš„çŠ¶æ€)å–MINï¼›
 			st[i][2] = MAX;
 			st[i][3] = 127;
 		}
 
-		byte turncolor1 = 0; // ¼ÆËã¼ÆËãĞèÒªºÎ·½ÂÖ×ß¡£
-		byte turncolor2 = 0; // Ô­Ê¼¾ÖÃæÔ­±¾ÂÖË­×ß£¿
+		byte turncolor1 = 0; // è®¡ç®—è®¡ç®—éœ€è¦ä½•æ–¹è½®èµ°ã€‚
+		byte turncolor2 = 0; // åŸå§‹å±€é¢åŸæœ¬è½®è°èµ°ï¼Ÿ
 		if (zikuai[zkin].color == CS.BLACK) {
 			turncolor1 = CS.WHITE;
 			if (CS.DEBUG_JISUANZHENGZI) {
-				System.out.println("Òª×ö»îµÄÆå¿éÎªºÚÉ«£¬ÂÖ°×·½×ßÄÜ·ñÕ÷×Ó£¿");
+				if(log.isDebugEnabled()) log.debug("è¦åšæ´»çš„æ£‹å—ä¸ºé»‘è‰²ï¼Œè½®ç™½æ–¹èµ°èƒ½å¦å¾å­ï¼Ÿ");
 			}
 		} else if (zikuai[zkin].color == CS.WHITE) {
 			turncolor1 = CS.BLACK;
 			if (CS.DEBUG_JISUANZHENGZI) {
-				System.out.println("Òª×ö»îµÄÆå¿éÎª°×É«£¬ÂÖºÚ·½×ßÄÜ·ñÕ÷×Ó£¿");
+				if(log.isDebugEnabled()) log.debug("è¦åšæ´»çš„æ£‹å—ä¸ºç™½è‰²ï¼Œè½®é»‘æ–¹èµ°èƒ½å¦å¾å­ï¼Ÿ");
 			}
 		}
 
-		if ((shoushu % 2) == 0) { // Êµ¼ÊÉÏÏÖÔÚÂÖË­×ß¡£
+		if ((shoushu % 2) == 0) { // å®é™…ä¸Šç°åœ¨è½®è°èµ°ã€‚
 			turncolor2 = CS.BLACK;
 			if (CS.DEBUG_JISUANZHENGZI) {
-				System.out.println("¾ÖÃæÉÏÓ¦¸ÃºÚ×ß¡£");
+				if(log.isDebugEnabled()) log.debug("å±€é¢ä¸Šåº”è¯¥é»‘èµ°ã€‚");
 			}
 		} else {
 			turncolor2 = CS.WHITE;
 			if (CS.DEBUG_JISUANZHENGZI) {
-				System.out.println("¾ÖÃæÉÏÓ¦¸Ã°××ß¡£");
+				if(log.isDebugEnabled()) log.debug("å±€é¢ä¸Šåº”è¯¥ç™½èµ°ã€‚");
 			}
 		}
 		go[0] = (BoardLianShort) this.clone();
@@ -1660,36 +1664,36 @@ public class BoardLianShort implements Cloneable {
 			go[0].qiquan();
 			zhengzijieguo[126][0] = 1;
 			if (CS.DEBUG_JISUANZHENGZI) {
-				System.out.println("ĞèÒªÆúÈ¨Ò»²½¡£");
+				if(log.isDebugEnabled()) log.debug("éœ€è¦å¼ƒæƒä¸€æ­¥ã€‚");
 			}
 		}
-		// 1.³õÊ¼»¯
-		byte youxiaodian = 0; // ²»Î¥·´Âä×Ó¹æÔòµÄµã¡£ÓÃÓÚÕ÷×Ó·½MAX.
-		byte haodian = 0; // ÓÃÓÚ±»Õ÷×Ó·½¡£´ÓÓĞĞ§µãÖĞÅÅ³ı¿ÉÒÔÖ±½ÓµÃ³ö½áÂÛµÄµã¡£
+		// 1.åˆå§‹åŒ–
+		byte youxiaodian = 0; // ä¸è¿åè½å­è§„åˆ™çš„ç‚¹ã€‚ç”¨äºå¾å­æ–¹MAX.
+		byte haodian = 0; // ç”¨äºè¢«å¾å­æ–¹ã€‚ä»æœ‰æ•ˆç‚¹ä¸­æ’é™¤å¯ä»¥ç›´æ¥å¾—å‡ºç»“è®ºçš„ç‚¹ã€‚
 		BoardLianShort temp;
 
 		st[0][0] = 0;
 		st[0][4] = 1;
 		jumianshu = 0;
 
-		// 2.¿ªÊ¼¼ÆËã¡£
+		// 2.å¼€å§‹è®¡ç®—ã€‚
 		while (true) {
-			// µÚÒ»²ãÑ­»·£ºÕ¹¿ª×îºóÒ»¸ö¾ÖÃæ¡£
+			// ç¬¬ä¸€å±‚å¾ªç¯ï¼šå±•å¼€æœ€åä¸€ä¸ªå±€é¢ã€‚
 
 			if (cengshu >= (SOUSUOSHENDU - 1)) {
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("ËÑË÷µ½100²ã£¬ÈÔÃ»ÓĞ½á¹û£¬·µ»Ø²»¾«È·½á¹û");
+					if(log.isDebugEnabled()) log.debug("æœç´¢åˆ°100å±‚ï¼Œä»æ²¡æœ‰ç»“æœï¼Œè¿”å›ä¸ç²¾ç¡®ç»“æœ");
 				}
 				return zhengzijieguo;
 			} else {
-				cengshu++; // ĞÂ²ãµÄ²ãºÅ¡£
+				cengshu++; // æ–°å±‚çš„å±‚å·ã€‚
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("ĞÂµÄµ±Ç°²ãÊıÎª£º" + cengshu);
+					if(log.isDebugEnabled()) log.debug("æ–°çš„å½“å‰å±‚æ•°ä¸ºï¼š" + cengshu);
 				}
 				st[cengshu][0] = jumianshu + 1;
-				// ĞÂ²ãµÄ¿ªÊ¼µã¡£
+				// æ–°å±‚çš„å¼€å§‹ç‚¹ã€‚
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("ĞÂ²ãµÄ¿ªÊ¼¾ÖÃæË÷ÒıÎª£º" + (jumianshu + 1));
+					if(log.isDebugEnabled()) log.debug("æ–°å±‚çš„å¼€å§‹å±€é¢ç´¢å¼•ä¸ºï¼š" + (jumianshu + 1));
 				}
 			}
 
@@ -1697,30 +1701,30 @@ public class BoardLianShort implements Cloneable {
 			haodian = 0;
 
 			temp = (BoardLianShort) (go[jumianshu].clone());
-			// ÒªÕ¹¿ªµÄ¾ÖÃæ¡£
+			// è¦å±•å¼€çš„å±€é¢ã€‚
 			zkin = temp.zbk[a][b];
 			if (st[cengshu][1] == MAX) {
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("µ±Ç°²ãÂÖË­×ß£¿" + "MAX");
+					if(log.isDebugEnabled()) log.debug("å½“å‰å±‚è½®è°èµ°ï¼Ÿ" + "MAX");
 
-					System.out.println("ÉÏÒ»²ãÂÖË­×ß£¿" + "MIN");
+					if(log.isDebugEnabled()) log.debug("ä¸Šä¸€å±‚è½®è°èµ°ï¼Ÿ" + "MIN");
 
-					System.out.println("ÔÚÉÏÒ»²ãÓÉMIN×ßµÃµ½¸Ã²ã");
+					if(log.isDebugEnabled()) log.debug("åœ¨ä¸Šä¸€å±‚ç”±MINèµ°å¾—åˆ°è¯¥å±‚");
 
 				}
 				DianNode1 lili;
-				HaoNode1 yskh; // ÒìÉ«¿éºÅ
-				byte ysks; // ÒìÉ«¿éÊı
+				HaoNode1 yskh; // å¼‚è‰²å—å·
+				byte ysks; // å¼‚è‰²å—æ•°
 				byte tizidianshu = 0;
 
 				ysks = temp.zikuai[zkin].zwyskshu;
 				yskh = temp.zikuai[zkin].zwyskhao;
-				for (byte jj = 1; jj <= ysks; jj++) { // ¼ÓÈë±»´ò³ÔµÄµã£»
-					// ¼ÇÂ¼ÖÜÎ§Ò»ÆøµÄµã¡£³öÏÖ´íÎó£¬´ò³ÔÒ»°ã²»ÊÊÉÏÒ»²½Éú³É¡£
+				for (byte jj = 1; jj <= ysks; jj++) { // åŠ å…¥è¢«æ‰“åƒçš„ç‚¹ï¼›
+					// è®°å½•å‘¨å›´ä¸€æ°”çš„ç‚¹ã€‚å‡ºç°é”™è¯¯ï¼Œæ‰“åƒä¸€èˆ¬ä¸é€‚ä¸Šä¸€æ­¥ç”Ÿæˆã€‚
 
 					if (yskh == null) {
 						if (CS.DEBUG_JISUANZHENGZI) {
-							System.out.println("¿éºÅ´íÎó¡£");
+							if(log.isDebugEnabled()) log.debug("å—å·é”™è¯¯ã€‚");
 						}
 						break;
 					}
@@ -1734,7 +1738,7 @@ public class BoardLianShort implements Cloneable {
 							houxuan[tizidianshu][1] = lili.b;
 						} else {
 							if (CS.DEBUG_JISUANZHENGZI) {
-								System.out.println("¿éºÅ´íÎó¡£");
+								if(log.isDebugEnabled()) log.debug("å—å·é”™è¯¯ã€‚");
 
 							}
 						}
@@ -1745,49 +1749,49 @@ public class BoardLianShort implements Cloneable {
 				lili = temp.zikuai[zkin].qichuang;
 				if (temp.zikuai[zkin].qishu != 1) {
 					if (CS.DEBUG_JISUANZHENGZI) {
-						System.out.println("´íÎó£ºÆøÊı²»Îª1¡£");
+						if(log.isDebugEnabled()) log.debug("é”™è¯¯ï¼šæ°”æ•°ä¸ä¸º1ã€‚");
 					}
 					zhengzijieguo[0][0] = -128;
-					return zhengzijieguo; // ±íÊ¾·½·¨Ê§°Ü¡£
+					return zhengzijieguo; // è¡¨ç¤ºæ–¹æ³•å¤±è´¥ã€‚
 				}
 
 				if (lili == null) {
 					if (CS.DEBUG_JISUANZHENGZI) {
-						System.out.println("ÆøÊı²»×ã1¡£");
+						if(log.isDebugEnabled()) log.debug("æ°”æ•°ä¸è¶³1ã€‚");
 					}
 					zhengzijieguo[0][0] = -128;
-					return zhengzijieguo; // ±íÊ¾·½·¨Ê§°Ü¡£
+					return zhengzijieguo; // è¡¨ç¤ºæ–¹æ³•å¤±è´¥ã€‚
 				}
 				tizidianshu++;
-				houxuan[tizidianshu][0] = lili.a; // ¿ÉÄÜÊÇÖØ¸´µÄ¡£
+				houxuan[tizidianshu][0] = lili.a; // å¯èƒ½æ˜¯é‡å¤çš„ã€‚
 				houxuan[tizidianshu][1] = lili.b;
 				houxuan[0][0] = tizidianshu;
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("±»Õ÷×Ó·½ºòÑ¡µãÊıÎª" + tizidianshu);
+					if(log.isDebugEnabled()) log.debug("è¢«å¾å­æ–¹å€™é€‰ç‚¹æ•°ä¸º" + tizidianshu);
 				}
 
-				// ±»Õ÷×Ó·½×ß¡£
+				// è¢«å¾å­æ–¹èµ°ã€‚
 				boolean queding = false;
 				for (byte i = 1; i <= houxuan[0][0]; i++) {
-					// Ä¿Ç°½ö½ö¿¼ÂÇºòÑ¡µãÒÑÖª¶øÇÒÔÚËÑË÷¹ı³ÌÖĞ²»¶¯Ì¬¸Ä±ä
-					// ÒÔºóÓ¦¸Ã½øĞĞ¸üÏ¸ÖÂµÄ´¦Àí£¬¸ù¾İÒªÕ¹¿ªµÄ¾ÖÃæÈ·¶¨¡£
+					// ç›®å‰ä»…ä»…è€ƒè™‘å€™é€‰ç‚¹å·²çŸ¥è€Œä¸”åœ¨æœç´¢è¿‡ç¨‹ä¸­ä¸åŠ¨æ€æ”¹å˜
+					// ä»¥ååº”è¯¥è¿›è¡Œæ›´ç»†è‡´çš„å¤„ç†ï¼Œæ ¹æ®è¦å±•å¼€çš„å±€é¢ç¡®å®šã€‚
 
 					m1 = houxuan[i][0];
 					n1 = houxuan[i][1];
 					temp = new BoardLianShort(go[jumianshu]);
-					// ÒòÎªtemp¿ÉÄÜÒÑ¾­±»¸Ä±ä£¬±ØĞëÖØĞÂ¸³Öµ¡£
-					// À©Õ¹×îºóµÄ¾ÖÃæ£¬À©Õ¹Í¬Ò»¸öÉÏ¼¶¾ÖÃæ¡£
-					if (temp.validate(m1, n1)) { // ÅĞ¶ÏºÏ·¨×Åµã
+					// å› ä¸ºtempå¯èƒ½å·²ç»è¢«æ”¹å˜ï¼Œå¿…é¡»é‡æ–°èµ‹å€¼ã€‚
+					// æ‰©å±•æœ€åçš„å±€é¢ï¼Œæ‰©å±•åŒä¸€ä¸ªä¸Šçº§å±€é¢ã€‚
+					if (temp.validate(m1, n1)) { // åˆ¤æ–­åˆæ³•ç€ç‚¹
 						temp.cgcl(m1, n1);
 						youxiaodian++;
 						if (CS.DEBUG_JISUANZHENGZI) {
-							System.out.println("µÚ" + youxiaodian + "¸öºòÑ¡µãÎª:("
+							if(log.isDebugEnabled()) log.debug("ç¬¬" + youxiaodian + "ä¸ªå€™é€‰ç‚¹ä¸º:("
 									+ m1 + "," + n1 + ")");
 						}
 
 						if (temp.zb[a][b][QSXB] == 1) {
 							if (CS.DEBUG_JISUANZHENGZI) {
-								System.out.println("Âä×Óºó±»Õ÷×Ó·½ÆøÊıÎª1");
+								if(log.isDebugEnabled()) log.debug("è½å­åè¢«å¾å­æ–¹æ°”æ•°ä¸º1");
 							}
 						} else if (temp.zb[a][b][QSXB] == 2) {
 							haodian++;
@@ -1795,17 +1799,17 @@ public class BoardLianShort implements Cloneable {
 							za[jumianshu + haodian] = m1;
 							zb[jumianshu + haodian] = n1;
 							if (CS.DEBUG_JISUANZHENGZI) {
-								System.out.println("min×ß" + "(" + m1 + "," + n1
+								if(log.isDebugEnabled()) log.debug("minèµ°" + "(" + m1 + "," + n1
 										+ ")");
 							}
-							// cgclÖĞÓ¦¸ÃÓĞ´ò½ÙµÄĞÅÏ¢¡£
+							// cgclä¸­åº”è¯¥æœ‰æ‰“åŠ«çš„ä¿¡æ¯ã€‚
 							/*
 							 * if (temp.zb[m1][n1][QSXB] == 1) { if
 							 * (temp.zikuai[temp.huik[temp.shoushu][5]].zishu ==
-							 * 1) { System.out.println("dajie"); } }
+							 * 1) { if(log.isDebugEnabled()) log.debug("dajie"); } }
 							 */
 							if (temp.hui[temp.shoushu][3] != 0
-									&& temp.hui[temp.shoushu][4] != 0) { // ½«ÉÏ²ãµÄ¾ÖÃæÅÅĞò¡£
+									&& temp.hui[temp.shoushu][4] != 0) { // å°†ä¸Šå±‚çš„å±€é¢æ’åºã€‚
 								int shangcengjumianshu = st[cengshu - 1][4];
 								if (st[cengshu - 1][4] > 1) {
 									BoardLianShort tempjiaohuan;
@@ -1815,7 +1819,7 @@ public class BoardLianShort implements Cloneable {
 									go[jumianshu - shangcengjumianshu + 1] = tempjiaohuan;
 									queding = true;
 									break;
-									// ÖØĞÂÕ¹¿ª¡£Ê¹²»´ò½ÙµÄ×Å·¨ÓÅÏÈÕ¹¿ª¡£
+									// é‡æ–°å±•å¼€ã€‚ä½¿ä¸æ‰“åŠ«çš„ç€æ³•ä¼˜å…ˆå±•å¼€ã€‚
 
 								} else if (st[cengshu - 1][4] == 1) {
 									zc[jumianshu + haodian] = JIE;
@@ -1825,23 +1829,23 @@ public class BoardLianShort implements Cloneable {
 							}
 						} else if (temp.zb[a][b][QSXB] == 3) {
 							if (CS.DEBUG_JISUANZHENGZI) {
-								System.out.println("Âä×Óºó±»Õ÷×Ó·½ÆøÊıÎª3");
+								if(log.isDebugEnabled()) log.debug("è½å­åè¢«å¾å­æ–¹æ°”æ•°ä¸º3");
 							}
-							// ·ÖÊıµÄ»ØËİ¡£
+							// åˆ†æ•°çš„å›æº¯ã€‚
 							byte yuancengshu = cengshu;
-							// µ±Ç°²ãÎªMAX£¬µİ¼õºóµÄÉÏÒ»²ãÎªmin£»
-							// µ±Ç°²ãÓĞÒ»¸ö¾ÖÃæÎª£­127£¬ÔòÉÏÒ»¸ö²ãµÄÕ¹¿ªÇ°¾ÖÃæÎª£­127£»
-							cengshu -= 1; // µ¹ÊıÁ½²ãÒÑ¾­È·¶¨¡£¼õºóµÄ²ãÊıĞèÒªÖØĞÂÕ¹¿ª
+							// å½“å‰å±‚ä¸ºMAXï¼Œé€’å‡åçš„ä¸Šä¸€å±‚ä¸ºminï¼›
+							// å½“å‰å±‚æœ‰ä¸€ä¸ªå±€é¢ä¸ºï¼127ï¼Œåˆ™ä¸Šä¸€ä¸ªå±‚çš„å±•å¼€å‰å±€é¢ä¸ºï¼127ï¼›
+							cengshu -= 1; // å€’æ•°ä¸¤å±‚å·²ç»ç¡®å®šã€‚å‡åçš„å±‚æ•°éœ€è¦é‡æ–°å±•å¼€
 
 							st[cengshu][4] -= 1;
 							if (st[cengshu][4] != 0) {
 								jumianshu = st[cengshu][0] + st[cengshu][4] - 1;
 								// st[cengshu - 2][3] = 127;
 								queding = true;
-								break; // Ìø³öforÑ­»·¡£
-							} else { // ¸Ã²ãÒÑ¾­È«²¿Õ¹¿ª¡£
+								break; // è·³å‡ºforå¾ªç¯ã€‚
+							} else { // è¯¥å±‚å·²ç»å…¨éƒ¨å±•å¼€ã€‚
 								if (zc[st[cengshu][0] - 1] == JIE) {
-									// ËäÈ»µÈÓÚÁã£¬µ«ÊÇÓÉÓÚ´ò½Ù£¬ÆäÊµÓĞÒ»¸öÌá½ÙµÄ±ä»¯¡£
+									// è™½ç„¶ç­‰äºé›¶ï¼Œä½†æ˜¯ç”±äºæ‰“åŠ«ï¼Œå…¶å®æœ‰ä¸€ä¸ªæåŠ«çš„å˜åŒ–ã€‚
 									cengshu--;
 
 									st[cengshu][4] -= 1;
@@ -1851,12 +1855,12 @@ public class BoardLianShort implements Cloneable {
 										// st[cengshu - 2][3] = 127;
 										st[cengshu - 1][3] = JIE;
 										queding = true;
-										break; // Ìø³öforÑ­»·¡£
+										break; // è·³å‡ºforå¾ªç¯ã€‚
 									}
 
-								} else {// ·Ç½ÙµÄÇé¿ö¡£
+								} else {// éåŠ«çš„æƒ…å†µã€‚
 									while (true) {
-										cengshu -= 2; // µ¹ÊıÁ½²ãÒÑ¾­È·¶¨¡£¼õºóµÄ²ãÊıĞèÒªÖØĞÂÕ¹¿ª
+										cengshu -= 2; // å€’æ•°ä¸¤å±‚å·²ç»ç¡®å®šã€‚å‡åçš„å±‚æ•°éœ€è¦é‡æ–°å±•å¼€
 										if (cengshu == -1) {
 											zhengzijieguo[0][0] = -127;
 											return zhengzijieguo;
@@ -1876,23 +1880,23 @@ public class BoardLianShort implements Cloneable {
 
 						}
 					}
-				} // forÑ­»·½áÊø
+				} // forå¾ªç¯ç»“æŸ
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("ÓĞĞ§µãÎª:" + youxiaodian);
+					if(log.isDebugEnabled()) log.debug("æœ‰æ•ˆç‚¹ä¸º:" + youxiaodian);
 				}
 
 				if (queding == true) {
 					continue;
 				} else if (haodian == 0) {
 					while (true) {
-						cengshu -= 2; // µ¹ÊıÁ½²ãÒÑ¾­È·¶¨¡£¼õºóµÄ²ãÊıĞèÒªÖØĞÂÕ¹¿ª
+						cengshu -= 2; // å€’æ•°ä¸¤å±‚å·²ç»ç¡®å®šã€‚å‡åçš„å±‚æ•°éœ€è¦é‡æ–°å±•å¼€
 						if (cengshu == 0) {
 							zhengzijieguo[0][0] = 127;
 
 							byte lins = 0;
 							for (lins = 2; st[lins][0] != 0; lins++) {
 								if (CS.DEBUG_JISUANZHENGZI) {
-									System.out.println("µãÎª:("
+									if(log.isDebugEnabled()) log.debug("ç‚¹ä¸º:("
 											+ za[st[lins][0] - 1] + ","
 											+ zb[st[lins][0] - 1] + ")");
 								} // this.cgcl(za[st[lins][0]-1],zb[st[lins][0]-1]);
@@ -1920,26 +1924,26 @@ public class BoardLianShort implements Cloneable {
 			} // max
 			else if (st[cengshu][1] == MIN) {
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("µ±Ç°²ãÂÖË­×ß£¿" + "MIN");
+					if(log.isDebugEnabled()) log.debug("å½“å‰å±‚è½®è°èµ°ï¼Ÿ" + "MIN");
 				}
 				if (CS.DEBUG_JISUANZHENGZI) {
-					System.out.println("ÔÚÉÏÒ»²ãÓÉMAX×ßµÃµ½¸Ã²ã");
+					if(log.isDebugEnabled()) log.debug("åœ¨ä¸Šä¸€å±‚ç”±MAXèµ°å¾—åˆ°è¯¥å±‚");
 				}
 				DianNode1 lili = temp.zikuai[zkin].qichuang;
 				if (temp.zikuai[zkin].qishu != 2) {
 					if (CS.DEBUG_JISUANZHENGZI) {
-						System.out.println("´íÎó£ºÆøÊı²»Îª¶ş¡£");
+						if(log.isDebugEnabled()) log.debug("é”™è¯¯ï¼šæ°”æ•°ä¸ä¸ºäºŒã€‚");
 					}
 					zhengzijieguo[0][0] = -127;
-					return zhengzijieguo; // ±íÊ¾·½·¨Ê§°Ü¡£
+					return zhengzijieguo; // è¡¨ç¤ºæ–¹æ³•å¤±è´¥ã€‚
 				}
 				for (byte i = 1; i <= 2; i++) {
 					if (lili == null) {
 						if (CS.DEBUG_JISUANZHENGZI) {
-							System.out.println("ÆøÊı²»×ã¶ş¡£");
+							if(log.isDebugEnabled()) log.debug("æ°”æ•°ä¸è¶³äºŒã€‚");
 						}
 						zhengzijieguo[0][0] = -127;
-						return zhengzijieguo; // ±íÊ¾·½·¨Ê§°Ü¡£
+						return zhengzijieguo; // è¡¨ç¤ºæ–¹æ³•å¤±è´¥ã€‚
 					}
 					houxuan[i][0] = lili.a;
 					houxuan[i][1] = lili.b;
@@ -1947,48 +1951,48 @@ public class BoardLianShort implements Cloneable {
 				}
 				houxuan[0][0] = 2;
 				for (byte i = 1; i <= houxuan[0][0]; i++) {
-					// Ä¿Ç°½ö½ö¿¼ÂÇºòÑ¡µãÒÑÖª¶øÇÒÔÚËÑË÷¹ı³ÌÖĞ²»¶¯Ì¬¸Ä±ä
-					// ÒÔºóÓ¦¸Ã½øĞĞ¸üÏ¸ÖÂµÄ´¦Àí£¬¸ù¾İÒªÕ¹¿ªµÄ¾ÖÃæÈ·¶¨¡£
+					// ç›®å‰ä»…ä»…è€ƒè™‘å€™é€‰ç‚¹å·²çŸ¥è€Œä¸”åœ¨æœç´¢è¿‡ç¨‹ä¸­ä¸åŠ¨æ€æ”¹å˜
+					// ä»¥ååº”è¯¥è¿›è¡Œæ›´ç»†è‡´çš„å¤„ç†ï¼Œæ ¹æ®è¦å±•å¼€çš„å±€é¢ç¡®å®šã€‚
 
 					m1 = houxuan[i][0];
 					n1 = houxuan[i][1];
 					temp = new BoardLianShort(go[jumianshu]);
 
-					// À©Õ¹×îºóµÄ¾ÖÃæ£¬À©Õ¹Í¬Ò»¸öÉÏ¼¶¾ÖÃæ¡£
-					if (temp.validate(m1, n1)) { // ÅĞ¶ÏºÏ·¨×Åµã
+					// æ‰©å±•æœ€åçš„å±€é¢ï¼Œæ‰©å±•åŒä¸€ä¸ªä¸Šçº§å±€é¢ã€‚
+					if (temp.validate(m1, n1)) { // åˆ¤æ–­åˆæ³•ç€ç‚¹
 						temp.cgcl(m1, n1);
 						youxiaodian++;
 						go[jumianshu + youxiaodian] = temp;
 						za[jumianshu + youxiaodian] = m1;
 						zb[jumianshu + youxiaodian] = n1;
 						if (CS.DEBUG_JISUANZHENGZI) {
-							System.out.println("max×ß" + "(" + m1 + "," + n1
+							if(log.isDebugEnabled()) log.debug("maxèµ°" + "(" + m1 + "," + n1
 									+ ")");
 						}
 
 					}
 				}
 				if (youxiaodian == 0) {
-					// ·µ»Ø£¬Ò»°ãÊÇÕ÷×Ó·½ÎŞ×Ó¿ÉÏÂ¡£
+					// è¿”å›ï¼Œä¸€èˆ¬æ˜¯å¾å­æ–¹æ— å­å¯ä¸‹ã€‚
 					if (CS.DEBUG_JISUANZHENGZI) {
-						System.out.println("ÓĞĞ§µãÎª0");
+						if(log.isDebugEnabled()) log.debug("æœ‰æ•ˆç‚¹ä¸º0");
 
 					}
 					st[cengshu][0] = 0;
 
-					if (cengshu == 1) { // Õ÷×Ó·½Ö±½ÓÎŞ×Ó¿ÉÏÂ£¬
+					if (cengshu == 1) { // å¾å­æ–¹ç›´æ¥æ— å­å¯ä¸‹ï¼Œ
 						zhengzijieguo[0][0] = -127;
 						return zhengzijieguo;
 					}
 
 					while (true) {
-						cengshu -= 2; // µ¹ÊıÁ½²ãÒÑ¾­È·¶¨¡£¼õºóµÄ²ãÊıĞèÒªÖØĞÂÕ¹¿ª
+						cengshu -= 2; // å€’æ•°ä¸¤å±‚å·²ç»ç¡®å®šã€‚å‡åçš„å±‚æ•°éœ€è¦é‡æ–°å±•å¼€
 						if (cengshu == -1) {
 							zhengzijieguo[0][0] = -127;
 
 							for (byte lins = 2; st[lins][0] != 0; lins++) {
 								if (CS.DEBUG_JISUANZHENGZI) {
-									System.out.println("µãÎª:("
+									if(log.isDebugEnabled()) log.debug("ç‚¹ä¸º:("
 											+ za[st[lins][0] - 1] + ","
 											+ zb[st[lins][0] - 1] + ")");
 								}
@@ -2019,11 +2023,11 @@ public class BoardLianShort implements Cloneable {
 	}
 
 	public void delete(short r, byte a, byte b) {
-		// ½ö´Ó¿éµÄÆø´®ÖĞÉ¾³ıÒ»¿ÚÆøµÄ×ø±ê¡£
-		// ÒòÎªÓĞ»ÚÆå£¬ËùÒÔ²»ÂÛÔöÆø¡£¼õÆø¶¼¿ÉÄÜÉæ¼°¿é¡£
-		// µ¥¸öµ÷ÓÃ²»ÄÜÈ·¶¨×îÖÕÆøÊı£¬ËùÒÔkdqº¯ÊıÈ·ÓĞ±ØÒª¡£
+		// ä»…ä»å—çš„æ°”ä¸²ä¸­åˆ é™¤ä¸€å£æ°”çš„åæ ‡ã€‚
+		// å› ä¸ºæœ‰æ‚”æ£‹ï¼Œæ‰€ä»¥ä¸è®ºå¢æ°”ã€‚å‡æ°”éƒ½å¯èƒ½æ¶‰åŠå—ã€‚
+		// å•ä¸ªè°ƒç”¨ä¸èƒ½ç¡®å®šæœ€ç»ˆæ°”æ•°ï¼Œæ‰€ä»¥kdqå‡½æ•°ç¡®æœ‰å¿…è¦ã€‚
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨delete()");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³•delete()");
 
 		}
 		DianNode1 temp = zikuai[r].qichuang;
@@ -2043,7 +2047,7 @@ public class BoardLianShort implements Cloneable {
 			}
 		}
 		if (CS.DEBUG_CGCL) {
-			System.out.println("·½·¨delete()");
+			if(log.isDebugEnabled()) log.debug("æ–¹æ³•delete()");
 		}
 	}
 
@@ -2060,104 +2064,104 @@ public class BoardLianShort implements Cloneable {
 	}
 
 	public void cgcl(byte a, byte b) { // chang gui chu li
-		// ÃüÃûÊÇÒ»¸öºÜÄÑµÄ¿ÎÌâ£¬ÃüÃû·½·¨µÄÖØÒªĞÔ¿ÉÒÔ
-		// Í¨¹ıÃû×ÖµÄÀúÊ·ĞÔÀ´¿´³ö£¬¼´Ê¹¿ÉÒÔÈ«¾ÖÌæ»»£¬
-		// ÓÉÓÚÃû×Ö¿ÉÄÜÒÑ¾­ÔÚ±ğ´¦±»ÒıÓÃ£¬ÎÊÌâ¸´ÔÓ»¯ÁË¡£
-		// ³£¹æ´¦Àí£¬ÒÑ¾­ÅĞÃ÷ÊÇºÏ·¨×Åµã£»
-		// ¿ÉÒÔ½ÓÊÜµÄÊäÈëÎª(a,b)»òc;c=b*19+a-19;Íê³ÉÊıÆøÌá×Ó
-		// aÊÇÊı×éµÄĞĞÏÂ±ê,Ò²ÊÇÆ½ÃæµÄºá×ø±ê:1-19
-		// bÊÇÊı×éµÄÁĞÏÂ±ê,Ò²ÊÇÆÁÄ»µÄ×İ×ø±ê:1-19
-		// byte c;//a,bµÄÒ»Î¬±íÊ¾:1-361;
+		// å‘½åæ˜¯ä¸€ä¸ªå¾ˆéš¾çš„è¯¾é¢˜ï¼Œå‘½åæ–¹æ³•çš„é‡è¦æ€§å¯ä»¥
+		// é€šè¿‡åå­—çš„å†å²æ€§æ¥çœ‹å‡ºï¼Œå³ä½¿å¯ä»¥å…¨å±€æ›¿æ¢ï¼Œ
+		// ç”±äºåå­—å¯èƒ½å·²ç»åœ¨åˆ«å¤„è¢«å¼•ç”¨ï¼Œé—®é¢˜å¤æ‚åŒ–äº†ã€‚
+		// å¸¸è§„å¤„ç†ï¼Œå·²ç»åˆ¤æ˜æ˜¯åˆæ³•ç€ç‚¹ï¼›
+		// å¯ä»¥æ¥å—çš„è¾“å…¥ä¸º(a,b)æˆ–c;c=b*19+a-19;å®Œæˆæ•°æ°”æå­
+		// aæ˜¯æ•°ç»„çš„è¡Œä¸‹æ ‡,ä¹Ÿæ˜¯å¹³é¢çš„æ¨ªåæ ‡:1-19
+		// bæ˜¯æ•°ç»„çš„åˆ—ä¸‹æ ‡,ä¹Ÿæ˜¯å±å¹•çš„çºµåæ ‡:1-19
+		// byte c;//a,bçš„ä¸€ç»´è¡¨ç¤º:1-361;
 
-		byte m1 = a; // (a,b)ÔÚ·½·¨ÖĞ²»¸Ä±ä
-		byte n1 = b; // (m1,n1)Îª(a,b)µÄÁÚµã.
+		byte m1 = a; // (a,b)åœ¨æ–¹æ³•ä¸­ä¸æ”¹å˜
+		byte n1 = b; // (m1,n1)ä¸º(a,b)çš„é‚»ç‚¹.
 
-		byte yise = 0; // ÓëÂä×ÓµãÒìÉ«
-		byte tongse = 0; // ÓëÂä×ÓµãÍ¬É«
+		byte yise = 0; // ä¸è½å­ç‚¹å¼‚è‰²
+		byte tongse = 0; // ä¸è½å­ç‚¹åŒè‰²
 
-		// ÈıÖÖµãµÄ¼ÆÊı
-		byte yisedianshu = 0; // Îª(a,b)ÖÜÎ§ÒìÉ«µã¼ÆÊı
-		byte kongbaidianshu = 0; // Îª(a,b)ÖÜÎ§¿Õ°×µã¼ÆÊı
-		byte tongsedianshu = 0; // Îª(a,b)ÖÜÎ§Í¬É«µã¼ÆÊı
+		// ä¸‰ç§ç‚¹çš„è®¡æ•°
+		byte yisedianshu = 0; // ä¸º(a,b)å‘¨å›´å¼‚è‰²ç‚¹è®¡æ•°
+		byte kongbaidianshu = 0; // ä¸º(a,b)å‘¨å›´ç©ºç™½ç‚¹è®¡æ•°
+		byte tongsedianshu = 0; // ä¸º(a,b)å‘¨å›´åŒè‰²ç‚¹è®¡æ•°
 
-		byte i = 0, j = 0; // Ñ­»·±äÁ¿
-		byte jubutizishu = 0; // ¾Ö²¿Ìá×ÓÊı(Ã¿Ò»²½µÄÌá×ÓÊı)
+		byte i = 0, j = 0; // å¾ªç¯å˜é‡
+		byte jubutizishu = 0; // å±€éƒ¨æå­æ•°(æ¯ä¸€æ­¥çš„æå­æ•°)
 
 		byte tkd = 0;
 
-		byte[][] zijieqi = new byte[4][2]; // ÓÃÓÚ»®·ÖÆø¿éÊ±ÓÃ¡£
-		byte yuanshizhijieqishu = 0; // Ö±½ÓÆøÊı£ºÂä×ÓµãÖÜÎ§Ö±½ÓµÄÆøÊı
-		// ²»°üÀ¨Ìá×ÓĞÎ³ÉµÄÆøÊı,ËùÒÔÒªÔÚÌá×ÓÇ°µ÷ÓÃ¡£
+		byte[][] zijieqi = new byte[4][2]; // ç”¨äºåˆ’åˆ†æ°”å—æ—¶ç”¨ã€‚
+		byte yuanshizhijieqishu = 0; // ç›´æ¥æ°”æ•°ï¼šè½å­ç‚¹å‘¨å›´ç›´æ¥çš„æ°”æ•°
+		// ä¸åŒ…æ‹¬æå­å½¢æˆçš„æ°”æ•°,æ‰€ä»¥è¦åœ¨æå­å‰è°ƒç”¨ã€‚
 
-		short kin1 = 0; // a,bÖÜÎ§ËÄµãµÄ¿éË÷Òı
-		short[] ysk = { 0, 0, 0, 0 }; // ËÄÒìÉ«ÁÚ×ÓµÄ¿éË÷Òı,Í¬¿é²»ÖØ¸´¼ÆËã
-		byte yiseks = 0; // ËÄÁÚÒìÉ«¿éÊı
+		short kin1 = 0; // a,bå‘¨å›´å››ç‚¹çš„å—ç´¢å¼•
+		short[] ysk = { 0, 0, 0, 0 }; // å››å¼‚è‰²é‚»å­çš„å—ç´¢å¼•,åŒå—ä¸é‡å¤è®¡ç®—
+		byte yiseks = 0; // å››é‚»å¼‚è‰²å—æ•°
 
-		byte yuanqikuaisuoyin; // Âä×ÓµãÔ­ÏÈËùÔÚµÄÆø¿éµÄË÷Òı¡£
-		short yuanqikuaizishu; // Âä×ÓµãÔ­ÏÈËùÔÚµÄÆø¿éµÄ×ÓÊı¡£
-		short zishujishu; // Âä×ÓµãËÄÖÜĞÂÆø¿éµÄ×ÓÊıÖ®ºÍ¡£
+		byte yuanqikuaisuoyin; // è½å­ç‚¹åŸå…ˆæ‰€åœ¨çš„æ°”å—çš„ç´¢å¼•ã€‚
+		short yuanqikuaizishu; // è½å­ç‚¹åŸå…ˆæ‰€åœ¨çš„æ°”å—çš„å­æ•°ã€‚
+		short zishujishu; // è½å­ç‚¹å››å‘¨æ–°æ°”å—çš„å­æ•°ä¹‹å’Œã€‚
 
 		if (CS.DEBUG_CGCL) {
-			System.out.println("½øÈë·½·¨cgcl()");
+			if(log.isDebugEnabled()) log.debug("è¿›å…¥æ–¹æ³•cgcl()");
 		}
 
-		if (validate(a, b) == false) { // 1.ÅĞ¶ÏÂä×ÓµãµÄÓĞĞ§ĞÔ¡£
+		if (validate(a, b) == false) { // 1.åˆ¤æ–­è½å­ç‚¹çš„æœ‰æ•ˆæ€§ã€‚
 			return;
 		}
 
 		shoushu++;
-		hui[shoushu][1] = a; // ÊÖÊı´¦ÀíÇ°µİÔö,¼´´Ó1¿ªÊ¼¼ÆÊı.ÓëÆåÆ×Í¬.
-		hui[shoushu][2] = b; // ¼ÇÂ¼Ã¿²½µÄÂäµã
+		hui[shoushu][1] = a; // æ‰‹æ•°å¤„ç†å‰é€’å¢,å³ä»1å¼€å§‹è®¡æ•°.ä¸æ£‹è°±åŒ.
+		hui[shoushu][2] = b; // è®°å½•æ¯æ­¥çš„è½ç‚¹
 		if (CS.DEBUG_CGCL) {
-			System.out.println("Âä×Óµã:" + a + "/" + b);
+			if(log.isDebugEnabled()) log.debug("è½å­ç‚¹:" + a + "/" + b);
 		}
 
-		// ¸ù¾İÊÖÊıÅĞ¶ÏÂä×ÓµãµÄÑÕÉ«¡£ÕâÊÇ
-		yise = (byte) (shoushu % 2 + 1); // yi se=1»ò2,ºÚÏÈĞĞÎªÆæÊı
-		tongse = (byte) ((1 + shoushu) % 2 + 1); // tong se=1»ò2,°×ºóĞĞÎªÅ¼Êı
+		// æ ¹æ®æ‰‹æ•°åˆ¤æ–­è½å­ç‚¹çš„é¢œè‰²ã€‚è¿™æ˜¯
+		yise = (byte) (shoushu % 2 + 1); // yi se=1æˆ–2,é»‘å…ˆè¡Œä¸ºå¥‡æ•°
+		tongse = (byte) ((1 + shoushu) % 2 + 1); // tong se=1æˆ–2,ç™½åè¡Œä¸ºå¶æ•°
 
-		zb[a][b][ZTXB] = tongse; // ¿ÉÒÔ¶¯Ì¬Ò»ÖÂ
+		zb[a][b][ZTXB] = tongse; // å¯ä»¥åŠ¨æ€ä¸€è‡´
 
-		// 2.±£ÁôÂä×ÓµãÖÜÎ§µÄÖ±½ÓÆøµã¡£
+		// 2.ä¿ç•™è½å­ç‚¹å‘¨å›´çš„ç›´æ¥æ°”ç‚¹ã€‚
 
 		yuanqikuaisuoyin = zb[a][b][QKSYXB];
 		if (CS.DEBUG_CGCL) {
-			System.out.println("Âä×ÓµãËùÔÚÆø¿éË÷ÒıÎª£º" + yuanqikuaisuoyin);
+			if(log.isDebugEnabled()) log.debug("è½å­ç‚¹æ‰€åœ¨æ°”å—ç´¢å¼•ä¸ºï¼š" + yuanqikuaisuoyin);
 		}
 		qikuaixinxi(yuanqikuaisuoyin);
 		zb[a][b][QKSYXB] = 0;
 		qikuai[yuanqikuaisuoyin].deletezidian(a, b);
 		yuanqikuaizishu = qikuai[yuanqikuaisuoyin].zishu;
-		// ÒÑ¾­¿Û³ıÂä×Óµã¡£
+		// å·²ç»æ‰£é™¤è½å­ç‚¹ã€‚
 		if (CS.DEBUG_CGCL) {
-			System.out.println("Âä×ÓµãËùÔÚÆø¿é×ÓÊıÏÖÎª£º" + yuanqikuaizishu);
-			// Ô­Æø¿éÂä×ÓºóµÄ×ÓÊı£»
+			if(log.isDebugEnabled()) log.debug("è½å­ç‚¹æ‰€åœ¨æ°”å—å­æ•°ç°ä¸ºï¼š" + yuanqikuaizishu);
+			// åŸæ°”å—è½å­åçš„å­æ•°ï¼›
 		}
 
 		if (qikuai[yuanqikuaisuoyin].zishu == 0) {
 			shanchuqikuaihao(yuanqikuaisuoyin);
 
 		}
-		zishujishu = 0; // ÅĞ¶ÏÊÇ·ñÓĞĞÂÆø¿éÉú³É¡£
+		zishujishu = 0; // åˆ¤æ–­æ˜¯å¦æœ‰æ–°æ°”å—ç”Ÿæˆã€‚
 
 		if (CS.DEBUG_CGCL) {
-			System.out.println("Áã¡¢½¨Á¢³õÊ¼ĞÂ×Ó¿é¡£");
+			if(log.isDebugEnabled()) log.debug("é›¶ã€å»ºç«‹åˆå§‹æ–°å­å—ã€‚");
 		}
 
 		ZiKuai1 linshi = new ZiKuai1();
 
 		linshi.color = zb[a][b][ZTXB];
 		linshi.zishu = 1;
-		linshi.addzidian(a, b); // ĞÂ×Ó¿éµÄ³õÊ¼»¯¡£
+		linshi.addzidian(a, b); // æ–°å­å—çš„åˆå§‹åŒ–ã€‚
 		zikuaishu++;
 		zikuai[zikuaishu] = linshi;
 		zbk[a][b] = zikuaishu; // count from first block
-		huik[shoushu][0] = zikuaishu; // ¼ÇÂ¼Ëù³É¿éµÄË÷Òı
+		huik[shoushu][0] = zikuaishu; // è®°å½•æ‰€æˆå—çš„ç´¢å¼•
 
 		if (CS.DEBUG_CGCL) {
-			System.out.print("Ò»¡¢¼ÇÂ¼Ö±½ÓÆø¡£Ö±½ÓÆøµãÎª");
+			System.out.print("ä¸€ã€è®°å½•ç›´æ¥æ°”ã€‚ç›´æ¥æ°”ç‚¹ä¸º");
 		}
-		for (i = 0; i < 4; i++) { // Ö±½ÓµÄÆø£¬¶ø·ÇÌá×ÓÉú³ÉµÄÆø¡£
+		for (i = 0; i < 4; i++) { // ç›´æ¥çš„æ°”ï¼Œè€Œéæå­ç”Ÿæˆçš„æ°”ã€‚
 			m1 = (byte) (a + szld[i][0]);
 			n1 = (byte) (b + szld[i][1]);
 			if (zb[m1][n1][ZTXB] == BLANK) { // 2.1the breath of blank
@@ -2167,122 +2171,122 @@ public class BoardLianShort implements Cloneable {
 			}
 		}
 		if (CS.DEBUG_CGCL) {
-			System.out.println("Âä×ÓµãÖÜÎ§µÄÔ­Ê¼Ö±½ÓÆøµãÎª£º" + yuanshizhijieqishu);
+			if(log.isDebugEnabled()) log.debug("è½å­ç‚¹å‘¨å›´çš„åŸå§‹ç›´æ¥æ°”ç‚¹ä¸ºï¼š" + yuanshizhijieqishu);
 
 		}
 
 		if (CS.DEBUG_CGCL) {
-			System.out.println("¶ş¡¢´¦ÀíÍ¬É«ÁÚ×Ó");
+			if(log.isDebugEnabled()) log.debug("äºŒã€å¤„ç†åŒè‰²é‚»å­");
 		}
-		for (i = 0; i < 4; i++) { // ÔÙ´¦ÀíÍ¬É«ÁÚ×Ó
+		for (i = 0; i < 4; i++) { // å†å¤„ç†åŒè‰²é‚»å­
 			m1 = (byte) (a + szld[i][0]);
 			n1 = (byte) (b + szld[i][1]);
-			// ÒòÎªkkhbÊ±ÒÑ¾­¸Ä±äÁËÔ­À´¿éµÄË÷ÒıºÅ£¬ËùÒÔ²»»áÔÙÖØ¸´¡£
-			// Ëã·¨ºÍÒÔÍùÉÙÓĞ²»Í¬¡£
+			// å› ä¸ºkkhbæ—¶å·²ç»æ”¹å˜äº†åŸæ¥å—çš„ç´¢å¼•å·ï¼Œæ‰€ä»¥ä¸ä¼šå†é‡å¤ã€‚
+			// ç®—æ³•å’Œä»¥å¾€å°‘æœ‰ä¸åŒã€‚
 
 			kin1 = zbk[m1][n1];
 
 			if (zb[m1][n1][ZTXB] == tongse && kin1 != zikuaishu) { // 3.1
 				if (CS.DEBUG_CGCL) {
-					System.out.println("Í¬É«µã£ºa=" + m1 + ",b=" + n1);
+					if(log.isDebugEnabled()) log.debug("åŒè‰²ç‚¹ï¼ša=" + m1 + ",b=" + n1);
 				}
-				tongsedianshu++; // Í¬É«µã¼ÆÊı
+				tongsedianshu++; // åŒè‰²ç‚¹è®¡æ•°
 				if (CS.DEBUG_CGCL) {
-					System.out.println("kin1£½" + kin1);
+					if(log.isDebugEnabled()) log.debug("kin1ï¼" + kin1);
 				}
 				huik[shoushu][tongsedianshu] = kin1;
-				HaoNode1 teli = zikuai[kin1].zwyskhao; // ĞŞ¸ÄÖÜÎ§¿éºÅµÄÖ¸Õë
+				HaoNode1 teli = zikuai[kin1].zwyskhao; // ä¿®æ”¹å‘¨å›´å—å·çš„æŒ‡é’ˆ
 
 				if (teli == null) {
 					if (CS.DEBUG_CGCL) {
-						System.out.println("meiyoulinkuai" + kin1);
+						if(log.isDebugEnabled()) log.debug("meiyoulinkuai" + kin1);
 					}
 				}
 				for (byte p = 1; p <= zikuai[kin1].zwyskshu; p++) {
 					zikuai[teli.hao].deleteyisekuaihao(kin1);
-					zikuai[teli.hao].addyisekuaihao(zikuaishu); // ĞŞ¸Ä¿éºÅ
+					zikuai[teli.hao].addyisekuaihao(zikuaishu); // ä¿®æ”¹å—å·
 					zikuai[zikuaishu].addyisekuaihao(teli.hao);
 					teli = teli.next;
 				}
 
-				zikuai[kin1].active = false; // ±»ºÏ²¢µÄ¿éÔÚÅÌÉÏÏûÊ§¡£new
+				zikuai[kin1].active = false; // è¢«åˆå¹¶çš„å—åœ¨ç›˜ä¸Šæ¶ˆå¤±ã€‚new
 				kkhb(zikuaishu, kin1);
 
 			}
-			// ¿éµÄÆøÊıĞ¡ÓÚÖÜÎ§Æø¿éµÄ×îĞ¡ÖµÊÇÎ£ÏÕµÄ£¬µ±È»»¹Òª¿¼ÂÇ
-			// ÊÇ·ñÓĞ³¤ÆøµÄÊÖ¶Î¡£
+			// å—çš„æ°”æ•°å°äºå‘¨å›´æ°”å—çš„æœ€å°å€¼æ˜¯å±é™©çš„ï¼Œå½“ç„¶è¿˜è¦è€ƒè™‘
+			// æ˜¯å¦æœ‰é•¿æ°”çš„æ‰‹æ®µã€‚
 
 			/*
-			 * if (zb[m1][n1][ZTXB] == tongse) { //3.1 tongsedianshu++; //Í¬É«µã¼ÆÊı
+			 * if (zb[m1][n1][ZTXB] == tongse) { //3.1 tongsedianshu++; //åŒè‰²ç‚¹è®¡æ•°
 			 * kin1 = zbk[m1][n1]; for (j = 1; j < tongsedianshu; j++) {
 			 * //if(kin1==tsk[j]) break; if (kin1 == huik[shoushu][j]) { break;
-			 * } } //±äÁ¿³åÍ»µÄ²ÒÍ´½ÌÑµ if (j == tongsedianshu) { //²»ÖØ¸´ //tsk[ks++]=kin1;
+			 * } } //å˜é‡å†²çªçš„æƒ¨ç—›æ•™è®­ if (j == tongsedianshu) { //ä¸é‡å¤ //tsk[ks++]=kin1;
 			 * //hui[shoushu][20+ks]=kin1; //kuai[kin1].addkuai(zikuaishu);
 			 * huik[shoushu][tongsedianshu] = kin1; HaoNode1 teli =
 			 * zikuai[kin1].zwkhao; for (byte p = 1; p <= zikuai[kin1].zwkshu;
 			 * p++) { zikuai[teli.hao].deletekuaihao(kin1);
-			 * zikuai[teli.hao].addkuaihao(zikuaishu);//ĞŞ¸Ä¿éºÅ
+			 * zikuai[teli.hao].addkuaihao(zikuaishu);//ä¿®æ”¹å—å·
 			 * zikuai[zikuaishu].addkuaihao(teli.hao); teli=teli.next; }
-			 * kkhb(zikuaishu, kin1); } else { tongsedianshu--; } // } //³É¿éµã }
+			 * kkhb(zikuaishu, kin1); } else { tongsedianshu--; } // } //æˆå—ç‚¹ }
 			 */
 		}
 		if (CS.DEBUG_CGCL) {
-			System.out.println("Í¬É«µãÊıÎª£º" + tongsedianshu);
+			if(log.isDebugEnabled()) log.debug("åŒè‰²ç‚¹æ•°ä¸ºï¼š" + tongsedianshu);
 
 		}
 		if (CS.DEBUG_CGCL) {
-			System.out.println("Èı¡¢´¦ÀíÒìÉ«ÁÚ×Ó");
+			if(log.isDebugEnabled()) log.debug("ä¸‰ã€å¤„ç†å¼‚è‰²é‚»å­");
 		}
-		for (i = 0; i < 4; i++) { // ÏÈ´¦ÀíÒìÉ«ÁÚ×Ó
-			// byte bdcds = 0; //±»´ò³Ôµã¼ÆÊı.
-			byte bdcks = 0; // ±»´ò³Ô¿é¼ÆÊı.
+		for (i = 0; i < 4; i++) { // å…ˆå¤„ç†å¼‚è‰²é‚»å­
+			// byte bdcds = 0; //è¢«æ‰“åƒç‚¹è®¡æ•°.
+			byte bdcks = 0; // è¢«æ‰“åƒå—è®¡æ•°.
 			m1 = (byte) (a + szld[i][0]);
 			n1 = (byte) (b + szld[i][1]);
-			if (zb[m1][n1][ZTXB] == yise) { // 1.1ÓÒ±ßÏàÁÚµã
-				yisedianshu++; // ÒìÉ«µã¼ÆÊı
-				kin1 = zbk[m1][n1]; // ¿éË÷Òı
-				// if (kin1==0)Îª¿é¡£
+			if (zb[m1][n1][ZTXB] == yise) { // 1.1å³è¾¹ç›¸é‚»ç‚¹
+				yisedianshu++; // å¼‚è‰²ç‚¹è®¡æ•°
+				kin1 = zbk[m1][n1]; // å—ç´¢å¼•
+				// if (kin1==0)ä¸ºå—ã€‚
 				for (j = 0; j < yiseks; j++) {
 					if (kin1 == ysk[j]) {
 						break;
 					}
 				}
-				if (j == yiseks) { // ²»ÖØ¸´
+				if (j == yiseks) { // ä¸é‡å¤
 					ysk[yiseks++] = kin1;
 					byte qi = (byte) (zikuai[kin1].qishu - 1);
 
-					if (qi == 0) { // Ô­À´µÄÆø¡£
-						// ²»½øĞĞ¼õÆø´¦ÀíÊÇÎªÁË»ÚÆå´¦Àí·½±ã
+					if (qi == 0) { // åŸæ¥çš„æ°”ã€‚
+						// ä¸è¿›è¡Œå‡æ°”å¤„ç†æ˜¯ä¸ºäº†æ‚”æ£‹å¤„ç†æ–¹ä¾¿
 						yisedianshu--;
 						tkd++; // <=4
-						huik[shoushu][4 + tkd] = kin1; // ¾İ´Ë½øĞĞ¶ş¼¶¿é´¦Àí£»
+						huik[shoushu][4 + tkd] = kin1; // æ®æ­¤è¿›è¡ŒäºŒçº§å—å¤„ç†ï¼›
 
-						jubutizishu += zikuai[kin1].zishu; // Êµ¼ÊµÄÌá×ÓÊı
-						zikuai[kin1].active = false; // ±»³ÔµÄÆå¿é²»ÔÙ´æÔÚÓÚÅÌÉÏ¡£
+						jubutizishu += zikuai[kin1].zishu; // å®é™…çš„æå­æ•°
+						zikuai[kin1].active = false; // è¢«åƒçš„æ£‹å—ä¸å†å­˜åœ¨äºç›˜ä¸Šã€‚
 						if (CS.DEBUG_CGCL) {
-							System.out.println("¿é±»³Ô£¬¿éºÅÎª£º" + kin1);
+							if(log.isDebugEnabled()) log.debug("å—è¢«åƒï¼Œå—å·ä¸ºï¼š" + kin1);
 						}
-						kzq(kin1, tongse); // ÒìÉ«¿é±»Ìá,Í¬É«×ÓÔöÆø.
-						// ÖÜÎ§µÄ¿éµÄÏàÁÚ¿éºÅÁ´±íĞèÒªÉ¾³ı¸Ã±»ÌáµÄ¿éºÅ
+						kzq(kin1, tongse); // å¼‚è‰²å—è¢«æ,åŒè‰²å­å¢æ°”.
+						// å‘¨å›´çš„å—çš„ç›¸é‚»å—å·é“¾è¡¨éœ€è¦åˆ é™¤è¯¥è¢«æçš„å—å·
 
-						// ĞÎ³ÉĞÂµÄÆø¿é£»
+						// å½¢æˆæ–°çš„æ°”å—ï¼›
 						qikuaishu++;
 						if (CS.DEBUG_CGCL) {
-							System.out.println("ĞÎ³ÉĞÂµÄÆø¿é£»" + qikuaishu);
+							if(log.isDebugEnabled()) log.debug("å½¢æˆæ–°çš„æ°”å—ï¼›" + qikuaishu);
 						}
 						qikuai[qikuaishu] = new QiKuai1();
 						qikuai[qikuaishu].zichuang = zikuai[kin1].zichuang;
 						qikuai[qikuaishu].zishu = zikuai[kin1].zishu;
 						qikuai[qikuaishu].color = tongse;
 						qkdsy(qikuaishu);
-						// Éú³ÉĞÂµÄ¶ş¼¶¿é£¬ÖÜÎ§µÄ¿éÓĞÖ¸ÕëÖ¸Ïò¸Ã¶ş¼¶¿é¡£
+						// ç”Ÿæˆæ–°çš„äºŒçº§å—ï¼Œå‘¨å›´çš„å—æœ‰æŒ‡é’ˆæŒ‡å‘è¯¥äºŒçº§å—ã€‚
 
 						HaoNode1 linh = zikuai[kin1].zwyskhao;
 						byte linhs = zikuai[kin1].zwyskshu;
 						for (byte tt = 1; tt <= linhs; tt++) {
 
 							zikuai[linh.hao].deleteyisekuaihao(kin1);
-							zikuai[linh.hao].addqikuaihao(qikuaishu); // Ôö¼ÓÆø¿éºÅ¡£
+							zikuai[linh.hao].addqikuaihao(qikuaishu); // å¢åŠ æ°”å—å·ã€‚
 							linh = linh.next;
 						}
 
@@ -2290,23 +2294,23 @@ public class BoardLianShort implements Cloneable {
 
 					else if (qi < 0) {
 						if (CS.DEBUG_CGCL) {
-							System.out.println("ÆøÊı´íÎó:kin=" + kin1);
+							if(log.isDebugEnabled()) log.debug("æ°”æ•°é”™è¯¯:kin=" + kin1);
 						}
 						return;
 					} else {
 						zikuai[kin1].deleteqidian(a, b);
 						kdq(kin1, qi);
 						zikuai[kin1].addyisekuaihao(zikuaishu);
-						zikuai[zikuaishu].addyisekuaihao(kin1); // Òª·ÀÖ¹ÖØ¸´
+						zikuai[zikuaishu].addyisekuaihao(kin1); // è¦é˜²æ­¢é‡å¤
 						if (CS.DEBUG_CGCL) {
-							System.out.println("¿é" + kin1 + "ÆøÊı¼õÎª"
+							if(log.isDebugEnabled()) log.debug("å—" + kin1 + "æ°”æ•°å‡ä¸º"
 									+ zb[m1][n1][QSXB]);
 						}
 						if (qi == 1) {
 
 							huik[shoushu][8 + tkd] = kin1;
 							if (CS.DEBUG_CGCL) {
-								System.out.println("¿é±»´ò³Ô£¬¿éºÅÎª£º" + kin1);
+								if(log.isDebugEnabled()) log.debug("å—è¢«æ‰“åƒï¼Œå—å·ä¸ºï¼š" + kin1);
 							}
 						}
 						DianNode1 dian;
@@ -2323,49 +2327,49 @@ public class BoardLianShort implements Cloneable {
 						if (ii > zikuai[kin1].qishu) {
 							zikuai[kin1].deleteqikuaihao(yuanqikuaisuoyin);
 							if (CS.DEBUG_CGCL) {
-								System.out.println("¼õÉÙÒ»¸öÏàÁÚÆø¿é¡£"
+								if(log.isDebugEnabled()) log.debug("å‡å°‘ä¸€ä¸ªç›¸é‚»æ°”å—ã€‚"
 										+ yuanqikuaisuoyin);
 							}
 						}
 						if (CS.DEBUG_CGCL) {
-							System.out.println("·½·¨cgcl()·µ»Ø");
+							if(log.isDebugEnabled()) log.debug("æ–¹æ³•cgcl()è¿”å›");
 
 						}
 					}
-				} // ·ÇÖØ¸´¿é
+				} // éé‡å¤å—
 					// } //if kuai
 			} // if==yiseks
-		} // ÓÃÑ­»·´úÌæ
+		} // ç”¨å¾ªç¯ä»£æ›¿
 
-		zb[a][b][QSXB] = 0; // ·ÀÖ¹Ìá×ÓÊ±µÄÔöÆø.
+		zb[a][b][QSXB] = 0; // é˜²æ­¢æå­æ—¶çš„å¢æ°”.
 		if (shoushu % 2 == BLACK) {
 			tiheizishu += jubutizishu;
 		} else {
-			tibaizishu += jubutizishu; // ½«¾Ö²¿Ìá×Ó¼ÆÈë
+			tibaizishu += jubutizishu; // å°†å±€éƒ¨æå­è®¡å…¥
 		}
 
 		if (CS.DEBUG_CGCL) {
-			System.out.println("´¦Àí¿Õ°×ÁÚ×Ó");
+			if(log.isDebugEnabled()) log.debug("å¤„ç†ç©ºç™½é‚»å­");
 		}
-		for (i = 0; i < 4; i++) { // ÔÙ´¦Àí¿Õ°×ÁÚ×Ó
+		for (i = 0; i < 4; i++) { // å†å¤„ç†ç©ºç™½é‚»å­
 			m1 = (byte) (a + szld[i][0]);
 			n1 = (byte) (b + szld[i][1]);
 			if (zb[m1][n1][ZTXB] == BLANK) { // 2.1the breath of blank
-				kongbaidianshu++; // Æøµã¼ÆÊı
+				kongbaidianshu++; // æ°”ç‚¹è®¡æ•°
 
 			}
 		}
 
-		if (tongsedianshu == 0) { // 4.1 Ã»ÓĞÍ¬É«ÁÚµã£¿£¿£¿
+		if (tongsedianshu == 0) { // 4.1 æ²¡æœ‰åŒè‰²é‚»ç‚¹ï¼Ÿï¼Ÿï¼Ÿ
 			if (CS.DEBUG_CGCL) {
-				System.out.println("Ã»ÓĞÍ¬É«ÁÚµã");
+				if(log.isDebugEnabled()) log.debug("æ²¡æœ‰åŒè‰²é‚»ç‚¹");
 			}
 			zb[a][b][QSXB] = kongbaidianshu;
 			zikuai[zikuaishu].qishu = kongbaidianshu;
-			if (kongbaidianshu == 1 && jubutizishu == 1) { // ¿¼ÂÇ½Ù
-				hui[shoushu][3] = zikuai[huik[shoushu][5]].zichuang.a; // ´ò½Ù½ûÊÖ
+			if (kongbaidianshu == 1 && jubutizishu == 1) { // è€ƒè™‘åŠ«
+				hui[shoushu][3] = zikuai[huik[shoushu][5]].zichuang.a; // æ‰“åŠ«ç¦æ‰‹
 				hui[shoushu][4] = zikuai[huik[shoushu][5]].zichuang.b;
-				// Ó¦¸ÃÊÇ±»ÌáÖ®×Ó³ÉÎª½ûÊÖ¡£
+				// åº”è¯¥æ˜¯è¢«æä¹‹å­æˆä¸ºç¦æ‰‹ã€‚
 
 			} //
 
@@ -2374,10 +2378,10 @@ public class BoardLianShort implements Cloneable {
 		/*
 		 * for (j = 1; j <= tongsedianshu; j++) { //hui[shoushu][20+j]=tsk[j-1];
 		 * kkhb(zikuaishu, huik[shoushu][j]);
-		 * //kkhb(zikuaishu,tsk[j-1]);//¿é¿éºÏ²¢,ÆøÉĞÎ´´¦Àí. }
+		 * //kkhb(zikuaishu,tsk[j-1]);//å—å—åˆå¹¶,æ°”å°šæœªå¤„ç†. }
 		 */
 		jskq(zikuaishu);
-		// ¼ÆËã×îĞ¡µÄ¿é£»
+		// è®¡ç®—æœ€å°çš„å—ï¼›
 		if (zikuai[zikuaishu].zwyskshu > 1) {
 			byte p = zikuai[zikuaishu].zwyskshu;
 			HaoNode1 lint = zikuai[zikuaishu].zwyskhao;
@@ -2388,22 +2392,22 @@ public class BoardLianShort implements Cloneable {
 				}
 				lint = lint.next;
 			}
-			zikuai[zikuaishu].minqi = qis; // ×îĞ¡µÄÆø¡¢ÖÜÎ§¿éµÄminqiÒ²Ó¦¸ÃĞŞÕı
+			zikuai[zikuaishu].minqi = qis; // æœ€å°çš„æ°”ã€å‘¨å›´å—çš„minqiä¹Ÿåº”è¯¥ä¿®æ­£
 		}
 
-		// 11ÔÂ22ÈÕ£¬×îºó´¦ÀíÆø¿éµÄÉú³É
+		// 11æœˆ22æ—¥ï¼Œæœ€åå¤„ç†æ°”å—çš„ç”Ÿæˆ
 		byte m2, n2, m3, n3, m4, n4, x, y;
 		switch (yuanshizhijieqishu) {
 		case 1: {
 			if (CS.DEBUG_CGCL) {
-				System.out.println("Ö±½ÓÆøÊıÎª1£¬Ã»ÓĞĞÂ¿éÉú³É¡£");
+				if(log.isDebugEnabled()) log.debug("ç›´æ¥æ°”æ•°ä¸º1ï¼Œæ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
 			}
 			zikuai[zikuaishu].addqikuaihao(yuanqikuaisuoyin);
 			break;
 		}
 		case 2: {
 			if (CS.DEBUG_CGCL) {
-				System.out.print("Ö±½ÓÆøÊıÎª2£¬");
+				System.out.print("ç›´æ¥æ°”æ•°ä¸º2ï¼Œ");
 
 			}
 			m1 = zijieqi[0][0];
@@ -2411,9 +2415,9 @@ public class BoardLianShort implements Cloneable {
 			m2 = zijieqi[1][0];
 			n2 = zijieqi[1][1];
 			if (m1 == m2 || n1 == n2) {
-				// ¸÷×ÔËã¡£ÓĞÎŞĞÂ¿é
+				// å„è‡ªç®—ã€‚æœ‰æ— æ–°å—
 				if (CS.DEBUG_CGCL) {
-					System.out.print("ÆøµãÍ¬Öá¡£");
+					System.out.print("æ°”ç‚¹åŒè½´ã€‚");
 
 				}
 				qikuaizishu = 0;
@@ -2421,89 +2425,89 @@ public class BoardLianShort implements Cloneable {
 				qikuai[qikuaishu] = new QiKuai1();
 				short ttt = chengqikuai(m1, n1);
 				if (CS.DEBUG_CGCL) {
-					System.out.println("chengqikuai()=" + ttt
+					if(log.isDebugEnabled()) log.debug("chengqikuai()=" + ttt
 							+ "yuanqikuaizishu" + yuanqikuaizishu);
 				}
 				if (ttt == yuanqikuaizishu) {
-					// meiyou ĞÎ³ÉĞÂ¿é¡£ÎªÁËÊ¹ËùÓĞ¿é¶¼ÊÇµ±Ç°¾ÖÃæ´æÔÚµÄ¿é
-					// ±ØĞëÊ¹¾É¿é¼ÌĞøÊ¹ÓÃ¡£
+					// meiyou å½¢æˆæ–°å—ã€‚ä¸ºäº†ä½¿æ‰€æœ‰å—éƒ½æ˜¯å½“å‰å±€é¢å­˜åœ¨çš„å—
+					// å¿…é¡»ä½¿æ—§å—ç»§ç»­ä½¿ç”¨ã€‚
 					if (CS.DEBUG_CGCL) {
-						System.out.println("µ«ÊÇÃ»ÓĞĞÂ¿éÉú³É");
+						if(log.isDebugEnabled()) log.debug("ä½†æ˜¯æ²¡æœ‰æ–°å—ç”Ÿæˆ");
 
 					}
 					qikuai[yuanqikuaisuoyin] = qikuai[qikuaishu];
 					qikuai[qikuaishu] = null;
-					qikuaishu--; // ÓëÊµ¼Ê´æÔÚµÄ¿éÊıÒ»ÖÂ¡£
+					qikuaishu--; // ä¸å®é™…å­˜åœ¨çš„å—æ•°ä¸€è‡´ã€‚
 					qkdsy(yuanqikuaisuoyin);
 				} else {
 					qikuaizishu = 0;
 					qikuaishu++;
 					qikuai[qikuaishu] = new QiKuai1();
 					if (CS.DEBUG_CGCL) {
-						System.out.println("ÓĞĞÂ¿éÉú³É¡£" + qikuaishu);
+						if(log.isDebugEnabled()) log.debug("æœ‰æ–°å—ç”Ÿæˆã€‚" + qikuaishu);
 
 					}
 					chengqikuai(m2, n2);
 					qikuai[yuanqikuaisuoyin] = qikuai[qikuaishu];
 					qkdsy(yuanqikuaisuoyin);
-					; // Ö»ÊÇ»Ö¸´ËãÆğ±êÖ¾
+					; // åªæ˜¯æ¢å¤ç®—èµ·æ ‡å¿—
 					qikuai[qikuaishu] = null;
-					qikuaishu--; // ÓëÊµ¼Ê´æÔÚµÄ¿éÊıÒ»ÖÂ¡£
+					qikuaishu--; // ä¸å®é™…å­˜åœ¨çš„å—æ•°ä¸€è‡´ã€‚
 
-					qkdsy(qikuaishu); // ĞÂ¿éÒ²Òª¶¨Ë÷Òı
+					qkdsy(qikuaishu); // æ–°å—ä¹Ÿè¦å®šç´¢å¼•
 
 				}
 			} else {
 				if (CS.DEBUG_CGCL) {
-					System.out.print("Æøµã²»Í¬Öá£¬");
+					System.out.print("æ°”ç‚¹ä¸åŒè½´ï¼Œ");
 
 				}
 				x = (byte) (m1 + m2 - a);
 				y = (byte) (n1 + n2 - b);
 				if (zb[x][y][ZTXB] == BLANK) {
 					if (CS.DEBUG_CGCL) {
-						System.out.println("¶Ô½ÇµãÎª¿Õ£¬Ã»ÓĞĞÂ¿éÉú³É¡£");
+						if(log.isDebugEnabled()) log.debug("å¯¹è§’ç‚¹ä¸ºç©ºï¼Œæ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
 					}
 				} else if (jgzs(x, y) == 1) {
 					if (CS.DEBUG_CGCL) {
-						System.out.println("¶Ô½ÇµãÖÜÎ§¿Õ£¬Ã»ÓĞĞÂ¿éÉú³É¡£");
+						if(log.isDebugEnabled()) log.debug("å¯¹è§’ç‚¹å‘¨å›´ç©ºï¼Œæ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
 					}
 				} else {
 
 					qikuaizishu = 0;
 					qikuaishu++;
 					if (CS.DEBUG_CGCL) {
-						System.out.println("ÒÔÆø¿éÊı³É¿é£º" + qikuaishu);
+						if(log.isDebugEnabled()) log.debug("ä»¥æ°”å—æ•°æˆå—ï¼š" + qikuaishu);
 
 					}
 					qikuai[qikuaishu] = new QiKuai1();
 
 					if (chengqikuai(m1, n1) == yuanqikuaizishu) {
-						// meiyou ĞÎ³ÉĞÂ¿é¡£
+						// meiyou å½¢æˆæ–°å—ã€‚
 						if (CS.DEBUG_CGCL) {
-							System.out.println("Ã»ÓĞĞÂ¿éÉú³É¡£");
+							if(log.isDebugEnabled()) log.debug("æ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
 
 						}
 						qikuai[qikuaishu] = null;
-						qikuaishu--; // ÓëÊµ¼Ê´æÔÚµÄ¿éÊıÒ»ÖÂ¡£
+						qikuaishu--; // ä¸å®é™…å­˜åœ¨çš„å—æ•°ä¸€è‡´ã€‚
 
 						qkdsy(yuanqikuaisuoyin);
-						; // Ö»ÊÇ»Ö¸´ËãÆğ±êÖ¾
+						; // åªæ˜¯æ¢å¤ç®—èµ·æ ‡å¿—
 
 					} else {
 
 						qikuaizishu = 0;
 						qikuaishu++;
 						if (CS.DEBUG_CGCL) {
-							System.out.println("ÒÔÆø¿éÊı³É¿é£º" + qikuaishu);
+							if(log.isDebugEnabled()) log.debug("ä»¥æ°”å—æ•°æˆå—ï¼š" + qikuaishu);
 						}
 						qikuai[qikuaishu] = new QiKuai1();
 						chengqikuai(m2, n2);
 						qikuai[yuanqikuaisuoyin] = qikuai[qikuaishu];
 						qikuai[qikuaishu] = null;
-						qikuaishu--; // ÓëÊµ¼Ê´æÔÚµÄ¿éÊıÒ»ÖÂ¡£
+						qikuaishu--; // ä¸å®é™…å­˜åœ¨çš„å—æ•°ä¸€è‡´ã€‚
 						qkdsy(qikuaishu);
-						qkdsy(yuanqikuaisuoyin); // ½«ĞÂµÄÆø¿é¶¨Îª¾ÉµÄË÷Òı
+						qkdsy(yuanqikuaisuoyin); // å°†æ–°çš„æ°”å—å®šä¸ºæ—§çš„ç´¢å¼•
 
 					}
 
@@ -2559,7 +2563,7 @@ public class BoardLianShort implements Cloneable {
 			}
 			if (lianjieshu >= 2) {
 				if (CS.DEBUG_CGCL) {
-					System.out.println("Ã»ÓĞĞÂ¿éÉú³É¡£");
+					if(log.isDebugEnabled()) log.debug("æ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
 
 				}
 			} else {
@@ -2573,12 +2577,12 @@ public class BoardLianShort implements Cloneable {
 					qikuai[qikuaishu] = new QiKuai1();
 
 					zishujishu += chengqikuai(m1, n1);
-					if (zishujishu == yuanqikuaizishu) { // ÒÑ¾­É¨ÃèÍê±Ï
+					if (zishujishu == yuanqikuaizishu) { // å·²ç»æ‰«æå®Œæ¯•
 						if (bianli == 0) {
-							// meiyou ĞÎ³ÉĞÂ¿é¡£
+							// meiyou å½¢æˆæ–°å—ã€‚
 
 							qikuai[qikuaishu] = null;
-							qikuaishu--; // ÓëÊµ¼Ê´æÔÚµÄ¿éÊıÒ»ÖÂ¡£
+							qikuaishu--; // ä¸å®é™…å­˜åœ¨çš„å—æ•°ä¸€è‡´ã€‚
 							qkdsy(yuanqikuaisuoyin);
 						} else if (bianli == 1) {
 							qikuai[yuanqikuaisuoyin] = qikuai[qikuaishu];
@@ -2611,16 +2615,16 @@ public class BoardLianShort implements Cloneable {
 				n1 = (byte) (b + szdjd[bianli][1]);
 				if (zb[m1][n1][ZTXB] == BLANK) {
 					lianjieshu++;
-					// Í¨¹ı¶Ô½ÇµãÁ¬½Ó
+					// é€šè¿‡å¯¹è§’ç‚¹è¿æ¥
 				} else if (jgzs(m1, n1) == 1) {
 					lianjieshu++;
-					// Í¨¹ı¾Å¹¬Á¬½Ó
+					// é€šè¿‡ä¹å®«è¿æ¥
 				}
 			}
 
 			if (lianjieshu >= 3) {
 				if (CS.DEBUG_CGCL) {
-					System.out.println("Ö±½ÓÆøÊıÎª4£¬Á¬½ÓÊıÎª3£¬Ã»ÓĞĞÂ¿éÉú³É¡£");
+					if(log.isDebugEnabled()) log.debug("ç›´æ¥æ°”æ•°ä¸º4ï¼Œè¿æ¥æ•°ä¸º3ï¼Œæ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
 				}
 			} else {
 				zishujishu = 0;
@@ -2632,12 +2636,12 @@ public class BoardLianShort implements Cloneable {
 					qikuaishu++;
 					qikuai[qikuaishu] = new QiKuai1();
 					zishujishu += chengqikuai(m1, n1);
-					if (zishujishu == yuanqikuaizishu) { // ÒÑ¾­É¨ÃèÍê±Ï
+					if (zishujishu == yuanqikuaizishu) { // å·²ç»æ‰«æå®Œæ¯•
 						if (bianli == 0) {
-							// meiyou ĞÎ³ÉĞÂ¿é¡£
+							// meiyou å½¢æˆæ–°å—ã€‚
 							// qikuai[yuanqikuaisuoyin] = qikuai[qikuaishu];
 							qikuai[qikuaishu] = null;
-							qikuaishu--; // ÓëÊµ¼Ê´æÔÚµÄ¿éÊıÒ»ÖÂ¡£
+							qikuaishu--; // ä¸å®é™…å­˜åœ¨çš„å—æ•°ä¸€è‡´ã€‚
 							qkdsy(yuanqikuaisuoyin);
 
 						} else if (bianli == 1) {
@@ -2676,14 +2680,14 @@ public class BoardLianShort implements Cloneable {
 		}
 		}
 
-		// ĞÂµÄÆå¿éºÍÔ­ÏÈÆø¿éµÄÏàÁÚ³Ì¶È¸Ä±ä
+		// æ–°çš„æ£‹å—å’ŒåŸå…ˆæ°”å—çš„ç›¸é‚»ç¨‹åº¦æ”¹å˜
 		// output();
 	}
 
-	public byte jgzs(byte m, byte n) { // ¾Å¹¬×ÓÊı¡£
-		// m,nÎª¾Å¹¬ÖĞĞÄµã¡££¨ÖĞĞÄµã²»¼ÆÈë£©
-		byte dang = 0; // ÆøÊı±äÁ¿
-		byte i, a, b; // »ÚÆå»Ö¸´Ê±£¬½âÉ¢¿éËù³Éµ¥µãµÄÆøÊı¼ÆËã£»
+	public byte jgzs(byte m, byte n) { // ä¹å®«å­æ•°ã€‚
+		// m,nä¸ºä¹å®«ä¸­å¿ƒç‚¹ã€‚ï¼ˆä¸­å¿ƒç‚¹ä¸è®¡å…¥ï¼‰
+		byte dang = 0; // æ°”æ•°å˜é‡
+		byte i, a, b; // æ‚”æ£‹æ¢å¤æ—¶ï¼Œè§£æ•£å—æ‰€æˆå•ç‚¹çš„æ°”æ•°è®¡ç®—ï¼›
 		for (i = 0; i < 4; i++) {
 			a = (byte) (m + szld[i][0]);
 			b = (byte) (n + szld[i][1]);
@@ -2704,41 +2708,41 @@ public class BoardLianShort implements Cloneable {
 	}
 
 	/*
-	 * public void clhuiqi() { //ÊÇ·ñËùÓĞÊı¾İ½á¹¹¶¼ÄÜ»Ö¸´? byte p = 0; byte yise = 0; byte
+	 * public void clhuiqi() { //æ˜¯å¦æ‰€æœ‰æ•°æ®ç»“æ„éƒ½èƒ½æ¢å¤? byte p = 0; byte yise = 0; byte
 	 * tongse = 0; //yise is diff color.and 2 same. byte tdzs = 0; byte k0 = 0,
 	 * yisedianshu = 0, kongbaidianshu = 0, tongsedianshu = 0, i = 0, j = 0;
 	 * //the count for three kinds of point. byte ks = 0, kss = 0; //ks is count
 	 * for block,kss for single point byte kin, kin1 = 0, m = 0, n = 0; //the
-	 * block index. if(CS.DEBUG_CGCL) System.out.println("·½·¨:´¦Àí»ÚÆå(clhuiqi)\n");
+	 * block index. if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("æ–¹æ³•:å¤„ç†æ‚”æ£‹(clhuiqi)\n");
 	 * tongse = (byte) ( (shoushu + 1) % 2 + 1); //tong se yise = (byte)
 	 * (shoushu % 2 + 1); m = hui[shoushu][25]; hui[shoushu][25] = 0; n =
-	 * hui[shoushu][26]; hui[shoushu][26] = 0; if (m <= 0 || n <= 0) { //ÆúÈ¨µÄ»Ö¸´
-	 * shoushu--; return; // } zzq(m, n, yise); //»ÚÆå,¶Ô·½ÔöÆø,Ìá×ÓÖ±½Ó»Ö¸´,²»ÓÃÔÚ´ËÔöÆø
-	 * if(CS.DEBUG_CGCL) System.out.println("»ÚÆå:" + shoushu); if(CS.DEBUG_CGCL)
-	 * System.out.println("a=" + m + ",b=" + n); kin = hui[shoushu][0]; if (kin
-	 * != 0) { //kinÊÇĞÂ³ÉµÄ¿é zikuai[kin].color = 0; zikuai[kin].qishu = 0;
+	 * hui[shoushu][26]; hui[shoushu][26] = 0; if (m <= 0 || n <= 0) { //å¼ƒæƒçš„æ¢å¤
+	 * shoushu--; return; // } zzq(m, n, yise); //æ‚”æ£‹,å¯¹æ–¹å¢æ°”,æå­ç›´æ¥æ¢å¤,ä¸ç”¨åœ¨æ­¤å¢æ°”
+	 * if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("æ‚”æ£‹:" + shoushu); if(CS.DEBUG_CGCL)
+	 * if(log.isDebugEnabled()) log.debug("a=" + m + ",b=" + n); kin = hui[shoushu][0]; if (kin
+	 * != 0) { //kinæ˜¯æ–°æˆçš„å— zikuai[kin].color = 0; zikuai[kin].qishu = 0;
 	 * zikuai[kin].zishu = 0; zikuai[kin].zichuang = null; zikuai[kin].qichuang
-	 * = null; zikuaishu = kin; //È«¾Ö¿ÉÓÃ¿éºÅ? zikuaishu--; //xinzeng. for (i = 1; i
-	 * <= 4; i++) { if (hui[shoushu][2 * i + 12 - 1] <= 0) { //³ÉĞÂ¿éµÄµã break; }
+	 * = null; zikuaishu = kin; //å…¨å±€å¯ç”¨å—å·? zikuaishu--; //xinzeng. for (i = 1; i
+	 * <= 4; i++) { if (hui[shoushu][2 * i + 12 - 1] <= 0) { //æˆæ–°å—çš„ç‚¹ break; }
 	 * else { m = hui[shoushu][12 + 2 * i - 1]; //13-20 n = hui[shoushu][12 + 2
 	 * * i]; hui[shoushu][12 + 2 * i - 1] = 0; hui[shoushu][12 + 2 * i] = 0;
 	 * zb[m][n][QKSYXB] = 0; zb[m][n][ZTXB] = tongse; //fang wei bian cheng
-	 * zb[m][n][QSXB] = jszq(m, n); //¼ÆËã×ÓµÄÆø if(CS.DEBUG_CGCL)
-	 * System.out.println("//¼ÆËã³É¿éµãµÄÆø:" + "a=" + m + ",b" + n); } } //deal with 3
-	 * sub for (i = 1; i <= 4; i++) { //ÊÇ·ñ¾É¿é³ÉĞÂ¿é kin1 = hui[shoushu][20 + i];
+	 * zb[m][n][QSXB] = jszq(m, n); //è®¡ç®—å­çš„æ°” if(CS.DEBUG_CGCL)
+	 * if(log.isDebugEnabled()) log.debug("//è®¡ç®—æˆå—ç‚¹çš„æ°”:" + "a=" + m + ",b" + n); } } //deal with 3
+	 * sub for (i = 1; i <= 4; i++) { //æ˜¯å¦æ—§å—æˆæ–°å— kin1 = hui[shoushu][20 + i];
 	 * //21-24 hui[shoushu][20 + i] = 0; if (kin1 == 0) { break; } else { p =
 	 * zikuai[kin1 + 128].zishu; DianNode1 temp = zikuai[kin1 + 128].zichuang;
-	 * for (j = 1; j <= p; j++) { //Õâ¸öÑ­»·¹Ø¼ü£¬±ÜÃâÁ½¿éµÄ»ìÏı¡£ m = temp.a; n = temp.b;
-	 * zb[m][n][3] = kin1; //ĞŞ¸Ä¿éºÅ //zb[m][n][0]=tongse; zb[m][n][2] =
-	 * zikuai[kin1 + 128].qishu; //»Ö¸´Ô­¿é³É¿éÊ±µÄÆø temp = temp.next; } //jskq(kin1);
-	 * //cunchukuaiqi; } //else } //for } //if ÊÇ·ñĞÂ¿é for (i = 1; i <= 4; i++) {
-	 * //ÊÇ·ñÌá×Ó if (hui[shoushu][2 * i - 1] <= 0) { break; } else { m =
+	 * for (j = 1; j <= p; j++) { //è¿™ä¸ªå¾ªç¯å…³é”®ï¼Œé¿å…ä¸¤å—çš„æ··æ·†ã€‚ m = temp.a; n = temp.b;
+	 * zb[m][n][3] = kin1; //ä¿®æ”¹å—å· //zb[m][n][0]=tongse; zb[m][n][2] =
+	 * zikuai[kin1 + 128].qishu; //æ¢å¤åŸå—æˆå—æ—¶çš„æ°” temp = temp.next; } //jskq(kin1);
+	 * //cunchukuaiqi; } //else } //for } //if æ˜¯å¦æ–°å— for (i = 1; i <= 4; i++) {
+	 * //æ˜¯å¦æå­ if (hui[shoushu][2 * i - 1] <= 0) { break; } else { m =
 	 * hui[shoushu][2 * i - 1]; n = hui[shoushu][2 * i]; hui[shoushu][2 * i - 1]
 	 * = 0; hui[shoushu][2 * i] = 0; tdzs = i; //? zb[m][n][ZTXB] = yise;
 	 * zb[m][n][QSXB] = 1; zb[m][n][QKSYXB] = 0; zjq(m, n, tongse);
-	 * if(CS.DEBUG_CGCL) System.out.print("»Ö¸´±»Ìá×Ó:"); if(CS.DEBUG_CGCL)
-	 * System.out.println("a=" + m + ",b=" + n); } } //for for (i = 1; i <= 4;
-	 * i++) { //ÊÇ·ñÓĞ±»ÌáµÄ¿é if (hui[shoushu][8 + i] == 0) { break; } else { kin1 =
+	 * if(CS.DEBUG_CGCL) System.out.print("æ¢å¤è¢«æå­:"); if(CS.DEBUG_CGCL)
+	 * if(log.isDebugEnabled()) log.debug("a=" + m + ",b=" + n); } } //for for (i = 1; i <= 4;
+	 * i++) { //æ˜¯å¦æœ‰è¢«æçš„å— if (hui[shoushu][8 + i] == 0) { break; } else { kin1 =
 	 * hui[shoushu][8 + i]; hui[shoushu][8 + i] = 0; kdq(kin1, (byte) 1);
 	 * kjq(kin1, tongse); p = zikuai[kin1 + 128].zishu; DianNode1 temp =
 	 * zikuai[kin1 + 128].zichuang; //shiwubiyao for (j = 1; j <= p; j++) { m =
@@ -2746,12 +2750,12 @@ public class BoardLianShort implements Cloneable {
 	 * = temp.next; } tdzs += p; } //else } //for if (tongse == BLACK) {
 	 * tiheizishu -= tdzs; } if (tongse == WHITE) { tibaizishu -= tdzs; } for (i
 	 * = 0; i < 9; i++) { hui[shoushu][27 + i] = 0; //2yue } shoushu--;
-	 * if(CS.DEBUG_CGCL) System.out.println("·½·¨clhuiqi:´¦Àí»ÚÆå\n"); } //clhuiqi
+	 * if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("æ–¹æ³•clhuiqi:å¤„ç†æ‚”æ£‹\n"); } //clhuiqi
 	 */
 
 	public byte jszq(byte m, byte n) { // huiqishiyong.
-		byte dang = 0; // ÆøÊı±äÁ¿
-		byte i, a, b; // »ÚÆå»Ö¸´Ê±£¬½âÉ¢¿éËù³Éµ¥µãµÄÆøÊı¼ÆËã£»
+		byte dang = 0; // æ°”æ•°å˜é‡
+		byte i, a, b; // æ‚”æ£‹æ¢å¤æ—¶ï¼Œè§£æ•£å—æ‰€æˆå•ç‚¹çš„æ°”æ•°è®¡ç®—ï¼›
 		for (i = 0; i < 4; i++) {
 			a = (byte) (m + szld[i][0]);
 			b = (byte) (n + szld[i][1]);
@@ -2763,34 +2767,34 @@ public class BoardLianShort implements Cloneable {
 	}
 
 	public byte bijiaoqishu(short k1, short k2, byte colorxian) {
-		// ´ÓÍ¬Ò»·½µÄ½Ç¶È³ö·¢£¬ÏÈºóÊÖ²îÒ»Æø¡£
-		// ÒÔ K1·½µÄ½Ç¶ÈÅĞ¶Ï£»
+		// ä»åŒä¸€æ–¹çš„è§’åº¦å‡ºå‘ï¼Œå…ˆåæ‰‹å·®ä¸€æ°”ã€‚
+		// ä»¥ K1æ–¹çš„è§’åº¦åˆ¤æ–­ï¼›
 		byte m1 = zikuai[k1].qishu;
 		byte m2 = zikuai[k2].qishu;
 		byte cha = (byte) (m1 - m2);
 		if (zikuai[k1].color == colorxian) {
 			cha += 1;
 		}
-		// ·µ»ØÖµ<=0;¾ÍÊÇ¶ÔÉ±Ê§°Ü£»
-		// Ò»·½µ÷ÓÃÎª1£º¶ÔÉ±»ñÊ¤£¬ÂäºóÊÖ£»´ÓÁíÒ»·½µ÷ÓÃ¾ÍÊÇ0£º¶ÔÉ±Ê§°Ü£¬Ò²¿É
-		// ¿´³ÉÆú×Ó£¬ÏÈÊÖÀûÓÃ£»
-		// Ò»·½µ÷ÓÃÎª2£º±¾·½ÍÑÏÈÈÔÈ»»ñÊ¤£»µ«ÊÇÍÑÏÈºó¶Ô·½ÓĞÏÈÊÖÀûÓÃ£»
-		// ´ÓÁíÒ»·½µ÷ÓÃ¾ÍÊÇ£­1£º¶Ô·½ÍÑÏÈÈÔÈ»Ê§°Ü£»
-		// Ò»·½µ÷ÓÃÎª3£º±¾·½ÍÑÏÈÈÔ¿É»ñÊ¤£¬ÇÒÍÑÏÈºó¶Ô·½Ã»ÓĞÀûÓÃ¡£
-		// ÁíÒ»·½µ÷ÓÃÎª£­2£º¶Ô·½¼´Ê¹ÍÑÏÈ±¾·½Ò²Ã»ÓĞÏÈÊÖÀûÓÃ
-		// ×ª»»¹ØÏµÎª£º>0:ÏÈ¼õÒ»£¬ÔÙÈ¡·´¡£
-		// ËûÃÇÊÇµÈ¼ÛµÄ£¬Ö»ÊÇ´Ó²»Í¬·½ÃæÃèÊö¡£
-		// ÖÕÓÚ½â¾öÁË.
+		// è¿”å›å€¼<=0;å°±æ˜¯å¯¹æ€å¤±è´¥ï¼›
+		// ä¸€æ–¹è°ƒç”¨ä¸º1ï¼šå¯¹æ€è·èƒœï¼Œè½åæ‰‹ï¼›ä»å¦ä¸€æ–¹è°ƒç”¨å°±æ˜¯0ï¼šå¯¹æ€å¤±è´¥ï¼Œä¹Ÿå¯
+		// çœ‹æˆå¼ƒå­ï¼Œå…ˆæ‰‹åˆ©ç”¨ï¼›
+		// ä¸€æ–¹è°ƒç”¨ä¸º2ï¼šæœ¬æ–¹è„±å…ˆä»ç„¶è·èƒœï¼›ä½†æ˜¯è„±å…ˆåå¯¹æ–¹æœ‰å…ˆæ‰‹åˆ©ç”¨ï¼›
+		// ä»å¦ä¸€æ–¹è°ƒç”¨å°±æ˜¯ï¼1ï¼šå¯¹æ–¹è„±å…ˆä»ç„¶å¤±è´¥ï¼›
+		// ä¸€æ–¹è°ƒç”¨ä¸º3ï¼šæœ¬æ–¹è„±å…ˆä»å¯è·èƒœï¼Œä¸”è„±å…ˆåå¯¹æ–¹æ²¡æœ‰åˆ©ç”¨ã€‚
+		// å¦ä¸€æ–¹è°ƒç”¨ä¸ºï¼2ï¼šå¯¹æ–¹å³ä½¿è„±å…ˆæœ¬æ–¹ä¹Ÿæ²¡æœ‰å…ˆæ‰‹åˆ©ç”¨
+		// è½¬æ¢å…³ç³»ä¸ºï¼š>0:å…ˆå‡ä¸€ï¼Œå†å–åã€‚
+		// ä»–ä»¬æ˜¯ç­‰ä»·çš„ï¼Œåªæ˜¯ä»ä¸åŒæ–¹é¢æè¿°ã€‚
+		// ç»ˆäºè§£å†³äº†.
 		return cha;
 
 	}
 
-	public byte bijiaoqishu2( // ÆøÊı±È½ÏµÄ½á¹û²»½ö¹ı³ÌÖĞ²½²½ÏàÍ¬
-			// ¶øÇÒË«·½½ö½ö²îÔÚ·ûºÅ¡£
+	public byte bijiaoqishu2( // æ°”æ•°æ¯”è¾ƒçš„ç»“æœä¸ä»…è¿‡ç¨‹ä¸­æ­¥æ­¥ç›¸åŒ
+			// è€Œä¸”åŒæ–¹ä»…ä»…å·®åœ¨ç¬¦å·ã€‚
 			short k1, short k2, byte colorxian) {
-		// ÒÔk1µÄ½Ç¶È³ö·¢¡£
-		// ´ÓÍ¬Ò»·½µÄ½Ç¶È³ö·¢£¬ÏÈºóÊÖ²î2¡°Æø¡±¡£
-		// ÒÔ K1·½µÄ½Ç¶ÈÅĞ¶Ï£»
+		// ä»¥k1çš„è§’åº¦å‡ºå‘ã€‚
+		// ä»åŒä¸€æ–¹çš„è§’åº¦å‡ºå‘ï¼Œå…ˆåæ‰‹å·®2â€œæ°”â€ã€‚
+		// ä»¥ K1æ–¹çš„è§’åº¦åˆ¤æ–­ï¼›
 		byte m1 = zikuai[k1].qishu;
 		byte m2 = zikuai[k2].qishu;
 		byte cha = (byte) (2 * (m1 - m2));
@@ -2799,27 +2803,27 @@ public class BoardLianShort implements Cloneable {
 		} else if (zikuai[k2].color == colorxian) {
 			cha -= 1;
 		}
-		// ·µ»ØÖµ<=0;¾ÍÊÇ¶ÔÉ±Ê§°Ü£»
-		// Ò»·½µ÷ÓÃÎª1£º¶ÔÉ±»ñÊ¤£¬ÂäºóÊÖ£»´ÓÁíÒ»·½µ÷ÓÃ¾ÍÊÇ-1£º¶ÔÉ±Ê§°Ü£¬Ò²¿É
-		// ¿´³ÉÆú×Ó£¬ÏÈÊÖÀûÓÃ£»
-		// Ò»·½µ÷ÓÃÎª3£º±¾·½ÍÑÏÈÈÔÈ»»ñÊ¤£»µ«ÊÇÍÑÏÈºó¶Ô·½ÓĞÏÈÊÖÀûÓÃ£»
-		// ´ÓÁíÒ»·½µ÷ÓÃ¾ÍÊÇ£­1£º¶Ô·½ÍÑÏÈÈÔÈ»Ê§°Ü£»
-		// Ò»·½µ÷ÓÃÎª5£º±¾·½ÍÑÏÈÈÔ¿É»ñÊ¤£¬ÇÒÍÑÏÈºó¶Ô·½Ã»ÓĞÀûÓÃ¡£
-		// ÁíÒ»·½µ÷ÓÃÎª£­5£º¶Ô·½¼´Ê¹ÍÑÏÈ±¾·½Ò²Ã»ÓĞÏÈÊÖÀûÓÃ
-		// ×ª»»¹ØÏµÎª£ºÈ¡·´¡£
-		// 2004Äê2ÔÂ16ÈÕ
+		// è¿”å›å€¼<=0;å°±æ˜¯å¯¹æ€å¤±è´¥ï¼›
+		// ä¸€æ–¹è°ƒç”¨ä¸º1ï¼šå¯¹æ€è·èƒœï¼Œè½åæ‰‹ï¼›ä»å¦ä¸€æ–¹è°ƒç”¨å°±æ˜¯-1ï¼šå¯¹æ€å¤±è´¥ï¼Œä¹Ÿå¯
+		// çœ‹æˆå¼ƒå­ï¼Œå…ˆæ‰‹åˆ©ç”¨ï¼›
+		// ä¸€æ–¹è°ƒç”¨ä¸º3ï¼šæœ¬æ–¹è„±å…ˆä»ç„¶è·èƒœï¼›ä½†æ˜¯è„±å…ˆåå¯¹æ–¹æœ‰å…ˆæ‰‹åˆ©ç”¨ï¼›
+		// ä»å¦ä¸€æ–¹è°ƒç”¨å°±æ˜¯ï¼1ï¼šå¯¹æ–¹è„±å…ˆä»ç„¶å¤±è´¥ï¼›
+		// ä¸€æ–¹è°ƒç”¨ä¸º5ï¼šæœ¬æ–¹è„±å…ˆä»å¯è·èƒœï¼Œä¸”è„±å…ˆåå¯¹æ–¹æ²¡æœ‰åˆ©ç”¨ã€‚
+		// å¦ä¸€æ–¹è°ƒç”¨ä¸ºï¼5ï¼šå¯¹æ–¹å³ä½¿è„±å…ˆæœ¬æ–¹ä¹Ÿæ²¡æœ‰å…ˆæ‰‹åˆ©ç”¨
+		// è½¬æ¢å…³ç³»ä¸ºï¼šå–åã€‚
+		// 2004å¹´2æœˆ16æ—¥
 		return cha;
 
 	}
 
 	public byte bijiaoqishu3(short k1, short k2, byte gongqi, byte colorxian) {
-		// ´ø¹«ÆøµÄ¶ÔÉ±
-		// ÆøÊı±È½ÏµÄ½á¹û²»½ö¹ı³ÌÖĞ²½²½ÏàÍ¬
-		// ¶øÇÒË«·½½ö½ö²îÔÚ·ûºÅ¡£
+		// å¸¦å…¬æ°”çš„å¯¹æ€
+		// æ°”æ•°æ¯”è¾ƒçš„ç»“æœä¸ä»…è¿‡ç¨‹ä¸­æ­¥æ­¥ç›¸åŒ
+		// è€Œä¸”åŒæ–¹ä»…ä»…å·®åœ¨ç¬¦å·ã€‚
 
-		// ÒÔk1µÄ½Ç¶È³ö·¢¡£
-		// ´ÓÍ¬Ò»·½µÄ½Ç¶È³ö·¢£¬ÏÈºóÊÖ²î2¡°Æø¡±¡£
-		// ÒÔ K1·½µÄ½Ç¶ÈÅĞ¶Ï£»
+		// ä»¥k1çš„è§’åº¦å‡ºå‘ã€‚
+		// ä»åŒä¸€æ–¹çš„è§’åº¦å‡ºå‘ï¼Œå…ˆåæ‰‹å·®2â€œæ°”â€ã€‚
+		// ä»¥ K1æ–¹çš„è§’åº¦åˆ¤æ–­ï¼›
 		byte m1 = zikuai[k1].qishu;
 		byte m2 = zikuai[k2].qishu;
 		byte cha = (byte) (2 * (m1 - m2));
@@ -2829,25 +2833,25 @@ public class BoardLianShort implements Cloneable {
 			cha -= 1;
 		}
 		cha -= (2 * (gongqi - 1));
-		// ·µ»ØÖµ<=0;¾ÍÊÇ¶ÔÉ±Ê§°Ü£»
-		// Ò»·½µ÷ÓÃÎª1£º¶ÔÉ±»ñÊ¤£¬ÂäºóÊÖ£»´ÓÁíÒ»·½µ÷ÓÃ¾ÍÊÇ-1£º¶ÔÉ±Ê§°Ü£¬Ò²¿É
-		// ¿´³ÉÆú×Ó£¬ÏÈÊÖÀûÓÃ£»
-		// Ò»·½µ÷ÓÃÎª3£º±¾·½ÍÑÏÈÈÔÈ»»ñÊ¤£»µ«ÊÇÍÑÏÈºó¶Ô·½ÓĞÏÈÊÖÀûÓÃ£»
-		// ´ÓÁíÒ»·½µ÷ÓÃ¾ÍÊÇ£­1£º¶Ô·½ÍÑÏÈÈÔÈ»Ê§°Ü£»
-		// Ò»·½µ÷ÓÃÎª5£º±¾·½ÍÑÏÈÈÔ¿É»ñÊ¤£¬ÇÒÍÑÏÈºó¶Ô·½Ã»ÓĞÀûÓÃ¡£
-		// ÁíÒ»·½µ÷ÓÃÎª£­5£º¶Ô·½¼´Ê¹ÍÑÏÈ±¾·½Ò²Ã»ÓĞÏÈÊÖÀûÓÃ
-		// ×ª»»¹ØÏµÎª£ºÈ¡·´¡£
-		// 2004Äê2ÔÂ16ÈÕ
+		// è¿”å›å€¼<=0;å°±æ˜¯å¯¹æ€å¤±è´¥ï¼›
+		// ä¸€æ–¹è°ƒç”¨ä¸º1ï¼šå¯¹æ€è·èƒœï¼Œè½åæ‰‹ï¼›ä»å¦ä¸€æ–¹è°ƒç”¨å°±æ˜¯-1ï¼šå¯¹æ€å¤±è´¥ï¼Œä¹Ÿå¯
+		// çœ‹æˆå¼ƒå­ï¼Œå…ˆæ‰‹åˆ©ç”¨ï¼›
+		// ä¸€æ–¹è°ƒç”¨ä¸º3ï¼šæœ¬æ–¹è„±å…ˆä»ç„¶è·èƒœï¼›ä½†æ˜¯è„±å…ˆåå¯¹æ–¹æœ‰å…ˆæ‰‹åˆ©ç”¨ï¼›
+		// ä»å¦ä¸€æ–¹è°ƒç”¨å°±æ˜¯ï¼1ï¼šå¯¹æ–¹è„±å…ˆä»ç„¶å¤±è´¥ï¼›
+		// ä¸€æ–¹è°ƒç”¨ä¸º5ï¼šæœ¬æ–¹è„±å…ˆä»å¯è·èƒœï¼Œä¸”è„±å…ˆåå¯¹æ–¹æ²¡æœ‰åˆ©ç”¨ã€‚
+		// å¦ä¸€æ–¹è°ƒç”¨ä¸ºï¼5ï¼šå¯¹æ–¹å³ä½¿è„±å…ˆæœ¬æ–¹ä¹Ÿæ²¡æœ‰å…ˆæ‰‹åˆ©ç”¨
+		// è½¬æ¢å…³ç³»ä¸ºï¼šå–åã€‚
+		// 2004å¹´2æœˆ16æ—¥
 		return cha;
 
 	}
 
 	public byte xingshipanduan(byte colorjiaodu) {
-		// µ÷ÓÃµÄÆõ»ú£¬ºÎÊ±µ÷ÓÃ£¿¶Ô·½ÍÑÏÈ»òÕßÓĞÌá×Ó¡£
-		// Ê×ÏÈÈ·¶¨·¢Æğµ÷ÓÃµÄµØµãÊÇÂä×ÓµÄ¾Ö²¿
-		// Í¬Ê±Òª¿¼ÂÇ¶Ô±ğ´¦µÄÓ°Ïì£¬Ò»°ãÊÇÁæ½ü¾Ö²¿µÄÓ°Ïì
-		// Éæ¼°Õ÷×Ó²Å¿¼ÂÇÔ¶´¦µÄÓ°Ïì¡£
-		// ÓĞµÄ¶ÔÉ±ÓÃÁ¿±íÊ¾£¬²»ÒªÊµ¼Ê¶ÔÉ±¡£±ÈÈçÆø³¤2£¬ÇÒ¶ÌÆø·½Ã»ÓĞ
+		// è°ƒç”¨çš„å¥‘æœºï¼Œä½•æ—¶è°ƒç”¨ï¼Ÿå¯¹æ–¹è„±å…ˆæˆ–è€…æœ‰æå­ã€‚
+		// é¦–å…ˆç¡®å®šå‘èµ·è°ƒç”¨çš„åœ°ç‚¹æ˜¯è½å­çš„å±€éƒ¨
+		// åŒæ—¶è¦è€ƒè™‘å¯¹åˆ«å¤„çš„å½±å“ï¼Œä¸€èˆ¬æ˜¯ä¼¶è¿‘å±€éƒ¨çš„å½±å“
+		// æ¶‰åŠå¾å­æ‰è€ƒè™‘è¿œå¤„çš„å½±å“ã€‚
+		// æœ‰çš„å¯¹æ€ç”¨é‡è¡¨ç¤ºï¼Œä¸è¦å®é™…å¯¹æ€ã€‚æ¯”å¦‚æ°”é•¿2ï¼Œä¸”çŸ­æ°”æ–¹æ²¡æœ‰
 		// changqidian.
 		byte lingxian = 0;
 		return lingxian;
@@ -2857,39 +2861,39 @@ public class BoardLianShort implements Cloneable {
 	 * refacted and move to StateAnalysis
 	 */
 	public void shengchengjumian() {
-		// ´ÓÆåÆ×µÄÎ»Í¼±íÊ¾Éú³ÉkuaiºÍzbÊı×éµÄÏàÓ¦ĞÅÏ¢
-		// ´ÓÁ´Ê½Æø¿éÉú³É¾ÖÃæÏîÄ¿¸´ÖÆÀ´µÄ£¬ĞèÒªĞŞ¸Ä¡£
-		// ¸Ãº¯ÊıÓ¦¸ÃÔÚ³õÊ¼¾ÖÃæÊ±µ÷ÓÃ¡£
+		// ä»æ£‹è°±çš„ä½å›¾è¡¨ç¤ºç”Ÿæˆkuaiå’Œzbæ•°ç»„çš„ç›¸åº”ä¿¡æ¯
+		// ä»é“¾å¼æ°”å—ç”Ÿæˆå±€é¢é¡¹ç›®å¤åˆ¶æ¥çš„ï¼Œéœ€è¦ä¿®æ”¹ã€‚
+		// è¯¥å‡½æ•°åº”è¯¥åœ¨åˆå§‹å±€é¢æ—¶è°ƒç”¨ã€‚
 
 		byte i, j;
 		byte m, m1, n1, n;
-		byte qkxlhzs = 0; // Æø¿éÏàÁÚºÚ×ÓÊı
+		byte qkxlhzs = 0; // æ°”å—ç›¸é‚»é»‘å­æ•°
 		byte qkxlbzs = 0;
 		byte color = 0;
 		byte othercolor = 0;
 
-		// µÚÒ»±éÉ¨Ãè£¬Éú³É¿é£¬£¨°üÀ¨×ÓÊıºÍ×Ó´®£©
-		for (i = 1; i < 20; i++) { // iÊÇ×İ×ø±ê
-			for (j = 1; j < 20; j++) { // jÊÇºá×ø±ê,°´ĞĞ´¦Àí
+		// ç¬¬ä¸€éæ‰«æï¼Œç”Ÿæˆå—ï¼Œï¼ˆåŒ…æ‹¬å­æ•°å’Œå­ä¸²ï¼‰
+		for (i = 1; i < 20; i++) { // iæ˜¯çºµåæ ‡
+			for (j = 1; j < 20; j++) { // jæ˜¯æ¨ªåæ ‡,æŒ‰è¡Œå¤„ç†
 				if (zb[j][i][SQBZXB] == 1) {
-					continue; // SQBZXB´Ë´¦Ïàµ±ÓÚ´¦Àí¹ıµÄ±êÖ¾.
+					continue; // SQBZXBæ­¤å¤„ç›¸å½“äºå¤„ç†è¿‡çš„æ ‡å¿—.
 				}
-				// ¸ÃµãÉĞÎ´´¦Àí¡£
-				qikuaizishu = 0; // Ã¿¿é×ÓµÄ¼ÆÊı,ÓÃÓÚÉú³ÉÆø¿é
-				meikuaizishu = 0; // Ã¿¿é×ÓµÄ¼ÆÊı£¬ÓÃÓÚÉú³É×Ó¿é
-				if (zb[j][i][ZTXB] == BLACK) { // ×ó.ÉÏ±ØÎª¿Õµã»òÒìÉ«×Ó
-					zikuaishu++; // ¿éºÅµİÔö
+				// è¯¥ç‚¹å°šæœªå¤„ç†ã€‚
+				qikuaizishu = 0; // æ¯å—å­çš„è®¡æ•°,ç”¨äºç”Ÿæˆæ°”å—
+				meikuaizishu = 0; // æ¯å—å­çš„è®¡æ•°ï¼Œç”¨äºç”Ÿæˆå­å—
+				if (zb[j][i][ZTXB] == BLACK) { // å·¦.ä¸Šå¿…ä¸ºç©ºç‚¹æˆ–å¼‚è‰²å­
+					zikuaishu++; // å—å·é€’å¢
 					zikuai[zikuaishu] = new ZiKuai1();
 					zikuai[zikuaishu].color = BLACK;
-					chengkuai(j, i, BLACK); // ÅĞ¶ÏÓÒ.ÏÂÊÇ·ñÎªÍ¬É«×Ó.
+					chengkuai(j, i, BLACK); // åˆ¤æ–­å³.ä¸‹æ˜¯å¦ä¸ºåŒè‰²å­.
 					zikuai[zikuaishu].zishu = meikuaizishu;
 					// if(CS.DEBUG_CGCL)
 					// System.out.print("zishucuowu:"+zikuaishu);
-				} else if (zb[j][i][ZTXB] == WHITE) { // ×ó.ÉÏ±ØÎª¿Õµã»òÒìÉ«×Ó
+				} else if (zb[j][i][ZTXB] == WHITE) { // å·¦.ä¸Šå¿…ä¸ºç©ºç‚¹æˆ–å¼‚è‰²å­
 					zikuaishu++;
 					zikuai[zikuaishu] = new ZiKuai1();
 					zikuai[zikuaishu].color = WHITE;
-					chengkuai(j, i, WHITE); // ÅĞ¶ÏÓÒ.ÏÂÊÇ·ñÎªÍ¬É«×Ó
+					chengkuai(j, i, WHITE); // åˆ¤æ–­å³.ä¸‹æ˜¯å¦ä¸ºåŒè‰²å­
 					zikuai[zikuaishu].zishu = meikuaizishu;
 					// if(CS.DEBUG_CGCL)
 					// System.out.print("zishucuowu:"+zikuaishu);
@@ -2903,27 +2907,27 @@ public class BoardLianShort implements Cloneable {
 				}
 				qikuaizishu = 0;
 			}
-		} // Éú³É¿é,°üÀ¨Æå¿é¡£
+		} // ç”Ÿæˆå—,åŒ…æ‹¬æ£‹å—ã€‚
 
-		for (i = 1; i < 20; i++) { // iÊÇ×İ×ø±ê
-			for (j = 1; j < 20; j++) { // jÊÇºá×ø±ê
-				zb[j][i][SQBZXB] = 0; // »Ö¸´Ã¿¸öµãµÄËãÆø±êÖ¾
+		for (i = 1; i < 20; i++) { // iæ˜¯çºµåæ ‡
+			for (j = 1; j < 20; j++) { // jæ˜¯æ¨ªåæ ‡
+				zb[j][i][SQBZXB] = 0; // æ¢å¤æ¯ä¸ªç‚¹çš„ç®—æ°”æ ‡å¿—
 				// if(zb[j][i][ZTXB]>0 && zb[j][i][KSYXB]==0){
 				// zb[j][i][QSXB]=jszq(j,i);
 				// }
 			}
 		}
 
-		// ¼ÆËã¿éÆø£¬°üÀ¨µãÆø¡£
+		// è®¡ç®—å—æ°”ï¼ŒåŒ…æ‹¬ç‚¹æ°”ã€‚
 		for (i = 1; i <= zikuaishu; i++) {
-			// byte qi=jskq(ki);¼ÆËã¿éÆø¹ı³ÌÖĞÖ±½Ó´¢´æÆøµã.
+			// byte qi=jskq(ki);è®¡ç®—å—æ°”è¿‡ç¨‹ä¸­ç›´æ¥å‚¨å­˜æ°”ç‚¹.
 			jskq(i);
-		} // ¼ÆËã¿éÆø
+		} // è®¡ç®—å—æ°”
 
-		for (i = 1; i <= qikuaishu; i++) { // ´ÓÆø¿éÈëÊÖ£¬ÕÒµ½Ç¿¿é¡£
+		for (i = 1; i <= qikuaishu; i++) { // ä»æ°”å—å…¥æ‰‹ï¼Œæ‰¾åˆ°å¼ºå—ã€‚
 			short meikuaizishu = qikuai[i].zishu;
-			if (meikuaizishu == 1) { // ÑÛÎ»
-				// ËÄÖÜ±ØÈ»ÓĞ×Ó¡£
+			if (meikuaizishu == 1) { // çœ¼ä½
+				// å››å‘¨å¿…ç„¶æœ‰å­ã€‚
 				m = qikuai[qikuaishu].zichuang.a;
 				n = qikuai[qikuaishu].zichuang.b;
 				for (byte k = 0; k < 4; k++) {
@@ -2936,10 +2940,10 @@ public class BoardLianShort implements Cloneable {
 						qkxlhzs++;
 					}
 				}
-				if (qkxlbzs == 0) { // ºÚ·½µÄÑÛ
+				if (qkxlbzs == 0) { // é»‘æ–¹çš„çœ¼
 					qikuai[i].color = CS.BLACK;
 					if (qikuaizuixiaoqi(i) > 1) {
-						// Ëù³ÉµÄÑÛ²»»áÁ¢¼´±»ÆÆ»µ¡£
+						// æ‰€æˆçš„çœ¼ä¸ä¼šç«‹å³è¢«ç ´åã€‚
 						erjikuaishu++;
 						erjikuai[erjikuaishu] = new ErJiKuai();
 						for (byte k = 0; k < 4; k++) {
@@ -2952,10 +2956,10 @@ public class BoardLianShort implements Cloneable {
 						}
 
 					} else {
-						// ³ÉÆø¿éµÄÆå¿é±¾Éí´¦ÓÚ±»´ò³Ô×´Ì¬¡£
+						// æˆæ°”å—çš„æ£‹å—æœ¬èº«å¤„äºè¢«æ‰“åƒçŠ¶æ€ã€‚
 					}
 
-				} else if (qkxlhzs == 0) { // °×·½µÄÑÛ£¬²¢³ÉÒ»Ìå¡£
+				} else if (qkxlhzs == 0) { // ç™½æ–¹çš„çœ¼ï¼Œå¹¶æˆä¸€ä½“ã€‚
 					qikuai[i].color = CS.WHITE;
 					if (qikuaizuixiaoqi(i) > 1) {
 						erjikuaishu++;
@@ -2973,17 +2977,17 @@ public class BoardLianShort implements Cloneable {
 						// todo
 					}
 
-				} else { // Ë«·½µÄ¹«Æø¡£
+				} else { // åŒæ–¹çš„å…¬æ°”ã€‚
 					qikuai[i].color = 5;
 				}
 				// qikuai[qikuaishu--].zichuang=null;
 				// qikuai[qikuaishu].qichuang
 				// qikuai[ki--][1][1]=0;
-				// zb[j][i][KSYXB]=0;//·Ç¿é
-				// todo:ÑÛÎ»µÄ´¦Àí
-				// ÕÒ³öÖÜÎ§¿é£¬ÆøÊıÎªÒ»ÇÒµ¥×Ó£¬Ôò´ò½Ù¡£Á½´¦ÎªÒ»Æø£¬
-				// ÔòË«Ìá£¬¿éÎªÒ»Æø£¬Ôò´ò¶à»¹Ò»¡¢¡¢
-			} else if (meikuaizishu > 1) { // ´óÑÛ
+				// zb[j][i][KSYXB]=0;//éå—
+				// todo:çœ¼ä½çš„å¤„ç†
+				// æ‰¾å‡ºå‘¨å›´å—ï¼Œæ°”æ•°ä¸ºä¸€ä¸”å•å­ï¼Œåˆ™æ‰“åŠ«ã€‚ä¸¤å¤„ä¸ºä¸€æ°”ï¼Œ
+				// åˆ™åŒæï¼Œå—ä¸ºä¸€æ°”ï¼Œåˆ™æ‰“å¤šè¿˜ä¸€ã€ã€
+			} else if (meikuaizishu > 1) { // å¤§çœ¼
 				// qikuai[qikuaishu].zishu = meikuaizishu;
 				DianNode1 tee = qikuai[i].zichuang;
 				for (short hh = 1; hh <= meikuaizishu; hh++) {
@@ -3001,8 +3005,8 @@ public class BoardLianShort implements Cloneable {
 					}
 					tee = tee.next;
 				}
-				if (qkxlbzs == 0) { // ºÚ·½µÄ´óÑÛ
-					// ÖÜÎ§µÄ¿éÊı£¬Ô½ÉÙÔ½ºÃ¡£
+				if (qkxlbzs == 0) { // é»‘æ–¹çš„å¤§çœ¼
+					// å‘¨å›´çš„å—æ•°ï¼Œè¶Šå°‘è¶Šå¥½ã€‚
 					if (qikuaizuixiaoqi(i) > 1) {
 						erjikuaishu++;
 						erjikuai[erjikuaishu] = new ErJiKuai();
@@ -3023,7 +3027,7 @@ public class BoardLianShort implements Cloneable {
 							}
 						}
 					}
-				} else if (qkxlhzs == 0) { // °×·½µÄ´óÑÛ£¬²¢³ÉÒ»Ìå¡£
+				} else if (qkxlhzs == 0) { // ç™½æ–¹çš„å¤§çœ¼ï¼Œå¹¶æˆä¸€ä½“ã€‚
 					if (qikuaizuixiaoqi(i) > 1) {
 						erjikuaishu++;
 						erjikuai[erjikuaishu] = new ErJiKuai();
@@ -3045,13 +3049,13 @@ public class BoardLianShort implements Cloneable {
 						}
 					}
 
-				} else { // Ë«·½µÄ¹«Æø¡£
+				} else { // åŒæ–¹çš„å…¬æ°”ã€‚
 
 				}
 
 			} else {
 				if (CS.DEBUG_CGCL) {
-					System.out.println("error:zishu<1");
+					if(log.isDebugEnabled()) log.debug("error:zishu<1");
 
 				}
 			}
@@ -3066,10 +3070,10 @@ public class BoardLianShort implements Cloneable {
 		 * (byte) (dandian[i][0] + szld[j][0]); n = (byte) (dandian[i][1] +
 		 * szld[j][1]); if (zb[m][n][ZTXB] == othercolor) { if (zb[m][n][KSYXB]
 		 * == 0) { zb2[m][n][2 * zijishu] = m; zb2[m][n][2 * zijishu + 1] = n;
-		 * zijishu++; } else{//×¢Òâ·ÀÖ¹¿éµÄÖØ¸´¡£ } } }//for }
+		 * zijishu++; } else{//æ³¨æ„é˜²æ­¢å—çš„é‡å¤ã€‚ } } }//for }
 		 */
 		byte zijishu = 0;
-		short kzishu = 0; // ¿éº¬ÓĞµÄ×ÓÊı£¬¿ØÖÆÑ­»·
+		short kzishu = 0; // å—å«æœ‰çš„å­æ•°ï¼Œæ§åˆ¶å¾ªç¯
 		DianNode1 temp;
 		HaoNode1 linhao;
 		short zikin1;
@@ -3080,7 +3084,7 @@ public class BoardLianShort implements Cloneable {
 				othercolor = CS.WHITE;
 			} else if (color == CS.WHITE) {
 				othercolor = CS.BLACK;
-				// ±éÀú¸Ã¿éµÄ¸÷¸ö×Ó£¬µÃµ½ÖÜÎ§ÒìÉ«¿é£¬Ö÷Òâ·ÀÖ¹ÖØ¸´¡£
+				// éå†è¯¥å—çš„å„ä¸ªå­ï¼Œå¾—åˆ°å‘¨å›´å¼‚è‰²å—ï¼Œä¸»æ„é˜²æ­¢é‡å¤ã€‚
 			}
 			kzishu = zikuai[i].zishu;
 
@@ -3091,13 +3095,13 @@ public class BoardLianShort implements Cloneable {
 					n = (byte) (temp.b + szld[j][1]);
 					if (zb[m][n][ZTXB] == othercolor) {
 
-						// else if(zb[m][n][SQBZXB]==0){//×¢Òâ·ÀÖ¹¿éµÄÖØ¸´¡£
+						// else if(zb[m][n][SQBZXB]==0){//æ³¨æ„é˜²æ­¢å—çš„é‡å¤ã€‚
 						zikin1 = zbk[m][n];
 						zikuai[i].addyisekuaihao(zikin1);
 
 					} else if (zb[m][n][ZTXB] == CS.BLANK) {
 
-						// else if(zb[m][n][SQBZXB]==0){//×¢Òâ·ÀÖ¹¿éµÄÖØ¸´¡£
+						// else if(zb[m][n][SQBZXB]==0){//æ³¨æ„é˜²æ­¢å—çš„é‡å¤ã€‚
 						zikin2 = zb[m][n][QKSYXB];
 						zikuai[i].addqikuaihao(zikin2);
 
@@ -3110,7 +3114,7 @@ public class BoardLianShort implements Cloneable {
 		}
 	}
 
-	public void chengkuai1(byte a, byte b) { // ²»ÍêÉÆ
+	public void chengkuai1(byte a, byte b) { // ä¸å®Œå–„
 		qikuaishu++;
 		qikuai[qikuaishu] = new QiKuai1();
 		qikuaizishu = 0;
@@ -3118,14 +3122,14 @@ public class BoardLianShort implements Cloneable {
 			qikuai[qikuaishu] = null;
 			qikuaishu--;
 		}
-		// qikuaishuµÄSQBZXBÓ¦¸ÃÇåÁã
+		// qikuaishuçš„SQBZXBåº”è¯¥æ¸…é›¶
 	}
 
 	short meikuaizishu;
 
 	public void chengkuai(byte a, byte b, byte color) {
-		// ÊÕ¼¯ĞÅÏ¢µÄ¹ı³ÌÖĞ,¿ÉÒÔÁîcolor=BLANK,µ÷ÓÃ¸Ãº¯Êı,µ«ÊÇÆø¿éµÄĞÅÏ¢
-		// ²»ÄÜ×¤ÁôÔÚkuaiÊı×éÄÚ,±ØĞëÔçµãµ÷ÓÃ²¢Çå³ı.
+		// æ”¶é›†ä¿¡æ¯çš„è¿‡ç¨‹ä¸­,å¯ä»¥ä»¤color=BLANK,è°ƒç”¨è¯¥å‡½æ•°,ä½†æ˜¯æ°”å—çš„ä¿¡æ¯
+		// ä¸èƒ½é©»ç•™åœ¨kuaiæ•°ç»„å†…,å¿…é¡»æ—©ç‚¹è°ƒç”¨å¹¶æ¸…é™¤.
 		// byte max=127;
 		byte m1, n1;
 		byte othercolor = 0;
@@ -3138,11 +3142,11 @@ public class BoardLianShort implements Cloneable {
 		}
 		temp.a = a;
 		temp.b = b;
-		temp.next = zikuai[zikuaishu].zichuang; // ¿éºÅÒÑ¾­Ô¤¶¨
+		temp.next = zikuai[zikuaishu].zichuang; // å—å·å·²ç»é¢„å®š
 		zikuai[zikuaishu].zichuang = temp;
 		zb[a][b][SQBZXB] = 1;
 		zbk[a][b] = zikuaishu;
-		meikuaizishu++; // ÒòÎªÏÖÔÚ¶À×ÓÒ²Ëã¿é£¬²»±ØÈ¡Ïû¿é
+		meikuaizishu++; // å› ä¸ºç°åœ¨ç‹¬å­ä¹Ÿç®—å—ï¼Œä¸å¿…å–æ¶ˆå—
 		for (byte k = 0; k < 4; k++) {
 			m1 = (byte) (a + szld[k][0]);
 			n1 = (byte) (b + szld[k][1]);
@@ -3150,18 +3154,18 @@ public class BoardLianShort implements Cloneable {
 				chengkuai(m1, n1, color);
 			}
 		}
-	} // ³É¿éµÄµãSQBZXB==1;
+	} // æˆå—çš„ç‚¹SQBZXB==1;
 
 	public short chengqikuai(byte a, byte b) {
-		// ÒòÎªĞÎÊÆÅĞ¶Ïµ÷ÓÃÊ±ÎŞĞèÃ¿´Îµ÷ÓÃ¶¼Çå³ı±êÖ¾£¬ËùÒÔ
-		// º¯Êı±¾Éí²»Çå³ı±êÖ¾¡£
+		// å› ä¸ºå½¢åŠ¿åˆ¤æ–­è°ƒç”¨æ—¶æ— éœ€æ¯æ¬¡è°ƒç”¨éƒ½æ¸…é™¤æ ‡å¿—ï¼Œæ‰€ä»¥
+		// å‡½æ•°æœ¬èº«ä¸æ¸…é™¤æ ‡å¿—ã€‚
 		byte m1, n1;
 
 		qikuaizishu++;
-		// if(CS.DEBUG_CGCL) System.out.println("Æø¿éºÅÎª£º" + qikuaishu);
+		// if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("æ°”å—å·ä¸ºï¼š" + qikuaishu);
 		qikuai[qikuaishu].addzidian(a, b); // ?
 		if (CS.DEBUG_CGCL) {
-			System.out.println("Æø¿éÔö¼Óµã£º" + a + "/" + b);
+			if(log.isDebugEnabled()) log.debug("æ°”å—å¢åŠ ç‚¹ï¼š" + a + "/" + b);
 		}
 		zb[a][b][SQBZXB] = 1;
 		zb[a][b][QKSYXB] = qikuaishu;
@@ -3178,17 +3182,17 @@ public class BoardLianShort implements Cloneable {
 
 			} else if (zb[m1][n1][ZTXB] == BLACK || zb[m1][n1][ZTXB] == WHITE) {
 				qikuai[qikuaishu].addzikuaihao(zbk[m1][n1]);
-				// ·´ÏòµÄÁ¬½ÓÖ®ºóÔÙ½¨Á¢£¬ÒòÎªÆø¿éºÅ¿ÉÄÜ»á±ä¡£
+				// åå‘çš„è¿æ¥ä¹‹åå†å»ºç«‹ï¼Œå› ä¸ºæ°”å—å·å¯èƒ½ä¼šå˜ã€‚
 			}
 		}
 		return qikuaizishu;
-	} // ³É¿éµÄµãSQBZXB==1;
+	} // æˆå—çš„ç‚¹SQBZXB==1;
 
 	public boolean chengqikuai2(byte a, byte b) {
-		// Óöµ½´ó¿é¾Í·µ»Ø
-		// ÊÕ¼¯ĞÅÏ¢µÄ¹ı³ÌÖĞ,¿ÉÒÔÁîcolor=BLANK,µ÷ÓÃ¸Ãº¯Êı,µ«ÊÇÆø¿éµÄĞÅÏ¢
-		// ²»ÄÜ×¤ÁôÔÚkuaiÊı×éÄÚ,±ØĞëÔçµãµ÷ÓÃ²¢Çå³ı.
-		// µ÷ÓÃ¸Ãº¯ÊıÇ°±ØĞë½«qkzishuÇåÁã
+		// é‡åˆ°å¤§å—å°±è¿”å›
+		// æ”¶é›†ä¿¡æ¯çš„è¿‡ç¨‹ä¸­,å¯ä»¥ä»¤color=BLANK,è°ƒç”¨è¯¥å‡½æ•°,ä½†æ˜¯æ°”å—çš„ä¿¡æ¯
+		// ä¸èƒ½é©»ç•™åœ¨kuaiæ•°ç»„å†…,å¿…é¡»æ—©ç‚¹è°ƒç”¨å¹¶æ¸…é™¤.
+		// è°ƒç”¨è¯¥å‡½æ•°å‰å¿…é¡»å°†qkzishuæ¸…é›¶
 		byte m1, n1;
 		// byte zishu=0;
 		if (qikuaizishu < 10) {
@@ -3197,7 +3201,7 @@ public class BoardLianShort implements Cloneable {
 		} else {
 			qikuaizishu++;
 			if (CS.DEBUG_CGCL) {
-				System.out.println("¸Ã¿éµÄ×ÓÊı³¬¹ı10,¿éºÅÎª:" + zikuaishu);
+				if(log.isDebugEnabled()) log.debug("è¯¥å—çš„å­æ•°è¶…è¿‡10,å—å·ä¸º:" + zikuaishu);
 			}
 			return false;
 		}
@@ -3224,7 +3228,7 @@ public class BoardLianShort implements Cloneable {
 	}
 
 	public byte qikuaiyanse(byte kin) {
-		// ÅĞ¶ÏÆø¿éµÄÑÕÉ«£¬²¢ÇÒÊ¹ÏàÁÚµÄÆå¿éÖ¸Ïò¸ÃÆø¿é¡£
+		// åˆ¤æ–­æ°”å—çš„é¢œè‰²ï¼Œå¹¶ä¸”ä½¿ç›¸é‚»çš„æ£‹å—æŒ‡å‘è¯¥æ°”å—ã€‚
 		byte yanse = 0;
 		byte i, j;
 		byte a, b;
@@ -3233,23 +3237,23 @@ public class BoardLianShort implements Cloneable {
 		DianNode1 temp = qikuai[kin].zichuang;
 		if (zishu > 20) {
 			if (CS.DEBUG_CGCL) {
-				System.out.println("Æø¿éÌ«´ó£¬²»¿ÉÄÜÊÇµ¥É«Æø¿é¡£");
+				if(log.isDebugEnabled()) log.debug("æ°”å—å¤ªå¤§ï¼Œä¸å¯èƒ½æ˜¯å•è‰²æ°”å—ã€‚");
 			}
 			return 5;
 		}
 		for (j = 1; j <= zishu; j++) {
 			a = temp.a;
 			b = temp.b;
-			for (i = 0; i < 4; i++) { // Ö±½ÓµÄÆø£¬¶ø·ÇÌá×ÓÉú³ÉµÄÆø¡£
+			for (i = 0; i < 4; i++) { // ç›´æ¥çš„æ°”ï¼Œè€Œéæå­ç”Ÿæˆçš„æ°”ã€‚
 
 				m1 = (byte) (a + szld[i][0]);
 				n1 = (byte) (b + szld[i][1]);
 				if (zb[m1][n1][ZTXB] == BLACK) { // 2.1the breath of blank
-					// if(CS.DEBUG_CGCL) System.out.print("¼ÇÂ¼Ö±½ÓÆø£º");
+					// if(CS.DEBUG_CGCL) System.out.print("è®°å½•ç›´æ¥æ°”ï¼š");
 					if (yanse == 0) {
 						yanse = BLACK;
 					} else if (yanse == WHITE) {
-						return 5; // ÔÓÉ«¡£
+						return 5; // æ‚è‰²ã€‚
 					}
 
 				} else if (zb[m1][n1][ZTXB] == WHITE) { // 2.1the breath of
@@ -3257,7 +3261,7 @@ public class BoardLianShort implements Cloneable {
 					if (yanse == 0) {
 						yanse = WHITE;
 					} else if (yanse == BLACK) {
-						return 5; // ÔÓÉ«¡£
+						return 5; // æ‚è‰²ã€‚
 					}
 
 				}
@@ -3270,7 +3274,7 @@ public class BoardLianShort implements Cloneable {
 	}
 
 	public byte yisekuaizuixiaoqi(short kin) {
-		// ¼ÆËãÆå¿éÖÜÎ§ÒìÉ«Æå×Ó¿éµÄ×îĞ¡Æø¡£
+		// è®¡ç®—æ£‹å—å‘¨å›´å¼‚è‰²æ£‹å­å—çš„æœ€å°æ°”ã€‚
 		byte minqi = 127;
 		HaoNode1 linshi = zikuai[kin].zwyskhao;
 		byte i = 1;
@@ -3279,7 +3283,7 @@ public class BoardLianShort implements Cloneable {
 		for (; i <= zwyskshu; i++) {
 			if (linshi == null) {
 				if (CS.DEBUG_CGCL) {
-					System.out.print("¸Ã¿éµÄÖÜÎ§ÒìÉ«Æå¿éÁ´±íÓĞÎó¡£" + kin);
+					System.out.print("è¯¥å—çš„å‘¨å›´å¼‚è‰²æ£‹å—é“¾è¡¨æœ‰è¯¯ã€‚" + kin);
 				}
 				break;
 			}
@@ -3295,7 +3299,7 @@ public class BoardLianShort implements Cloneable {
 	}
 
 	public byte qikuaizuixiaoqi(byte kin) {
-		// ¼ÆËãÆø¿éÖÜÎ§Æå×Ó¿éµÄ×îĞ¡Æø¡£
+		// è®¡ç®—æ°”å—å‘¨å›´æ£‹å­å—çš„æœ€å°æ°”ã€‚
 		byte minqi = 127;
 		HaoNode1 linshi = qikuai[kin].zwzkhao;
 		byte i = 1;
@@ -3304,7 +3308,7 @@ public class BoardLianShort implements Cloneable {
 		for (; i <= zwzkshu; i++) {
 			if (linshi == null) {
 				if (CS.DEBUG_CGCL) {
-					System.out.print("¸Ã¿éµÄÖÜÎ§Æå¿éÁ´±íÓĞÎó¡£" + kin);
+					System.out.print("è¯¥å—çš„å‘¨å›´æ£‹å—é“¾è¡¨æœ‰è¯¯ã€‚" + kin);
 				}
 				break;
 			}
@@ -3319,7 +3323,7 @@ public class BoardLianShort implements Cloneable {
 		return minqi;
 	}
 
-	// Ìá³ö¿ØÖÆµãµÄ¸ÅÄî£º±ÈÈç»¢¿ÚÖ®Àà¡£ÊôÓÚÇ¿µÄ¿ØÖÆµã¡£¿ØÖÆµãÓĞÀûÓÚÊ¶±ğÑÛĞÍ¡£
+	// æå‡ºæ§åˆ¶ç‚¹çš„æ¦‚å¿µï¼šæ¯”å¦‚è™å£ä¹‹ç±»ã€‚å±äºå¼ºçš„æ§åˆ¶ç‚¹ã€‚æ§åˆ¶ç‚¹æœ‰åˆ©äºè¯†åˆ«çœ¼å‹ã€‚
 	public byte lianjiexing(short kin1, short kin2) {
 
 		return CS.WEIDINGLIANJIE;
@@ -3342,32 +3346,29 @@ public class BoardLianShort implements Cloneable {
 			a = jmin.readByte();
 			b = jmin.readByte();
 			color = jmin.readByte();
+			if (CS.DEBUG_CGCL) {
+				System.out.print("i=" + a);
+				System.out.print("j=" + b);
+				if(log.isDebugEnabled()) log.debug("color=" + color);
+			}
 			zb[a][b][ZTXB] = color;
 			if (a < 1 | a > 19 | b < 1 | b > 19 | color < 1 | color > 2) {
 				if (CS.DEBUG_CGCL) {
-					System.out.print("ÔØÈëµÄÊı¾İÓĞÎó£¡" + a);
+					System.out.print("è½½å…¥çš„æ•°æ®æœ‰è¯¯ï¼" + a);
 				}
-				if (CS.DEBUG_CGCL) {
-					System.out.print("i=" + a);
-				}
-				if (CS.DEBUG_CGCL) {
-					System.out.print("j=" + b);
-				}
-				if (CS.DEBUG_CGCL) {
-					System.out.println("color=" + color);
-				}
+				
 			}
 
 		}
 
 		if (CS.DEBUG_CGCL) {
-			System.out.print("ÔØÈë¾ÖÃæ");
+			System.out.print("è½½å…¥å±€é¢");
 
 		}
 	}
 
 	public boolean shifoukongzhidian(byte a, byte b) {
-		// µ÷ÓÃ·½±£Ö¤¸Ãµã¿Õ°×¡£
+		// è°ƒç”¨æ–¹ä¿è¯è¯¥ç‚¹ç©ºç™½ã€‚
 		if (jszq(a, b) == 1) {
 
 		} else {
@@ -3387,13 +3388,13 @@ public class BoardLianShort implements Cloneable {
 		}
 
 		for (i = 1; i <= qikuaishu; i++) {
-			// if(CS.DEBUG_CGCL) System.out.println("qikuai="+i);
+			// if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("qikuai="+i);
 			if (qikuai[i] != null) {
 				temp.qikuai[i] = (QiKuai1) qikuai[i].clone();
 			}
 		}
 		for (t = 1; t <= zikuaishu; t++) {
-			// if(CS.DEBUG_CGCL) System.out.println("zikuai="+t);
+			// if(CS.DEBUG_CGCL) if(log.isDebugEnabled()) log.debug("zikuai="+t);
 			if (temp.zikuai[t] != null) {
 				temp.zikuai[t] = (ZiKuai1) zikuai[t].clone();
 			}
@@ -3403,12 +3404,12 @@ public class BoardLianShort implements Cloneable {
 
 	}
 
-	// ÓĞÁ½¸ö×öÑÛµãµÄÊ¶±ğ¡£±ÈÈçÓĞÈı×ÓÆø¿é£¬ÓĞÁ½¸ö³ÉÆø¿éµã¡£
-	// µ«ÊÇ»¹ÒªÉæ¼°Ëù³ÉÆø¿éµÄÕæ¼Ù¡£
+	// æœ‰ä¸¤ä¸ªåšçœ¼ç‚¹çš„è¯†åˆ«ã€‚æ¯”å¦‚æœ‰ä¸‰å­æ°”å—ï¼Œæœ‰ä¸¤ä¸ªæˆæ°”å—ç‚¹ã€‚
+	// ä½†æ˜¯è¿˜è¦æ¶‰åŠæ‰€æˆæ°”å—çš„çœŸå‡ã€‚
 
 	/*
-	 * public void duishaxingjubu(ErJiKuai erjikuai){ //¶ÔÉ±ĞÍ¾Ö²¿µÄÈÏÊ¶¡£ //ÏàÁÚÆå¿éµÄÕûÌå,erji
-	 * //È·¶¨Ã¿Ò»¿éµÄĞÔÖÊ¡£ÆøÄÜ·ñ³¤£¿ byte []zikuai =new byte[]; for(byte i=0;i<erjikuai.){ }
+	 * public void duishaxingjubu(ErJiKuai erjikuai){ //å¯¹æ€å‹å±€éƒ¨çš„è®¤è¯†ã€‚ //ç›¸é‚»æ£‹å—çš„æ•´ä½“,erji
+	 * //ç¡®å®šæ¯ä¸€å—çš„æ€§è´¨ã€‚æ°”èƒ½å¦é•¿ï¼Ÿ byte []zikuai =new byte[]; for(byte i=0;i<erjikuai.){ }
 	 * }
 	 */
 	public void shuchujumian(DataOutputStream jmout) throws IOException {
@@ -3421,21 +3422,19 @@ public class BoardLianShort implements Cloneable {
 					jmout.writeByte((byte) zb[i][j][ZTXB]);
 					if (CS.DEBUG_CGCL) {
 						System.out.print("i=" + i);
-					}
-					if (CS.DEBUG_CGCL) {
-						System.out.println("j=" + j);
+						if(log.isDebugEnabled()) log.debug("j=" + j);
 					}
 				}
 			}
 		}
 		jmout.flush();
 		if (CS.DEBUG_CGCL) {
-			System.out.print("Êä³ö¾ÖÃæ");
+			System.out.print("è¾“å‡ºå±€é¢");
 
 		}
 	}
 
-	public byte chaiershu(byte a, byte b) {// ²ğ¶şÊı
+	public byte chaiershu(byte a, byte b) {// æ‹†äºŒæ•°
 		byte ershu = 0;
 		return ershu;
 	}

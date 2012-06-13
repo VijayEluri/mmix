@@ -5,50 +5,58 @@ import java.util.List;
 import eddie.wu.domain.Delta;
 
 /**
- * µ±Ë­ÏÈ×ßÒÑ¾­È·¶¨Ê±µÄËÀ»î½á¹û¡£
- * À©Õ¹ÎªÍ¨ÓÃµÄ½á¹û±í´ï. 
- * Relative means the result is localized, so the delta is relative to the point(minx, miny)
+ * å½“è°å…ˆèµ°å·²ç»ç¡®å®šæ—¶çš„æ­»æ´»ç»“æœã€‚ æ‰©å±•ä¸ºé€šç”¨çš„ç»“æœè¡¨è¾¾. ,<br/>
+ * Relative means the result is localized, so the delta is relative to the
+ * point(minx, miny)
+ * 
  * @author wueddie-wym-wrz
- *
+ * 
  */
-public class RelativeResult{	
+public class RelativeResult {
 	/**
-	 * ×ßfirstStep ´ïµ½½á¹ûscore
+	 * èµ°firstStep è¾¾åˆ°ç»“æœscore
 	 */
 	int score;
 	List<Delta> steps;
 	Delta firstStep;
-	//²»´æ´¢Æå×ÓÑÕÉ«£¬¶øÊÇÓÉÍâÃæÏÈºóÊÖÀ´¾ö¶¨¡£
-	//int color;
-	
-	
-	public RelativeResult(){}
-	public RelativeResult(int survive, Delta point){
+
+	// ä¸å­˜å‚¨æ£‹å­é¢œè‰²ï¼Œè€Œæ˜¯ç”±å¤–é¢å…ˆåæ‰‹æ¥å†³å®šã€‚
+	// int color;
+
+	public RelativeResult() {
+	}
+
+	public RelativeResult(int survive, Delta point) {
 		this.score = survive;
 		this.firstStep = point;
 		steps.add(point);
 	}
-
 
 	public int getSurvive() {
 		return score;
 	}
 
-
 	public void setSurvive(int survive) {
 		this.score = survive;
 	}
-
 
 	public Delta getPoint() {
 		return firstStep;
 	}
 
-
 	public void setPoint(Delta point) {
 		this.firstStep = point;
 		steps.add(point);
-	} 
-	
-//	public static 
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof RelativeResult){
+			RelativeResult rr = (RelativeResult)obj;
+			return this.score == rr.score;
+		}else return false;
+		
+	}
+
+	// public static
 }

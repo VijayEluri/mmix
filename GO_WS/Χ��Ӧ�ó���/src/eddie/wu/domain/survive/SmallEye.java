@@ -2,6 +2,7 @@ package eddie.wu.domain.survive;
 
 import java.util.List;
 
+import eddie.wu.domain.BlankBlock;
 import eddie.wu.domain.Block;
 import eddie.wu.domain.Delta;
 import eddie.wu.domain.Point;
@@ -10,68 +11,73 @@ import eddie.wu.domain.Shape;
 /**
  * basic function to store the knowledge about the basic of small eye from 2
  * Stones to 7 stones. <br/>
- * ´Ó¶ş×Óµ½Æß×ÓµÄ»ù±¾ËÀ»î½áÂÛ¡£
- * ¶şµ½ËÄ×ÓÒÑ¾­ÊÖ¹¤Íê³É¡£
+ * ä»äºŒå­åˆ°ä¸ƒå­çš„åŸºæœ¬æ­»æ´»ç»“è®ºã€‚ äºŒåˆ°å››å­å·²ç»æ‰‹å·¥å®Œæˆã€‚<br/>
+ * è¿˜è¦è€ƒè™‘å¤§çœ¼æœ‰ç¼ºé™·çš„æƒ…å†µï¼Œå‚è€ƒæœ‰ç¼ºé™·çš„æ›²å››å’Œæ¿å…­ã€‚æ—¢ç„¶æ˜¯å¤§çœ¼ï¼Œå½¢çŠ¶å·²å®šï¼Œä¸¤ä¸ªå˜åŒ–æ˜¯<br/>
+ * æ‰€å¤„çš„ä½ç½®ï¼Œè¾¹ä¸Šæˆ–è€…è§’ä¸Š<br/>
+ * æˆçœ¼æ£‹å—çš„å®Œæ•´æ€§ï¼Œæ˜¯ä¸€å—è¿˜æ˜¯å¤šå—ï¼Œæ¯å—çš„æ°”æ•°ã€‚<br/>
+ * ç»“æœåº”è¯¥æœ‰ä¸ªæœºåˆ¶æ¥å­˜å‚¨ï¼Œç›¸å½“äºçŸ¥è¯†çš„ç§¯ç´¯ï¼Œè€Œä¸ç”¨æ¯æ¬¡ä»å¤´è®¡ç®—ã€‚<br/>
+ * è®¾è®¡å¥½æŸ¥è¯¢æœºåˆ¶ï¼Œæ–¹ä¾¿ä½¿ç”¨ã€‚å¯ç”¨çš„æŸ¥è¯¢æ¡ä»¶ï¼šå¤§çœ¼å­æ•°ã€‚æ˜¯å¦åœ¨è¾¹è§’ï¼ˆæ‰€ç¼ºçš„è¾¹æ•°ã€‚ï¼‰
+ * 
  * @author wueddie-wym-wrz
  * 
  */
 public class SmallEye {
-	public static final String STRAIGHT_SIX_STONE_EYE = "Ö±Áù";
+	public static final String STRAIGHT_SIX_STONE_EYE = "ç›´å…­";
 
-	public static final String MATRIX_SIX_STONE_EYE = "°åÁù";
+	public static final String MATRIX_SIX_STONE_EYE = "æ¿å…­";
 
-	public static final String FLOWER_SIX_STONE_EYE = "Ã·»¨Áù";
+	public static final String FLOWER_SIX_STONE_EYE = "æ¢…èŠ±å…­";
 
-	public static final String RULER_FIVE_STONE_EYE = "Çú³ßÎå";
+	public static final String RULER_FIVE_STONE_EYE = "æ›²å°ºäº”";
 
-	public static final String Z_FIVE_STONE_EYE = "ÕÛÎå";
+	public static final String Z_FIVE_STONE_EYE = "æŠ˜äº”";
 
-	public static final String T_FIVE_STONE_EYE = "¶¡Îå";
+	public static final String T_FIVE_STONE_EYE = "ä¸äº”";
 
-	public static final String FLOWER_FIVE_STONE_EYE = "Ã·»¨Îå";
+	public static final String FLOWER_FIVE_STONE_EYE = "æ¢…èŠ±äº”";
 
-	public static final String TRAP_FIVE_STONE_EYE = "°¼Îå";
+	public static final String TRAP_FIVE_STONE_EYE = "å‡¹äº”";
 
-	public static final String KNIFE_HANDLER_FIVE_STONE_EYE = "µ¶°ÑÎå";
+	public static final String KNIFE_HANDLER_FIVE_STONE_EYE = "åˆ€æŠŠäº”";
 
-	public static final String STRAIGHT_FIVE_STONE_EYE = "Ö±Îå";
+	public static final String STRAIGHT_FIVE_STONE_EYE = "ç›´äº”";
 
-	public static final String RULER_FOUR_STONE_EYE = "ÇúËÄ";
+	public static final String RULER_FOUR_STONE_EYE = "æ›²å››";
 
-	public static final String Z_FOUR_STONE_EYE = "ÕÛËÄ";
+	public static final String Z_FOUR_STONE_EYE = "æŠ˜å››";
 
-	public static final String T_FOUR_STONE_EYE = "¶¡ËÄ";
+	public static final String T_FOUR_STONE_EYE = "ä¸å››";
 
-	public static final String RECTANGLT_FOUR_STONE_EYE = "·½ËÄ";
+	public static final String RECTANGLT_FOUR_STONE_EYE = "æ–¹å››";
 
-	public static final String STRAIGHT_FOUR_STONE_EYE = "Ö±ËÄ";
+	public static final String STRAIGHT_FOUR_STONE_EYE = "ç›´å››";
 
-	public static final String BEND_THREE_STONE_EYE = "ÇúÈı";
+	public static final String BEND_THREE_STONE_EYE = "æ›²ä¸‰";
 
-	public static final String STRAIGHT_THREE_STONE_EYE = "Ö±Èı";
+	public static final String STRAIGHT_THREE_STONE_EYE = "ç›´ä¸‰";
 
-	public static final String TWO_STONE_EYE = "Ö±¶ş";
+	public static final String TWO_STONE_EYE = "ç›´äºŒ";
 
-	public static final String SINGLE_STONE_EYE = "µ¥×ÓÑÛ";
-	Block block;
+	public static final String SINGLE_STONE_EYE = "å•å­çœ¼";
+	BlankBlock block;
 
 	/**
 	 * 
 	 * @param block
 	 *            Eye Block
 	 */
-	public SmallEye(Block block) {
+	public SmallEye(BlankBlock block) {
 		this.block = block;
 	}
 
 	/**
-	 * block ÖĞµÄÆøµã×ø±êÊÇ¾ßÌå¾ÖÃæÖĞµÄÊµ¼Ê×ø±ê£¬ÏÈ×ª»»³É¾Ö²¿µÄ×ø±ê£»µÃµ½½á¹ûÖ®ºó£¬ÔÙ×ª»»»ØÊµ¼ÊµÄ×ø±ê¡£
+	 * block ä¸­çš„æ°”ç‚¹åæ ‡æ˜¯å…·ä½“å±€é¢ä¸­çš„å®é™…åæ ‡ï¼Œå…ˆè½¬æ¢æˆå±€éƒ¨çš„åæ ‡ï¼›å¾—åˆ°ç»“æœä¹‹åï¼Œå†è½¬æ¢å›å®é™…çš„åæ ‡ã€‚
 	 * 
 	 * @return
 	 */
 
 	public RelativeSurviveResult getResult() {
-		int num = block.getTotalNumberOfPoint();
+		int num = block.getNumberOfPoint();
 		switch (num) {
 		case 2:
 			return getResult_TwoStones();
@@ -88,26 +94,26 @@ public class SmallEye {
 	}
 
 	/**
-	 * ½á¹ûÖ¸µÄÊÇÄ¿±ê¿éµÄËÀ»î¡£Çø·ÖÏÈºóÊÖ¡£
+	 * ç»“æœæŒ‡çš„æ˜¯ç›®æ ‡å—çš„æ­»æ´»ã€‚åŒºåˆ†å…ˆåæ‰‹ã€‚
 	 * 
 	 * @return
 	 */
 	private RelativeSurviveResult getResult_TwoStones() {
 		RelativeSurviveResult result = new RelativeSurviveResult();
-		// ÒÑËÀ£¬£¨¼º·½£©ÎŞ×Ó¿ÉÏÂ¡£
+		// å·²æ­»ï¼Œï¼ˆå·±æ–¹ï¼‰æ— å­å¯ä¸‹ã€‚
 		result.setXianShou(new RelativeResult(RelativeSurviveResult.DIE, null));
-		// ÒÑËÀ£¬£¨¶Ô·½£©²»ÓÃÏÂ¡£
+		// å·²æ­»ï¼Œï¼ˆå¯¹æ–¹ï¼‰ä¸ç”¨ä¸‹ã€‚
 		result.setHouShou(new RelativeResult(RelativeSurviveResult.DIE, null));
-		// ÏÈºóÊÖÃ»ÓĞÇø±ğ
+		// å…ˆåæ‰‹æ²¡æœ‰åŒºåˆ«
 		result.setIndependent(true);
-		// ÏÂ×ÓÊÇ·ñÓĞÓÃ£¬¼´ÊÇ·ñÓĞÏÈÊÖĞÔ£¬Èç¹ûÁ½¸ö½ÚµãÖ®¼äÃ»ÓĞÇø±ğ£¬Ôò¸Ã²½Ã»ÓĞÒâÒå£¬ÔòÀË·ÑÁËÒ»ÊÖÆå¡£
+		// ä¸‹å­æ˜¯å¦æœ‰ç”¨ï¼Œå³æ˜¯å¦æœ‰å…ˆæ‰‹æ€§ï¼Œå¦‚æœä¸¤ä¸ªèŠ‚ç‚¹ä¹‹é—´æ²¡æœ‰åŒºåˆ«ï¼Œåˆ™è¯¥æ­¥æ²¡æœ‰æ„ä¹‰ï¼Œåˆ™æµªè´¹äº†ä¸€æ‰‹æ£‹ã€‚
 		result.setWaste(true);
 		return result;
 	}
 
 	/**
 	 * need to category according to the shape! because the move to make the
-	 * eyes depending on the shape! brute force: ËÀ¼ÇÓ²±³¡£
+	 * eyes depending on the shape! brute force: æ­»è®°ç¡¬èƒŒã€‚
 	 * 
 	 * @return
 	 */
@@ -115,6 +121,7 @@ public class SmallEye {
 		RelativeSurviveResult result = new RelativeSurviveResult();
 		Shape shape = block.getShape();
 		Delta point = null;
+		int boardSize = block.getBehalfPoint().boardSize;
 		/**
 		 * 1*3 or 3*1 pattern.
 		 */
@@ -125,22 +132,30 @@ public class SmallEye {
 			point = Delta.getDelta(x, y);
 		} else {// 2*2 pattern.
 			/*
-			 * ÏÈÈ·¶¨·ÇÑÛ¿éÖ®µã£¬ÔÙÈ¡Æä¶Ô½Çµã¡£
+			 * å…ˆç¡®å®šéçœ¼å—ä¹‹ç‚¹ï¼Œå†å–å…¶å¯¹è§’ç‚¹ã€‚
 			 */
-			if (!block.getAllPoints().contains(
-					Point.getPoint(shape.getMinX(), shape.getMinY()))) {
+			if (!block.getPoints()
+					.contains(
+							Point.getPoint(boardSize, shape.getMinX(),
+									shape.getMinY()))) {
 				point = Delta.getDelta(shape.getMaxX(), shape.getMaxY());
 			}
-			if (!block.getAllPoints().contains(
-					Point.getPoint(shape.getMinX(), shape.getMaxY()))) {
+			if (!block.getPoints()
+					.contains(
+							Point.getPoint(boardSize, shape.getMinX(),
+									shape.getMaxY()))) {
 				point = Delta.getDelta(shape.getMaxX(), shape.getMinY());
 			}
-			if (!block.getAllPoints().contains(
-					Point.getPoint(shape.getMaxX(), shape.getMinY()))) {
+			if (!block.getPoints()
+					.contains(
+							Point.getPoint(boardSize, shape.getMaxX(),
+									shape.getMinY()))) {
 				point = Delta.getDelta(shape.getMinX(), shape.getMaxY());
 			}
-			if (!block.getAllPoints().contains(
-					Point.getPoint(shape.getMaxX(), shape.getMaxY()))) {
+			if (!block.getPoints()
+					.contains(
+							Point.getPoint(boardSize, shape.getMaxX(),
+									shape.getMaxY()))) {
 				point = Delta.getDelta(shape.getMinX(), shape.getMinY());
 			}
 
@@ -158,42 +173,49 @@ public class SmallEye {
 		Shape shape = block.getShape();
 		Point point = null;
 		if (shape.getMinDelta() == 1) {
-			result.setXianShou(new RelativeResult(RelativeSurviveResult.LIVE, null));
-			result.setHouShou(new RelativeResult(RelativeSurviveResult.LIVE, null));
+			result.setXianShou(new RelativeResult(RelativeSurviveResult.LIVE,
+					null));
+			result.setHouShou(new RelativeResult(RelativeSurviveResult.LIVE,
+					null));
 			result.setIndependent(true);
 		} else if (shape.getMinDelta() == 2) {
-			if (shape.getMaxDelta() == 2) {
-				result.setXianShou(new RelativeResult(RelativeSurviveResult.DIE, null));
-				result.setHouShou(new RelativeResult(RelativeSurviveResult.DIE, null));
+			if (shape.getMaxDelta() == 2) {// æ–¹å››
+				result.setXianShou(new RelativeResult(
+						RelativeSurviveResult.DIE, null));
+				result.setHouShou(new RelativeResult(RelativeSurviveResult.DIE,
+						null));
 				result.setIndependent(true);
 			} else if (shape.getMaxDelta() == 3) {
 				List<Point> corners = block.getShapeCorners(shape);
-				if(corners.size()==2){
-					if(corners.get(0).isSameline(corners.get(1))){//¶¡ËÄ
-						result.setXianShou(new RelativeResult(RelativeSurviveResult.LIVE, null));
-						result.setHouShou(new RelativeResult(RelativeSurviveResult.DIE, null));
+				if (corners.size() == 2) {
+					if (corners.get(0).isSameline(corners.get(1))) {// ä¸å››
+						result.setXianShou(new RelativeResult(
+								RelativeSurviveResult.LIVE, null));
+						result.setHouShou(new RelativeResult(
+								RelativeSurviveResult.DIE, null));
 						result.setIndependent(false);
-					}else{//ÕÛËÄ
-						result.setXianShou(new RelativeResult(RelativeSurviveResult.LIVE, null));
-						result.setHouShou(new RelativeResult(RelativeSurviveResult.LIVE, null));
+					} else {// æŠ˜å››
+						result.setXianShou(new RelativeResult(
+								RelativeSurviveResult.LIVE, null));
+						result.setHouShou(new RelativeResult(
+								RelativeSurviveResult.LIVE, null));
 						result.setIndependent(true);
 					}
-				} else{//==3Çú³ßËÄ
-					result.setXianShou(new RelativeResult(RelativeSurviveResult.LIVE, null));
-					result.setHouShou(new RelativeResult(RelativeSurviveResult.LIVE, null));
+				} else {// ==3æ›²å°ºå››
+					result.setXianShou(new RelativeResult(
+							RelativeSurviveResult.LIVE, null));
+					result.setHouShou(new RelativeResult(
+							RelativeSurviveResult.LIVE, null));
 					result.setIndependent(true);
 				}
 				/*
-				 * ==3 there are two pattern(¶¡ËÄºÍÕÛËÄ), they have different result. hard
-				 * coding is not a good solution.
-				 * Ä£Ê½Æ¥ÅäµÄ»°£¬¹Ø¼üÊÇÈçºÎ±í´ï¡£
+				 * ==3 there are two pattern(ä¸å››å’ŒæŠ˜å››), they have different result.
+				 * hard coding is not a good solution. æ¨¡å¼åŒ¹é…çš„è¯ï¼Œå…³é”®æ˜¯å¦‚ä½•è¡¨è¾¾ã€‚
 				 * 
-				 * µãÑÛÖ®ºóµÄ¶ÔÉ±ºÍÒ»°ãµÄ¶ÔÉ±²»Í¬£¬×öÑÛÒ»·½¼´Ê¹³Ôµ½ÁËµãÑÛÖ®×Ó£¬Ò²²»¿ÉÄÜºÍ¼º·½µÄÆäËû¿éÏàÁ¬¡£
-				 * ¶øÍ¨³£µÄ¶ÔÉ±£¬ÖÁÉÙÓĞËÄ¿éÆå²ÎÓë£¬Á½Á½½«¶Ô·½¸ô¿ª£¬ÈÎºÎÒ»¸ö¶ÔÉ±¿é±»³Ô£¬¶¼µ¼ÖÂÁíÒ»·½µÄÁ½¸ö
-				 * Æå¿éÁªÍ¨¡£Ò»°ãÇé¿öÏÂ£¬Á½¿éÏàÁ¬¶¼ÊÇ±äµÃÏàµ±Ç¿´ó£¬¾Ö²¿Ò²¾ÍÈ·¶¨ÁË½á¹û£¬¸æÒ»¶ÎÂä¡£¸ö±ğµÄÀı
-				 * Íâ¿ÉÄÜ°üÀ¨½Ó²»¹éµÈµÈ¡£
-				 * ËùÒÔµãÑÛÖ®ºóµÄ´¦Àí»¹ÒªÄÜ¼ÇÒäÕâÊÇÓÉ¡°µãÑÛ¡±Ñİ±ä¶øÀ´¡£µ±È»Ò²Òª¿¼ÂÇÄÜÊ¶±ğÄ³¸ö¾Ö²¿ÊÇÓĞµãÑÛ±ä
-				 * »¯À´µÄ¡£
+				 * ç‚¹çœ¼ä¹‹åçš„å¯¹æ€å’Œä¸€èˆ¬çš„å¯¹æ€ä¸åŒï¼Œåšçœ¼ä¸€æ–¹å³ä½¿åƒåˆ°äº†ç‚¹çœ¼ä¹‹å­ï¼Œä¹Ÿä¸å¯èƒ½å’Œå·±æ–¹çš„å…¶ä»–å—ç›¸è¿ã€‚
+				 * è€Œé€šå¸¸çš„å¯¹æ€ï¼Œè‡³å°‘æœ‰å››å—æ£‹å‚ä¸ï¼Œä¸¤ä¸¤å°†å¯¹æ–¹éš”å¼€ï¼Œä»»ä½•ä¸€ä¸ªå¯¹æ€å—è¢«åƒï¼Œéƒ½å¯¼è‡´å¦ä¸€æ–¹çš„ä¸¤ä¸ª
+				 * æ£‹å—è”é€šã€‚ä¸€èˆ¬æƒ…å†µä¸‹ï¼Œä¸¤å—ç›¸è¿éƒ½æ˜¯å˜å¾—ç›¸å½“å¼ºå¤§ï¼Œå±€éƒ¨ä¹Ÿå°±ç¡®å®šäº†ç»“æœï¼Œå‘Šä¸€æ®µè½ã€‚ä¸ªåˆ«çš„ä¾‹ å¤–å¯èƒ½åŒ…æ‹¬æ¥ä¸å½’ç­‰ç­‰ã€‚
+				 * æ‰€ä»¥ç‚¹çœ¼ä¹‹åçš„å¤„ç†è¿˜è¦èƒ½è®°å¿†è¿™æ˜¯ç”±â€œç‚¹çœ¼â€æ¼”å˜è€Œæ¥ã€‚å½“ç„¶ä¹Ÿè¦è€ƒè™‘èƒ½è¯†åˆ«æŸä¸ªå±€éƒ¨æ˜¯æœ‰ç‚¹çœ¼å˜ åŒ–æ¥çš„ã€‚
 				 */
 
 			}

@@ -3,7 +3,7 @@ package eddie.wu.domain;
 import java.util.Set;
 
 /**
- * ÃèÊöÒ»¿éÆåµÄÂÖÀªĞÎ×´£¬ËùÓĞµÄÆå×Ó¶¼ÔÚ£¨minX,minY£©µ½£¨maxX,maxY£©µÄ¾ØĞÎÄÚ¡£ ÕâÀïµÄX,Y·Ö±ğÖ¸ĞĞºÍÁĞ¡£
+ * æè¿°ä¸€å—æ£‹çš„è½®å»“å½¢çŠ¶ï¼Œæ‰€æœ‰çš„æ£‹å­éƒ½åœ¨ï¼ˆminX,minYï¼‰åˆ°ï¼ˆmaxX,maxYï¼‰çš„çŸ©å½¢å†…ã€‚ è¿™é‡Œçš„X,Yåˆ†åˆ«æŒ‡è¡Œå’Œåˆ—ã€‚
  * 
  * @author wueddie-wym-wrz
  * 
@@ -14,11 +14,10 @@ public class Shape {
 	private int maxX;
 	private int minY;
 	private int maxY;
-	
+
 	/**
-	 * normal shape, deltaX is less than or equal to deltaY.
-	 * landscape vs. portrait. 
-	 * return true when deltaX is bigger than deltaY.
+	 * normal shape, deltaX is less than or equal to deltaY. landscape vs.
+	 * portrait. return true when deltaX is bigger than deltaY.
 	 * 
 	 */
 	public boolean isLandscape() {
@@ -91,12 +90,14 @@ public class Shape {
 	}
 
 	/**
-	 * ¸ù¾İÒ»¿éÆåÖĞµÄËùÓĞµãÀ´ÅĞ¶ÏÆå¿éµÄĞÎ×´¡£
+	 * æ ¹æ®ä¸€å—æ£‹ä¸­çš„æ‰€æœ‰ç‚¹æ¥åˆ¤æ–­æ£‹å—çš„å½¢çŠ¶ã€‚
+	 * 
 	 * @param allPoints
 	 * @return
 	 */
 	public static Shape getShape(Set<Point> allPoints) {
-		int minX = 20, minY = 20, maxX = 0, maxY = 0;
+		Point temp = allPoints.iterator().next();
+		int minX = temp.boardSize + 1, minY = temp.boardSize + 1, maxX = 0, maxY = 0;
 		for (Point point : allPoints) {
 			if (point.getRow() < minX)
 				minX = point.getRow();
@@ -116,6 +117,18 @@ public class Shape {
 		shape.setMinY(minY);
 
 		return shape;
-		
+
 	}
+
+	/**
+	 * æ³¨æ„ç­‰å·åœ¨è¾¹è§’ä¸Šæˆç«‹ã€‚
+	 * @param shape
+	 * @return
+	 */
+	public boolean include(Shape shape) {
+		return this.minX <= shape.minX && this.minY <= shape.minY
+				&& this.maxX >= shape.maxX && this.maxY >= shape.maxY;
+	}
+
+	// public
 }

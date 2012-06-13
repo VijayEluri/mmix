@@ -1,75 +1,74 @@
 package eddie.wu.domain.survive;
 
-import eddie.wu.domain.BoardColorState;
-import eddie.wu.domain.Point;
-import eddie.wu.domain.survive.RelativeSurviveResult;
-import eddie.wu.domain.survive.SurviveResult;
-import eddie.wu.search.SurviveCalculate;
-import go.StateAnalysis;
 import junit.framework.TestCase;
+import eddie.wu.domain.BasicGoBoard;
+import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.Constant;
+import eddie.wu.domain.analy.StateAnalysis;
+import eddie.wu.search.SurviveCalculate;
 
 public class TestSurviveCalculate extends TestCase {
-	private String root = "doc/Î§Æå³ÌĞòÊı¾İ/´óÑÛ»ù±¾ËÀ»î/";
-	private String name1 = "Ö±Èı.wjm";
-	private String name2 = "·½ËÄ.wjm";
-	private String name3 = "óÒÃ±ËÄ.wjm";
-	private String name4 = "ÅÌ½ÇÇúËÄ.wjm";
-	private String name5 = "µ¶°ÑÎå.wjm";
-	private String name6 = "°åÁù_ÎŞÍâÆø.wjm";
-	private String name7 = "°åÁù_Ò»¿ÚÍâÆø.wjm";
-	private String name8 = "°åÁù_Á½¿ÚÍâÆø.wjm";
-
+	private String root = "doc/å›´æ£‹ç¨‹åºæ•°æ®/å¤§çœ¼åŸºæœ¬æ­»æ´»/";
+	private String name1 = "ç›´ä¸‰.wjm";
+	private String name2 = "æ–¹å››.wjm";
+	private String name3 = "ç¬ å¸½å››.wjm";
+	private String name4 = "ç›˜è§’æ›²å››.wjm";
+	private String name5 = "åˆ€æŠŠäº”.wjm";
+	private String name6 = "æ¿å…­_æ— å¤–æ°”.wjm";
+	private String name7 = "æ¿å…­_ä¸€å£å¤–æ°”.wjm";
+	private String name8 = "æ¿å…­_ä¸¤å£å¤–æ°”.wjm";
+	BasicGoBoard survive2 = new BasicGoBoard(Constant.BOARD_SIZE);
 	public void test() {
 		byte[][] state = StateAnalysis.LoadState(root + name1);
 		BoardColorState bcs = new BoardColorState(state);
 		SurviveCalculate survive = new SurviveCalculate();
 		SurviveResult result = survive.surviveCalculate(bcs,
-				Point.getPoint(3, 16));
+				survive2.getPoint(3, 16));
 		assertFalse(result.isIndependent());
 	}
 
 	/**
-	 * 0. ÆåĞÍµÄÃèÊö¡£ÓÒÏÂÎª±ß¡£<br/>
+	 * 0. æ£‹å‹çš„æè¿°ã€‚å³ä¸‹ä¸ºè¾¹ã€‚<br/>
 	 * WWWWWW<br/>
 	 * WBBBBB<br/>
 	 * wBB123<br/>
 	 * WBB456<br/>
-	 * °åÁùÃ»ÓĞÍâÆøµÄÇé¿ö£¬´ÓÆåÊÖµÄ¼ÆËãÀ´ËµÊÇ·Ç³£ÈİÒ×ºÍ¿ìËÙµÄ£¬µ«ÊÇ¶ÔÓÚ¼ÆËã»úÀ´Ëµ£¬¼ÆËã¹ı³ÌÒª ±¿ºÃ¶à¡£<br/>
-	 * ¶øÇÒ»¹ÒªÉæ¼°´ò½ÙµÄÖªÊ¶£¬±ÈÈç°×·½×ß3Î»¾Í³ÉÎª»ºÒ»Æø½Ù£¬¾¡¹Ü²»ÊÇÕı½â¡£<br/>
-	 * 1. ÒòÎªÃ»ÓĞÍâÆø£¬ºòÑ¡µã¾ÍÖ»ÓĞÁù¸ö¡£ÆåÊÖ¸ù¾İ»ıÀÛµÄ¾­Ñé£¬Ö»Òª¼ÆËãÖĞ¼äÁ½µã£¬ËùÎ½¡°×óÓÒÍ¬ĞÍ×ßÖĞÑë¡±
-	 * ÔÚ¼ÆËã»úÖĞ£¬ÎÒµÄÏë·¨ÊÇÒªÖĞ¼äÁ½µãÓĞ¸ü¸ßµÄÓÅÏÈ¼¶±»ËÑË÷£¬±ÈÈçËµ£¬ÖĞ¼äÁ½µã×ö»î·½ÏÈÏÂ¿ÉÒÔĞÎ³ÉÁ½¸ö»¢¿Ú£¬
-	 * ¶øÆäÓàËÄµãÖ»ÓĞÒ»¸ö»¢¿Ú£¬ÉõÖÁÃ»ÓĞ¡£ËùÒÔµãÉ±µÄÒ»·½ÓÅÏÈ¿¼ÂÇÕâÁ½µã¡£Õâ¸ö·½·¨ÖÁÉÙ¿ÉÒÔÊÊÓÃÓÚ´óÑÛËÀ»îµÄËÑË÷¡£<br/>
-	 * 2. ÕûÌåÉÏ¸Ğ¾õ£¬ÆåÊÖÕ÷¶Ô¾ßÌåµÄÇé¿ö£¬ÓĞºÜ¶àËÙËãµÄ·½·¨¡£¾ÍÏñÊıÑ§ÉÏµÄËÙËãÒ»Ñù£¬¶ø¼ÆËã»úºÜÄÑ×öµ½Õâµã¡£<br/>
-	 * 3. 2Î»µãºó£¬»¹ÓĞÎå¸öºòÑ¡µã£¬ÈçºÎµÃµ½ÓÅÏÈ¼¶¡£¸ù¾İĞÎ³ÉµÄ»¢¿ÚÊı¡£Í¬Ê±½ôÆøÓÅÏÈ£¬·Ç¹«ÆøÓÅÏÈ¡£
-	 * £¨µ«ÊÇ£¬¼ÆËã»úÈÔĞè¿¼ÂÇËùÓĞ¿ÉÄÜĞÔ£¬¾¡¹Ü¿´ÆğÀ´²»Ì«¿ÉÄÜ¡£Õâ¿ÉÄÜÊÇËÙ¶ÈÂıµÄÔ­Òò£¬»áµ¼ÖÂ¶îÍâµÄºÜ¶à¼ÆËãÁ¿£¬Ò²Ğí¿ÉÒÔÓĞ¸ö
-	 * ÏŞÖÆ£¬±ÈÈçÓÅÏÈ¼¶½ÏµÍµÄ¾Í²»ÔÚ¿¼ÂÇ¡££©
-	 * 4. 5Î»¼Ğºó£¬ËÄ¸öºòÑ¡µã£¬ÓĞÁ½¸öµã×Ô½ôÒ»Æø£¬»¹Ê£¶şÆø¡£ÁíÁ½¸öµãÎªÆËÈë¡£
-	 * 5. ÎªÁË¿ìËÙ¼ÆËã£¬±ØĞë½«Ò»Ğ©¼ÆËã½á¹û´¢´æÆğÀ´£¬±ÈÈçµ¶°ÑÎå¡£
+	 * æ¿å…­æ²¡æœ‰å¤–æ°”çš„æƒ…å†µï¼Œä»æ£‹æ‰‹çš„è®¡ç®—æ¥è¯´æ˜¯éå¸¸å®¹æ˜“å’Œå¿«é€Ÿçš„ï¼Œä½†æ˜¯å¯¹äºè®¡ç®—æœºæ¥è¯´ï¼Œè®¡ç®—è¿‡ç¨‹è¦ ç¬¨å¥½å¤šã€‚<br/>
+	 * è€Œä¸”è¿˜è¦æ¶‰åŠæ‰“åŠ«çš„çŸ¥è¯†ï¼Œæ¯”å¦‚ç™½æ–¹èµ°3ä½å°±æˆä¸ºç¼“ä¸€æ°”åŠ«ï¼Œå°½ç®¡ä¸æ˜¯æ­£è§£ã€‚<br/>
+	 * 1. å› ä¸ºæ²¡æœ‰å¤–æ°”ï¼Œå€™é€‰ç‚¹å°±åªæœ‰å…­ä¸ªã€‚æ£‹æ‰‹æ ¹æ®ç§¯ç´¯çš„ç»éªŒï¼Œåªè¦è®¡ç®—ä¸­é—´ä¸¤ç‚¹ï¼Œæ‰€è°“â€œå·¦å³åŒå‹èµ°ä¸­å¤®â€
+	 * åœ¨è®¡ç®—æœºä¸­ï¼Œæˆ‘çš„æƒ³æ³•æ˜¯è¦ä¸­é—´ä¸¤ç‚¹æœ‰æ›´é«˜çš„ä¼˜å…ˆçº§è¢«æœç´¢ï¼Œæ¯”å¦‚è¯´ï¼Œä¸­é—´ä¸¤ç‚¹åšæ´»æ–¹å…ˆä¸‹å¯ä»¥å½¢æˆä¸¤ä¸ªè™å£ï¼Œ
+	 * è€Œå…¶ä½™å››ç‚¹åªæœ‰ä¸€ä¸ªè™å£ï¼Œç”šè‡³æ²¡æœ‰ã€‚æ‰€ä»¥ç‚¹æ€çš„ä¸€æ–¹ä¼˜å…ˆè€ƒè™‘è¿™ä¸¤ç‚¹ã€‚è¿™ä¸ªæ–¹æ³•è‡³å°‘å¯ä»¥é€‚ç”¨äºå¤§çœ¼æ­»æ´»çš„æœç´¢ã€‚<br/>
+	 * 2. æ•´ä½“ä¸Šæ„Ÿè§‰ï¼Œæ£‹æ‰‹å¾å¯¹å…·ä½“çš„æƒ…å†µï¼Œæœ‰å¾ˆå¤šé€Ÿç®—çš„æ–¹æ³•ã€‚å°±åƒæ•°å­¦ä¸Šçš„é€Ÿç®—ä¸€æ ·ï¼Œè€Œè®¡ç®—æœºå¾ˆéš¾åšåˆ°è¿™ç‚¹ã€‚<br/>
+	 * 3. 2ä½ç‚¹åï¼Œè¿˜æœ‰äº”ä¸ªå€™é€‰ç‚¹ï¼Œå¦‚ä½•å¾—åˆ°ä¼˜å…ˆçº§ã€‚æ ¹æ®å½¢æˆçš„è™å£æ•°ã€‚åŒæ—¶ç´§æ°”ä¼˜å…ˆï¼Œéå…¬æ°”ä¼˜å…ˆã€‚
+	 * ï¼ˆä½†æ˜¯ï¼Œè®¡ç®—æœºä»éœ€è€ƒè™‘æ‰€æœ‰å¯èƒ½æ€§ï¼Œå°½ç®¡çœ‹èµ·æ¥ä¸å¤ªå¯èƒ½ã€‚è¿™å¯èƒ½æ˜¯é€Ÿåº¦æ…¢çš„åŸå› ï¼Œä¼šå¯¼è‡´é¢å¤–çš„å¾ˆå¤šè®¡ç®—é‡ï¼Œä¹Ÿè®¸å¯ä»¥æœ‰ä¸ª
+	 * é™åˆ¶ï¼Œæ¯”å¦‚ä¼˜å…ˆçº§è¾ƒä½çš„å°±ä¸åœ¨è€ƒè™‘ã€‚ï¼‰
+	 * 4. 5ä½å¤¹åï¼Œå››ä¸ªå€™é€‰ç‚¹ï¼Œæœ‰ä¸¤ä¸ªç‚¹è‡ªç´§ä¸€æ°”ï¼Œè¿˜å‰©äºŒæ°”ã€‚å¦ä¸¤ä¸ªç‚¹ä¸ºæ‰‘å…¥ã€‚
+	 * 5. ä¸ºäº†å¿«é€Ÿè®¡ç®—ï¼Œå¿…é¡»å°†ä¸€äº›è®¡ç®—ç»“æœå‚¨å­˜èµ·æ¥ï¼Œæ¯”å¦‚åˆ€æŠŠäº”ã€‚
 	 */
 	public void test6() {
 		byte[][] state = StateAnalysis.LoadState(root + name6);
 		BoardColorState bcs = new BoardColorState(state);
 		SurviveCalculate survive = new SurviveCalculate();
 		SurviveResult result = survive.surviveCalculate(bcs,
-				Point.getPoint(3, 17));
+				survive2.getPoint(3, 17));
 		assertFalse(result.isIndependent());
 	}
 	
 	/**
-	 * 0. ÆåĞÍµÄÃèÊö¡£ÓÒÏÂÎª±ß¡£<br/>
+	 * 0. æ£‹å‹çš„æè¿°ã€‚å³ä¸‹ä¸ºè¾¹ã€‚<br/>
 	 * WWWWWW<br/>
 	 * WBBBBB<br/>
 	 * W B123<br/>
 	 * WBB456<br/>
-	 * 1. Ç°Á½²¿µÄºòÑ¡µãÏàÍ¬¡£
-	 * 2. µÚËÄ²½ÆËÈë³É½Ù¡£µ±È»¶Ô·½Ìáºó²ÅÕæÕı¿ªÊ¼½ÙÕù¡£  
+	 * 1. å‰ä¸¤éƒ¨çš„å€™é€‰ç‚¹ç›¸åŒã€‚
+	 * 2. ç¬¬å››æ­¥æ‰‘å…¥æˆåŠ«ã€‚å½“ç„¶å¯¹æ–¹æåæ‰çœŸæ­£å¼€å§‹åŠ«äº‰ã€‚  
 	 */
 	public void test7() {
 		byte[][] state = StateAnalysis.LoadState(root + name7);
 		BoardColorState bcs = new BoardColorState(state);
 		SurviveCalculate survive = new SurviveCalculate();
 		SurviveResult result = survive.surviveCalculate(bcs,
-				Point.getPoint(3, 16));
+				survive2.getPoint(3, 16));
 		assertFalse(result.isIndependent());
 	}
 }

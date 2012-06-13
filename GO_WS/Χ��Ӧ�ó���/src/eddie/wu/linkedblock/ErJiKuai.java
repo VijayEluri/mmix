@@ -1,9 +1,9 @@
 package eddie.wu.linkedblock;
 
 public class ErJiKuai implements Cloneable{
-  HaoNode1 zikuaichuang;//ÓÉÔ­Ê¼Æå¿éºÅ×é³ÉµÄÁ´¡£
+  HaoNode1 zikuaichuang;//ç”±åŸå§‹æ£‹å—å·ç»„æˆçš„é“¾ã€‚
   byte zikuaishu;
-  //ÕâĞ©Ô­Ê¼Æå¿é»¥ÏàÁ¬½Ó£¬¹¹³ÉÕûÌåµ«ÊÇÓëÆäËüµÄ¿é²»ÏàÁ¬
+  //è¿™äº›åŸå§‹æ£‹å—äº’ç›¸è¿æ¥ï¼Œæ„æˆæ•´ä½“ä½†æ˜¯ä¸å…¶å®ƒçš„å—ä¸ç›¸è¿
   public void addkuaihao(short kin) {
     if (zikuaichuang == null) {
       zikuaichuang = new HaoNode1(kin);
@@ -16,10 +16,10 @@ public class ErJiKuai implements Cloneable{
          if(linshi.hao==kin) break;
          linshi=linshi.next ;
       }
-      if(i<=zikuaishu) return;//ÒÑ¾­ÓĞÕâ¸ö¿éºÅ¡£
+      if(i<=zikuaishu) return;//å·²ç»æœ‰è¿™ä¸ªå—å·ã€‚
       zikuaishu++;
       HaoNode1 temp = new HaoNode1(kin);
-      temp.next = zikuaichuang;//¿éºÅ¼ÓÔÚÇ°Í·¡£
+      temp.next = zikuaichuang;//å—å·åŠ åœ¨å‰å¤´ã€‚
       zikuaichuang = temp;
     }
 

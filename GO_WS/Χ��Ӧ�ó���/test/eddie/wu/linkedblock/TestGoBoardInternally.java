@@ -11,16 +11,20 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import eddie.wu.domain.BlankBlock;
+import eddie.wu.domain.Block;
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
+import eddie.wu.domain.Step;
 import eddie.wu.manual.GMDGoManual;
+import eddie.wu.manual.GoManual;
 import eddie.wu.manual.LoadGMDGoManual;
 
 /**
@@ -32,8 +36,8 @@ import eddie.wu.manual.LoadGMDGoManual;
  * 
  */
 public class TestGoBoardInternally extends TestCase {
-	Log log = LogFactory.getLog(TestGoBoardInternally.class);
-	private static final String rootDir = Constant.rootDir;// "doc/Î§Æå´òÆ×Èí¼þ/";
+	Logger log = Logger.getLogger(TestGoBoardInternally.class);
+	private static final String rootDir = Constant.rootDir;// "doc/å›´æ£‹æ‰“è°±è½¯ä»¶/";
 
 	public TestGoBoardInternally(String string) {
 		super(string);
@@ -72,14 +76,14 @@ public class TestGoBoardInternally extends TestCase {
 				log.debug("a=" + row);
 				log.debug("b=" + column);
 			}
-			goBoard.oneStepBackward(row, column);
+			goBoard.oneStepBackward(Point.getPoint(row, column));
 
 		}
 		if (log.isInfoEnabled()) {
 			log.info(goBoard.getBlock(1, 1));
-			Set<Point> originalB = goBoard.getBlock(1, 1).getAllPoints();
-			for (row = 1; row < Constant.ZBSX; row++) {
-				for (column = 1; column < Constant.ZBSX; column++) {
+			Set<Point> originalB = goBoard.getBlankBlock(1, 1).getPoints();
+			for (row = 1; row <= Constant.BOARD_SIZE; row++) {
+				for (column = 1; column <= Constant.BOARD_SIZE; column++) {
 					Point point = Point.getPoint(row, column);
 
 					if (originalB.contains(point) == false)
@@ -100,13 +104,13 @@ public class TestGoBoardInternally extends TestCase {
 			logger.setLevel(Level.INFO);
 		}
 		byte[] original = null;
-		original = new LoadGMDGoManual(rootDir).loadSingleGoManual();
-		helperTestMethod(original);
-		// helperTestMethod_CountTime(original);
+		GoManual riginal = new LoadGMDGoManual(rootDir).loadSingleGoManual();
+		// helperTestMethod(original);
+		helperTestMethod_CountTime(riginal);
 		log.debug("success of testForwardNextStepSingleGoManualInternally");
 	}
 
-	public void helperTestMethod_CountTime(byte[] original) {
+	public void helperTestMethod_CountTime(GoManual original) {
 		GoBoard goBoard = new GoBoard();
 		GoBoard goBoard2 = null;
 		BoardColorState boardState = null;
@@ -114,32 +118,30 @@ public class TestGoBoardInternally extends TestCase {
 
 		long oldTime = 0;
 		long newTime = 0;
-		log.debug("original.length=" + original.length);
-		for (int i = 0; i < original.length; i += 2) {
+		log.debug("original.length=" + original.getSteps().size());
+		for (Step step : original.getSteps()) {
 			if (log.isDebugEnabled()) {
-				log.debug("[a=" + original[i] + ",b=" + original[i + 1] + "]");
+				log.debug(step);
 			}
 		}
-		for (int i = 0; i < original.length; i += 2) {
-			log.debug("shoushu=" + (i + 3) / 2);
-			log.debug("a=" + original[i]);
-			log.debug("b=" + original[i + 1]);
-
+		int shoushu = 0;
+		for (Step step : original.getSteps()) {
+			shoushu++;
 			oldTime = System.nanoTime();
-			goBoard.oneStepForward(original[i], original[i + 1]);
+			goBoard.oneStepForward(step);
 			newTime = System.nanoTime();
 			log.error("forwardOneStep cost: " + (newTime - oldTime) + "ns");
 
 			boardState = goBoard.getBoardColorState();
 
 			oldTime = System.nanoTime();
-			goBoard2 = new GoBoard(boardState, (i + 3) / 2);
+			goBoard2 = new GoBoard(boardState, shoushu);
 			newTime = System.nanoTime();
 			log.error("new GoBoard(boardState) cost: " + (newTime - oldTime)
 					+ "ns");
 
 			oldTime = System.nanoTime();
-			goBoard2.generateHighLevelState();
+			// goBoard2.generateHighLevelState();
 			newTime = System.nanoTime();
 			log.error("goBoard2.generateHighLevelState() cost: "
 					+ (newTime - oldTime) + "ns");
@@ -152,13 +154,17 @@ public class TestGoBoardInternally extends TestCase {
 
 			log.debug("getBlackBlocksFromState:" + goBoard.getBlackBlocks());
 			log.debug("getBlackBlocksFromState:" + goBoard2.getBlackBlocks());
-			assertEquals("black block should equal!", goBoard.getBlackBlocks(),
-					goBoard2.getBlackBlocks());
-
-			log.debug("getWhiteBlocksFromState:" + goBoard.getWhiteBlocks());
-			log.debug("getWhiteBlocksFromState:" + goBoard2.getWhiteBlocks());
-			assertEquals("white block should equal!", goBoard.getWhiteBlocks(),
-					goBoard2.getWhiteBlocks());
+//			assertTrue(
+//					"black block should equal!",
+//					BlankBlock.equals(goBoard.getBlackBlocks(),
+//							goBoard2.getBlackBlocks()));
+//
+//			log.debug("getWhiteBlocksFromState:" + goBoard.getWhiteBlocks());
+//			log.debug("getWhiteBlocksFromState:" + goBoard2.getWhiteBlocks());
+//			assertTrue(
+//					"white block should equal!",
+//					Block.equals((goBoard.getWhiteBlocks(),
+//							goBoard2.getWhiteBlocks()));
 
 		}
 	}
@@ -191,7 +197,7 @@ public class TestGoBoardInternally extends TestCase {
 
 			boardState = goBoard.getBoardColorState();
 			goBoard2 = new GoBoard(boardState, (i + 3) / 2);
-			goBoard2.generateHighLevelState();
+			// goBoard2.generateHighLevelState();
 			boardState2 = goBoard2.getBoardColorState();
 
 			log.debug("boardState:" + boardState);
@@ -199,18 +205,31 @@ public class TestGoBoardInternally extends TestCase {
 			assertEquals("state should equal internally!", boardState,
 					goBoard2.getBoardColorState());
 
-			log.debug("getBlackBlocksFromState:" + goBoard.getBlackBlocks());
-			log.debug("getBlackBlocksFromState:" + goBoard2.getBlackBlocks());
-			assertEquals("black block should equal!", goBoard.getBlackBlocks(),
-					goBoard2.getBlackBlocks());
+			Set<Block> blackBlocks = goBoard.getBlackBlocks();
+			log.debug("getBlackBlocksFromState:" + blackBlocks);
+			Set<Block> blackBlocks2 = goBoard2.getBlackBlocks();
+			log.debug("getBlackBlocksFromState:" + blackBlocks2);
+			assertEquals("black block should equal!", blackBlocks, blackBlocks2);
 
-			log.debug("getWhiteBlocksFromState:" + goBoard.getWhiteBlocks());
-			log.debug("getWhiteBlocksFromState:" + goBoard2.getWhiteBlocks());
-			assertEquals("white block should equal!", goBoard.getWhiteBlocks(),
-					goBoard2.getWhiteBlocks());
+			Set<Block> whiteBlocks = goBoard.getWhiteBlocks();
+			log.debug("getWhiteBlocksFromState:" + whiteBlocks);
+			Set<Block> whiteBlocks2 = goBoard2.getWhiteBlocks();
+			log.debug("getWhiteBlocksFromState:" + whiteBlocks2);
+			assertEquals("white block should equal!", whiteBlocks, whiteBlocks2);
 
-			assertEquals("white block should equal!", goBoard.getBlankBlocks(),
-					goBoard2.getBlankBlocks());
+			Set<BlankBlock> blankBlocks = goBoard.getBlankBlocks();
+			log.debug("getBlankBlocksFromState:" + blankBlocks);
+			Set<BlankBlock> blankBlocks2 = goBoard2.getBlankBlocks();
+			log.debug("getBlankBlocksFromState:" + blankBlocks2);
+			if(log.isDebugEnabled()) log.debug("?"
+					+ blankBlocks.iterator().next()
+							.equals(blankBlocks2.iterator().next()));
+			boolean equals = blankBlocks.equals(blankBlocks2);
+			if(log.isDebugEnabled()) log.debug("?" + equals);
+			if(log.isDebugEnabled()) log.debug("blankBlocks2.size()=" + blankBlocks2.size());
+			if(log.isDebugEnabled()) log.debug("blankBlocks.size()=" + blankBlocks.size());
+			// TODO:
+			assertEquals("blank block should equal!", blankBlocks, blankBlocks2);
 
 		}
 
@@ -229,7 +248,13 @@ public class TestGoBoardInternally extends TestCase {
 			byte[] original = manual.getMoves();
 			log.debug("GOManual:" + count);
 			log.debug("GOManualLength:" + original.length);
-			this.helperTestMethod(original);
+			try {
+				this.helperTestMethod(original);
+			} catch (RuntimeException e) {
+				if(log.isDebugEnabled()) log.debug("GOManual:" + count);
+				if(log.isDebugEnabled()) log.debug("GOManualLength:" + original.length);
+				throw e;
+			}
 
 		}
 		log.debug("success of testForwardNextStepFirstLibGoManualInternally");
@@ -238,6 +263,8 @@ public class TestGoBoardInternally extends TestCase {
 	/**
 	 * test internally--is data structure consistent for first go manual. for
 	 * all Go Manuals
+	 * 
+	 * @deprecated external data is not valid any more.
 	 */
 	public void testForwardNextStep_ForAllGoManualInternally() {
 

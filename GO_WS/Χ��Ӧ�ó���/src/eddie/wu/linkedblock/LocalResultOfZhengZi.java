@@ -7,17 +7,17 @@ import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
 
 /**
- * ��Ե�ǰ����,�ܹ�����Ľ���Լ���ѡ��(��ζ�ŷ����Ʋ�����) ��������·����. ������ʤ��.
+ * 针对当前局势,能够算出的结果以及候选点(意味着分数善不明朗) 或者是无路可走. 或者是胜招.
  * 
  * @author eddie
  * 
  */
 public class LocalResultOfZhengZi {
 	/**
-	 * ��Controller����ʱ����ͳһ�Ʒַ�. ���۶���һ������.���������ֱ�ʾ�׷�ʤ��.������ MIN and Max.
-	 * ���������������ԼƷַ�.���ֱ�ʾ����ʤ��.Controller��Ҫ�Խ������ת��.<br/>
-	 * ��ʵֻҪController��Goboard�еļ���Է����ļ��⻥��Э���ͺ�.�������ʱ,self fail
-	 * ��ʾҪ����Ŀ�����, self success ��ʾҪ����Ŀ����.
+	 * 在Controller中暂时采用统一计分法. 不论对哪一方而言.都是用正分表示甲方胜利.所以是 MIN and Max.
+	 * 但是在这里采用相对计分法.正分表示本方胜利.Controller需要对结果进行转换.<br/>
+	 * 其实只要Controller和Goboard中的计算对分数的见解互相协调就好.死活计算时,self fail
+	 * 表示要做活的块死了, self success 表示要做活的块活了.
 	 */
 	private int score = 0;
 	/**
@@ -102,7 +102,7 @@ public class LocalResultOfZhengZi {
 	}
 
 	/**
-	 * һ������������������Ѿ�������
+	 * 一锤定音的情况。搜索已经结束。
 	 * @param temp
 	 * @param tempPoint
 	 */

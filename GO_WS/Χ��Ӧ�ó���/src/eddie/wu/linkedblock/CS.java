@@ -2,45 +2,45 @@ package eddie.wu.linkedblock;
 
 import eddie.wu.domain.Constant;
 
-//º¬ÒåÎªConStant¡£has been refactored to Constant.
+//å«ä¹‰ä¸ºConStantã€‚has been refactored to Constant.
 public class CS {
 
 	public static final byte BoardSize = 19;
 
-	public static final byte ZBSX = BoardSize + 1; // ÆåÅÌ×ø±êÉÏÏŞ£¨ÈËÔì±ß½ç£©;
-	public static final byte ZBXX = 0; // ÆåÅÌ×ø±êÏÂÏŞ£¨ÈËÔì±ß½ç£©;
+	public static final byte ZBSX = BoardSize + 1; // æ£‹ç›˜åæ ‡ä¸Šé™ï¼ˆäººé€ è¾¹ç•Œï¼‰;
+	public static final byte ZBXX = 0; // æ£‹ç›˜åæ ‡ä¸‹é™ï¼ˆäººé€ è¾¹ç•Œï¼‰;
 
 	public static final byte[][] szld = {
-			// ±éÀúËÄÖÜ£¨ºáÖáºÍ×İÖá£©ÁÚ×Óµã,Ë³Ğò¿Éµ÷.ÓÒ-ÏÂ-×ó-ÉÏ
+			// éå†å››å‘¨ï¼ˆæ¨ªè½´å’Œçºµè½´ï¼‰é‚»å­ç‚¹,é¡ºåºå¯è°ƒ.å³-ä¸‹-å·¦-ä¸Š
 			{ 1, 0 }, { 0, -1 }, { -1, 0 }, { 0, 1 } };
 	public static final byte[][] szdjd = {
-			// ±éÀúËÄÖÜ¶Ô½Çµã,Ë³Ğò¿Éµ÷.ÓÒ-ÏÂ-×ó-ÉÏ
+			// éå†å››å‘¨å¯¹è§’ç‚¹,é¡ºåºå¯è°ƒ.å³-ä¸‹-å·¦-ä¸Š
 			{ 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } };
-	public static final byte ZTXB = 0; // ÏÂ±ê0´æ´¢×´Ì¬Öµ£¨ÎŞ×Ó¡¢ºÚ×Ó¡¢°××Ó£©;
+	public static final byte ZTXB = 0; // ä¸‹æ ‡0å­˜å‚¨çŠ¶æ€å€¼ï¼ˆæ— å­ã€é»‘å­ã€ç™½å­ï¼‰;
 	public static final byte BLANK = Constant.BLANK;
-	public static final byte BLACK = Constant.BLACK; // 1±íÊ¾ºÚ×Ó;
-	public static final byte WHITE = Constant.WHITE; // 2±íÊ¾°××Ó;
+	public static final byte BLACK = Constant.BLACK; // 1è¡¨ç¤ºé»‘å­;
+	public static final byte WHITE = Constant.WHITE; // 2è¡¨ç¤ºç™½å­;
 
-	public static final byte SQBZXB = 1; // ÏÂ±ê1´æ´¢ËãÆø±êÖ¾;
-	public static final byte QSXB = 2; // ÏÂ±ê2´æ´¢ÆøÊı£¨µ¥×Ó»òÕßÆå¿éµÄÆøÊı£©;
-	public static final byte QKSYXB = 3; // ÏÂ±ê3´æ´¢Æø¿éË÷Òı£¨¿Õ°×µã¶øÑÔ£©
+	public static final byte SQBZXB = 1; // ä¸‹æ ‡1å­˜å‚¨ç®—æ°”æ ‡å¿—;
+	public static final byte QSXB = 2; // ä¸‹æ ‡2å­˜å‚¨æ°”æ•°ï¼ˆå•å­æˆ–è€…æ£‹å—çš„æ°”æ•°ï¼‰;
+	public static final byte QKSYXB = 3; // ä¸‹æ ‡3å­˜å‚¨æ°”å—ç´¢å¼•ï¼ˆç©ºç™½ç‚¹è€Œè¨€ï¼‰
 
-	// ÑÛÎ»Ïà¹ØµÄ²ÎÊı
-	// 1.ÑÛµÄÎ»ÖÃ¡£
+	// çœ¼ä½ç›¸å…³çš„å‚æ•°
+	// 1.çœ¼çš„ä½ç½®ã€‚
 	public static final byte BIANYAN = 2;
 	public static final byte JIAOYAN = 1;
 	public static final byte ZHONGFUYAN = 3;
-	// 2.ÑÛµÄĞÔÖÊ¡£
+	// 2.çœ¼çš„æ€§è´¨ã€‚
 	public static final byte JIAYAN = 1;
 	public static final byte WEIDINGYAN = 2;
 	public static final byte ZHENYAN = 3;
-	// 3.Á¬½ÓĞÔ¡£
+	// 3.è¿æ¥æ€§ã€‚
 	public static final byte WEILIANJIE = 1;
 	public static final byte KELIANJIE = 2;
 	public static final byte YILIANJIE = 3;
 	public static final byte WEIDINGLIANJIE = 4;
 
-	public static final boolean DEBUG_CGCL = true; // cgcl()·½·¨µ÷ÊÔ
+	public static final boolean DEBUG_CGCL = true; // cgcl()æ–¹æ³•è°ƒè¯•
 	// public static final boolean DEBUG_JISUANZHENGZI =false;
 	public static final boolean DEBUG_JISUANSIHUO = false;
 	public static final boolean DEBUG_KDQ = false;

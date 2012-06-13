@@ -1,30 +1,40 @@
 package eddie.wu.domain;
 
 import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
+
+import util.GBKToUTF8;
+import eddie.wu.domain.analy.FinalResult;
+import eddie.wu.domain.analy.TerritoryAnalysis;
 import eddie.wu.manual.GoManual;
 import eddie.wu.manual.SGFGoManual;
-import go.FinalResult;
-import go.TerritoryAnalysis;
+
 /**
- * RE : ¹²235ÊÖ ºÚÊ¤3Ä¿<br/>
+ * RE : å…±235æ‰‹ é»‘èƒœ3ç›®<br/>
  * FinalResult [black=120, white=132, shared=109, tiemu=8, whoWin=White, net=20]
+ * 
  * @author wueddie-wym-wrz
- *
+ * 
  */
 
 public class TestTerritoryAnalysis extends TestCase {
-	public void test() {
-		String fileName = Constant.rootDir + "ÎâÇåÔ´·¬Æå263¾Ö/ÎâÇåÔ´·¬Æå002.SGF";
+	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
 
-		GoManual manual = SGFGoManual.loadGoManual(fileName);
-		
+	public void test() {
+		// String fileName = Constant.rootDir + "å´æ¸…æºç•ªæ£‹263å±€/å´æ¸…æºç•ªæ£‹002.SGF";
+
+		GoManual manual = SGFGoManual.loadGoManual(Constant.currentManual);
+
 		GoBoard board = new GoBoard();
-		for(Point step: manual.getSteps()){
+		for (Step step : manual.getSteps()) {
 			board.oneStepForward(step);
 		}
-		TerritoryAnalysis analysis = new TerritoryAnalysis(board.getBoardColorState().getMatrixState());
+		TerritoryAnalysis analysis = new TerritoryAnalysis(board
+				.getBoardColorState().getMatrixState());
 		FinalResult result = analysis.finalResult();
-		System.out.println(result);
-		
+		if (log.isDebugEnabled())
+			log.debug(result);
+
 	}
 }

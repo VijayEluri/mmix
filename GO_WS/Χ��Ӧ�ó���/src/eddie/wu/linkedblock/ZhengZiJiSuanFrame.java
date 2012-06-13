@@ -19,373 +19,391 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-<<<<<<< HEAD
-import eddie.wu.domain.BoardPoint;
-=======
+import org.apache.log4j.Logger;
+
 import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.BoardPoint;
+import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
->>>>>>> 3d8aa49ce83f747c9170d697ba2d051c700809f6
 import eddie.wu.domain.Point;
 import eddie.wu.search.ZhengZiCalculate;
+
 /**
  * UI for GoBoard
  * 
- * ĞÂµÄÕ÷×ÓËã·¨ËÆºõÈÔÈ»Ã»ÓĞµ÷ÊÔ³É¹¦¡£
+ * æ–°çš„å¾å­ç®—æ³•ä¼¼ä¹ä»ç„¶æ²¡æœ‰è°ƒè¯•æˆåŠŸã€‚
+ * 
+ * 
  * @author eddie
- *
+ * 
  */
 public class ZhengZiJiSuanFrame extends Frame {
-
-    //private int id;
-    //GoBoardµÄÖ÷ÒªÈ±ÏİÊÇÆå¿éÊıÓĞÏŞÖÆ£¬Ö»ÓĞ128¿é¡£µ«ÊÇÓÃÓÚ¼ÆËãËÀ»îÌâ×ã¹»ÁË¡£
-    //Êı×éÆå¿éµÄºÃ´¦ÊÇÒ×ÓÚ¸´ÖÆÊı¾İ£»
-    ShortLianApplet1 goapplet = new ShortLianApplet1();
-
-    Button shuangfanglunxia = new Button("Ë«·½ÂÖÏÂ");
-
-    Button zhengzijisuan = new Button("Õ÷×Ó¼ÆËã");
-
-    Button zhengzijisuan2 = new Button("Õ÷×Ó¼ÆËãfor linked block");
-
-    //Button baocunqipu = new Button("±£´æÆåÆ×");
-    Button renjiduixia = new Button("ÈË»ú¶ÔÏÂ");
-
-    Button baichujumian = new Button("°Ú³ö¾ÖÃæ");
-
-    Button baocunjumian = new Button("±£´æ¾ÖÃæ");
-
-    Button zairujumian = new Button("ÔØÈë¾ÖÃæ");
-
-    Label zuobiao = new Label("ÊäÈë±»Õ÷×ÓÆå¿éµÄ×ø±êµã(X,YÆÁÄ»×ø±ê)");
-
-    TextField zuobiaoa = new TextField();
-
-    TextField zuobiaob = new TextField();
-
-    Label rowColumn = new Label("ÊäÈë±»Õ÷×ÓÆå¿éµÄ×ø±êµã(row,columnÆÁÄ»×ø±ê)");
-
-//    TextField row = new TextField();
-//
-//    TextField column = new TextField();
-
-    boolean SHUANGFANGLUNXIA = true;
-
-    boolean RENJIDUIXIA;
-
-    boolean BAICHUJUMIAN;
-
-    public ZhengZiJiSuanFrame() throws HeadlessException {
-        shuangfanglunxia.addActionListener(new LunxiaActionListener());
-        renjiduixia.addActionListener(new DuixiaActionListener());
-        baichujumian.addActionListener(new JumianActionListener());
-        zhengzijisuan.addActionListener(new ZhengziActionListener());
-        baocunjumian.addActionListener(new BaocunjumianActionListener(this));
-        zairujumian.addActionListener(new ZairujumianActionListener(this));
-        zhengzijisuan2.addActionListener(new ZhengziActionListener2());
-
-        add(goapplet);
-        add(shuangfanglunxia);
-        add(zhengzijisuan);
-        add(zhengzijisuan2);
-        add(renjiduixia);
-        add(baichujumian);
-        add(baocunjumian);
-        add(zairujumian);
-        add(zuobiao);
-        add(zuobiaoa);
-        add(zuobiaob);
-        //add
-        add(rowColumn);
-//        add(row);
-//        add(column);
-
-        goapplet.setVisible(true);
-        shuangfanglunxia.setVisible(true);
-        zhengzijisuan.setVisible(true);
-        renjiduixia.setVisible(true);
-        baichujumian.setVisible(true);
-        zairujumian.setVisible(true);
-        setLayout(null);
-        goapplet.setBounds(30, 30, 560, 560);
-        shuangfanglunxia.setBounds(600, 100, 100, 30);
-        renjiduixia.setBounds(600, 130, 100, 30);
-
-        baichujumian.setBounds(600, 160, 100, 30);
-        zairujumian.setBounds(700, 100, 100, 30);
-        zhengzijisuan.setBounds(700, 130, 100, 30);
-        zhengzijisuan2.setBounds(600, 320, 200, 30);
-        baocunjumian.setBounds(700, 160, 100, 30);
-        zuobiao.setBounds(600, 190, 200, 30);
-        zuobiaoa.setBounds(600, 220, 100, 30);
-        zuobiaob.setBounds(700, 220, 100, 30);
-        rowColumn.setBounds(600, 290, 200, 30);
-//        row.setBounds(600, 260, 100, 30);
-//        column.setBounds(700, 260, 100, 30);
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent event) {
-                dispose();
-                System.exit(0);
-            }
-
-        });
-    }
-
-    public boolean mouseDown(Event e, int x, int y) { //½ÓÊÜÊó±êÊäÈë
-        System.out.print("chuanbodaorongqi");
-        if (SHUANGFANGLUNXIA == true) {
-            byte a = (byte) ((x - 4) / 28 + 1); //Íê³ÉÊıÆøÌá×ÓµÈ.
-            byte b = (byte) ((y - 4) / 28 + 1);
-            goapplet.KEXIA = true;
-        }
-        if (RENJIDUIXIA == true) {
-            //zuochuyingdui
-        }
-        if (BAICHUJUMIAN == true) {
-            goapplet.goboard.qiquan();
-            goapplet.KEXIA = true;
-        }
-        return true;
-    }
-
-    public static void main(String[] args) {
-        ZhengZiJiSuanFrame weiqi = new ZhengZiJiSuanFrame();
-        weiqi.setBounds(0, 0, 800, 600);
-        weiqi.setVisible(true);
-    }
-
-    class LunxiaActionListener implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            //µã»÷ºóÖØĞÂ¿ª¾Ö¡£
-            goapplet.goboard = new BoardLianShort();
-            goapplet.KEXIA = true;
-
-            SHUANGFANGLUNXIA = true;
-            BAICHUJUMIAN = false;
-            RENJIDUIXIA = false;
-            System.out.println("SHUANGFANGLUNXIA=" + SHUANGFANGLUNXIA);
-        }
-
-    }
-
-    class ZairujumianActionListener implements ActionListener { //ÔØÈë¾ÖÃæ¡£
-        Frame parent;
-
-        public ZairujumianActionListener(Frame par) {
-            parent = par;
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            //ÔØÈë¾ÖÃæ
-            FileDialog fd = new FileDialog(parent, "ÔØÈë¾ÖÃæµÄÎ»ÖÃ", FileDialog.LOAD);
-            fd.setFile("1.wjm");
-            fd.setDirectory("doc/Õ÷×Ó¾ÖÃæ");
-            fd.show();
-
-            String inname = fd.getFile();
-            String dir = fd.getDirectory();
-
-            try {
-                DataInputStream in = new DataInputStream(
-                        new BufferedInputStream(new FileInputStream(dir
-                                + inname)));
-
-                goapplet.goboard.zairujumian(in);
-
-                in.close();
-            }
-
-            catch (IOException ex) {
-                System.out.println("the input meet some trouble!");
-                System.out.println("Exception" + ex.toString());
-            }
-            goapplet.goboard.shengchengjumian();
-            goapplet.goboard.output();
-            goapplet.repaint();
-
-            System.out.println("ÔØÈë¾ÖÃæ");
-
-        }
-    }
-
-    class ZhengziActionListener implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            //¼ÆËãËÀ»î
-            byte m1, n1;
-            byte[][] result;
-           try{
-            m1 = (byte) Integer.parseInt(zuobiaoa.getText());
-            n1 = (byte) Integer.parseInt(zuobiaob.getText());
-           }catch(Exception ee){
-               return;
-           }
-            result = goapplet.goboard.jiSuanZhengZi(m1, n1);
-            if (result[126][0] == 1) {
-                goapplet.goboard.qiquan();
-            }
-            for (byte i = 1; i <= result[0][1]; i++) {
-                goapplet.goboard.cgcl(result[i][0], result[i][1]);
-
-            }
-            goapplet.DONGHUA = true;
-            goapplet.repaint();
-           
-
-            //Ã¿²½10ÖÖ±ä»¯¼ÆËã£¬×î¶àËã10²½(Ö÷ÒªÊÇÄÚ´æÏŞÖÆ)¡£
-            //¼ÙÉèÆäÖĞÒ»·½Ã¿´Î¶¼ÄÜÏÈ¼ÆËãºÃµã¡£
-            //×ö»î·½ÄÜ×ö»îµÄ»°£¬Ö»ĞèÄÜÕÒµ½×î¼Ñ²½Öè¼´¿É¡£
-            //×ö»î·½²»ÄÜ×ö»î£¬±ØĞëÑéÖ¤ËùÓĞµã£¬°üÀ¨ÆúÈ¨²ÅÄÜÏÂ½áÂÛ
-            //¹¥»÷·½ÄÜÉ±Æå£¬Ö»ĞèÕı½â¼´¿É
-            //¹¥»÷·½²»ÄÜ³É¹¦£¬ĞèÒªÈ«²¿ÑéÖ¤¡£
-            System.out.println("Õ÷×Ó¼ÆËãµÄ½á¹ûÎª£º" + result[0][0]);
-        }
-
-    }
-
-    /**
-     * Action for linked block to calculate zhengzi.
-     * @author eddie
-     *
-     */
-    class ZhengziActionListener2 implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            //¼ÆËãËÀ»î
-            byte m1, n1;
-            byte[][] result;
-            if(zuobiaoa.getText().length()==0||
-            		zuobiaob.getText().length()==0){
-            	m1=16;
-            	n1=14;
-            }else{
-	            m1 = (byte) Integer.parseInt(zuobiaoa.getText());
-	            //m1= Integer.valueOf(zuobiaoa.getText()).byteValue();
-	            n1 = (byte) Integer.parseInt(zuobiaob.getText());
-            }
-            BoardPoint point=new BoardPoint(Point.getPoint(m1,n1));
-            if(!point.isValidCoordinate()){
-            	return;
-            	
-            }
-            else{
-            	m1=16;
-            	n1=14;
-            }
-            BoardColorState state=new BoardColorState(goapplet.goboard
-                    .getStateArray());
-            System.out.print("state"+state);
-            GoBoard linkedBlockGoBoard = new GoBoard(state);
-           
-            System.out.println("points"+Point.getPoint(16,14));
-            System.out.println("points"+Point.getPoint(16,13));
-            System.out.println("points"+Point.getPoint(16,15));
-            
-            
-            linkedBlockGoBoard.generateHighLevelState();
-            System.out.println("black Block"+linkedBlockGoBoard.getBlackBlocks());
-            System.out.println("white Block"+linkedBlockGoBoard.getWhiteBlocks());
-            //result = linkedBlockGoBoard.jiSuanZhengZi(m1, n1);
-            //result = linkedBlockGoBoard.jisuanzhengziWithClone(m1, n1);
-            
-            ZhengZiCalculate d=new ZhengZiCalculate();
-            Point[] points=d.jisuanzhengziWithClone( state
-                    ,Point.getPoint(m1,n1)) ;//(16,13)
-            goapplet.goboard.qiquan();
-            for(int j=0;j<points.length;j++){
-            	goapplet.goboard.cgcl(point.getRow(), point.getColumn());
-                System.out.println(points[j]);
-            }
-            goapplet.goboard.zhengzijieguo = ZhengZiCalculate.convertPointsToArray(points);
-//            if (result[126][0] == 1) {
-//                goapplet.goboard.qiquan();
-//            }
-//            for (byte i = 1; i <= result[0][1]; i++) {
-//                goapplet.goboard.cgcl(result[i][0], result[i][1]);
-//                System.out.println("£º" + result[i][1]);
-//                System.out.println("£º" + result[i][1]);
-//            }
-            goapplet.DONGHUA = true;
-            goapplet.repaint();            
-            System.out.println("Õ÷×Ó¼ÆËãµÄ½á¹ûÎª£º" + points[0]);
-        }
-
-    }
-
-    class DuixiaActionListener implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            goapplet.goboard = new BoardLianShort();
-            goapplet.KEXIA = true;
-            SHUANGFANGLUNXIA = false;
-            BAICHUJUMIAN = false;
-            RENJIDUIXIA = true;
-            System.out.println("RENJIDUIXIA=" + RENJIDUIXIA);
-
-        }
-
-    }
-
-    class JumianActionListener implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            if (BAICHUJUMIAN == true) {
-                goapplet.goboard.qiquan();
-            } else {
-                goapplet.goboard = new BoardLianShort();
-                goapplet.KEXIA = true;
-
-                SHUANGFANGLUNXIA = false;
-                BAICHUJUMIAN = true;
-                RENJIDUIXIA = false;
-            }
-
-            System.out.println("BAICHUJUMIAN=" + BAICHUJUMIAN);
-        }
-    }
-
-    class BaocunjumianActionListener implements ActionListener {
-        Frame parent;
-
-        public BaocunjumianActionListener(Frame par) {
-            parent = par;
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            if (true) { //±£´æ¾ÖÃæ
-                FileDialog fd = new FileDialog(parent, "±£´æ¾ÖÃæµÄÎ»ÖÃ",
-                        FileDialog.SAVE);
-                fd.setFile("1.wjm");
-                fd.setDirectory(".");
-                fd.show();
-
-                String outname = fd.getFile();
-                String dir = fd.getDirectory();
-                System.out.print(outname);
-                try {
-                    DataOutputStream out = new DataOutputStream(
-                            new BufferedOutputStream(new FileOutputStream(dir
-                                    + outname)));
-                    System.out.print(out);
-
-                    goapplet.goboard.shuchujumian(out);
-
-                }
-
-                catch (IOException ex) {
-                    System.out.println("the output meet some trouble!");
-                    System.out.println("Exception" + ex.toString());
-                }
-
-                System.out.println("±£´æ¾ÖÃæ");
-
-            } else { //±£´æÆåÆ×
-
-                System.out.println("±£´æÆåÆ×");
-
-            }
-
-        }
-    }
+	private static final Logger log = Logger
+			.getLogger(ZhengZiJiSuanFrame.class);
+	// private int id;
+	// GoBoardçš„ä¸»è¦ç¼ºé™·æ˜¯æ£‹å—æ•°æœ‰é™åˆ¶ï¼Œåªæœ‰128å—ã€‚ä½†æ˜¯ç”¨äºè®¡ç®—æ­»æ´»é¢˜è¶³å¤Ÿäº†ã€‚
+	// æ•°ç»„æ£‹å—çš„å¥½å¤„æ˜¯æ˜“äºå¤åˆ¶æ•°æ®ï¼›
+	ShortLianApplet1 goapplet = new ShortLianApplet1();
+
+	Button shuangfanglunxia = new Button("åŒæ–¹è½®ä¸‹");
+
+	Button zhengzijisuan = new Button("å¾å­è®¡ç®—");
+
+	Button zhengzijisuan2 = new Button("å¾å­è®¡ç®—for linked block");
+
+	// Button baocunqipu = new Button("ä¿å­˜æ£‹è°±");
+	Button renjiduixia = new Button("äººæœºå¯¹ä¸‹");
+
+	Button baichujumian = new Button("æ‘†å‡ºå±€é¢");
+
+	Button baocunjumian = new Button("ä¿å­˜å±€é¢");
+
+	Button zairujumian = new Button("è½½å…¥å±€é¢");
+
+	Label zuobiao = new Label("è¾“å…¥è¢«å¾å­æ£‹å—çš„åæ ‡ç‚¹(X,Yå±å¹•åæ ‡)");
+
+	TextField zuobiaoa = new TextField();
+
+	TextField zuobiaob = new TextField();
+
+	Label rowColumn = new Label("è¾“å…¥è¢«å¾å­æ£‹å—çš„åæ ‡ç‚¹(row,columnå±å¹•åæ ‡)");
+
+	// TextField row = new TextField();
+	//
+	// TextField column = new TextField();
+
+	boolean SHUANGFANGLUNXIA = true;
+
+	boolean RENJIDUIXIA;
+
+	boolean BAICHUJUMIAN;
+
+	public ZhengZiJiSuanFrame() throws HeadlessException {
+		shuangfanglunxia.addActionListener(new LunxiaActionListener());
+		renjiduixia.addActionListener(new DuixiaActionListener());
+		baichujumian.addActionListener(new JumianActionListener());
+		zhengzijisuan.addActionListener(new ZhengziActionListener());
+		baocunjumian.addActionListener(new BaocunjumianActionListener(this));
+		zairujumian.addActionListener(new ZairujumianActionListener(this));
+		zhengzijisuan2.addActionListener(new ZhengziActionListener2());
+
+		add(goapplet);
+		add(shuangfanglunxia);
+		add(zhengzijisuan);
+		add(zhengzijisuan2);
+		add(renjiduixia);
+		add(baichujumian);
+		add(baocunjumian);
+		add(zairujumian);
+		add(zuobiao);
+		add(zuobiaoa);
+		add(zuobiaob);
+		// add
+		add(rowColumn);
+		// add(row);
+		// add(column);
+
+		goapplet.setVisible(true);
+		shuangfanglunxia.setVisible(true);
+		zhengzijisuan.setVisible(true);
+		renjiduixia.setVisible(true);
+		baichujumian.setVisible(true);
+		zairujumian.setVisible(true);
+		setLayout(null);
+		goapplet.setBounds(30, 30, 560, 560);
+		shuangfanglunxia.setBounds(600, 100, 100, 30);
+		renjiduixia.setBounds(600, 130, 100, 30);
+
+		baichujumian.setBounds(600, 160, 100, 30);
+		zairujumian.setBounds(700, 100, 100, 30);
+		zhengzijisuan.setBounds(700, 130, 100, 30);
+		zhengzijisuan2.setBounds(600, 320, 200, 30);
+		baocunjumian.setBounds(700, 160, 100, 30);
+		zuobiao.setBounds(600, 190, 200, 30);
+		zuobiaoa.setBounds(600, 220, 100, 30);
+		zuobiaob.setBounds(700, 220, 100, 30);
+		rowColumn.setBounds(600, 290, 200, 30);
+		// row.setBounds(600, 260, 100, 30);
+		// column.setBounds(700, 260, 100, 30);
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent event) {
+				dispose();
+				System.exit(0);
+			}
+
+		});
+	}
+
+	public boolean mouseDown(Event e, int x, int y) { // æ¥å—é¼ æ ‡è¾“å…¥
+		System.out.print("chuanbodaorongqi");
+		if (SHUANGFANGLUNXIA == true) {
+			byte a = (byte) ((x - 4) / 28 + 1); // å®Œæˆæ•°æ°”æå­ç­‰.
+			byte b = (byte) ((y - 4) / 28 + 1);
+			goapplet.KEXIA = true;
+		}
+		if (RENJIDUIXIA == true) {
+			// zuochuyingdui
+		}
+		if (BAICHUJUMIAN == true) {
+			goapplet.goboard.qiquan();
+			goapplet.KEXIA = true;
+		}
+		return true;
+	}
+
+	public static void main(String[] args) {
+		ZhengZiJiSuanFrame weiqi = new ZhengZiJiSuanFrame();
+		weiqi.setBounds(0, 0, 800, 600);
+		weiqi.setVisible(true);
+	}
+
+	class LunxiaActionListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+			// ç‚¹å‡»åé‡æ–°å¼€å±€ã€‚
+			goapplet.goboard = new BoardLianShort();
+			goapplet.KEXIA = true;
+
+			SHUANGFANGLUNXIA = true;
+			BAICHUJUMIAN = false;
+			RENJIDUIXIA = false;
+			if (log.isDebugEnabled())
+				log.debug("SHUANGFANGLUNXIA=" + SHUANGFANGLUNXIA);
+		}
+
+	}
+
+	class ZairujumianActionListener implements ActionListener { // è½½å…¥å±€é¢ã€‚
+		Frame parent;
+
+		public ZairujumianActionListener(Frame par) {
+			parent = par;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			// è½½å…¥å±€é¢
+			FileDialog fd = new FileDialog(parent, "è½½å…¥å±€é¢çš„ä½ç½®", FileDialog.LOAD);
+			fd.setFile("1.wjm");
+			fd.setDirectory("doc/å¾å­å±€é¢");
+			fd.show();
+
+			String inname = fd.getFile();
+			String dir = fd.getDirectory();
+
+			try {
+				DataInputStream in = new DataInputStream(
+						new BufferedInputStream(new FileInputStream(dir
+								+ inname)));
+
+				goapplet.goboard.zairujumian(in);
+
+				in.close();
+			}
+
+			catch (IOException ex) {
+				if (log.isDebugEnabled())
+					log.debug("the input meet some trouble!");
+				if (log.isDebugEnabled())
+					log.debug("Exception" + ex.toString());
+			}
+			goapplet.goboard.shengchengjumian();
+			goapplet.goboard.output();
+			goapplet.repaint();
+
+			if (log.isDebugEnabled())
+				log.debug("è½½å…¥å±€é¢");
+
+		}
+	}
+
+	class ZhengziActionListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+			// è®¡ç®—æ­»æ´»
+			byte m1, n1;
+			byte[][] result;
+			try {
+				m1 = (byte) Integer.parseInt(zuobiaoa.getText());
+				n1 = (byte) Integer.parseInt(zuobiaob.getText());
+			} catch (Exception ee) {
+				return;
+			}
+			result = goapplet.goboard.jiSuanZhengZi(m1, n1);
+			if (result[126][0] == 1) {
+				goapplet.goboard.qiquan();
+			}
+			for (byte i = 1; i <= result[0][1]; i++) {
+				goapplet.goboard.cgcl(result[i][0], result[i][1]);
+
+			}
+			goapplet.DONGHUA = true;
+			goapplet.repaint();
+
+			// æ¯æ­¥10ç§å˜åŒ–è®¡ç®—ï¼Œæœ€å¤šç®—10æ­¥(ä¸»è¦æ˜¯å†…å­˜é™åˆ¶)ã€‚
+			// å‡è®¾å…¶ä¸­ä¸€æ–¹æ¯æ¬¡éƒ½èƒ½å…ˆè®¡ç®—å¥½ç‚¹ã€‚
+			// åšæ´»æ–¹èƒ½åšæ´»çš„è¯ï¼Œåªéœ€èƒ½æ‰¾åˆ°æœ€ä½³æ­¥éª¤å³å¯ã€‚
+			// åšæ´»æ–¹ä¸èƒ½åšæ´»ï¼Œå¿…é¡»éªŒè¯æ‰€æœ‰ç‚¹ï¼ŒåŒ…æ‹¬å¼ƒæƒæ‰èƒ½ä¸‹ç»“è®º
+			// æ”»å‡»æ–¹èƒ½æ€æ£‹ï¼Œåªéœ€æ­£è§£å³å¯
+			// æ”»å‡»æ–¹ä¸èƒ½æˆåŠŸï¼Œéœ€è¦å…¨éƒ¨éªŒè¯ã€‚
+			if (log.isDebugEnabled())
+				log.debug("å¾å­è®¡ç®—çš„ç»“æœä¸ºï¼š" + result[0][0]);
+		}
+
+	}
+
+	/**
+	 * Action for linked block to calculate zhengzi.
+	 * 
+	 * @author eddie
+	 * 
+	 */
+	class ZhengziActionListener2 implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+			// è®¡ç®—æ­»æ´»
+			int m1, n1;
+			byte[][] result;
+			if (zuobiaoa.getText().length() == 0
+					|| zuobiaob.getText().length() == 0) {
+				m1 = 16;
+				n1 = 14;
+			} else {
+				m1 = (byte) Integer.parseInt(zuobiaoa.getText());
+				// m1= Integer.valueOf(zuobiaoa.getText()).byteValue();
+				n1 = (byte) Integer.parseInt(zuobiaob.getText());
+			}
+			if (Point.isNotValid(Constant.BOARD_SIZE, m1, n1))
+				return;
+			BoardPoint point = new BoardPoint(Point.getPoint(
+					Constant.BOARD_SIZE, m1, n1));
+			// if(!point.isValidCoordinate()){
+			// return;
+			//
+			// }
+			// else{
+			// m1=16;
+			// n1=14;
+			// }
+			BoardColorState state = new BoardColorState(
+					goapplet.goboard.getStateArray());
+			System.out.print("state" + state);
+			GoBoard linkedBlockGoBoard = new GoBoard(state);
+
+			// linkedBlockGoBoard.generateHighLevelState();
+			if (log.isDebugEnabled())
+				log.debug("black Block" + linkedBlockGoBoard.getBlackBlocks());
+			if (log.isDebugEnabled())
+				log.debug("white Block" + linkedBlockGoBoard.getWhiteBlocks());
+			// result = linkedBlockGoBoard.jiSuanZhengZi(m1, n1);
+			// result = linkedBlockGoBoard.jisuanzhengziWithClone(m1, n1);
+
+			ZhengZiCalculate d = new ZhengZiCalculate();
+			Point[] points = d.jisuanzhengziWithClone(state,
+					Point.getPoint(Constant.BOARD_SIZE, m1, n1));// (16,13)
+			goapplet.goboard.qiquan();
+			for (int j = 0; j < points.length; j++) {
+				goapplet.goboard.cgcl(point.getRow(), point.getColumn());
+				if (log.isDebugEnabled())
+					log.debug(points[j]);
+			}
+			goapplet.goboard.zhengzijieguo = ZhengZiCalculate
+					.convertPointsToArray(points);
+			// if (result[126][0] == 1) {
+			// goapplet.goboard.qiquan();
+			// }
+			// for (byte i = 1; i <= result[0][1]; i++) {
+			// goapplet.goboard.cgcl(result[i][0], result[i][1]);
+			// if(log.isDebugEnabled()) log.debug("ï¼š" + result[i][1]);
+			// if(log.isDebugEnabled()) log.debug("ï¼š" + result[i][1]);
+			// }
+			goapplet.DONGHUA = true;
+			goapplet.repaint();
+			if (log.isDebugEnabled())
+				log.debug("å¾å­è®¡ç®—çš„ç»“æœçš„ç¬¬ä¸€æ­¥ä¸ºï¼š" + points[0]);
+		}
+
+	}
+
+	class DuixiaActionListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+			goapplet.goboard = new BoardLianShort();
+			goapplet.KEXIA = true;
+			SHUANGFANGLUNXIA = false;
+			BAICHUJUMIAN = false;
+			RENJIDUIXIA = true;
+			if (log.isDebugEnabled())
+				log.debug("RENJIDUIXIA=" + RENJIDUIXIA);
+
+		}
+
+	}
+
+	class JumianActionListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+			if (BAICHUJUMIAN == true) {
+				goapplet.goboard.qiquan();
+			} else {
+				goapplet.goboard = new BoardLianShort();
+				goapplet.KEXIA = true;
+
+				SHUANGFANGLUNXIA = false;
+				BAICHUJUMIAN = true;
+				RENJIDUIXIA = false;
+			}
+
+			if (log.isDebugEnabled())
+				log.debug("BAICHUJUMIAN=" + BAICHUJUMIAN);
+		}
+	}
+
+	class BaocunjumianActionListener implements ActionListener {
+		Frame parent;
+
+		public BaocunjumianActionListener(Frame par) {
+			parent = par;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			if (true) { // ä¿å­˜å±€é¢
+				FileDialog fd = new FileDialog(parent, "ä¿å­˜å±€é¢çš„ä½ç½®",
+						FileDialog.SAVE);
+				fd.setFile("1.wjm");
+				fd.setDirectory(".");
+				fd.show();
+
+				String outname = fd.getFile();
+				String dir = fd.getDirectory();
+				System.out.print(outname);
+				try {
+					DataOutputStream out = new DataOutputStream(
+							new BufferedOutputStream(new FileOutputStream(dir
+									+ outname)));
+					System.out.print(out);
+
+					goapplet.goboard.shuchujumian(out);
+
+				}
+
+				catch (IOException ex) {
+					if (log.isDebugEnabled())
+						log.debug("the output meet some trouble!");
+					if (log.isDebugEnabled())
+						log.debug("Exception" + ex.toString());
+				}
+
+				if (log.isDebugEnabled())
+					log.debug("ä¿å­˜å±€é¢");
+
+			} else { // ä¿å­˜æ£‹è°±
+
+				if (log.isDebugEnabled())
+					log.debug("ä¿å­˜æ£‹è°±");
+
+			}
+
+		}
+	}
 
 }

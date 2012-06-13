@@ -6,8 +6,12 @@
  */
 package eddie.wu.linkedblock;
 
-import eddie.wu.domain.Point;
 import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
+
+import util.GBKToUTF8;
+import eddie.wu.domain.Point;
 
 /**
  * @author eddie
@@ -16,16 +20,18 @@ import junit.framework.TestCase;
  *         Window - Preferences - Java - Code Style - Code Templates
  */
 public class TestPoint extends TestCase {
+	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
+	
+	
 	public final static void main(String[] args) {
-		System.out.println("test" + args[0]);
+		if(log.isDebugEnabled()) log.debug("test" + args[0]);
 	}
 
 	public void testPurePoint() {
-		Point a = Point.getPoint(4, 3);
-		a.setColumn((byte) 4);
-		a.setRow((byte) 3);
+		Point a = Point.getPoint(19,4, 3);
+	
 
-		Point b = Point.getPoint((short) 42);
+		Point b = Point.getPoint(19,(short) 42);
 		assertEquals(a.getRow(), b.getRow());
 		assertEquals(a.getColumn(), b.getColumn());
 		assertEquals(a.getOneDimensionCoordinate(),
@@ -104,7 +110,7 @@ public class TestPoint extends TestCase {
 		for (i = 1; i < 20; i++) {
 			for (j = 1; j < 20; j++) {
 				assertEquals(Point.getPoint(i, j), Point.getPoint(i, j));
-				System.out.println(Point.getPoint(i, j).toString()
+				if(log.isDebugEnabled()) log.debug(Point.getPoint(i, j).toString()
 						+ Point.getPoint(i, j).hashCode());
 			}
 		}

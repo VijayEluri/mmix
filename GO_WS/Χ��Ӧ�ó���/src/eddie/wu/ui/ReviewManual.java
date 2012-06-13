@@ -4,92 +4,125 @@ import java.awt.Button;
 import java.awt.Event;
 import java.awt.FileDialog;
 import java.awt.Frame;
+import java.awt.Label;
+import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
 
-import eddie.wu.domain.BoardColorState;
+import eddie.wu.api.GoBoardInterface;
+import eddie.wu.domain.Block;
+import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
 import eddie.wu.domain.UIPoint;
 import eddie.wu.manual.GoManual;
-import eddie.wu.manual.LoadGMDGoManual;
 import eddie.wu.manual.SGFGoManual;
 import eddie.wu.ui.canvas.ReviewManualCanvas;
 
 /**
- * ¼òµ¥µÄ´òÆ×¹¦ÄÜ£¬Ö»ÄÜÕ¹Ê¾ÏßĞÔµÄ³£¹æÆåÆ×£¬²»ÄÜÕ¹Ê¾±ä»¯£»±ä»¯Ò²Ğí¿ÉÒÔÔÚ×¢ÊÍÖĞÃèÊö¡£<br/>
- * button 1: Ç°½øÒ»²½¡£<br/>
- * button 2: ºóÍËÒ»²½¡£<br/>
- * Ä¬ÈÏÏÔÊ¾Êı×Ö<br/>
- * TODO£º×óÓÒ·½Ïò¼ü¿ÉÒÔºóÍËºÍÇ°½ø¡££¨Èç¹û²»Ï²»¶Êó±ê²Ù×÷µÄ»°£¬¿ÉÒÔ·ÅËÉÒ»ÏÂ£© 2011.10.6 play game<br/>
- * ÎâÈğÔóÏëÑ§Ï°±à³Ì£¬Ïë±à¸öÊÀ½çÉÏ×îÎ°´óµÄ·ßÅ­Ğ¡Äñ¡£ ºÃºÃÑ§Ï°£¬ÌìÌìÏòÉÏ¡£
+ * ç®€å•çš„æ‰“è°±åŠŸèƒ½ï¼Œåªèƒ½å±•ç¤ºçº¿æ€§çš„å¸¸è§„æ£‹è°±ï¼Œä¸èƒ½å±•ç¤ºå˜åŒ–ï¼›å˜åŒ–ä¹Ÿè®¸å¯ä»¥åœ¨æ³¨é‡Šä¸­æè¿°ã€‚<br/>
+ * button 1: å‰è¿›ä¸€æ­¥ã€‚<br/>
+ * button 2: åé€€ä¸€æ­¥ã€‚<br/>
+ * é»˜è®¤æ˜¾ç¤ºæ•°å­—<br/>
+ * TODOï¼šå·¦å³æ–¹å‘é”®å¯ä»¥åé€€å’Œå‰è¿›ã€‚ï¼ˆå¦‚æœä¸å–œæ¬¢é¼ æ ‡æ“ä½œçš„è¯ï¼Œå¯ä»¥æ”¾æ¾ä¸€ä¸‹ï¼‰ 2011.10.6 play game<br/>
+ * å´ç‘æ³½æƒ³å­¦ä¹ ç¼–ç¨‹ï¼Œæƒ³ç¼–ä¸ªä¸–ç•Œä¸Šæœ€ä¼Ÿå¤§çš„æ„¤æ€’å°é¸Ÿã€‚ å¥½å¥½å­¦ä¹ ï¼Œå¤©å¤©å‘ä¸Šã€‚ <br/>
+ * change 1: display real number instead of always starting from 1 in each page.
+ * change 2:
  * 
  * @author wueddie-wym-wrz
  * 
  */
 public class ReviewManual extends Frame {
-	private static String rootDir = Constant.rootDir; // "doc/Î§Æå´òÆ×Èí¼ş/";
-	private static final Log log = LogFactory.getLog(ReviewManual.class);
+	private static final Logger log = Logger.getLogger(ReviewManual.class);
 
-	/*
+	/**
 	 * domain object.
 	 */
-	private GoBoard go = new GoBoard();
+	private GoBoardInterface go;
+	// private GoBoardInterface go = new ArrayGoBoard();
+
 	private List<UIPoint> points = new ArrayList<UIPoint>();
-	private List<Step> steps = new ArrayList<Step>();
+
+	private GoManual manual;
 	private int moves = 0;//
 	private int startMove = 0;//
-
+	/**
+	 * æ¯ä¸€è°±çš„èµ·å§‹æ‰‹æ•°.
+	 */
 	private List<Integer> sectionStart = new ArrayList<Integer>();
-	/*
+
+	public void init() {
+		moves = 0;
+		startMove = 0;
+		sectionStart.clear();
+	}
+
+	/**
 	 * UI elements
 	 */
-	private ReviewManualCanvas embedCanvas = new ReviewManualCanvas();
-	private Button load = new Button("ÔØÈëÆåÆ×");//
-	private Button forward = new Button("ÏÂÒ»²½");// Ç°½ø
-	private Button backward = new Button("ÉÏÒ»²½");// ºóÍË
+	private ReviewManualCanvas embedCanvas = new ReviewManualCanvas(Constant.BOARD_SIZE);
+	private Button load = new Button("è½½å…¥æ£‹è°±");
+	private Button forward = new Button("ä¸‹ä¸€æ­¥");
+	private Button backward = new Button("ä¸Šä¸€æ­¥");
 	/**
-	 * ¸ü¼ÓÈËĞÔ»¯µÄÏÔÊ¾·½Ê½£¬×Ô¶¯ÒÔÌá×ÓÎª·Ö¸î£¬Ò»´ÎÏÔÊ¾Èô¸ÉÊÖÊı¡£ Ã¿´Î²»³¬¹ı100ÊÖ£¬ÕâÑùÊı×Ö²»»á³¬¹ıÁ½Î»¡£
+	 * æ›´åŠ äººæ€§åŒ–çš„æ˜¾ç¤ºæ–¹å¼ï¼Œè‡ªåŠ¨ä»¥æå­ä¸ºåˆ†å‰²ï¼Œä¸€æ¬¡æ˜¾ç¤ºè‹¥å¹²æ‰‹æ•°ã€‚<br/>
+	 * æ¯æ¬¡ä¸è¶…è¿‡100æ‰‹ï¼Œè¿™æ ·æ•°å­—ä¸ä¼šè¶…è¿‡ä¸¤ä½ã€‚
 	 */
-	Button forwardManual = new Button("ÏÂÒ»Æ×");// Ç°½ø
-	Button backwardManual = new Button("ÉÏÒ»Æ×");// ºóÍË
+	Button forwardManual = new Button("ä¸‹ä¸€è°±");
+	Button backwardManual = new Button("ä¸Šä¸€è°±");
+
+	/**
+	 * æ˜¾ç¤ºå¯¹å±€ä¿¡æ¯
+	 */
+	Label blackPlayer = new Label("é»‘æ–¹");
+	Label whitePlayer = new Label("ç™½æ–¹");
+	Label result = new Label("ç»“æœ");
+	Label shoushu = new Label("æ‰‹æ•°");
+
+	TextField blackPlayerV = new TextField();
+	TextField whitePlayerV = new TextField();
+	TextField resultV = new TextField();
+	TextField shoushuV = new TextField();
 
 	public static void main(String[] args) {
-		if (args.length > 1) {
-			rootDir = args[1];
-		}
-		byte[] stepArray = new LoadGMDGoManual(rootDir).loadSingleGoManual();
-		List<Step> steps = new ArrayList<Step>();
-		int color = 0;
-		for (int i = 0; i < stepArray.length / 2; i++) {
-			if (i % 2 == 0) {
-				color = Constant.BLACK;
-			} else {
-				color = Constant.WHITE;
-			}
-			Step step = new Step();
-			step.setColor(color);
-			step.setPoint(Point
-					.getPoint(stepArray[2 * i], stepArray[2 * i + 1]));
-			steps.add(step);
-		}
+		// if (args.length > 1) {
+		// rootDir = args[1];
+		// }
+		// GMDGoManual manual = new
+		// LoadGMDGoManual(rootDir).loadSingleGoManual();
+		String fileName = Constant.rootDir + "å´æ¸…æºç•ªæ£‹263å±€/å´æ¸…æºç•ªæ£‹001.SGF";
 
-		ReviewManual weiqi = new ReviewManual(steps);
+		ReviewManual weiqi = new ReviewManual();
 		weiqi.setVisible(true);
 		weiqi.setBounds(0, 0, 800, 600);
+		weiqi.manual = SGFGoManual.loadGoManual(fileName);
+
+		weiqi.blackPlayerV.setText(weiqi.manual.getBlackName());
+		weiqi.whitePlayerV.setText(weiqi.manual.getWhiteName());
+		weiqi.resultV.setText(weiqi.manual.getResult());
+		weiqi.shoushuV.setText(weiqi.manual.getShouShu()+"");
+
+		weiqi.go = new GoBoard(weiqi.manual.getInitSate());
+
+		int count = 0;
+		List<Step> steps = weiqi.manual.getSteps();
+		for (Step step : steps) {
+			count++;
+			if (count >= 163)
+				break;
+			weiqi.go.oneStepForward(step);
+		}
 
 	}
 
@@ -100,8 +133,7 @@ public class ReviewManual extends Frame {
 	 * @param steps
 	 *            the history of steps
 	 */
-	public ReviewManual(List<Step> steps) {
-		this.steps = steps;
+	public ReviewManual() {
 
 		embedCanvas.setPoints(points);
 		embedCanvas.setVisible(true);
@@ -112,6 +144,14 @@ public class ReviewManual extends Frame {
 		add(backward);
 		add(forwardManual);
 		add(backwardManual);
+		add(blackPlayer);
+		add(whitePlayer);
+		add(result);
+		add(shoushu);
+		add(blackPlayerV);
+		add(whitePlayerV);
+		add(resultV);
+		add(shoushuV);
 		load.addActionListener(new LoadActionListener());
 		forward.addActionListener(new ForwardActionListener());
 		backward.addActionListener(new BackwardActionListener());
@@ -122,7 +162,21 @@ public class ReviewManual extends Frame {
 		backward.setVisible(true);
 		forwardManual.setVisible(true);
 		backwardManual.setVisible(true);
+		blackPlayer.setVisible(true);
+		whitePlayer.setVisible(true);
+		result.setVisible(true);
+		blackPlayerV.setVisible(true);
+		whitePlayerV.setVisible(true);
+		resultV.setVisible(true);
+		shoushu.setVisible(true);
+		shoushuV.setVisible(true);
+
 		backwardManual.setEnabled(false);
+		blackPlayerV.setEditable(false);
+		whitePlayerV.setEditable(false);
+		resultV.setEditable(false);
+		shoushuV.setEditable(false);
+		
 		backward.setEnabled(false);
 		setLayout(null);
 
@@ -132,6 +186,19 @@ public class ReviewManual extends Frame {
 		backward.setBounds(600, 160, 100, 30);
 		forwardManual.setBounds(600, 220, 100, 30);
 		backwardManual.setBounds(600, 280, 100, 30);
+
+		blackPlayer.setBounds(600, 360, 40, 20);
+		blackPlayerV.setBounds(645, 360, 100, 20);
+
+		whitePlayer.setBounds(600, 390, 40, 20);
+		whitePlayerV.setBounds(645, 390, 100, 20);
+
+		result.setBounds(600, 420, 40, 20);
+		resultV.setBounds(645, 420, 100, 20);
+		
+		shoushu.setBounds(600, 450, 40, 20);
+		shoushuV.setBounds(645, 450, 100, 20);
+
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent event) {
 				dispose();
@@ -141,16 +208,16 @@ public class ReviewManual extends Frame {
 		});
 	}
 
-	public boolean mouseDown(Event e, int x, int y) { // ½ÓÊÜÊó±êÊäÈë
+	public boolean mouseDown(Event e, int x, int y) { // æ¥å—é¼ æ ‡è¾“å…¥
 		if (log.isDebugEnabled()) {
 			log.debug("chuan bo dao rong qi - forward one step.");
 		}
 		x -= 30;
 		y -= 30;
 
-		byte a = (byte) ((x - 4) / 28 + 1);// Íê³ÉÊıÆøÌá×ÓµÈ.
+		byte a = (byte) ((x - 4) / 28 + 1);// å®Œæˆæ•°æ°”æå­ç­‰.
 		byte b = (byte) ((y - 4) / 28 + 1);
-		System.out.println("weiqiFrame de mousedown");
+		if(log.isDebugEnabled()) log.debug("weiqiFrame de mousedown");
 		// coordinate difference between matrix and plane.
 
 		repaint();
@@ -158,8 +225,69 @@ public class ReviewManual extends Frame {
 		return true;
 	}
 
+	void populateUIPoints_oneStep() {
+		UIPoint uPoint;
+		byte[][] matrixState = go.getMatrixState();
+		int color;
+		List<Step> steps = manual.getSteps();
+		for (int i = 0; i < moves; i++) {
+			Step step = steps.get(i);
+			color = matrixState[step.getPoint().getRow()][step.getPoint()
+					.getColumn()];
+			// å¦‚æœè¿™ä¸€æ­¥ï¼ˆç‚¹ï¼‰æ²¡æœ‰è¢«æåƒçš„è¯ã€‚
+			if (color == Constant.BLACK || color == Constant.WHITE) {
+				uPoint = new UIPoint();
+				uPoint.setColor(step.getColor());
+				uPoint.setMoveNumber(i + 1);
+				uPoint.setPoint(step.getPoint());
+				points.add(uPoint);
+			} else {
+				// TODO: better way to display eaten point.
+			}
+		}
+
+		handlehandicap();
+
+	}
+
+	void handlehandicap() {
+		// handle the handicap
+		int color;
+		UIPoint uPoint;
+		byte[][] matrixState = go.getMatrixState();
+		for (Point black : manual.getInitBlacks()) {
+			color = matrixState[black.getRow()][black.getColumn()];
+			// å¦‚æœè¿™ä¸€æ­¥ï¼ˆç‚¹ï¼‰æ²¡æœ‰è¢«æåƒçš„è¯ã€‚
+			if (color == Constant.BLACK) {
+				uPoint = new UIPoint();
+				uPoint.setColor(ColorUtil.BLACK);
+				uPoint.setMoveNumber(0);
+				uPoint.setPoint(black);
+				points.add(uPoint);
+			}
+		}
+
+		for (Point white : manual.getInitWhites()) {
+			color = matrixState[white.getRow()][white.getColumn()];
+			// å¦‚æœè¿™ä¸€æ­¥ï¼ˆç‚¹ï¼‰æ²¡æœ‰è¢«æåƒçš„è¯ã€‚
+			if (color == Constant.WHITE) {
+				uPoint = new UIPoint();
+				uPoint.setColor(ColorUtil.WHITE);
+				uPoint.setMoveNumber(0);
+				uPoint.setPoint(white);
+				points.add(uPoint);
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @author Eddie
+	 * 
+	 */
 	class ForwardActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			List<Step> steps = manual.getSteps();
 			backward.setEnabled(true);
 			points.clear();
 			Step step = steps.get(moves++);
@@ -167,25 +295,7 @@ public class ReviewManual extends Frame {
 			if (moves == steps.size()) {
 				forward.setEnabled(false);
 			}
-
-			UIPoint uPoint;
-			byte[][] matrixState = go.getBoardColorState().getMatrixState();
-			int color;
-			for (int i = 0; i < moves; i++) {
-				step = steps.get(i);
-				color = matrixState[step.getPoint().getRow()][step.getPoint()
-						.getColumn()];
-				// Èç¹ûÕâÒ»²½£¨µã£©Ã»ÓĞ±»Ìá³ÔµÄ»°¡£
-				if (color == Constant.BLACK || color == Constant.WHITE) {
-					uPoint = new UIPoint();
-					uPoint.setColor(step.getColor());
-					uPoint.setMoveNumber(i + 1);
-					uPoint.setPoint(step.getPoint());
-					points.add(uPoint);
-				} else {
-					// TODO: better way to display eaten point.
-				}
-			}
+			populateUIPoints_oneStep();
 			repaint();
 			embedCanvas.repaint();
 		}
@@ -193,78 +303,188 @@ public class ReviewManual extends Frame {
 
 	class BackwardActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			List<Step> steps = manual.getSteps();
 			forward.setEnabled(true);
 			points.clear();
 			Step step = steps.get(--moves);
-			go.oneStepBackward(step.getPoint());
+			go.oneStepBackward();
 			if (moves == 0) {
 				backward.setEnabled(false);
 			}
 
-			UIPoint uPoint;
-			byte[][] matrixState = go.getBoardColorState().getMatrixState();
-			int color;
-			for (int i = 0; i < moves; i++) {
-				step = steps.get(i);
-				color = matrixState[step.getPoint().getRow()][step.getPoint()
-						.getColumn()];
-				if (color == Constant.BLACK || color == Constant.WHITE) {
-					uPoint = new UIPoint();
-					uPoint.setColor(step.getColor());
-					uPoint.setMoveNumber(i + 1);
-					uPoint.setPoint(step.getPoint());
-					points.add(uPoint);
-				}
-			}
+			populateUIPoints_oneStep();
+
 			repaint();
 			embedCanvas.repaint();
 
 		}
 	}
 
+	void populateUIPoints_multistep(Set<Point> eatenPoints) {
+		UIPoint uPoint;
+		byte[][] matrixState = go.getMatrixState();
+		int color;
+		int eatenColor;
+		List<Step> steps = manual.getSteps();
+		for (int i = 0; i < moves; i++) {
+			Step step = steps.get(i);
+			color = matrixState[step.getPoint().getRow()][step.getPoint()
+					.getColumn()];
+			// å¦‚æœè¿™ä¸€æ­¥ï¼ˆç‚¹ï¼‰æ²¡æœ‰è¢«æåƒçš„è¯ã€‚(æ˜¾ç¤ºå…¶åˆ°ç›®å‰ä¸ºæ­¢æœ€ç»ˆçš„é¢œè‰²)
+			if (color == Constant.BLACK || color == Constant.WHITE) {
+				uPoint = new UIPoint();
+				uPoint.setColor(step.getColor());
+				// å‰è°±çš„æ£‹å­ä¸å†æ˜¾ç¤ºæ•°å­—
+				if (i >= startMove) {
+					// uPoint.setMoveNumber(i + 1 - startMove);
+					uPoint.setMoveNumber(i + 1);
+				}
+				uPoint.setPoint(step.getPoint());
+				points.add(uPoint);
+			} else if (eatenPoints.contains(step.getPoint())) {// å¦‚æœè¿‡ç¨‹ä¸­æœ‰æå­çš„è¯,æå­éœ€è¦ç‰¹åˆ«æ˜¾ç¤º.
+				// åœ¨å½“å‰è°±è¢«æåƒ.
+				uPoint = new UIPoint();
+				uPoint.setColor(step.getColor());
+				// å‰è°±çš„æ£‹å­ä¸å†æ˜¾ç¤ºæ•°å­—
+				if (i >= startMove) {
+					// uPoint.setMoveNumber(i + 1 - startMove);
+					uPoint.setMoveNumber(i + 1);
+				}
+				uPoint.setPoint(step.getPoint());
+				uPoint.setEaten(true);
+				points.add(uPoint);
+			}
+		}
+		handlehandicap();
+	}
+
+	/**
+	 * // å‰è¿›åˆ°æœ‰æå­çš„æƒ…å†µå‡ºç°ã€‚ å®éªŒå¦ä¸€ç§ç­–ç•¥. å‰è¿›åˆ°è½å­äºè¢«æå­å—çš„å±€é¢.
+	 * 
+	 * @author Eddie
+	 * 
+	 */
 	class ForwardManualActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			List<Step> steps = manual.getSteps();
 			points.clear();
 			Step step;
-			// Ç°½øµ½ÓĞÌá×ÓµÄÇé¿ö³öÏÖ¡£
+
 			int count = 1;
 			startMove = moves;
 			sectionStart.add(moves);
 			backwardManual.setEnabled(true);
+			Set<Block> eatenBlocks = null;
+			Set<Point> eatenPoints = new HashSet<Point>();
+
+			while (moves < steps.size()
+					&& count < Constant.MAX_STEPS_IN_ONE_MANUAL_SHOW) {
+				step = steps.get(moves++);
+				if (eatenPoints.isEmpty() == false
+						&& eatenPoints.contains(step.getPoint())) {
+					moves--;
+					break;
+				}
+				go.oneStepForward(step);
+				count++;
+				// eatenBlocks = go.getStepHistory().getStep(moves - 1)
+				// .getEatenBlocks();
+				// if (eatenBlocks.isEmpty() == false) {
+				// for (Block eatenBlock : eatenBlocks) {
+				// eatenPoints.addAll(eatenBlock.getAllPoints());
+				// }
+				// }
+				Set<Point> eatenPoints2 = go.getEatenPoints();
+				if (eatenPoints2 != null)
+					eatenPoints.addAll(eatenPoints2);
+
+			}
+			if (moves == steps.size()) {
+				forwardManual.setEnabled(false);
+				forward.setEnabled(false);
+			}
+
+			populateUIPoints_multistep(eatenPoints);
+
+			repaint();
+			embedCanvas.repaint();
+		}
+	}
+
+	/**
+	 * @deprecated
+	 * @author Eddie
+	 * 
+	 */
+	class ForwardManualActionListener2 implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			List<Step> steps = manual.getSteps();
+			points.clear();
+			Step step;
+
+			int count = 1;
+			startMove = moves;
+			sectionStart.add(moves);
+			backwardManual.setEnabled(true);
+			Set<Block> eatenBlocks = null;
 			while (moves < steps.size()
 					&& count < Constant.MAX_STEPS_IN_ONE_MANUAL_SHOW) {
 				step = steps.get(moves++);
 				go.oneStepForward(step);
 				count++;
-				if (go.getStepHistory().getStep(moves - 1).getEatenBlocks()
-						.isEmpty() == false) {
+				// eatenBlocks = go.getStepHistory().getStep(moves - 1)
+				// .getEatenBlocks();
+				// if (eatenBlocks.isEmpty() == false) {
+				// break;
+				// }
+				if (go.getEatenPoints() != null)
 					break;
-				}
 			}
 			if (moves == steps.size()) {
 				forwardManual.setEnabled(false);
+				forward.setEnabled(false);
 			}
 			UIPoint uPoint;
-			byte[][] matrixState = go.getBoardColorState().getMatrixState();
+			byte[][] matrixState = go.getMatrixState();
 			int color;
+			int eatenColor;
 
-			for (int i = 0; i < moves; i++) {
-				step = steps.get(i);
-				color = matrixState[step.getPoint().getRow()][step.getPoint()
-						.getColumn()];
-				// Èç¹ûÕâÒ»²½£¨µã£©Ã»ÓĞ±»Ìá³ÔµÄ»°¡£
-				if (color == Constant.BLACK || color == Constant.WHITE) {
-					uPoint = new UIPoint();
-					uPoint.setColor(step.getColor());
-					// Ç°Æ×µÄÆå×Ó²»ÔÙÏÔÊ¾Êı×Ö
-					if (i >= startMove) {
-						uPoint.setMoveNumber(i + 1 - startMove);
-					}
-					uPoint.setPoint(step.getPoint());
-					points.add(uPoint);
-				}
+			// å¦‚æœæœ€åä¸€æ­¥æœ‰æå­çš„è¯,æå­éœ€è¦ç‰¹åˆ«æ˜¾ç¤º.
+			Set<Point> eatenPoints = new HashSet<Point>();
+			for (Block eatenBlock : eatenBlocks) {
+				eatenPoints.addAll(eatenBlock.getPoints());
+				eatenColor = eatenBlock.getColor();
 			}
-
+			// for (int i = 0; i < moves; i++) {
+			// step = steps.get(i);
+			// color = matrixState[step.getPoint().getRow()][step.getPoint()
+			// .getColumn()];
+			// // å¦‚æœè¿™ä¸€æ­¥ï¼ˆç‚¹ï¼‰æ²¡æœ‰è¢«æåƒçš„è¯ã€‚
+			// if (color == Constant.BLACK || color == Constant.WHITE) {
+			// uPoint = new UIPoint();
+			// uPoint.setColor(step.getColor());
+			// // å‰è°±çš„æ£‹å­ä¸å†æ˜¾ç¤ºæ•°å­—
+			// if (i >= startMove) {
+			// // uPoint.setMoveNumber(i + 1 - startMove);
+			// uPoint.setMoveNumber(i + 1);
+			// }
+			// uPoint.setPoint(step.getPoint());
+			// points.add(uPoint);
+			// } else if (eatenPoints.contains(step.getPoint())) {
+			// // åœ¨å½“å‰è°±è¢«æåƒ.
+			// uPoint = new UIPoint();
+			// uPoint.setColor(step.getColor());
+			// // å‰è°±çš„æ£‹å­ä¸å†æ˜¾ç¤ºæ•°å­—
+			// if (i >= startMove) {
+			// // uPoint.setMoveNumber(i + 1 - startMove);
+			// uPoint.setMoveNumber(i + 1);
+			// }
+			// uPoint.setPoint(step.getPoint());
+			// uPoint.setEaten(true);
+			// points.add(uPoint);
+			// }
+			// }
+			populateUIPoints_multistep(eatenPoints);
 			repaint();
 			embedCanvas.repaint();
 		}
@@ -278,10 +498,12 @@ public class ReviewManual extends Frame {
 	 */
 	class BackwardManualActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			List<Step> steps = manual.getSteps();
 			points.clear();
 			forwardManual.setEnabled(true);
+			forward.setEnabled(true);
 			Step step;
-			// ºóÍËµ½ÉÏÒ»Æ×¡£
+			// åé€€åˆ°ä¸Šä¸€è°±ã€‚
 			int count = 1;
 			startMove = sectionStart.remove(sectionStart.size() - 1);
 			if (sectionStart.isEmpty()) {
@@ -290,25 +512,25 @@ public class ReviewManual extends Frame {
 			int endMove = moves;// inclusive
 			while (moves > startMove) {
 				step = steps.get(--moves);
-				go.oneStepBackward(step.getPoint());
+				go.oneStepBackward();
 				count++;
 			}
 			if (log.isInfoEnabled())
 				log.info("back ward " + count + "steps.");
 
 			UIPoint uPoint;
-			byte[][] matrixState = go.getBoardColorState().getMatrixState();
+			byte[][] matrixState = go.getMatrixState();
 			int color;
 
 			for (int i = 0; i < endMove; i++) {
 				step = steps.get(i);
 				color = matrixState[step.getPoint().getRow()][step.getPoint()
 						.getColumn()];
-				// Èç¹ûÕâÒ»²½£¨µã£©Ã»ÓĞ±»Ìá³ÔµÄ»°¡£
+				// å¦‚æœè¿™ä¸€æ­¥ï¼ˆç‚¹ï¼‰æ²¡æœ‰è¢«æåƒçš„è¯ã€‚
 				if (color == Constant.BLACK || color == Constant.WHITE) {
 					uPoint = new UIPoint();
 					uPoint.setColor(step.getColor());
-					// Ç°Æ×µÄÆå×Ó²»ÔÙÏÔÊ¾Êı×Ö
+					// å‰è°±çš„æ£‹å­ä¸å†æ˜¾ç¤ºæ•°å­—
 					if (i >= startMove) {
 						uPoint.setMoveNumber(i + 1 - startMove);
 					}
@@ -324,11 +546,17 @@ public class ReviewManual extends Frame {
 
 	private Frame parent = this;
 
+	/**
+	 * è½½å…¥æ£‹è°±
+	 * 
+	 * @author Eddie
+	 * 
+	 */
 	class LoadActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 
-			// ÔØÈë¾ÖÃæ
-			FileDialog fd = new FileDialog(parent, "ÔØÈë¾ÖÃæµÄÎ»ÖÃ", FileDialog.LOAD);
+			// è½½å…¥å±€é¢
+			FileDialog fd = new FileDialog(parent, "è½½å…¥å±€é¢çš„ä½ç½®", FileDialog.LOAD);
 			fd.setFile("1.wjm");
 			fd.setDirectory(Constant.rootDir);
 			fd.show();
@@ -337,21 +565,31 @@ public class ReviewManual extends Frame {
 			String dir = fd.getDirectory();
 			if (inname == null || inname.isEmpty())
 				return;
-			GoManual manual = SGFGoManual.loadGoManual(dir + inname);
-			steps.clear();
-			int color = Constant.BLACK;
-			for (Point point : manual.getSteps()) {
-				Step step = new Step();
-				step.setColor(color);
-				if (color == Constant.BLACK)
-					color = Constant.WHITE;
-				else if (color == Constant.WHITE)
-					color = Constant.BLACK;
-				step.setPoint(point);
-				steps.add(step);
-			}
+			manual = SGFGoManual.loadGoManual(dir + inname);
+			go = new GoBoard(manual.getInitSate());
+			init();
+			blackPlayerV.setText(manual.getBlackName());
+			whitePlayerV.setText(manual.getWhiteName());
+			resultV.setText(manual.getResult());
+			shoushuV.setText(manual.getShouShu()+"");
+			
 
-			log.debug("ÔØÈë¾ÖÃæ");
+			// go = new
+			// GoBoard256(manual.getInitBlacks(),manual.getInitWhites());
+			// steps.clear();
+			// int color = Constant.BLACK;
+			// for (Point point : manual.getSteps()) {
+			// Step step = new Step();
+			// step.setColor(color);
+			// if (color == Constant.BLACK)
+			// color = Constant.WHITE;
+			// else if (color == Constant.WHITE)
+			// color = Constant.BLACK;
+			// step.setPoint(point);
+			// steps.add(step);
+			// }
+
+			log.debug("è½½å…¥å±€é¢");
 			repaint();
 
 		}

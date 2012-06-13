@@ -1,6 +1,6 @@
 package eddie.wu.linkedblock;
 
-public class DianNode1 implements Cloneable{//Âä×ÓµãµÄ½Úµã£¬ÓĞ×ø±êºÍÏÂÒ»½ÚµãµÄÖ¸Õë¡£
+public class DianNode1 implements Cloneable{//è½å­ç‚¹çš„èŠ‚ç‚¹ï¼Œæœ‰åæ ‡å’Œä¸‹ä¸€èŠ‚ç‚¹çš„æŒ‡é’ˆã€‚
   public byte a;
   public byte b;
   public DianNode1 next;

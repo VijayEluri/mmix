@@ -1,51 +1,61 @@
 package eddie.wu.domain.survive;
 
 public class SurviveResult {
-	/* from the Breath block owner's point of view.*/
+	/* from the Breath block owner's point of view. */
 	public static final int DIE = 1;
 	public static final int LIVE = 2;
-	public static final int JIE = 3; //³É½Ù¡£Ò²ĞíĞèÒª½øÒ»²½µÄ·ÖÎö£¬±ÈÈç»ºÒ»Æø½Ù£¬¶şÊÖ½ÙµÈµÈ¡£
-	/*mean  that the result is independent of whose turn
-	 * ½á¹ûÊÇ·ñÓëË­ÏÈÏÂÎŞ¹Ø¡£Ò²¾ÍÊÇËµµ±Ç°µÄ×´Ì¬ÒÑ¾­È·¶¨£¬Ã»ÓĞÏÂ×ÓµÄ¼ÛÖµ¡£<br>
-	 * µ±È»ËÀ»îµÄ½Ç¶ÈÃ»ÓĞ¼ÛÖµ£¬²»µÈÓÚ¹Ù×Ó½Ç¶ÈÒ²Ã»ÓĞ¼ÛÖµ¡£²»µÈÓÚÃ»ÓĞ½Ù²ÄµÄÀûÓÃ¡£
+	public static final int JIE = 3; // æˆåŠ«ã€‚ä¹Ÿè®¸éœ€è¦è¿›ä¸€æ­¥çš„åˆ†æï¼Œæ¯”å¦‚ç¼“ä¸€æ°”åŠ«ï¼ŒäºŒæ‰‹åŠ«ç­‰ç­‰ã€‚
+	/**
+	 * mean that the result is independent of whose turn <br/>
+	 * ç»“æœæ˜¯å¦ä¸è°å…ˆä¸‹æ— å…³ã€‚ä¹Ÿå°±æ˜¯è¯´å½“å‰çš„çŠ¶æ€å·²ç»ç¡®å®šï¼Œæ²¡æœ‰ä¸‹å­çš„ä»·å€¼ã€‚<br>
+	 * å½“ç„¶æ­»æ´»çš„è§’åº¦æ²¡æœ‰ä»·å€¼ï¼Œä¸ç­‰äºå®˜å­è§’åº¦ä¹Ÿæ²¡æœ‰ä»·å€¼ã€‚ä¸ç­‰äºæ²¡æœ‰åŠ«æçš„åˆ©ç”¨ã€‚
 	 * 
 	 * */
-	Boolean independent;//ÈıÖµÂß¼­
+	Boolean independent;// ä¸‰å€¼é€»è¾‘
 	/**
-	 * ÊÇ·ñÏÂÁË·´¶øÀË·ÑÒ»Ê×Æå£»°üÀ¨ºóÊÖËÀ£¬É±ÒÑ¾­ËÀÁËµÄÆå¡£
+	 * æ˜¯å¦ä¸‹äº†åè€Œæµªè´¹ä¸€é¦–æ£‹ï¼›åŒ…æ‹¬åæ‰‹æ­»ï¼Œæ€å·²ç»æ­»äº†çš„æ£‹ã€‚
 	 */
 	boolean waste;
-	Result xianShou;//ÏÈÊÖµÄ½á¹û¡£
-	Result houShou;//ºóÊÖµÄ½á¹û¡£
+	Result xianShou;// å…ˆæ‰‹çš„ç»“æœã€‚
+	Result houShou;// åæ‰‹çš„ç»“æœã€‚
+
 	public boolean isIndependent() {
-		if(independent != null)
-		return independent.booleanValue();
+		if (independent != null) {
+			return independent.booleanValue();
+		}
 		return xianShou.getSurvive() == houShou.getSurvive();
 	}
+
 	public void setIndependent(boolean independent) {
-		if(this.independent==null){
+		if (this.independent == null) {
 			this.independent = independent;
-		}else{
+		} else {
 			throw new RuntimeException("independent is already decided.");
 		}
-		
+
 	}
+
 	public boolean isWaste() {
 		return waste;
 	}
+
 	public void setWaste(boolean waste) {
 		this.waste = waste;
 	}
+
 	public Result getXianShou() {
 		return xianShou;
 	}
+
 	public void setXianShou(Result xianShou) {
 		this.xianShou = xianShou;
 	}
+
 	public Result getHouShou() {
 		return houShou;
 	}
+
 	public void setHouShou(Result houShou) {
 		this.houShou = houShou;
-	}	
+	}
 }

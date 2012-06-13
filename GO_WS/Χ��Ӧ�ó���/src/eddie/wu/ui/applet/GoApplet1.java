@@ -6,17 +6,18 @@ import java.awt.Event;
 import java.awt.Graphics;
 import java.awt.Image;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
 
-import eddie.wu.arrayblock.GoBoard;
+import eddie.wu.arrayblock.ArrayGoBoard;
+import eddie.wu.domain.Constant;
 
 /**
  * <p>
  * Title:
  * </p>
  * <p>
- * Description: ¿ÉÒÔÔÚAppletÉÏÏÂÆå¡£
+ * Description: å¯ä»¥åœ¨Appletä¸Šä¸‹æ£‹ã€‚
  * </p>
  * <p>
  * Copyright: Copyright (c) 2003
@@ -29,10 +30,10 @@ import eddie.wu.arrayblock.GoBoard;
  * @version 1.0
  */
 
-public class GoApplet1 extends Applet { //ÓÃÓÚ»­ÆåÅÌµÄ»­²¼
-	private static final Log log = LogFactory.getLog(GoApplet1.class);
+public class GoApplet1 extends Applet { //ç”¨äºç”»æ£‹ç›˜çš„ç”»å¸ƒ
+	private static final Logger log = Logger.getLogger(GoApplet1.class);
 
-	GoBoard goBoard = new GoBoard();
+	ArrayGoBoard goBoard = new ArrayGoBoard(Constant.BOARD_SIZE);
 
 	Image work;
 
@@ -65,18 +66,18 @@ public class GoApplet1 extends Applet { //ÓÃÓÚ»­ÆåÅÌµÄ»­²¼
 		g.setColor(Color.orange);
 		g.fillRect(0, 0, 560, 560);
 		g.setColor(Color.black);
-		for (int i = 1; i <= 19; i++) { //»­Ïß
+		for (int i = 1; i <= 19; i++) { //ç”»çº¿
 			g.drawLine(18, 28 * i - 10, 522, 28 * i - 10); //hor
 			g.drawLine(28 * i - 10, 18, 28 * i - 10, 522); //ver
 		}
 		//  log.debug("// paint the ver and hor line.");
-		for (int i = 0; i < 3; i++) { //»­ĞÇÎ»
+		for (int i = 0; i < 3; i++) { //ç”»æ˜Ÿä½
 			for (int j = 0; j < 3; j++) {
 				g.fillOval(168 * i + 99, 168 * j + 99, 6, 6);
 			}
 		}
 		// log.debug("//paint the star point.");
-		for (int i = 1; i <= 19; i++) { //»­×Å×Óµã
+		for (int i = 1; i <= 19; i++) { //ç”»ç€å­ç‚¹
 			for (int j = 1; j <= 19; j++) {
 				if (goBoard.zb[i][j][0] == 1) {
 					g.setColor(Color.black);
@@ -89,16 +90,16 @@ public class GoApplet1 extends Applet { //ÓÃÓÚ»­ÆåÅÌµÄ»­²¼
 				}
 			}
 		} //for: paint all the points owned by black and white.
-		//µ±Ç°²½µÄÌá×Ó
+		//å½“å‰æ­¥çš„æå­
 
 		gg.drawImage(work, 0, 0, this);
 
-	} //else»­Õû¸öÆåÅÌºÍÆå×Ó
+	} //elseç”»æ•´ä¸ªæ£‹ç›˜å’Œæ£‹å­
 
-	public boolean mouseDown(Event e, int x, int y) { //½ÓÊÜÊó±êÊäÈë
+	public boolean mouseDown(Event e, int x, int y) { //æ¥å—é¼ æ ‡è¾“å…¥
 
-		//KEXIA=false;//Ö»ÓĞ»úÆ÷Íê³ÉÒ»ÊÖ,²ÅÄÜ¼ÌĞø.
-		byte a = (byte) ((x - 4) / 28 + 1); //Íê³ÉÊıÆøÌá×ÓµÈ.
+		//KEXIA=false;//åªæœ‰æœºå™¨å®Œæˆä¸€æ‰‹,æ‰èƒ½ç»§ç»­.
+		byte a = (byte) ((x - 4) / 28 + 1); //å®Œæˆæ•°æ°”æå­ç­‰.
 		byte b = (byte) ((y - 4) / 28 + 1);
 		goBoard.cgcl(a, b);
 		// CHONGHUI=false;
@@ -106,7 +107,7 @@ public class GoApplet1 extends Applet { //ÓÃÓÚ»­ÆåÅÌµÄ»­²¼
 		//log.debug("weiqiFrame de mousedown");
 		//repaint();
 		log.debug("Gocanvas de mousedown");
-		return true; //ÏòÈİÆ÷´«²¥,ÓÉFrame´¦Àí
+		return true; //å‘å®¹å™¨ä¼ æ’­,ç”±Frameå¤„ç†
 
 	}
 
@@ -123,11 +124,11 @@ public class GoApplet1 extends Applet { //ÓÃÓÚ»­ÆåÅÌµÄ»­²¼
  * mouseDown(evt,evt.x,evt.y); else return super.handleEvent(evt);
  */
 /*
- * for (int i=1; i <=19; i++)//»­Ïß { g.drawLine(18,28*i-10,522,28*i-10);//hor
+ * for (int i=1; i <=19; i++)//ç”»çº¿ { g.drawLine(18,28*i-10,522,28*i-10);//hor
  * g.drawLine(28*i-10,18,28*i-10,522);//ver } // log.debug("// paint the ver and
- * hor line."); for (int i=0; i <3;i++){//»­ĞÇÎ» for ( int j=0; j <3;j++){
+ * hor line."); for (int i=0; i <3;i++){//ç”»æ˜Ÿä½ for ( int j=0; j <3;j++){
  * g.fillOval(168*i+99,168*j+99,6,6); } } // log.debug("//paint the star
- * point."); for(int i=1;i <=19;i++){//»­×Å×Óµã for(int j=1;j <=19;j++){
+ * point."); for(int i=1;i <=19;i++){//ç”»ç€å­ç‚¹ for(int j=1;j <=19;j++){
  * if(goji.zb[i][j][0]==1) { g.setColor (Color.black);
  * g.fillOval(28*i-24,28*j-24,28,28); //log.debug("//paint the black point."); }
  * else if(goji.zb[i][j][0]==2){ g.setColor(Color.white);

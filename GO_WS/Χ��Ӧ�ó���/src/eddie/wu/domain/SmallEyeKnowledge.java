@@ -3,9 +3,13 @@ package eddie.wu.domain;
 import java.util.HashMap;
 import java.util.Map;
 
+import eddie.wu.domain.survive.RelativeResult;
+import eddie.wu.domain.survive.RelativeSurviveResult;
+import eddie.wu.domain.survive.Result;
+import eddie.wu.domain.survive.SurviveResult;
 
 public class SmallEyeKnowledge {
-	private static Map<BreathPattern, SurviveResult> map = new HashMap<BreathPattern, SurviveResult>();
+	private static Map<BreathPattern, RelativeSurviveResult> map = new HashMap<BreathPattern, RelativeSurviveResult>();
 	/**
 	 * initialized with the knowledge from human being.
 	 */
@@ -16,16 +20,16 @@ public class SmallEyeKnowledge {
 	private static void initEye2() {
 		byte[][] pattern;
 		BreathPattern bp;
-		SurviveResult result;
+		RelativeSurviveResult result;
 		pattern = new byte[1][2];
 		for (int i = 0; i < pattern[0].length; i++) {
 			pattern[0][i] = ColorUtil.BREATH;
 		}
 		bp = new BreathPattern(pattern);
 		if (map.containsKey(bp) == false) {
-			result = new SurviveResult();
-			result.setXianShou(new Result(SurviveResult.DIE, null));
-			result.setHouShou(new Result(SurviveResult.DIE, null));
+			result = new RelativeSurviveResult();
+			result.setXianShou(new RelativeResult(SurviveResult.DIE, null));
+			result.setHouShou(new RelativeResult(SurviveResult.DIE, null));
 			result.setIndependent(true);
 			map.put(bp, result);
 		}
@@ -34,8 +38,8 @@ public class SmallEyeKnowledge {
 	private static void initEye3() {
 		byte[][] pattern;
 		BreathPattern bp;
-		SurviveResult result;
-		Point point = null;
+		RelativeSurviveResult result;
+		Delta point = null;
 		/*
 		 * pattern ###
 		 */
@@ -45,11 +49,11 @@ public class SmallEyeKnowledge {
 		}
 		bp = new BreathPattern(pattern);
 		if (map.containsKey(bp) == false) {
-			point = Point.getPoint(0, 1);// this is actually delta, index from
-											// 0.
-			result = new SurviveResult();
-			result.setXianShou(new Result(SurviveResult.LIVE, point));
-			result.setHouShou(new Result(SurviveResult.DIE, point));
+			point = new Delta(0, 1);// this is actually delta, index from
+									// 0.
+			result = new RelativeSurviveResult();
+			result.setXianShou(new RelativeResult(SurviveResult.LIVE, point));
+			result.setHouShou(new RelativeResult(SurviveResult.DIE, point));
 			result.setIndependent(false);
 			map.put(bp, result);
 		}
@@ -66,10 +70,10 @@ public class SmallEyeKnowledge {
 			/*
 			 * this is actually delta, index from 0
 			 */
-			point = Point.getPoint(1, 0);
-			result = new SurviveResult();
-			result.setXianShou(new Result(SurviveResult.LIVE, point));
-			result.setHouShou(new Result(SurviveResult.DIE, point));
+			point = new Delta(1, 0);
+			result = new RelativeSurviveResult();
+			result.setXianShou(new RelativeResult(SurviveResult.LIVE, point));
+			result.setHouShou(new RelativeResult(SurviveResult.DIE, point));
 			result.setIndependent(false);
 			map.put(bp, result);
 		}
@@ -83,14 +87,14 @@ public class SmallEyeKnowledge {
 				pattern[i][j] = ColorUtil.BREATH;
 			}
 		}
-		pattern[1][1] = ColorUtil.BLANK_POINT;
+		pattern[1][1] = ColorUtil.BLANK;
 		bp = new BreathPattern(pattern);
 		if (map.containsKey(bp) == false) {
-			point = Point.getPoint(0, 0); // this is actually delta, index
-											// from 0.
-			result = new SurviveResult();
-			result.setXianShou(new Result(SurviveResult.LIVE, point));
-			result.setHouShou(new Result(SurviveResult.DIE, point));
+			point = new Delta(0, 0); // this is actually delta, index
+										// from 0.
+			result = new RelativeSurviveResult();
+			result.setXianShou(new RelativeResult(SurviveResult.LIVE, point));
+			result.setHouShou(new RelativeResult(SurviveResult.DIE, point));
 			result.setIndependent(false);
 			map.put(bp, result);
 			iterateIsomorphism(pattern, point, result);
@@ -98,8 +102,8 @@ public class SmallEyeKnowledge {
 
 	}
 
-	private static void iterateIsomorphism(byte[][] pattern, Point point,
-			SurviveResult result) {
+	private static void iterateIsomorphism(byte[][] pattern, Delta point,
+			RelativeSurviveResult result) {
 		int m = pattern.length;
 		int n = pattern[0].length;
 		/*
@@ -111,11 +115,11 @@ public class SmallEyeKnowledge {
 				pattern2[i][j] = pattern[i][n - 1 - j];
 			}
 		}
-		SurviveResult result2 = new SurviveResult();
-		Point point2 = Point
-				.getPoint(point.getRow(), n - 1 - point.getColumn());
-		result2.getXianShou().point = point2;
-		result2.getHouShou().point = point2;
+		RelativeSurviveResult result2 = new RelativeSurviveResult();
+		Delta point2 = new Delta(point.getRowDelta(), n - 1
+				- point.getColumnDelta());
+		result2.getXianShou().setPoint(point2);
+		result2.getHouShou().setPoint(point2);
 
 		BreathPattern bp2 = new BreathPattern(pattern);
 		if (map.containsKey(bp2) == false) {
@@ -131,11 +135,11 @@ public class SmallEyeKnowledge {
 				pattern3[i][j] = pattern[m - 1 - i][j];
 			}
 		}
-		SurviveResult result3 = new SurviveResult();
-		Point point3 = Point
-				.getPoint(m - 1 - point.getRow(), point.getColumn());
-		result3.getXianShou().point = point3;
-		result3.getHouShou().point = point3;
+		RelativeSurviveResult result3 = new RelativeSurviveResult();
+		Delta point3 = new Delta(m - 1 - point.getRowDelta(),
+				point.getColumnDelta());
+		result3.getXianShou().setPoint(point3);
+		result3.getHouShou().setPoint(point3);
 
 		BreathPattern bp3 = new BreathPattern(pattern);
 		if (map.containsKey(bp3) == false) {
@@ -152,10 +156,10 @@ public class SmallEyeKnowledge {
 			}
 		}
 		SurviveResult result4 = new SurviveResult();
-		Point point4 = Point.getPoint(m - 1 - point.getRow(),
-				n - 1 - point.getColumn());
-		result3.getXianShou().point = point3;
-		result3.getHouShou().point = point3;
+		Delta point4 = new Delta(m - 1 - point.getRowDelta(), n - 1
+				- point.getColumnDelta());
+		result3.getXianShou().setPoint(point3);
+		result3.getHouShou().setPoint(point3);
 
 		BreathPattern bp4 = new BreathPattern(pattern);
 		if (map.containsKey(bp4) == false) {

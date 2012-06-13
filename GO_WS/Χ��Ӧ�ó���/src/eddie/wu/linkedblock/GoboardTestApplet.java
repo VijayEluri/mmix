@@ -12,8 +12,8 @@ import java.awt.Event;
 import java.awt.Graphics;
 import java.awt.Image;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
 
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
@@ -24,13 +24,13 @@ import eddie.wu.manual.LoadGMDGoManual;
 
 
 /**
- * @author eddie ĞŞ¸ÄºóÓÃÓÚ´òÆ×, ¿ÉÒÔÇ°½øµ½Ö¸¶¨²½Êı. ¿ÉÒÔ×ª»»·½Ïò.
+ * @author eddie ä¿®æ”¹åç”¨äºæ‰“è°±, å¯ä»¥å‰è¿›åˆ°æŒ‡å®šæ­¥æ•°. å¯ä»¥è½¬æ¢æ–¹å‘.
  * 
  */
 public class GoboardTestApplet
 
 extends Applet {
-	private static final Log log = LogFactory.getLog(GoboardTestApplet.class);
+	private static final Logger log = Logger.getLogger(GoboardTestApplet.class);
 
 	public final boolean DEBUG = true;
 
@@ -56,7 +56,7 @@ extends Applet {
 	int count = 0;
 	
 	//byte[] temp = LoadGoManual.loadOneFromAllGoManual(1, 453);
-	byte[] temp = new LoadGMDGoManual("../doc/Î§Æå´òÆ×Èí¼ş/").loadSingleGoManual();
+	byte[] temp = new LoadGMDGoManual("../doc/å›´æ£‹æ‰“è°±è½¯ä»¶/").loadSingleGoManual().getMoves();
 	public void init() {
 		this.setBackground(Color.ORANGE);
 		work = this.createImage(560, 560);
@@ -99,11 +99,11 @@ extends Applet {
 		g.fillRect(0, 0, 560, 560);
 		g.setColor(Color.black);
 		short kinp = 0;
-		for (int i = 1; i <= 19; i++) { // »­Ïß
+		for (int i = 1; i <= 19; i++) { // ç”»çº¿
 			g.drawLine(18, 28 * i - 10, 522, 28 * i - 10); // hor
 			g.drawLine(28 * i - 10, 18, 28 * i - 10, 522); // ver
 		}
-		for (int i = 0; i < 3; i++) { // »­ĞÇÎ»
+		for (int i = 0; i < 3; i++) { // ç”»æ˜Ÿä½
 			for (int j = 0; j < 3; j++) {
 				g.fillOval(168 * i + 99, 168 * j + 99, 6, 6);
 			}
@@ -128,15 +128,15 @@ extends Applet {
 		}
 
 		gg.drawImage(work, 0, 0, this);
-	} // else»­Õû¸öÆåÅÌºÍÆå×Ó
+	} // elseç”»æ•´ä¸ªæ£‹ç›˜å’Œæ£‹å­
 
-	public boolean mouseDown(Event e, int x, int y) { // ½ÓÊÜÊó±êÊäÈë
+	public boolean mouseDown(Event e, int x, int y) { // æ¥å—é¼ æ ‡è¾“å…¥
 		// if(KEXIA==true){
-		// KEXIA=false;//Ö»ÓĞ»úÆ÷Íê³ÉÒ»ÊÖ,²ÅÄÜ¼ÌĞø.
-		log.debug("·½·¨ mousedown");
+		// KEXIA=false;//åªæœ‰æœºå™¨å®Œæˆä¸€æ‰‹,æ‰èƒ½ç»§ç»­.
+		log.debug("æ–¹æ³• mousedown");
 		if (count >= temp.length)
 			return true;
-		byte a = (byte) ((x - 4) / 28 + 1); // Íê³ÉÊıÆøÌá×ÓµÈ.
+		byte a = (byte) ((x - 4) / 28 + 1); // å®Œæˆæ•°æ°”æå­ç­‰.
 		byte b = (byte) ((y - 4) / 28 + 1);
 		a = temp[count++];
 		b = temp[count++];
@@ -146,8 +146,8 @@ extends Applet {
 			goBoard.output();
 		}
 		repaint();
-		log.debug("·½·¨ mousedown");
-		return true; // ÏòÈİÆ÷´«²¥,ÓÉFrame´¦Àí
+		log.debug("æ–¹æ³• mousedown");
+		return true; // å‘å®¹å™¨ä¼ æ’­,ç”±Frameå¤„ç†
 		// }
 		// else return true;
 	}

@@ -8,25 +8,53 @@ import java.awt.Graphics;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
 
-public class BasicBoardCanvas extends Canvas {
+/**
+ * basic class: only have shared method, no data at all.
+ * 
+ * @author Eddie
+ * 
+ */
+public abstract class BasicBoardCanvas extends Canvas {
+	int boardSize;
+
 	public void update(Graphics g) { // 585
 		paint(g);
 	}
 
 	protected void drawBlankBoard(Graphics g) {
-		g.setColor(Color.black);
-		for (int i = 1; i <= 19; i++)// »­Ïß
-		{
-			g.drawLine(18, 28 * i - 10, 522, 28 * i - 10);// horizontal
-			g.drawLine(28 * i - 10, 18, 28 * i - 10, 522);// vertical
+		int diameter = 28;//äº¤å‰ç‚¹ä¹‹é—´çš„å®½åº¦
+		int topLeft = 18; //å·¦ä¸Šè§’çš„åæ ‡
+		g.setColor(Color.BLACK);
+		for (int i = 1; i <= boardSize; i++) {// ç”»çº¿
+
+			g.drawLine(topLeft, diameter * i - 10, topLeft + (boardSize - 1)
+					* diameter, diameter * i - 10);// horizontal
+			g.drawLine(diameter * i - 10, topLeft, diameter * i - 10, topLeft
+					+ (boardSize - 1) * diameter);// vertical
 		}
 		// log.debug("// paint the ver and hor line.");
-		for (int i = 0; i < 3; i++) {// »­ÐÇÎ»
-			for (int j = 0; j < 3; j++) {
-				g.fillOval(168 * i + 99, 168 * j + 99, 6, 6);
+		if (boardSize == Constant.BOARD_SIZE) {
+			for (int i = 0; i < 3; i++) {// ç”»æ˜Ÿä½
+				for (int j = 0; j < 3; j++) {
+					g.fillOval((diameter * 6 * i)
+							+ (diameter * 3 + topLeft - 3), (diameter * 6 * j)
+							+ (diameter * 3 + topLeft - 3), 6, 6);
+				}
+			}
+		} else if (boardSize == Constant.SMALL_BOARD_SIZE) {
+			for (int i = 0; i < 2; i++) {// ç”»ä¸¤ä¸ªä¸‰ä¸‰
+				for (int j = 0; j < 2; j++) {
+					g.fillOval((diameter * 6 * i)
+							+ (diameter * 2 + topLeft - 3), (diameter * 6 * j)
+							+ (diameter * 2 + topLeft - 3), 6, 6);
+				}
 			}
 		}
 		// log.debug("//paint the star point.");
+	}
+
+	protected void drawPoint(Graphics g, int row, int column, int color) {
+		drawPoint(g, row, column, color, false);
 	}
 
 	/**
@@ -36,8 +64,26 @@ public class BasicBoardCanvas extends Canvas {
 	 * @param row
 	 * @param column
 	 */
-	private void drawPoint(Graphics g, int row, int column) {
-		g.fillOval(28 * column - 24, 28 * row - 24, 28, 28);
+	private void drawPoint(Graphics g, int row, int column, int color,
+			boolean isEaten) {
+
+		if (isEaten) {
+			g.setColor(Color.RED);
+			g.fillOval(28 * column - 24, 28 * row - 24, 28, 28);
+			if (color == Constant.BLACK)
+				g.setColor(Color.BLACK);
+			else if (color == Constant.WHITE)
+				g.setColor(Color.WHITE);
+			g.fillOval(28 * column - 24 + 2, 28 * row - 24 + 2, 28 - 4, 28 - 4);
+
+		} else {
+			if (color == Constant.BLACK)
+				g.setColor(Color.BLACK);
+			else if (color == Constant.WHITE)
+				g.setColor(Color.WHITE);
+			g.fillOval(28 * column - 24, 28 * row - 24, 28, 28);
+		}
+
 	}
 
 	/**
@@ -71,29 +117,39 @@ public class BasicBoardCanvas extends Canvas {
 		g.fillRect(0, 0, 560, 560);
 	}
 
-	public boolean mouseDown(Event e, int x, int y) {// ½ÓÊÜÊó±êÊäÈë
+	public boolean mouseDown(Event e, int x, int y) {// æŽ¥å—é¼ æ ‡è¾“å…¥
 
-		return false;// ÏòÈÝÆ÷´«²¥,ÓÉFrame´¦Àí
+		return false;// å‘å®¹å™¨ä¼ æ’­,ç”±Frameå¤„ç†
 
 	}
 
-	protected void drawBlackPoint(Graphics g, Point point) {
-		drawBlackPoint(g, point.getRow(), point.getColumn());
+	protected void drawBlackPoint(Graphics g, Point point, boolean iseaten) {
+		drawPoint(g, point.getRow(), point.getColumn(), Constant.BLACK, iseaten);
 	}
 
-	protected void drawWhitePoint(Graphics g, Point point) {
-		drawWhitePoint(g, point.getRow(), point.getColumn());
+	protected void drawWhitePoint(Graphics g, Point point, boolean iseaten) {
+		drawPoint(g, point.getRow(), point.getColumn(), Constant.WHITE, iseaten);
 	}
 
-	protected void drawBlackPoint(Graphics g, int row, int column) {
-		g.setColor(Color.black);
-		drawPoint(g, row, column);
-	}
+	// protected void drawBlackPoint(Graphics g, int row, int column) {
+	// drawBlackPoint(g, row, column, false);
+	// }
 
-	protected void drawWhitePoint(Graphics g, int row, int column) {
-		g.setColor(Color.white);
-		drawPoint(g, row, column);
-	}
+	// protected void drawBlackPoint(Graphics g, int row, int column,
+	// boolean isEaten) {
+	// g.setColor(Color.black);
+	// drawPoint(g, row, column, isEaten);
+	// }
+
+	// protected void drawWhitePoint(Graphics g, int row, int column) {
+	// drawWhitePoint(g, row, column, false);
+	// }
+	//
+	// protected void drawWhitePoint(Graphics g, int row, int column,
+	// boolean isEaten) {
+	// g.setColor(Color.white);
+	// drawPoint(g, row, column, isEaten);
+	// }
 
 	protected void drawMoveNumber(Graphics g, Point point, int stepCount) {
 		g.setColor(Color.green);
@@ -101,7 +157,8 @@ public class BasicBoardCanvas extends Canvas {
 	}
 
 	/**
-	 * ·´ÏÔÊÖÊý¡£
+	 * åæ˜¾æ‰‹æ•°ã€‚
+	 * 
 	 * @param g
 	 * @param point
 	 * @param stepCount

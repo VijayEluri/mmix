@@ -2,7 +2,7 @@ package eddie.wu.domain.comp;
 
 import java.util.Comparator;
 
-import eddie.wu.domain.Block;
+import eddie.wu.domain.BasicBlock;
 
 
 /**
@@ -11,11 +11,11 @@ import eddie.wu.domain.Block;
  * @author wueddie-wym-wrz
  * 
  */
-public class BlockSizeComparator implements Comparator<Block> {
+public class BlockSizeComparator implements Comparator<BasicBlock> {
 
 	@Override
-	public int compare(Block block1, Block block2) {
-		return block1.getTotalNumberOfPoint() - block2.getTotalNumberOfPoint();
+	public int compare(BasicBlock block1, BasicBlock block2) {
+		return block1.getNumberOfPoint() - block2.getNumberOfPoint();
 	}
 
 }

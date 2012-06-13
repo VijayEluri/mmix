@@ -54,8 +54,8 @@ public class MyTestSuite {
 		// only test a simple method because of the complexity/time consuming.
 		// testSuite.addTestSuite(TestGoBoardExternally.class);
 		// testSuite.addTestSuite(TestGoBoard256.class);
-		Logger logger = Logger.getLogger(GoBoard.class);
-		logger.setLevel(Level.ERROR);
+		Logger log = Logger.getLogger(GoBoard.class);
+		log.setLevel(Level.ERROR);
 		Logger logger1 = Logger.getLogger(TestArrayGoBoardExternally.class);
 		logger1.setLevel(Level.ERROR);
 		testSuite.addTest(new TestArrayGoBoardExternally(
@@ -67,4 +67,8 @@ public class MyTestSuite {
 				"testForwardNextStepSingleGoManualInternally"));
 		return testSuite;
 	}
+	
+	
+		
+	
 }

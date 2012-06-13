@@ -12,8 +12,10 @@ import java.awt.Event;
 import java.awt.Graphics;
 import java.awt.Image;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
+
+import eddie.wu.domain.Constant;
 
 /**
  * @author eddie
@@ -21,9 +23,9 @@ import org.apache.commons.logging.LogFactory;
  * TODO To change the template for this generated type comment go to
 
  */
-public class GoBoard256Applet extends Applet { //ÓÃÓÚ»­ÆåÅÌµÄ»­²¼
-	private static final Log log=LogFactory.getLog(Goboard256TestApplet.class);
-	GoBoard256 goBoard = new GoBoard256();
+public class GoBoard256Applet extends Applet { //ç”¨äºŽç”»æ£‹ç›˜çš„ç”»å¸ƒ
+	private static final Logger log = Logger.getLogger(Goboard256TestApplet.class);
+	GoBoard256 goBoard = new GoBoard256(Constant.BOARD_SIZE);
 	  Image work;
 	  Graphics g;
 	  public void init() {
@@ -55,18 +57,18 @@ public class GoBoard256Applet extends Applet { //ÓÃÓÚ»­ÆåÅÌµÄ»­²¼
 	    g.setColor(Color.orange);
 	    g.fillRect(0, 0, 560, 560);
 	    g.setColor(Color.black);
-	    for (int i = 1; i <= 19; i++) { //»­Ïß
+	    for (int i = 1; i <= 19; i++) { //ç”»çº¿
 	      g.drawLine(18, 28 * i - 10, 522, 28 * i - 10); //hor
 	      g.drawLine(28 * i - 10, 18, 28 * i - 10, 522); //ver
 	    }
 	    //  log.debug("// paint the ver and hor line.");
-	    for (int i = 0; i < 3; i++) { //»­ÐÇÎ»
+	    for (int i = 0; i < 3; i++) { //ç”»æ˜Ÿä½
 	      for (int j = 0; j < 3; j++) {
 	        g.fillOval(168 * i + 99, 168 * j + 99, 6, 6);
 	      }
 	    }
 	    // log.debug("//paint the star point.");
-	    for (int i = 1; i <= 19; i++) { //»­×Å×Óµã
+	    for (int i = 1; i <= 19; i++) { //ç”»ç€å­ç‚¹
 	      for (int j = 1; j <= 19; j++) {
 	        if (goBoard.zb[i][j][0] == 1) {
 	          g.setColor(Color.black);
@@ -80,16 +82,16 @@ public class GoBoard256Applet extends Applet { //ÓÃÓÚ»­ÆåÅÌµÄ»­²¼
 	        }
 	      }
 	    } //for: paint all the points owned by black and white.
-	    //µ±Ç°²½µÄÌá×Ó
+	    //å½“å‰æ­¥çš„æå­
 
 	    gg.drawImage(work, 0, 0, this);
 
-	  } //else»­Õû¸öÆåÅÌºÍÆå×Ó
+	  } //elseç”»æ•´ä¸ªæ£‹ç›˜å’Œæ£‹å­
 
-	  public boolean mouseDown(Event e, int x, int y) { //½ÓÊÜÊó±êÊäÈë
+	  public boolean mouseDown(Event e, int x, int y) { //æŽ¥å—é¼ æ ‡è¾“å…¥
 
-	    //KEXIA=false;//Ö»ÓÐ»úÆ÷Íê³ÉÒ»ÊÖ,²ÅÄÜ¼ÌÐø.
-	    byte a = (byte) ( (x - 4) / 28 + 1); //Íê³ÉÊýÆøÌá×ÓµÈ.
+	    //KEXIA=false;//åªæœ‰æœºå™¨å®Œæˆä¸€æ‰‹,æ‰èƒ½ç»§ç»­.
+	    byte a = (byte) ( (x - 4) / 28 + 1); //å®Œæˆæ•°æ°”æå­ç­‰.
 	    byte b = (byte) ( (y - 4) / 28 + 1);
 	    goBoard.cgcl(a, b);
 	    // CHONGHUI=false;
@@ -97,7 +99,7 @@ public class GoBoard256Applet extends Applet { //ÓÃÓÚ»­ÆåÅÌµÄ»­²¼
 	    //log.debug("weiqiFrame de mousedown");
 	    //repaint();
 	    log.debug("Gocanvas de mousedown");
-	    return true; //ÏòÈÝÆ÷´«²¥,ÓÉFrame´¦Àí
+	    return true; //å‘å®¹å™¨ä¼ æ’­,ç”±Frameå¤„ç†
 
 	  }
 

@@ -1,6 +1,6 @@
 package eddie.wu.arrayblock;
 import java.util.Comparator;
-//ÓÃÓÚjumian±È½ÏÅÅĞò¡£
+//ç”¨äºjumianæ¯”è¾ƒæ’åºã€‚
 public class JuMianComp implements Comparator {
   public int compare(Object oa,Object ob){
     JuMian a=(JuMian)oa;

@@ -6,11 +6,15 @@
  */
 package eddie.wu.other;
 
+import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
+
+import util.GBKToUTF8;
 import eddie.wu.domain.Block;
 import eddie.wu.domain.BoardPoint;
 import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Point;
-import junit.framework.TestCase;
 
 /**
  * @author eddie
@@ -19,7 +23,8 @@ import junit.framework.TestCase;
 
  */
 public class TestCloneable extends TestCase {
-
+	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
+	
     /**
      * 
      */
@@ -40,7 +45,7 @@ public class TestCloneable extends TestCase {
         BoardPoint point=new BoardPoint();
         point.setColor(ColorUtil.BLACK);
         point.setPoint(Point.getPoint(4,4));
-        Block block=new Block();
+        Block block=new Block(ColorUtil.BLACK);
         block.addPoint(Point.getPoint(4,4));
         block.addBreathPoint(Point.getPoint(4,5));
         block.setColor(ColorUtil.BLACK);
@@ -48,7 +53,7 @@ public class TestCloneable extends TestCase {
         BoardPoint pointNew=(BoardPoint)point.clone();
         assertNotSame(point,pointNew);
         assertNotSame(point.getBlock(),pointNew.getBlock());
-        assertNotSame(point.getBlock().getAllPoints(),pointNew.getBlock().getAllPoints());
+        assertNotSame(point.getBlock().getPoints(),pointNew.getBlock().getPoints());
         assertEquals(point,pointNew);
         assertEquals(point.getBlock(),pointNew.getBlock());
     }
@@ -69,20 +74,20 @@ public class TestCloneable extends TestCase {
         long newTime=0;
         oldTime=System.currentTimeMillis();
     	for(int i=0;i<1000;i++){
-    		blocks [i]=new Block();
+    		blocks [i]=new Block(ColorUtil.BLACK);
     		blocks [i].addPoint(Point.getPoint(4,4));
     		blocks [i].addBreathPoint(Point.getPoint(4,5));
     		blocks [i].setColor(ColorUtil.BLACK);
     	}
     	newTime=System.currentTimeMillis();
-    	System.out.println("new 1000 Block cost ms:"+(newTime-oldTime));
+    	if(log.isDebugEnabled()) log.debug("new 1000 Block cost ms:"+(newTime-oldTime));
 
     	oldTime=System.currentTimeMillis();
     	for(int i=0;i<1000;i++){
     		blocks2[i]=(Block)blocks[i].clone();
     	}
     	newTime=System.currentTimeMillis();
-    	System.out.println("clone 1000 Block cost ms:"+(newTime-oldTime));
+    	if(log.isDebugEnabled()) log.debug("clone 1000 Block cost ms:"+(newTime-oldTime));
     	
     	for(int i=0;i<1000;i++){
     		assertNotSame(blocks[i],blocks2[i]);

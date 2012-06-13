@@ -1,19 +1,19 @@
 package eddie.wu.domain;
 
+import eddie.wu.domain.analy.StateAnalysis;
 import eddie.wu.search.SurviveCalculate;
-import go.StateAnalysis;
 import junit.framework.TestCase;
 
 public class TestStateAnalysis extends TestCase {
-	private String root = "doc/Î§Æå³ÌĞòÊı¾İ/´óÑÛ»ù±¾ËÀ»î/";
-	private String name1 = "Ö±Èı.wjm";
-//	private String name2 = "·½ËÄ.wjm";
-//	private String name3 = "óÒÃ±ËÄ.wjm";
-//	private String name4 = "ÅÌ½ÇÇúËÄ.wjm";
-//	private String name5 = "µ¶°ÑÎå.wjm";
-	private String name6 = "°åÁù_ÎŞÍâÆø.wjm";
-//	private String name7 = "°åÁù_Ò»¿ÚÍâÆø.wjm";
-//	private String name8 = "°åÁù_Á½¿ÚÍâÆø.wjm";
+	private String root = "doc/å›´æ£‹ç¨‹åºæ•°æ®/å¤§çœ¼åŸºæœ¬æ­»æ´»/";
+	private String name1 = "ç›´ä¸‰.wjm";
+//	private String name2 = "æ–¹å››.wjm";
+//	private String name3 = "ç¬ å¸½å››.wjm";
+//	private String name4 = "ç›˜è§’æ›²å››.wjm";
+//	private String name5 = "åˆ€æŠŠäº”.wjm";
+	private String name6 = "æ¿å…­_æ— å¤–æ°”.wjm";
+//	private String name7 = "æ¿å…­_ä¸€å£å¤–æ°”.wjm";
+//	private String name8 = "æ¿å…­_ä¸¤å£å¤–æ°”.wjm";
 
 	public void test() {
 		byte [][] state = StateAnalysis.LoadState(root+name1);

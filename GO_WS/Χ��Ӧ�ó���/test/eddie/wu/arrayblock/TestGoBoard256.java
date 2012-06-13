@@ -10,8 +10,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
@@ -22,15 +21,15 @@ import eddie.wu.manual.LoadGMDGoManual;
 /**
  * 
  * It is not a good idea because the array.goboard implementation is not strong
- * enough, there are several restriction to properly deal with real go manaul.
+ * enough, there are several restriction to properly deal with real go manual.
  * 
  * @author eddie
  * 
  * 
  */
 public class TestGoBoard256 extends TestCase {
-	String rootDir = "doc/Î§Æå´òÆ×Èí¼þ/";
-	private static final Log log = LogFactory.getLog(TestGoBoard256.class);
+	String rootDir = "doc/å›´æ£‹æ‰“è°±è½¯ä»¶/";
+	private static final Logger log = Logger.getLogger(TestGoBoard256.class);
 
 	/**
 	 * test lib 0 manual 0.
@@ -38,25 +37,32 @@ public class TestGoBoard256 extends TestCase {
 	public void testForwardNextStep_SingleGoManual_lib0() {
 		byte[] original = null;
 
-		original = new LoadGMDGoManual(rootDir).loadSingleGoManual();
+		original = new LoadGMDGoManual(rootDir).loadSingleGoManual().getMoves();
 		GoBoard goBoard = new GoBoard();
-		eddie.wu.arrayblock.GoBoard256 goboard1 = new eddie.wu.arrayblock.GoBoard256();
+		eddie.wu.arrayblock.GoBoard256 goboard1 = new eddie.wu.arrayblock.GoBoard256(
+				Constant.BOARD_SIZE);
 		// for(int i=0; i<1;i++ ){
 		BoardColorState boardState = null;
 		BoardColorState boardState1 = null;
 		Constant.DEBUG_CGCL = false;
 		for (int i = 0; i < original.length; i++) {
-			log.debug("shoushu=" + (i + 1));
-			log.debug("a=" + original[i]);
-			log.debug("b=" + original[i + 1]);
-			goBoard.oneStepForward(original[i], original[i + 1]);
-			goboard1.cgcl(original[i], original[++i]);
-			boardState = goBoard.getBoardColorState();
-			boardState1 = new BoardColorState(goboard1.getStateArray());
+			try {
+				log.debug("shoushu=" + (i + 1));
+				log.debug("a=" + original[i]);
+				log.debug("b=" + original[i + 1]);
+				goBoard.oneStepForward(original[i], original[i + 1]);
+				goboard1.cgcl(original[i], original[++i]);
+				boardState = goBoard.getBoardColorState();
+				boardState1 = new BoardColorState(goboard1.getStateArray());
 
-			assertEquals("state of every point should equal!", boardState,
-					boardState1);
-			assertTrue(boardState.equals(boardState1));
+				assertEquals("state of every point should equal!", boardState,
+						boardState1);
+				assertTrue(boardState.equals(boardState1));
+			} catch (RuntimeException e) {
+				if(log.isDebugEnabled()) log.debug("ä¸å¥½: error with test manual in shoushu = "
+						+ goBoard.getShoushu());
+				throw e;
+			}
 		}
 
 	}
@@ -78,7 +84,7 @@ public class TestGoBoard256 extends TestCase {
 		log.debug("GOManualLength:" + original.length);
 
 		GoBoard goBoard = new GoBoard();
-		eddie.wu.arrayblock.GoBoard256 goboard1 = new eddie.wu.arrayblock.GoBoard256();
+		eddie.wu.arrayblock.GoBoard256 goboard1 = new eddie.wu.arrayblock.GoBoard256(Constant.BOARD_SIZE);
 		// for(int i=0; i<1;i++ ){
 		BoardColorState boardState = null;
 		BoardColorState boardState1 = null;
@@ -102,54 +108,72 @@ public class TestGoBoard256 extends TestCase {
 		// }
 	}
 
+	public void testloadGMDManual_listtitle() {
+		List<GMDGoManual> list = new LoadGMDGoManual(rootDir)
+				.loadMultiGoManualFromLib0();
+
+		for (GMDGoManual manual : list) {
+			if(log.isDebugEnabled()) log.debug("manual: " + manual);
+		}
+	}
+
 	/**
-	 * test lib 0 only compoare state!
+	 * test lib 0 only compare state!
 	 * 
-	 * @author eddie TODO: compare the result to another implemnetaion.
+	 * @author eddie TODO: compare the result to another implementation.
 	 */
 	public void testForwardNextStep_MultiGoManual() {
 		byte[] original = null;
 		byte count = 0;
 		List<GMDGoManual> list = new LoadGMDGoManual(rootDir)
 				.loadMultiGoManualFromLib0();
+
 		for (GMDGoManual manual : list) {
-			count++;
-			original = manual.getMoves();
-			log.debug("GOManual:" + count);
-			log.debug("GOManualLength:" + original.length);
-			// if(count==2 )continue;//too long for array board to deal with.
-			// if(count==4 )continue;
-			// if(count==6 )continue;
-			// if(count==8 )continue;
-			// if(count==9 )continue;
-			GoBoard goBoard = new GoBoard();
-			eddie.wu.arrayblock.GoBoard256 goboard1 = new eddie.wu.arrayblock.GoBoard256();
-			// for(int i=0; i<1;i++ ){
-			BoardColorState boardState = null;
-			BoardColorState boardState1 = null;
-			Constant.DEBUG_CGCL = false;
-			for (int i = 0; i < original.length; i++) {
+			try {
+				count++;
+				original = manual.getMoves();
+				log.debug("GOManual:" + count);
+				log.debug("GOManualLength:" + original.length);
+				// if(count==2 )continue;//too long for array board to deal
+				// with.
+				// if(count==4 )continue;
+				// if(count==6 )continue;
+				// if(count==8 )continue;
+				// if(count==9 )continue;
+				GoBoard goBoard = new GoBoard();
+				eddie.wu.arrayblock.GoBoard256 goboard1 = new eddie.wu.arrayblock.GoBoard256(
+						Constant.BOARD_SIZE);
+				// for(int i=0; i<1;i++ ){
+				BoardColorState boardState = null;
+				BoardColorState boardState1 = null;
+				Constant.DEBUG_CGCL = false;
+				for (int i = 0; i < original.length; i++) {
 
-				log.debug("shoushu:" + i);
-				goBoard.oneStepForward(original[i], original[i + 1]);
-				goboard1.cgcl(original[i], original[++i]);
-				boardState = goBoard.getBoardColorState();
-				boardState1 = new BoardColorState(goboard1.getStateArray());
-				if (!boardState.equals(boardState1)) {
-					log.debug(boardState);
-					log.debug(boardState1);
+					log.debug("shoushu:" + i);
+					goBoard.oneStepForward(original[i], original[i + 1]);
+					goboard1.cgcl(original[i], original[++i]);
+					boardState = goBoard.getBoardColorState();
+					boardState1 = new BoardColorState(goboard1.getStateArray());
+					if (!boardState.equals(boardState1)) {
+						log.debug(boardState);
+						log.debug(boardState1);
+					}
+
+					assertEquals("state of every point should equal!",
+							boardState, boardState1);
+					assertTrue(boardState.equals(boardState1));
+					GoBoard goBoard2 = new GoBoard(boardState, (i + 3) / 2);
+					// goBoard2.generateHighLevelState();
+					assertEquals("state should equal internally!", boardState,
+							goBoard2.getBoardColorState());
+
 				}
-
-				assertEquals("state of every point should equal!", boardState,
-						boardState1);
-				assertTrue(boardState.equals(boardState1));
-				GoBoard goBoard2 = new GoBoard(boardState, (i + 3) / 2);
-				goBoard2.generateHighLevelState();
-				assertEquals("state should equal internally!", boardState,
-						goBoard2.getBoardColorState());
-
+			} catch (RuntimeException e) {
+				if(log.isDebugEnabled()) log.debug("ä¸å¥½: error with test manual" + manual);
+				throw e;
 			}
 		}
+
 	}
 
 	/**
@@ -166,7 +190,7 @@ public class TestGoBoard256 extends TestCase {
 				Constant.GLOBAL_MANUAL, 6391);
 		for (GMDGoManual manual : list) {
 			byte[] original = manual.getMoves();
-			System.out.println("GOManual:" + count);
+			if(log.isDebugEnabled()) log.debug("GOManual:" + count);
 			count++;
 			if (count - 1 == 344)
 				continue;// GOBOARD 256 have problem.
@@ -175,7 +199,8 @@ public class TestGoBoard256 extends TestCase {
 			log.debug("GOManualLength:" + original.length);
 
 			GoBoard goBoard = new GoBoard();
-			eddie.wu.arrayblock.GoBoard256 goboard1 = new eddie.wu.arrayblock.GoBoard256();
+			eddie.wu.arrayblock.GoBoard256 goboard1 = new eddie.wu.arrayblock.GoBoard256(
+					Constant.BOARD_SIZE);
 			// for(int i=0; i<1;i++ ){
 			BoardColorState boardState = null;
 			BoardColorState boardState1 = null;

@@ -18,20 +18,22 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class SiHuoSouSuoFrame extends Frame {
+import org.apache.log4j.Logger;
 
+public class SiHuoSouSuoFrame extends Frame {
+	private static final Logger log = Logger.getLogger(SiHuoSouSuoFrame.class);
 	// private int id;
-	// GoBoardµÄÖ÷ÒªÈ±ÏİÊÇÆå¿éÊıÓĞÏŞÖÆ£¬Ö»ÓĞ128¿é¡£µ«ÊÇÓÃÓÚ¼ÆËãËÀ»îÌâ×ã¹»ÁË¡£
-	// Êı×éÆå¿éµÄºÃ´¦ÊÇÒ×ÓÚ¸´ÖÆÊı¾İ£»
+	// GoBoardçš„ä¸»è¦ç¼ºé™·æ˜¯æ£‹å—æ•°æœ‰é™åˆ¶ï¼Œåªæœ‰128å—ã€‚ä½†æ˜¯ç”¨äºè®¡ç®—æ­»æ´»é¢˜è¶³å¤Ÿäº†ã€‚
+	// æ•°ç»„æ£‹å—çš„å¥½å¤„æ˜¯æ˜“äºå¤åˆ¶æ•°æ®ï¼›
 	ShortLianApplet1 goapplet = new ShortLianApplet1();
-	Button shuangfanglunxia = new Button("Ë«·½ÂÖÏÂ");
-	Button sihuojisuan = new Button("ËÀ»î¼ÆËã");
-	// Button baocunqipu = new Button("±£´æÆåÆ×");
-	Button renjiduixia = new Button("ÈË»ú¶ÔÏÂ");
-	Button baichujumian = new Button("°Ú³ö¾ÖÃæ");
-	Button baocunjumian = new Button("±£´æ¾ÖÃæ");
-	Button zairujumian = new Button("ÔØÈë¾ÖÃæ");
-	Label zuobiao = new Label("ÊäÈë×ö»îÆå¿éµÄ×ø±êµã");
+	Button shuangfanglunxia = new Button("åŒæ–¹è½®ä¸‹");
+	Button sihuojisuan = new Button("æ­»æ´»è®¡ç®—");
+	// Button baocunqipu = new Button("ä¿å­˜æ£‹è°±");
+	Button renjiduixia = new Button("äººæœºå¯¹ä¸‹");
+	Button baichujumian = new Button("æ‘†å‡ºå±€é¢");
+	Button baocunjumian = new Button("ä¿å­˜å±€é¢");
+	Button zairujumian = new Button("è½½å…¥å±€é¢");
+	Label zuobiao = new Label("è¾“å…¥åšæ´»æ£‹å—çš„åæ ‡ç‚¹");
 	TextField zuobiaoa = new TextField();
 	TextField zuobiaob = new TextField();
 
@@ -85,10 +87,10 @@ public class SiHuoSouSuoFrame extends Frame {
 		});
 	}
 
-	public boolean mouseDown(Event e, int x, int y) { // ½ÓÊÜÊó±êÊäÈë
+	public boolean mouseDown(Event e, int x, int y) { // æ¥å—é¼ æ ‡è¾“å…¥
 		System.out.print("chuanbodaorongqi");
 		if (SHUANGFANGLUNXIA == true) {
-			byte a = (byte) ((x - 4) / 28 + 1); // Íê³ÉÊıÆøÌá×ÓµÈ.
+			byte a = (byte) ((x - 4) / 28 + 1); // å®Œæˆæ•°æ°”æå­ç­‰.
 			byte b = (byte) ((y - 4) / 28 + 1);
 			goapplet.KEXIA = true;
 		}
@@ -111,19 +113,19 @@ public class SiHuoSouSuoFrame extends Frame {
 	class LunxiaActionListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
-			// µã»÷ºóÖØĞÂ¿ª¾Ö¡£
+			// ç‚¹å‡»åé‡æ–°å¼€å±€ã€‚
 			goapplet.goboard = new BoardLianShort();
 			goapplet.KEXIA = true;
 
 			SHUANGFANGLUNXIA = true;
 			BAICHUJUMIAN = false;
 			RENJIDUIXIA = false;
-			System.out.println("SHUANGFANGLUNXIA=" + SHUANGFANGLUNXIA);
+			if(log.isDebugEnabled()) log.debug("SHUANGFANGLUNXIA=" + SHUANGFANGLUNXIA);
 		}
 
 	}
 
-	class ZairujumianActionListener implements ActionListener { // ÔØÈë¾ÖÃæ¡£
+	class ZairujumianActionListener implements ActionListener { // è½½å…¥å±€é¢ã€‚
 		Frame parent;
 
 		public ZairujumianActionListener(Frame par) {
@@ -131,8 +133,8 @@ public class SiHuoSouSuoFrame extends Frame {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			// ÔØÈë¾ÖÃæ
-			FileDialog fd = new FileDialog(parent, "ÔØÈë¾ÖÃæµÄÎ»ÖÃ", FileDialog.LOAD);
+			// è½½å…¥å±€é¢
+			FileDialog fd = new FileDialog(parent, "è½½å…¥å±€é¢çš„ä½ç½®", FileDialog.LOAD);
 			fd.setFile("1.wjm");
 			fd.setDirectory(".");
 			fd.show();
@@ -152,11 +154,11 @@ public class SiHuoSouSuoFrame extends Frame {
 			}
 
 			catch (IOException ex) {
-				System.out.println("the input meet some trouble!");
-				System.out.println("Exception" + ex.toString());
+				if(log.isDebugEnabled()) log.debug("the input meet some trouble!");
+				if(log.isDebugEnabled()) log.debug("Exception" + ex.toString());
 			}
 
-			System.out.println("ÔØÈë¾ÖÃæ");
+			if(log.isDebugEnabled()) log.debug("è½½å…¥å±€é¢");
 
 		}
 	}
@@ -164,7 +166,7 @@ public class SiHuoSouSuoFrame extends Frame {
 	class SihuoActionListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
-			// ¼ÆËãËÀ»î
+			// è®¡ç®—æ­»æ´»
 			byte m1, n1, result;
 			m1 = (byte) Integer.parseInt(zuobiaoa.getText());
 			n1 = (byte) Integer.parseInt(zuobiaob.getText());
@@ -172,14 +174,14 @@ public class SiHuoSouSuoFrame extends Frame {
 
 			// for(i=1;i<=
 
-			// Ã¿²½10ÖÖ±ä»¯¼ÆËã£¬×î¶àËã10²½(Ö÷ÒªÊÇÄÚ´æÏŞÖÆ)¡£
-			// ¼ÙÉèÆäÖĞÒ»·½Ã¿´Î¶¼ÄÜÏÈ¼ÆËãºÃµã¡£
-			// ×ö»î·½ÄÜ×ö»îµÄ»°£¬Ö»ĞèÄÜÕÒµ½×î¼Ñ²½Öè¼´¿É¡£
-			// ×ö»î·½²»ÄÜ×ö»î£¬±ØĞëÑéÖ¤ËùÓĞµã£¬°üÀ¨ÆúÈ¨²ÅÄÜÏÂ½áÂÛ
-			// ¹¥»÷·½ÄÜÉ±Æå£¬Ö»ĞèÕı½â¼´¿É
-			// ¹¥»÷·½²»ÄÜ³É¹¦£¬ĞèÒªÈ«²¿ÑéÖ¤¡£
+			// æ¯æ­¥10ç§å˜åŒ–è®¡ç®—ï¼Œæœ€å¤šç®—10æ­¥(ä¸»è¦æ˜¯å†…å­˜é™åˆ¶)ã€‚
+			// å‡è®¾å…¶ä¸­ä¸€æ–¹æ¯æ¬¡éƒ½èƒ½å…ˆè®¡ç®—å¥½ç‚¹ã€‚
+			// åšæ´»æ–¹èƒ½åšæ´»çš„è¯ï¼Œåªéœ€èƒ½æ‰¾åˆ°æœ€ä½³æ­¥éª¤å³å¯ã€‚
+			// åšæ´»æ–¹ä¸èƒ½åšæ´»ï¼Œå¿…é¡»éªŒè¯æ‰€æœ‰ç‚¹ï¼ŒåŒ…æ‹¬å¼ƒæƒæ‰èƒ½ä¸‹ç»“è®º
+			// æ”»å‡»æ–¹èƒ½æ€æ£‹ï¼Œåªéœ€æ­£è§£å³å¯
+			// æ”»å‡»æ–¹ä¸èƒ½æˆåŠŸï¼Œéœ€è¦å…¨éƒ¨éªŒè¯ã€‚
 
-			System.out.println("ËÀ»î¼ÆËãµÄ½á¹ûÎª£º" + result);
+			if(log.isDebugEnabled()) log.debug("æ­»æ´»è®¡ç®—çš„ç»“æœä¸ºï¼š" + result);
 		}
 
 	}
@@ -192,7 +194,7 @@ public class SiHuoSouSuoFrame extends Frame {
 			SHUANGFANGLUNXIA = false;
 			BAICHUJUMIAN = false;
 			RENJIDUIXIA = true;
-			System.out.println("RENJIDUIXIA=" + RENJIDUIXIA);
+			if(log.isDebugEnabled()) log.debug("RENJIDUIXIA=" + RENJIDUIXIA);
 
 		}
 
@@ -212,7 +214,7 @@ public class SiHuoSouSuoFrame extends Frame {
 				RENJIDUIXIA = false;
 			}
 
-			System.out.println("BAICHUJUMIAN=" + BAICHUJUMIAN);
+			if(log.isDebugEnabled()) log.debug("BAICHUJUMIAN=" + BAICHUJUMIAN);
 		}
 	}
 
@@ -224,8 +226,8 @@ public class SiHuoSouSuoFrame extends Frame {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			if (true) { // ±£´æ¾ÖÃæ
-				FileDialog fd = new FileDialog(parent, "±£´æ¾ÖÃæµÄÎ»ÖÃ",
+			if (true) { // ä¿å­˜å±€é¢
+				FileDialog fd = new FileDialog(parent, "ä¿å­˜å±€é¢çš„ä½ç½®",
 						FileDialog.SAVE);
 				fd.setFile("1.wjm");
 				fd.setDirectory(".");
@@ -245,15 +247,15 @@ public class SiHuoSouSuoFrame extends Frame {
 				}
 
 				catch (IOException ex) {
-					System.out.println("the output meet some trouble!");
-					System.out.println("Exception" + ex.toString());
+					if(log.isDebugEnabled()) log.debug("the output meet some trouble!");
+					if(log.isDebugEnabled()) log.debug("Exception" + ex.toString());
 				}
 
-				System.out.println("±£´æ¾ÖÃæ");
+				if(log.isDebugEnabled()) log.debug("ä¿å­˜å±€é¢");
 
-			} else { // ±£´æÆåÆ×
+			} else { // ä¿å­˜æ£‹è°±
 
-				System.out.println("±£´æÆåÆ×");
+				if(log.isDebugEnabled()) log.debug("ä¿å­˜æ£‹è°±");
 
 			}
 

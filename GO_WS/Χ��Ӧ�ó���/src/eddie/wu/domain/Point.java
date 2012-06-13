@@ -3,50 +3,83 @@
  */
 package eddie.wu.domain;
 
-import go.OpeningAnalysis;
-
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import eddie.wu.domain.analy.StateAnalysis;
 
 /**
  * @author eddie may be no use to separate out this class at the first glance.
  *         but I believe it will be a good choice with the future in the mind.
  * 
- *         FLY WEIGHT Design Pattern ��Ԫ���ģʽ
+ *         FLY WEIGHT Design Pattern 享元设计模式
  */
 public class Point implements java.io.Serializable {
 	public static Set<Point> zhanJiao;
 	public static Point XING;
-	public static Set<Point> xings;// ��
+	public static Set<Point> xings;// 星
 	public static Point XIAOMU;
-	public static Set<Point> xiaomus;// СĿ
+	public static Set<Point> xiaomus;// 小目
 	public static Point MUWAI;
-	public static Set<Point> muwais;// Ŀ��
+	public static Set<Point> muwais;// 目外
 	public static Point GAOMU;
-	public static Set<Point> gaomus;// ��Ŀ
+	public static Set<Point> gaomus;// 高目
 	public static Point SANSAN;
-	public static Set<Point> sansans;// ����
-	public static Point[][] points = new Point[OpeningAnalysis.BOARD_SIZE + 2][OpeningAnalysis.BOARD_SIZE + 2];
+	public static Set<Point> sansans;// 三三
+	// public static
+
+	private static Map<Integer, Point[][]> pointsMap = new HashMap<Integer, Point[][]>();
+	/*
+	 * valid scope from 1 to boardSize
+	 */
+	private final byte row;
 
 	/*
-	 * valid scope 1-19
+	 * valid scope from 1 to boardSize
 	 */
-	private byte row;
+	private final byte column;
 
-	/*
-	 * valid scope 1-19
-	 */
-	private byte column;
+	public final byte boardSize;
+	public final byte middleLine;
 
-	public static Point getPoint(byte row, byte column) {
-		return points[row][column];
+	public static Point getPoint(byte boardSize, byte row, byte column) {
+		if (Constant.DEBUG_CGCL == true) {
+
+		}
+		if (pointsMap.get(Integer.valueOf(boardSize)) == null) {
+			initAllPoints(boardSize);
+		}
+		return pointsMap.get(Long.valueOf(boardSize))[row][column];
 	}
 
-	public boolean isCorner() {
+	/**
+	 * 该点作为眼位是否为中央眼位（这里二线也算中央。）
+	 */
+	public boolean isCenterEye() {
+		Point p = this.Normalize();
+		return p.getRow() != 1 && p.getColumn() != 1;
+	}
+
+	/**
+	 * 是否在角上
+	 * 
+	 * @return
+	 */
+	public boolean isCornerEye() {
 		Point p = this.Normalize();
 		return p.getRow() == 1 && p.getColumn() == 1;
+	}
+
+	/**
+	 * 是否在边线上
+	 * 
+	 * @return
+	 */
+	public boolean isBorderEye() {
+		Point p = this.Normalize();
+		return p.getRow() == 1 && p.getColumn() != 1;
 	}
 
 	public boolean nearConer() {
@@ -54,11 +87,11 @@ public class Point implements java.io.Serializable {
 		return temp.getRow() <= 5 && temp.getColumn() <= 5;
 	}
 
-	public boolean isBorder() {
-		Point p = this.Normalize();
-		return p.getRow() == 1;// || p.getColumn() == 1
-	}
-
+	/**
+	 * 是否在棋盘的边,2到5线(3和4线是最正宗的边).相对中央而言. 有"金角银边草肚皮"之说.
+	 * 
+	 * @return
+	 */
 	public boolean nearBorder() {
 		Point p = this.Normalize();
 		return p.getRow() >= 2 && p.getRow() <= 5 && p.getColumn() > 5;
@@ -70,26 +103,37 @@ public class Point implements java.io.Serializable {
 	 * 
 	 * @param point
 	 */
-	public static Point getPoint(int point) {
-		int row = ((point - 1) / Constant.SIZEOFBOARD + 1);
-		int column = ((point - 1) % Constant.SIZEOFBOARD + 1);
-		return points[row][column];
+	public static Point getPointFromOneDim(int boardSize, int point) {
+		int row = ((point - 1) / boardSize + 1);
+		int column = ((point - 1) % boardSize + 1);
+		if (pointsMap.get(Integer.valueOf(boardSize)) == null) {
+			initAllPoints(boardSize);
+		}
+
+		return pointsMap.get(Integer.valueOf(boardSize))[row][column];
 	}
 
 	public static Point getPoint(int row, int column) {
-		return points[row][column];
+		int boardSize = Constant.BOARD_SIZE;
+		if (pointsMap.get(Integer.valueOf(boardSize)) == null) {
+			initAllPoints(boardSize);
+		}
+		return pointsMap.get(Integer.valueOf(boardSize))[row][column];
 	}
 
-	private Point() {
-
+	public static Point getPoint(int boardSize, int row, int column) {
+		if (Point.isNotValid(boardSize, row, column))
+			throw new RuntimeException("invalid Point [" + boardSize + ","
+					+ row + "," + column + "]");
+		if (pointsMap.get(Integer.valueOf(boardSize)) == null) {
+			initAllPoints(boardSize);
+		}
+		return pointsMap.get(Integer.valueOf(boardSize))[row][column];
 	}
 
-	private Point(byte row, byte column) {
-		this.row = row;
-		this.column = column;
-	}
-
-	private Point(int row, int column) {
+	private Point(int boardSize, int row, int column) {
+		this.boardSize = (byte) boardSize;
+		this.middleLine = (byte) ((boardSize + 2) / 2);
 		this.row = (byte) row;
 		this.column = (byte) column;
 	}
@@ -121,9 +165,9 @@ public class Point implements java.io.Serializable {
 	 * @param column
 	 *            The column to set.
 	 */
-	public void setColumn(byte column) {
-		this.column = column;
-	}
+	// public void setColumn(byte column) {
+	// this.column = column;
+	// }
 
 	/**
 	 * @return Returns the row.
@@ -136,9 +180,9 @@ public class Point implements java.io.Serializable {
 	 * @param row
 	 *            The row to set.
 	 */
-	public void setRow(byte row) {
-		this.row = row;
-	}
+	// public void setRow(byte row) {
+	// this.row = row;
+	// }
 
 	/**
 	 * from 1 to 361
@@ -146,15 +190,15 @@ public class Point implements java.io.Serializable {
 	 * @return
 	 */
 	public short getOneDimensionCoordinate() {
-		return (short) ((this.row - 1) * Constant.SIZEOFBOARD + this
-				.getColumn());
+		return (short) ((this.row - 1) * boardSize + this.getColumn());
 	}
 
 	/**
 	 * BUG FIX comments:<br/>
 	 * even the singleton pattern is used, it is not enough to ensure the
 	 * uniqueness. in the application, clone is used, and it will create another
-	 * Point instance with equal [row, column]
+	 * Point instance with equal [row, column]<br/>
+	 * change: no more clone.
 	 */
 	public boolean equals(Object object) {
 		if (object instanceof Point == false) {
@@ -168,6 +212,9 @@ public class Point implements java.io.Serializable {
 		}
 	}
 
+	/**
+	 * just ensure equal objects has same hashCode.
+	 */
 	public int hashCode() {
 		return getOneDimensionCoordinate();
 	}
@@ -180,91 +227,101 @@ public class Point implements java.io.Serializable {
 	 * not include horizontal axis and vertical axis themselves. *
 	 */
 	public boolean isLeftTop() {
-		if (this.getRow() <= Constant.COORDINATEOFTIANYUAN
-				&& this.getColumn() < Constant.COORDINATEOFTIANYUAN) {
+		if (this.getRow() <= middleLine && this.getColumn() < middleLine) {
 			return true;
 		}
 		return false;
 	}
 
 	public boolean isLeftBottom() {
-		if (this.getRow() > Constant.COORDINATEOFTIANYUAN
-				&& this.getColumn() <= Constant.COORDINATEOFTIANYUAN) {
+		if (this.getRow() > middleLine && this.getColumn() <= middleLine) {
 			return true;
 		}
 		return false;
 	}
 
 	public boolean isRightTop() {
-		if (this.getRow() < Constant.COORDINATEOFTIANYUAN
-				&& this.getColumn() >= Constant.COORDINATEOFTIANYUAN) {
+		if (this.getRow() < middleLine && this.getColumn() >= middleLine) {
 			return true;
 		}
 		return false;
 	}
 
 	public boolean isRightBottom() {
-		if (this.getRow() >= Constant.COORDINATEOFTIANYUAN
-				&& this.getColumn() > Constant.COORDINATEOFTIANYUAN) {
+		if (this.getRow() >= middleLine && this.getColumn() > middleLine) {
 			return true;
 		}
 		return false;
 	}
 
-	public boolean isValid() {
-		if (this.row < 1 || this.row > 19 || this.column > 19
-				|| this.column < 1)
+	public static boolean isValid(int boardSize, int row, int column) {
+		if (row < 1 || row > boardSize || column > boardSize || column < 1)
 			return false;
 		else
 			return true;
 	}
 
-	public boolean isNotValid() {
-		return !isValid();
+	public static boolean isNotValid(int boardSize, int row, int column) {
+		return !isValid(boardSize, row, column);
 	}
 
-	public Set<Point> getReflection() {
+	public Set<Point> getReflection(int boardSize) {
 		Point point = this;
 		int row = point.getRow();
 		int col = point.getColumn();
 		Set<Point> points = new HashSet<Point>();
 		points.add(point);
-		points.add(Point.getPoint(row, OpeningAnalysis.BOARD_SIZE + 1 - col));
-		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row, col));
-		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row,
-				OpeningAnalysis.BOARD_SIZE + 1 - col));
+		points.add(Point.getPoint(boardSize, row, boardSize + 1 - col));
+		points.add(Point.getPoint(boardSize, boardSize + 1 - row, col));
+		points.add(Point.getPoint(boardSize, boardSize + 1 - row, boardSize + 1
+				- col));
 
 		col = point.getRow();
 		row = point.getColumn();
-		points.add(Point.getPoint(row, col));
-		points.add(Point.getPoint(row, OpeningAnalysis.BOARD_SIZE + 1 - col));
-		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row, col));
-		points.add(Point.getPoint(OpeningAnalysis.BOARD_SIZE + 1 - row,
-				OpeningAnalysis.BOARD_SIZE + 1 - col));
+		points.add(Point.getPoint(boardSize, row, col));
+		points.add(Point.getPoint(boardSize, row, boardSize + 1 - col));
+		points.add(Point.getPoint(boardSize, boardSize + 1 - row, col));
+		points.add(Point.getPoint(boardSize, boardSize + 1 - row, boardSize + 1
+				- col));
 		return points;
 	}
 
-	static {
-		for (int i = 1; i <= OpeningAnalysis.BOARD_SIZE; i++) {
-			for (int j = 1; j <= OpeningAnalysis.BOARD_SIZE; j++) {
-				points[i][j] = new Point(i, j);
+	// private static S
+
+	public static Set<Point> getAllPoints(int boardSize) {
+		return allPointMap.get(boardSize);
+	}
+
+	public static Map<Integer, Set<Point>> allPointMap = new HashMap<Integer, Set<Point>>();
+
+	static void initAllPoints(int boardSize) {
+		Point[][] points = new Point[boardSize + 2][boardSize + 2];
+		Set<Point> allPoints = new HashSet<Point>();
+		for (int i = 1; i <= boardSize; i++) {
+			for (int j = 1; j <= boardSize; j++) {
+				points[i][j] = new Point(boardSize, i, j);
+				allPoints.add(points[i][j]);
+				pointsMap.put(boardSize, points);
+				allPointMap.put(Integer.valueOf(boardSize), allPoints);
 			}
 		}
+		if (boardSize < 9)
+			return;
 		zhanJiao = new HashSet<Point>();
-		XING = Point.getPoint(4, 4);
-		xings = XING.getReflection();
+		XING = Point.getPoint(boardSize, 4, 4);
+		xings = XING.getReflection(boardSize);
 		zhanJiao.addAll(xings);
-		XIAOMU = Point.getPoint(3, 4);
-		xiaomus = XIAOMU.getReflection();
+		XIAOMU = Point.getPoint(boardSize, 3, 4);
+		xiaomus = XIAOMU.getReflection(boardSize);
 		zhanJiao.addAll(xiaomus);
-		GAOMU = Point.getPoint(4, 5);
-		gaomus = GAOMU.getReflection();
+		GAOMU = Point.getPoint(boardSize, 4, 5);
+		gaomus = GAOMU.getReflection(boardSize);
 		zhanJiao.addAll(gaomus);
-		MUWAI = Point.getPoint(3, 5);
-		muwais = MUWAI.getReflection();
+		MUWAI = Point.getPoint(boardSize, 3, 5);
+		muwais = MUWAI.getReflection(boardSize);
 		zhanJiao.addAll(muwais);
-		SANSAN = Point.getPoint(3, 3);
-		sansans = SANSAN.getReflection();
+		SANSAN = Point.getPoint(boardSize, 3, 3);
+		sansans = SANSAN.getReflection(boardSize);
 		zhanJiao.addAll(sansans);
 	}
 
@@ -283,48 +340,22 @@ public class Point implements java.io.Serializable {
 	}
 
 	/**
-	 * �����ڼ����ϣ�ȡ�͵ġ�
+	 * 棋子在几线上？取低的。
 	 * 
 	 * @return
 	 */
 	public int getMinLine() {
-		int row;
-		int column;
-		if (this.row > 10)
-			row = 20 - this.row;
-		else
-			row = this.row;
-		if (this.column > 10)
-			column = 20 - this.column;
-		else
-			column = this.column;
-		if (row <= column)
-			return row;
-		else
-			return column;
+		return this.Normalize().getRow();
 	}
 
 	/**
-	 * �����ڼ����ϣ�ȡ�ߵġ�
+	 * 棋子在几线上？取高的。
 	 * 
 	 * @return
 	 */
 
 	public int getMaxLine() {
-		int row;
-		int column;
-		if (this.row > 10)
-			row = 20 - this.row;
-		else
-			row = this.row;
-		if (this.column > 10)
-			column = 20 - this.column;
-		else
-			column = this.column;
-		if (row <= column)
-			return column;
-		else
-			return row;
+		return this.Normalize().getColumn();
 	}
 
 	public boolean isDiagonal(Point other) {
@@ -344,25 +375,105 @@ public class Point implements java.io.Serializable {
 	}
 
 	/**
-	 * ����[4,16]�淶Ϊ[4,4],����ʶ�������λ�� [5,3]�淶Ϊ[3,5],row<=column
+	 * 将点[4,16]规范为[4,4],易于识别出是星位。 [5,3]规范为[3,5],row<=column
 	 * 
 	 * @return
 	 */
 	public Point Normalize() {
-		int row, column;
-		if (this.getRow() > Constant.COORDINATEOFTIANYUAN) {
-			row = 20 - this.row;
+		int row, column, middle;
+		middle = (boardSize + 1) / 2;
+		if (this.getRow() > middle) {
+			row = boardSize + 1 - this.row;
 		} else {
 			row = this.row;
 		}
-		if (this.getColumn() > Constant.COORDINATEOFTIANYUAN) {
-			column = 20 - this.column;
+		if (this.getColumn() > middle) {
+			column = boardSize + 1 - this.column;
 		} else {
 			column = this.column;
 		}
 		if (row <= column)
-			return Point.getPoint(row, column);
+			return Point.getPoint(boardSize, row, column);
 		else
-			return Point.getPoint(column, row);
+			return Point.getPoint(boardSize, column, row);
 	}
+
+	/**
+	 * 
+	 * @param delta
+	 * @return null if target is out of board.
+	 */
+	public Point getNeighbour(Delta delta) {
+		int row = this.row + delta.getRowDelta();
+		int column = this.column + delta.getColumnDelta();
+		if (Point.isValid(boardSize, row, column)) {
+			return Point.getPoint(boardSize, row, column);
+		} else
+			return null;
+
+	}
+
+	public Delta getDelta(Point other) {
+		return Delta.getDelta(row - other.row, column - other.column);
+	}
+
+	public Point getNeighbour(int rowDelta, int columnDelta) {
+		int row = this.row + rowDelta;
+		int column = this.column + columnDelta;
+		if (Point.isValid(boardSize, row, column)) {
+			return Point.getPoint(boardSize, row, column);
+		} else
+			return null;
+
+	}
+
+	public void getColor(StateAnalysis a) {
+		a.getColor(this);
+	}
+
+	/**
+	 * refer to GoBoardSymmetry
+	 * 
+	 * @return
+	 */
+	public Point horizontalMirror() {
+
+		int row = boardSize + 1 - getRow();
+		int column = getColumn();
+		return Point.getPoint(boardSize, row, column);
+	}
+
+	public Point verticalMirror() {
+		int row = getRow();
+		int column = boardSize + 1 - getColumn();
+		return Point.getPoint(boardSize, row, column);
+	}
+
+	public Point forwardSlashMirror() {
+		int row = boardSize + 1 - getColumn();
+		int column = boardSize + 1 - getRow();
+		return Point.getPoint(boardSize, row, column);
+	}
+
+	public Point backwardSlashMirror() {
+		int row = getColumn();
+		int column = getRow();
+		return Point.getPoint(boardSize, row, column);
+	}
+
+	/**
+	 * the lesser of value, the higher of priority.
+	 * 
+	 * @return
+	 */
+	public int getPriorityByLine() {
+		int line = this.getMinLine();
+		if (line > 3)
+			return line - 3;
+		else if (line == 3)
+			return 0;
+		else
+			return 3 - line;
+	}
+
 }

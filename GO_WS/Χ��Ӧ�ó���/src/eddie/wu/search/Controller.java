@@ -1,28 +1,28 @@
 package eddie.wu.search;
 
 /**
- * ÓÃÓÚ¿ØÖÆÕ¹¿ªµÄÀà.¶¨ÒåÁËÃ¿²ãµÄ ¿ØÖÆĞÅÏ¢. Ã¿Ò»²ã¿ÉÄÜÓĞ¶à¸ö¾ÖÃæ£¨×´Ì¬£© (a simple data object to store
- * miscellaneous control information)
+ * ç”¨äºæ§åˆ¶å±•å¼€çš„ç±».å®šä¹‰äº†æ¯å±‚çš„ æ§åˆ¶ä¿¡æ¯. æ¯ä¸€å±‚å¯èƒ½æœ‰å¤šä¸ªå±€é¢ï¼ˆçŠ¶æ€ï¼‰,<br/>
+ * (a simple data object to store miscellaneous control information)
  * 
- * @author Edward
+ * @author Eddie
  * 
  */
 public class Controller {
 	/**
-	 * µ±Ç°²ãÂÖË­×ß?
+	 * å½“å‰å±‚è½®è°èµ°?
 	 */
 	private int whoseTurn = 0;
 	/**
-	 * ¾ÖÃæµÄË÷ÒıºÅ.¸Ã²ãµÄ¾ÖÃæ´ÓÕâ¸ö±àºÅÊ¼¡£
+	 * å±€é¢çš„ç´¢å¼•å·.è¯¥å±‚çš„å±€é¢ä»è¿™ä¸ªç¼–å·å¼€å§‹(inclusive)ã€‚
 	 */
 	private int indexForJuMian = 0;
 
 	/**
-	 * ¸Ã²ã°üº¬µÄ¾ÖÃæÊı
+	 * è¯¥å±‚åŒ…å«çš„å±€é¢æ•°
 	 */
 	private int numberOfJuMian = 0;
 	/**
-	 * µ±Ç°²ãÁÙÊ±µÄ¼ÆËã½á¹û
+	 * å½“å‰å±‚ä¸´æ—¶çš„è®¡ç®—ç»“æœ
 	 */
 	private int tempBestScore = 0;
 

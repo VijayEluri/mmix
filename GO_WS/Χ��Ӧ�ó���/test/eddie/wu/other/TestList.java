@@ -8,21 +8,27 @@ import java.util.Set;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
+
+import util.GBKToUTF8;
+
 public class TestList extends TestCase {
+	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
+	
 	public void test() {
 		List<Object> aList = new ArrayList<Object>();
 		aList.add(null);
 		aList.add(null);
-		System.out.println(aList.size());
-		System.out.println(aList.isEmpty());
+		if(log.isDebugEnabled()) log.debug(aList.size());
+		if(log.isDebugEnabled()) log.debug(aList.isEmpty());
 		Assert.assertEquals(2, aList.size());
 	}
 	public void test2() {
 		Set<Object> aSet = new HashSet<Object>();
 		aSet.add(null);
 		aSet.add(null);
-		System.out.println(aSet.size());
-		System.out.println(aSet.isEmpty());
+		if(log.isDebugEnabled()) log.debug(aSet.size());
+		if(log.isDebugEnabled()) log.debug(aSet.isEmpty());
 		Assert.assertEquals(1, aSet.size());
 	}
 }

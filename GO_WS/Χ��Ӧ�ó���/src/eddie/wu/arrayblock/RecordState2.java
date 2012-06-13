@@ -19,26 +19,27 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Stack;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
 
+import eddie.wu.domain.Constant;
 import eddie.wu.ui.applet.GoApplet;
 
 public class RecordState2
    extends Frame {
-	private static final Log log=LogFactory.getLog(RecordState2.class);
+	private static final Logger log = Logger.getLogger(RecordState2.class);
    //private int id;
-   //GoBoardµÄÖ÷ÒªÈ±ÏİÊÇÆå¿éÊıÓĞÏŞÖÆ£¬Ö»ÓĞ128¿é¡£µ«ÊÇÓÃÓÚ¼ÆËãËÀ»îÌâ×ã¹»ÁË¡£
-   //Êı×éÆå¿éµÄºÃ´¦ÊÇÒ×ÓÚ¸´ÖÆÊı¾İ£»
+   //GoBoardçš„ä¸»è¦ç¼ºé™·æ˜¯æ£‹å—æ•°æœ‰é™åˆ¶ï¼Œåªæœ‰128å—ã€‚ä½†æ˜¯ç”¨äºè®¡ç®—æ­»æ´»é¢˜è¶³å¤Ÿäº†ã€‚
+   //æ•°ç»„æ£‹å—çš„å¥½å¤„æ˜¯æ˜“äºå¤åˆ¶æ•°æ®ï¼›
    GoApplet goapplet = new GoApplet();
-   Button shuangfanglunxia = new Button("Ë«·½ÂÖÏÂ");
-   Button sihuojisuan = new Button("ËÀ»î¼ÆËã");
-   //Button baocunqipu = new Button("±£´æÆåÆ×");
-   Button renjiduixia = new Button("ÈË»ú¶ÔÏÂ");
-   Button baichujumian = new Button("°Ú³ö¾ÖÃæ");
-   Button baocunjumian = new Button("±£´æ¾ÖÃæ");
-   Button zairujumian = new Button("ÔØÈë¾ÖÃæ");
-   Label zuobiao = new Label("ÊäÈë×ö»îÆå¿éµÄ×ø±êµã");
+   Button shuangfanglunxia = new Button("åŒæ–¹è½®ä¸‹");
+   Button sihuojisuan = new Button("æ­»æ´»è®¡ç®—");
+   //Button baocunqipu = new Button("ä¿å­˜æ£‹è°±");
+   Button renjiduixia = new Button("äººæœºå¯¹ä¸‹");
+   Button baichujumian = new Button("æ‘†å‡ºå±€é¢");
+   Button baocunjumian = new Button("ä¿å­˜å±€é¢");
+   Button zairujumian = new Button("è½½å…¥å±€é¢");
+   Label zuobiao = new Label("è¾“å…¥åšæ´»æ£‹å—çš„åæ ‡ç‚¹");
    TextField zuobiaoa = new TextField();
    TextField zuobiaob = new TextField();
 
@@ -90,10 +91,10 @@ public class RecordState2
       });
    }
 
-   public boolean mouseDown(Event e, int x, int y) { //½ÓÊÜÊó±êÊäÈë
+   public boolean mouseDown(Event e, int x, int y) { //æ¥å—é¼ æ ‡è¾“å…¥
       log.debug("chuanbodaorongqi");
       if (SHUANGFANGLUNXIA == true) {
-         byte a = (byte) ( (x - 4) / 28 + 1); //Íê³ÉÊıÆøÌá×ÓµÈ.
+         byte a = (byte) ( (x - 4) / 28 + 1); //å®Œæˆæ•°æ°”æå­ç­‰.
          byte b = (byte) ( (y - 4) / 28 + 1);
          goapplet.KEXIA = true;
       }
@@ -117,8 +118,8 @@ public class RecordState2
       implements ActionListener {
 
       public void actionPerformed(ActionEvent e) {
-         //µã»÷ºóÖØĞÂ¿ª¾Ö¡£
-         goapplet.goboard = new GoBoard();
+         //ç‚¹å‡»åé‡æ–°å¼€å±€ã€‚
+         goapplet.goboard = new ArrayGoBoard(Constant.BOARD_SIZE);
          goapplet.KEXIA = true;
 
          SHUANGFANGLUNXIA = true;
@@ -133,27 +134,27 @@ public class RecordState2
       implements ActionListener {
 
       public void actionPerformed(ActionEvent e) {
-         //¼ÆËãËÀ»î
+         //è®¡ç®—æ­»æ´»
          //byte i, j, k;
          byte houxuan[][] = new byte[40][2];
          houxuan = goapplet.goboard.houxuandian(
             (byte) Integer.parseInt(zuobiaoa.getText()),
             (byte) Integer.parseInt(zuobiaob.getText()));
-         GoBoard[] go = new GoBoard[100000];
-         Stack<GoBoard> stack = new Stack<GoBoard> ();
+         ArrayGoBoard[] go = new ArrayGoBoard[100000];
+         Stack<ArrayGoBoard> stack = new Stack<ArrayGoBoard> ();
          stack.add(go[0]);
          while (!stack.isEmpty()) {
             //for(i=1;i<=
 
          }
-         //Ã¿²½10ÖÖ±ä»¯¼ÆËã£¬×î¶àËã10²½(Ö÷ÒªÊÇÄÚ´æÏŞÖÆ)¡£
-         //¼ÙÉèÆäÖĞÒ»·½Ã¿´Î¶¼ÄÜÏÈ¼ÆËãºÃµã¡£
-         //×ö»î·½ÄÜ×ö»îµÄ»°£¬Ö»ĞèÄÜÕÒµ½×î¼Ñ²½Öè¼´¿É¡£
-         //×ö»î·½²»ÄÜ×ö»î£¬±ØĞëÑéÖ¤ËùÓĞµã£¬°üÀ¨ÆúÈ¨²ÅÄÜÏÂ½áÂÛ
-         //¹¥»÷·½ÄÜÉ±Æå£¬Ö»ĞèÕı½â¼´¿É
-         //¹¥»÷·½²»ÄÜ³É¹¦£¬ĞèÒªÈ«²¿ÑéÖ¤¡£
+         //æ¯æ­¥10ç§å˜åŒ–è®¡ç®—ï¼Œæœ€å¤šç®—10æ­¥(ä¸»è¦æ˜¯å†…å­˜é™åˆ¶)ã€‚
+         //å‡è®¾å…¶ä¸­ä¸€æ–¹æ¯æ¬¡éƒ½èƒ½å…ˆè®¡ç®—å¥½ç‚¹ã€‚
+         //åšæ´»æ–¹èƒ½åšæ´»çš„è¯ï¼Œåªéœ€èƒ½æ‰¾åˆ°æœ€ä½³æ­¥éª¤å³å¯ã€‚
+         //åšæ´»æ–¹ä¸èƒ½åšæ´»ï¼Œå¿…é¡»éªŒè¯æ‰€æœ‰ç‚¹ï¼ŒåŒ…æ‹¬å¼ƒæƒæ‰èƒ½ä¸‹ç»“è®º
+         //æ”»å‡»æ–¹èƒ½æ€æ£‹ï¼Œåªéœ€æ­£è§£å³å¯
+         //æ”»å‡»æ–¹ä¸èƒ½æˆåŠŸï¼Œéœ€è¦å…¨éƒ¨éªŒè¯ã€‚
          go[0] = goapplet.goboard;
-         log.debug("ËÀ»î¼ÆËãµÄ½á¹ûÎª£º");
+         log.debug("æ­»æ´»è®¡ç®—çš„ç»“æœä¸ºï¼š");
       }
 
    }
@@ -162,7 +163,7 @@ public class RecordState2
       implements ActionListener {
 
       public void actionPerformed(ActionEvent e) {
-         goapplet.goboard = new GoBoard();
+         goapplet.goboard = new ArrayGoBoard(Constant.BOARD_SIZE);
          goapplet.KEXIA = true;
          SHUANGFANGLUNXIA = false;
          BAICHUJUMIAN = false;

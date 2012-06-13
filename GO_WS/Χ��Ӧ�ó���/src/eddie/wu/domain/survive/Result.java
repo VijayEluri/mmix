@@ -4,14 +4,19 @@ import java.util.List;
 
 import eddie.wu.domain.Point;
 
+/**
+ * æ¯ä¸€æ­¥éƒ½æ˜¯é’ˆå¯¹ç›®å‰çš„å®é™…å±€é¢çš„.
+ * @author Eddie
+ *
+ */
 public class Result {
 	/**
-	 * ×ßfirstStep ´ïµ½½á¹ûscore
+	 * èµ°firstStep è¾¾åˆ°ç»“æœscore
 	 */
 	int score;
 	List<Point> steps;
 	Point firstStep;
-	//²»´æ´¢Æå×ÓÑÕÉ«£¬¶øÊÇÓÉÍâÃæÏÈºóÊÖÀ´¾ö¶¨¡£
+	//ä¸å­˜å‚¨æ£‹å­é¢œè‰²ï¼Œè€Œæ˜¯ç”±å¤–é¢å…ˆåæ‰‹æ¥å†³å®šã€‚
 	//int color;
 	
 	

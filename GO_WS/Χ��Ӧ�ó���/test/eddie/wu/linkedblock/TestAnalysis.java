@@ -1,27 +1,32 @@
 package eddie.wu.linkedblock;
 
-import eddie.wu.domain.BoardColorState;
-import eddie.wu.domain.Point;
-import go.StateAnalysis;
-
 import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
+
+import util.GBKToUTF8;
+import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.Point;
+import eddie.wu.domain.analy.StateAnalysis;
+
 public class TestAnalysis extends TestCase {
-	private String inname = "doc/Î§Æå³ÌĞòÊı¾İ/ËÀ»îÌâ¾ÖÃæ/Î§ÆåÌìµØ2003.22-P61-11.wjm";
+	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
+	
+	private String inname = "doc/å›´æ£‹ç¨‹åºæ•°æ®/æ­»æ´»é¢˜å±€é¢/å›´æ£‹å¤©åœ°2003.22-P61-11.wjm";
 	byte[][] state;
 
 	public void test() {
 		state = StateAnalysis.LoadState(inname);
 		BoardColorState bps = new BoardColorState(state);
 		Set<Point> blacks = bps.getBlackPoints();
-		System.out.println(blacks);
+		if(log.isDebugEnabled()) log.debug(blacks);
 		
 //		GoBoard go = new GoBoard(state);
 //		Set<Block> black = go.getSetFromState(ColorUtil.BLACK);
 //		for(Block block :black){
-//			System.out.println(block.toString());
+//			if(log.isDebugEnabled()) log.debug(block.toString());
 //		}
 		
 	}

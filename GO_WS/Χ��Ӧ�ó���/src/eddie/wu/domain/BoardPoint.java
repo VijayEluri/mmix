@@ -8,11 +8,10 @@ package eddie.wu.domain;
 
 import java.io.Serializable;
 
-
 /**
  * @author eddie
  * 
- *         ÆåÅÌÉÏµÄµãµÄ³éÏó£¬²»ÊÇÆå×ÓµÄ³éÏó¡£ µãµÄ×ø±êÓĞºÜ¶àÖÖ±í´ï·½Ê½£¬ÄÚ²¿ÒÔÊı×éÎª×¼¡£
+ *         æ£‹ç›˜ä¸Šçš„ç‚¹çš„æŠ½è±¡ï¼Œä¸æ˜¯æ£‹å­çš„æŠ½è±¡ã€‚ ç‚¹çš„åæ ‡æœ‰å¾ˆå¤šç§è¡¨è¾¾æ–¹å¼ï¼Œå†…éƒ¨ä»¥æ•°ç»„ä¸ºå‡†ã€‚
  */
 public class BoardPoint implements Cloneable, Serializable {
 	private static final byte ARRAY_COORDINATE = 1;
@@ -28,15 +27,15 @@ public class BoardPoint implements Cloneable, Serializable {
 	private boolean calculatedFlag = false;
 
 	/**
-	 * use to decide DAJIE(´ò½Ù)<br/>
-	 * ±ÈÈçµÚ50²½Ìá½Ù£¬ÄÇÃ´µÚ51²½¾Í²»ÄÜÁ¢¼´ÔÚtwinForKo´¦»ØÌá¡£
+	 * use to decide DAJIE(æ‰“åŠ«)<br/>
+	 * æ¯”å¦‚ç¬¬50æ­¥æåŠ«ï¼Œé‚£ä¹ˆç¬¬51æ­¥å°±ä¸èƒ½ç«‹å³åœ¨twinForKoå¤„å›æã€‚
 	 */
 	private short prohibitStep = 0;
 
 	/**
 	 * the point belong to the block, many to one relation.
 	 */
-	private Block block = null;
+	private BasicBlock block = null;
 
 	/**
 	 * @return Returns the prohibitStep.
@@ -74,6 +73,7 @@ public class BoardPoint implements Cloneable, Serializable {
 
 	/**
 	 * default color is blank
+	 * 
 	 * @param point
 	 */
 	public BoardPoint(Point point) {
@@ -91,11 +91,24 @@ public class BoardPoint implements Cloneable, Serializable {
 	//
 	// }
 
+	public BasicBlock getBasicBlock() {
+		return block;
+	}
+
 	/**
+	 * for the blank point, get Block will return null
+	 * 
 	 * @return Returns the block.
 	 */
 	public Block getBlock() {
-		return block;
+		if (block == null)
+			return null;// not happen in goboard.
+		if (block.isBlank())
+			return null;
+		// throw new RuntimeException(
+		// "getBlock() does not work for Blank block!");
+		else
+			return (Block) block;
 	}
 
 	/**
@@ -104,12 +117,33 @@ public class BoardPoint implements Cloneable, Serializable {
 	 */
 	public void setBlock(Block block) {
 		this.block = block;
+		block.addPoint(point);
+	}
+
+	public void setBasicBlock(BasicBlock block) {
+
+		if (block.isBlank()) {
+			this.setBlankBlock((BlankBlock) block);
+		} else {
+			this.setBlock((Block) block);
+		}
+	}
+
+	/**
+	 * maintain two-direction relationship
+	 * 
+	 * @param block
+	 *            The block to set.
+	 */
+	public void setBlankBlock(BlankBlock block) {
+		this.block = block;
+		block.addPoint(this.getPoint());
 	}
 
 	/**
 	 * @return Returns the breaths.
 	 */
-	public short getBreaths() {
+	public int getBreaths() {
 		return this.getBlock().getBreaths();
 	}
 
@@ -156,10 +190,10 @@ public class BoardPoint implements Cloneable, Serializable {
 
 	}
 
-	public short getTotalNumberOfPoint() {
+	public int getTotalNumberOfPoint() {
 		if (block == null)
 			return 1;
-		return block.getTotalNumberOfPoint();
+		return block.getNumberOfPoint();
 	}
 
 	/**
@@ -178,8 +212,7 @@ public class BoardPoint implements Cloneable, Serializable {
 	}
 
 	public String toString() {
-		return "color=" + this.color + "; block=" + this.block + "; point="
-				+ point.toString() + "]";
+		return "color=" + this.color + "; point=" + point.toString() + "]";
 
 	}
 
@@ -195,7 +228,7 @@ public class BoardPoint implements Cloneable, Serializable {
 		if (other.getColor() != color) {
 			return false;
 		}
-		if (other.getPoint().equals(point)==false) {
+		if (other.getPoint().equals(point) == false) {
 			return false;
 		}
 		if (block == null) {
@@ -221,9 +254,9 @@ public class BoardPoint implements Cloneable, Serializable {
 		return point.isLeftTop();
 	}
 
-	public boolean isValidCoordinate() {
-		return point.isValid();
-	}
+	// public boolean isValidCoordinate() {
+	// return point.isValid();
+	// }
 
 	/**
 	 * @return Returns the twinForKo.
@@ -238,5 +271,20 @@ public class BoardPoint implements Cloneable, Serializable {
 	 */
 	public void setTwinForKo(Point twinForKo) {
 		this.twinForKo = twinForKo;
+	}
+
+	public BlankBlock getBlankBlock() {
+		if (block == null)
+			return null;
+		if (block.isBlank())
+			return (BlankBlock) block;
+		else
+			return null;
+		// throw new RuntimeException(
+		// "getBlankBlock() does not work for Black/Whtie block!");
+	}
+
+	public Point getNeighbour(Delta delta) {
+		return point.getNeighbour(delta);
 	}
 }

@@ -8,18 +8,18 @@ package eddie.wu.manual;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
 
 /**
- * ÔØÈëÔ­ÏÈµÄÎåÇ§¾ÖÆåÆ×£¬·Ö³É10¸ö¿â¡£
+ * è½½å…¥åŽŸå…ˆçš„äº”åƒå±€æ£‹è°±ï¼Œåˆ†æˆ10ä¸ªåº“ã€‚
  * @author eddie
  * 
  *         use to load Go manual form everywhere.
  */
 public class LoadGMDGoManual extends GMDGoManual {
-	private static final Log log = LogFactory.getLog(LoadGMDGoManual.class);
-	// private static final String ROOT = "../doc/Î§Æå´òÆ×Èí¼þ/";
+	private static final Logger log = Logger.getLogger(LoadGMDGoManual.class);
+	// private static final String ROOT = "../doc/å›´æ£‹æ‰“è°±è½¯ä»¶/";
 	private String ROOT;
 
 	private String GO_MANUAL_DATA_FILE_LOCATION;
@@ -29,8 +29,8 @@ public class LoadGMDGoManual extends GMDGoManual {
 		GO_MANUAL_DATA_FILE_LOCATION = ROOT + "vol000";
 	}
 
-	public byte[] loadSingleGoManual() {
-		return loadOneFromLib0(0);
+	public GMDGoManual loadSingleGoManual() {
+		return loadOneFromLib0(5);
 	}
 
 	/**
@@ -75,13 +75,13 @@ public class LoadGMDGoManual extends GMDGoManual {
 	 * @param id
 	 * @return
 	 */
-	public byte[] loadOneFromLib0(int manualid) {
+	public GMDGoManual loadOneFromLib0(int manualid) {
 		if (manualid >= 0 && manualid < 9) {
 		} else {
 			throw new RuntimeException("manulid>=0&&manulid<9");
 		}
 		List<GMDGoManual> list = loadMultiGoManualFromLib0();
-		return list.get(manualid).getMoves();
+		return list.get(manualid);
 	}
 
 	/**

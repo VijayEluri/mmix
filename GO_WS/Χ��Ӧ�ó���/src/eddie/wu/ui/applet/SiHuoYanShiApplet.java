@@ -1,7 +1,7 @@
 package eddie.wu.ui.applet;
 /**
- * <p>Title:Î§ÆåËÀ»îÌâĞ¡³ÌĞò£­ÑİÊ¾²¿·Ö</p>
- * <p>Description: ÓÃÓÚËÀ»îÌâÑµÁ·</p>
+ * <p>Title:å›´æ£‹æ­»æ´»é¢˜å°ç¨‹åºï¼æ¼”ç¤ºéƒ¨åˆ†</p>
+ * <p>Description: ç”¨äºæ­»æ´»é¢˜è®­ç»ƒ</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: SE</p>
  * @author wueddie
@@ -13,12 +13,16 @@ import java.applet.Applet;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+
+import org.apache.log4j.Logger;
 /**
- * µ±Äê´òËã¸øÈı¾Å¶ÎµÀ³¡×öµÄËÀ»îÑİÊ¾Applet¡£Ö»ÄÜÔÚÍøÂç»·¾³ÏÂÔËĞĞ¡£
+ * å½“å¹´æ‰“ç®—ç»™ä¸‰ä¹æ®µé“åœºåšçš„æ­»æ´»æ¼”ç¤ºAppletã€‚åªèƒ½åœ¨ç½‘ç»œç¯å¢ƒä¸‹è¿è¡Œã€‚
  * @author wueddie-wym-wrz
  *
  */
 public class SiHuoYanShiApplet extends Applet {
+	
+	private static final Logger log = Logger.getLogger(SiHuoYanShiApplet.class);
    boolean fdangbu=false;//hui qi shi shi fou dang bu.
    boolean fshuzi=false;//shi fou biao chu shu zi.
    boolean fbuhelidian=false;//zhi zuo shi wei yu kao lv de dian.
@@ -26,7 +30,7 @@ public class SiHuoYanShiApplet extends Applet {
    boolean fzhudong=false;//shi fou xu yao quan bu zhong hua
    boolean fdonghua=false;
    int czhengjie=0;//zheng jie de biao zhi?
-   int linss;//Ô­Ê¼¾ÖÃæµÄÊÖÊı¡£
+   int linss;//åŸå§‹å±€é¢çš„æ‰‹æ•°ã€‚
    int chuiqi=0;// hui qi de bu shu.<3
    int cqianjin=0;// xiang qian de bu shu.<3
    int [][][] huitemp=new int[2][50][2];//yong yu paint de xie tiao
@@ -35,7 +39,7 @@ public class SiHuoYanShiApplet extends Applet {
 
    Tree gotree=new Tree();// cun chu  bian hua de dong tai jie gou.
    TreeNode gotemp;//dan qian jie dian.
-   TreeNode old=null;//µ±Ç°½ÚµãµÄ¸¸½Úµã¡£
+   TreeNode old=null;//å½“å‰èŠ‚ç‚¹çš„çˆ¶èŠ‚ç‚¹ã€‚
 
 
    boolean isStandalone = false;
@@ -58,11 +62,11 @@ public class SiHuoYanShiApplet extends Applet {
    int tyzj=28;//tuo yuan zhi jing;
    int bjjx=4;//qi pang bian jie jian xi.
    //tu xing yong hu jie mian
-   Button tishi=new Button("ÌáÊ¾");
-   Button huiqi=new Button("»ÚÆå");
-   Button jszz=new Button ("¼ÆËãÕ÷×Ó");
-   Button conglai=new Button("ÖØ×ö");
-   Button yanshi=new Button("ÑİÊ¾");
+   Button tishi=new Button("æç¤º");
+   Button huiqi=new Button("æ‚”æ£‹");
+   Button jszz=new Button ("è®¡ç®—å¾å­");
+   Button conglai=new Button("é‡åš");
+   Button yanshi=new Button("æ¼”ç¤º");
    TextArea jieshuo= new TextArea(5,10);
 
    public void init(){
@@ -86,37 +90,37 @@ public class SiHuoYanShiApplet extends Applet {
          xbj=Integer.parseInt(getParameter("xingbanjing"));
       if(getParameter("bianjiejianxi")!=null)
          bjjx=Integer.parseInt(getParameter("bianjiejianxi"));
-      //System.out.println("qipuwenjianming="+qipuwjm);
+      //if(log.isDebugEnabled()) log.debug("qipuwenjianming="+qipuwjm);
       qipuwjm=getParameter("qipuwenjianming");
       jieshuowjm=getParameter("jieshuowenjianming");
-      //System.out.println("jieshuowenjinaming="+jieshuowjm);
+      //if(log.isDebugEnabled()) log.debug("jieshuowenjinaming="+jieshuowjm);
       try{
          URL base=this.getCodeBase();
          URL dbase=this.getDocumentBase() ;
          String sdbase=dbase.toString();
          int index=sdbase.lastIndexOf("/");
          sdbase=sdbase.substring(0,index+1);
-         System.out.println("CodeBase="+base);
-         System.out.println("documentBase="+sdbase);
+         if(log.isDebugEnabled()) log.debug("CodeBase="+base);
+         if(log.isDebugEnabled()) log.debug("documentBase="+sdbase);
          URL urlbase=new URL( base+qipuwjm);
          //URL urlbase=new URL( sdbase+qipuwjm);
          URLConnection uconn=urlbase.openConnection();
          InputStream uc=uconn.getInputStream();
          uc.read(qipubh);
-         //System.out.println("ss="+1) ;
+         //if(log.isDebugEnabled()) log.debug("ss="+1) ;
          boolean qipujieshu=false;
          //int [][]jsweizhi=new int[30][2];
          j=-1;
          for (i=0;i<500;i++){
             j++;
             //if((int)bianhua[i]==-1) break;
-            System.out.println("a="+qipubh[i]) ;
+            if(log.isDebugEnabled()) log.debug("a="+qipubh[i]) ;
            if(qipujieshu==true){
               if(qipubh[i]==100) break;
                jsweizhi[j][0]=qipubh[i];
-               System.out.println("jieshuoweizhia="+qipubh[i]);
+               if(log.isDebugEnabled()) log.debug("jieshuoweizhia="+qipubh[i]);
                jsweizhi[j][1]=qipubh[++i];
-               System.out.println("jieshuoweizhib="+qipubh[i]);
+               if(log.isDebugEnabled()) log.debug("jieshuoweizhib="+qipubh[i]);
               continue;
             }
            if(qipubh[i]==100) break;
@@ -132,7 +136,7 @@ public class SiHuoYanShiApplet extends Applet {
            else {
                   bianhua[p][j][0]=qipubh[i];
                   bianhua[p][j][1]=qipubh[++i];
-                  System.out.println("b="+qipubh[i]) ;
+                  if(log.isDebugEnabled()) log.debug("b="+qipubh[i]) ;
              }
 
          }
@@ -145,7 +149,7 @@ public class SiHuoYanShiApplet extends Applet {
          DataInputStream js=
            new DataInputStream(
               new BufferedInputStream(ucjs));
-          System.out.println("js="+js) ;
+          if(log.isDebugEnabled()) log.debug("js="+js) ;
           BufferedReader buffin=
            new BufferedReader(new InputStreamReader(js));
             String s=new String();
@@ -158,7 +162,7 @@ public class SiHuoYanShiApplet extends Applet {
               jshuo[jsweizhi[j][0]][jsweizhi[j][1]]=s;
               tempstr[j]=s;
               j++;
-             System.out.println(s) ;
+             if(log.isDebugEnabled()) log.debug(s) ;
           }
           buffin.close ();
 
@@ -169,11 +173,11 @@ public class SiHuoYanShiApplet extends Applet {
       }
       gotree.insert(bianhua,jshuo);
       gotemp=gotree.getTreeNode();
-      if(gotemp==null) System.out.println("gotemp is null");
+      if(gotemp==null) if(log.isDebugEnabled()) log.debug("gotemp is null");
       /* else{
           while(gotemp!=null){
-               System.out.println("a="+gotemp.zba);
-               System.out.println("b="+gotemp.zbb);
+               if(log.isDebugEnabled()) log.debug("a="+gotemp.zba);
+               if(log.isDebugEnabled()) log.debug("b="+gotemp.zbb);
                gotemp=gotemp.left;
           }
           gotemp=gotree.getTreeNode();
@@ -192,7 +196,7 @@ public class SiHuoYanShiApplet extends Applet {
       tishi.setBounds(pos+90,60,60,26);
       yanshi.setBounds(pos+90,110,60,26);
       jieshuo.setBounds(pos,160,150,100);
-      jieshuo.setText("\"ÌáÊ¾\"°´Å¥¿ÉÒÔÖğÊÖ¸ø³öÌáÊ¾\n\"ÖØ×ö\"°´Å¥¿ÉÒÔ»Ö¸´µ½³õÊ¼¾ÖÃæ\n\"ÑİÊ¾\"°´Å¥¿ÉÒÔÑİÊ¾Õı½â\nÈç¹û×ß´í£¬Ö±½ÓµãÁíÒ»µã¼´¿É");
+      jieshuo.setText("\"æç¤º\"æŒ‰é’®å¯ä»¥é€æ‰‹ç»™å‡ºæç¤º\n\"é‡åš\"æŒ‰é’®å¯ä»¥æ¢å¤åˆ°åˆå§‹å±€é¢\n\"æ¼”ç¤º\"æŒ‰é’®å¯ä»¥æ¼”ç¤ºæ­£è§£\nå¦‚æœèµ°é”™ï¼Œç›´æ¥ç‚¹å¦ä¸€ç‚¹å³å¯");
       huiqi.setEnabled(false) ;
       conglai.setEnabled(false);
       for(i=1;i<400;i++){
@@ -219,7 +223,7 @@ public class SiHuoYanShiApplet extends Applet {
          b=bianhua[0][i][1];
          System.out.print("a="+a);
          System.out.print(",b="+b);
-         System.out.println(",shoushu="+i);
+         if(log.isDebugEnabled()) log.debug(",shoushu="+i);
          if(a<0||b<0){
             shoushu++;
             hui[shoushu][25]=-1;
@@ -247,22 +251,22 @@ public class SiHuoYanShiApplet extends Applet {
       chuiqi=0;
       cqianjin=0;
       showStatus("a="+a+", b="+b);
-      System.out.println("a="+a+",b="+b) ;
+      if(log.isDebugEnabled()) log.debug("a="+a+",b="+b) ;
       if (a>=0&&a<=18&&b>=0&&b<=18&&zb[a][b][2]==0){
          if(a==ktm&&b==ktn){// decide is it the prohibtted point?
-            System.out.println("this point is not permmitted,try another point!");
+            if(log.isDebugEnabled()) log.debug("this point is not permmitted,try another point!");
             showStatus("this point is not permmitted,try another point!");
          }else
          {
             work=gotemp;
            if(gotemp==null){
               if(czhengjie==0){
-                  // jieshuo.setText("ÄãÒÑ¾­Ó®ÁË!");
-                  jieshuo.setText("±ä»¯ÒÑ¾­½áÊø£¬\nÇëµ¥»÷\"ÖØ×ö\"°´Å¥");
+                  // jieshuo.setText("ä½ å·²ç»èµ¢äº†!");
+                  jieshuo.setText("å˜åŒ–å·²ç»ç»“æŸï¼Œ\nè¯·å•å‡»\"é‡åš\"æŒ‰é’®");
                }
               else{
-                  //jieshuo.setText("ÄãÒÑ¾­Ê§°ÜÁË!");
-                  jieshuo.setText("±ä»¯ÒÑ¾­½áÊø£¬\nÇëµ¥»÷\"ÖØ×ö\"°´Å¥");
+                  //jieshuo.setText("ä½ å·²ç»å¤±è´¥äº†!");
+                  jieshuo.setText("å˜åŒ–å·²ç»ç»“æŸï¼Œ\nè¯·å•å‡»\"é‡åš\"æŒ‰é’®");
                }
               return true;
             }// xia mian gotemp!=null
@@ -284,8 +288,8 @@ public class SiHuoYanShiApplet extends Applet {
                   b=gotemp.zbb;
                   s=gotemp.jieshuo;
                   jieshuo.setText(s);
-                  System.out.println("a="+a+",b="+b);
-                  System.out.println("s="+s);
+                  if(log.isDebugEnabled()) log.debug("a="+a+",b="+b);
+                  if(log.isDebugEnabled()) log.debug("s="+s);
                   cgcl();
                   cqianjin++;
                   a=-1;
@@ -300,7 +304,7 @@ public class SiHuoYanShiApplet extends Applet {
                 cgcl();
                 cqianjin++;
                 gotemp=work;
-                jieshuo.setText("ÔÙÏëÏë£¬ÓĞÃ»ÓĞ¸üºÃµÄ½â·¨");
+                jieshuo.setText("å†æƒ³æƒ³ï¼Œæœ‰æ²¡æœ‰æ›´å¥½çš„è§£æ³•");
                // shi yi fei zheng jie ;
             }else{
                czhengjie+=1;
@@ -308,14 +312,14 @@ public class SiHuoYanShiApplet extends Applet {
                gotemp=gotemp.left;
                ftishi=false;
               if (gotemp==null){
-                  //jieshuo.setText("¹§Ï²Äã£¬ÄãÒÑ¾­Ó®ÁË");
+                  //jieshuo.setText("æ­å–œä½ ï¼Œä½ å·²ç»èµ¢äº†");
                   fdangbu=true;
                   tishi.setEnabled(false) ;
                }else{
                   s=gotemp.jieshuo;
                   a=gotemp.zba;
                   b=gotemp.zbb;
-                  System.out.println("a="+a+",b="+b);
+                  if(log.isDebugEnabled()) log.debug("a="+a+",b="+b);
                   cgcl();
                   cqianjin++;
                 if(s!=null) {
@@ -354,7 +358,7 @@ public class SiHuoYanShiApplet extends Applet {
       int[] v=  {0,0,0,0,0};
       int[] k=  {0,0,0,0,0};//array for block index.
       int  tzd=0,tkd=0;//the   count for single pointeaten andblock eaten.
-      System.out.println("//come into method cgcl()");
+      if(log.isDebugEnabled()) log.debug("//come into method cgcl()");
       shoushu++;
       hui[shoushu][25]=a;
       hui[shoushu][26]=b;
@@ -366,13 +370,13 @@ public class SiHuoYanShiApplet extends Applet {
          kin1=zb[a+1][b][3];//the block index for the point.66
          if (kin1==0){      //not a block.
             zb[a+1][b][2]-=1;
-            System.out.println("dian:a=" +(a+1)+",b="+b+"jian 1 qi");
+            if(log.isDebugEnabled()) log.debug("dian:a=" +(a+1)+",b="+b+"jian 1 qi");
             if(zb[a+1][b][2]<=0){//eat the diff point
                k1--;
                tzd++;
                hui[shoushu][tzd*2-1]=a+1;
                hui[shoushu][tzd*2]=b;
-               System.out.println("ti zi:a="+(a+1)+",b="+b) ;
+               if(log.isDebugEnabled()) log.debug("ti zi:a="+(a+1)+",b="+b) ;
                ktz++;  //single point eaten was count
                zzq(a+1,b,tongse);//zi zhen qi
             }
@@ -380,13 +384,13 @@ public class SiHuoYanShiApplet extends Applet {
          else{
             int qi=kuai[kin1][0][0]-1;
             System.out.print("dian:a=" +(a+1)+",b="+b);
-            System.out.println(";suo zai kuai:"+kin1+" jian 1 qi");
+            if(log.isDebugEnabled()) log.debug(";suo zai kuai:"+kin1+" jian 1 qi");
             kdq(kin1,qi);
             if (kuai[kin1][0][0]<=0){
                k1--;
                tkd++;
                hui[shoushu][8+tkd]=kin1;
-               System.out.println("ti kuai:ki="+kin1) ;
+               if(log.isDebugEnabled()) log.debug("ti kuai:ki="+kin1) ;
                ktz+=kuai[kin1][0][1];
                kzq(kin1,tongse); //increase the breath of point surround
             }
@@ -397,13 +401,13 @@ public class SiHuoYanShiApplet extends Applet {
          kin2=zb[a-1][b][3];
          if (kin2==0){//99
             zb[a-1][b][2]-=1;
-            System.out.println("dian:a=" +(a-1)+",b="+b+"jian 1 qi");
+            if(log.isDebugEnabled()) log.debug("dian:a=" +(a-1)+",b="+b+"jian 1 qi");
             if(zb[a-1][b][2]<=0){
                k1--;
                tzd++;
                hui[shoushu][tzd*2-1]=a-1;
                hui[shoushu][tzd*2]=b;
-               System.out.println("ti zi:a="+(a-1)+",b="+b) ;
+               if(log.isDebugEnabled()) log.debug("ti zi:a="+(a-1)+",b="+b) ;
                ktz++;
                zzq(a-1,b,tongse);//zi zhen qi
             }
@@ -411,14 +415,14 @@ public class SiHuoYanShiApplet extends Applet {
          else if(kin2!=kin1){
             int qi=kuai[kin2][0][0]-1;
             System.out.print("dian:a=" +(a-1)+",b="+b);
-            System.out.println(";suo zai kuai:"+kin2+" jian 1 qi") ;
+            if(log.isDebugEnabled()) log.debug(";suo zai kuai:"+kin2+" jian 1 qi") ;
             kdq(kin2,qi);
                //kuai[kin2][0][0]-=1;
             if(kuai[kin2][0][0]<=0){
                k1--;
                tkd++;
                hui[shoushu][8+tkd]=kin2;
-               System.out.println("ti kuai:ki="+kin2) ;
+               if(log.isDebugEnabled()) log.debug("ti kuai:ki="+kin2) ;
                ktz+=kuai[kin2][0][1];
                kzq(kin2,tongse); //kuai zheng qi
             }
@@ -430,13 +434,13 @@ public class SiHuoYanShiApplet extends Applet {
          kin3=zb[a][b+1][3];
          if (kin3==0){
             zb[a][b+1][2]-=1;//132
-            System.out.println("dian:a=" +a+",b="+(b+1)+"jian 1 qi");
+            if(log.isDebugEnabled()) log.debug("dian:a=" +a+",b="+(b+1)+"jian 1 qi");
             if(zb[a][b+1][2]<=0){
                k1--;
                tzd++;
                hui[shoushu][tzd*2-1]=a;
                hui[shoushu][tzd*2]=b+1;
-               System.out.println("ti zi:a="+a+",b="+(b+1)) ;
+               if(log.isDebugEnabled()) log.debug("ti zi:a="+a+",b="+(b+1)) ;
                ktz++;
                zzq(a,(b+1),tongse);//zi zhen qi
             }
@@ -444,13 +448,13 @@ public class SiHuoYanShiApplet extends Applet {
          else if (kin3!=kin2&&kin3!=kin1){
             int qi=kuai[kin3][0][0]-1;
             System.out.print("dian:a=" +a+",b="+(b+1));
-            System.out.println(";suo zai kuai:"+kin3+" jian 1 qi") ;
+            if(log.isDebugEnabled()) log.debug(";suo zai kuai:"+kin3+" jian 1 qi") ;
             kdq(kin3,qi);
             if (kuai[kin3][0][0]<=0){
                k1--;
                tkd++;
                hui[shoushu][8+tkd]=kin3;
-               System.out.println("ti kuai:ki="+kin3) ;
+               if(log.isDebugEnabled()) log.debug("ti kuai:ki="+kin3) ;
                ktz+=kuai[kin3][0][1];
                kzq(kin3,tongse); //kuai zheng qi
             }
@@ -461,13 +465,13 @@ public class SiHuoYanShiApplet extends Applet {
          kin4=zb[a][b-1][3];//the subscipt 3 mean the block index
          if (kin4==0){
             zb[a][b-1][2]-=1;
-            System.out.println("dian:a=" +a+",b="+(b-1)+"jian 1 qi");
+            if(log.isDebugEnabled()) log.debug("dian:a=" +a+",b="+(b-1)+"jian 1 qi");
             if (zb[a][b-1][2]<=0){//165
                k1--;
                tzd++;
                hui[shoushu][tzd*2-1]=a;
                hui[shoushu][tzd*2]=b-1;
-               System.out.println("ti zi:a="+a+",b="+(b-1)) ;
+               if(log.isDebugEnabled()) log.debug("ti zi:a="+a+",b="+(b-1)) ;
                ktz++;
                zzq(a,(b-1),tongse);//zi zhen qi
             }
@@ -475,13 +479,13 @@ public class SiHuoYanShiApplet extends Applet {
          else if (kin4!=kin3&&kin4!=kin2&&kin4!=kin1) {
             int qi=kuai[kin4][0][0]-1;
             System.out.print("dian:a=" +a+",b="+(b-1));
-            System.out.println(";suo zai kuai:"+kin4+" jian 1 qi") ;
+            if(log.isDebugEnabled()) log.debug(";suo zai kuai:"+kin4+" jian 1 qi") ;
             kdq(kin4,qi);
             if(kuai[kin4][0][0]<=0){
                k1--;
                tkd++;
                hui[shoushu][8+tkd]=kin4;
-               System.out.println("ti kuai:ki="+kin4) ;
+               if(log.isDebugEnabled()) log.debug("ti kuai:ki="+kin4) ;
                ktz+=kuai[kin4][0][1];
                kzq(kin4,tongse); //kuai zheng qi
             }
@@ -496,25 +500,25 @@ public class SiHuoYanShiApplet extends Applet {
          k2++;
          u[k0+k2]=a+1;
          v[k0+k2]=b;//198
-         System.out.println("di " +k2+" qi:a="+(a+1)+",b="+b) ;
+         if(log.isDebugEnabled()) log.debug("di " +k2+" qi:a="+(a+1)+",b="+b) ;
       }
       if((a-1)>=0&&zb[a-1][b][0]==0){//2.2
          k2++;
          u[k0+k2]=a-1;
          v[k0+k2]=b;
-         System.out.println("di " +k2+" qi:a="+(a-1)+",b="+b) ;
+         if(log.isDebugEnabled()) log.debug("di " +k2+" qi:a="+(a-1)+",b="+b) ;
       }
       if((b+1)<=18&&zb[a][b+1][0]==0){//2.3
          k2++;
          u[k0+k2]=a;
          v[k0+k2]=b+1;
-         System.out.println("di " +k2+" qi:a="+a+",b="+(b+1)) ;
+         if(log.isDebugEnabled()) log.debug("di " +k2+" qi:a="+a+",b="+(b+1)) ;
       }
       if((b-1)>=0&&zb[a][b-1][0]==0){//2.4
          k2++;
          u[k0+k2]=a;
          v[k0+k2]=b-1;
-         System.out.println("di " +k2+" qi:a="+a+",b="+(b-1)) ;
+         if(log.isDebugEnabled()) log.debug("di " +k2+" qi:a="+a+",b="+(b-1)) ;
       }
       k0+=k2;//k0 is the total points of diff and blank.
       dang=k2;//kong bai dian jiu shi qi.
@@ -528,13 +532,13 @@ public class SiHuoYanShiApplet extends Applet {
             u[k0+kss]=a+1;//u[0] not used
             v[k0+kss]=b;   //deal with single point.
             System.out.print("dian:a=" +(a+1)+",b="+b+"zeng qi:");
-            System.out.println(""+(zb[a+1][b][2]-1)) ;
+            if(log.isDebugEnabled()) log.debug(""+(zb[a+1][b][2]-1)) ;
          }
          else{//231
             dang+=kuai[kin1][0][0];
             dang--;
             System.out.print("dian:a=" +(a+1)+",b="+b+"suo zai kuai:"+kin1);
-            System.out.println(" zeng qi:"+(kuai[kin1][0][0]-1)) ;
+            if(log.isDebugEnabled()) log.debug(" zeng qi:"+(kuai[kin1][0][0]-1)) ;
             u[4-ks]=a+1;//deal with block.
             v[4-ks]=b;
             ks++;
@@ -552,7 +556,7 @@ public class SiHuoYanShiApplet extends Applet {
             u[k0+kss]=a-1;
             v[k0+kss]=b;
             System.out.print("dian:a=" +(a-1)+",b="+b+"zeng qi:");
-            System.out.println(""+(zb[a-1][b][2]-1)) ;
+            if(log.isDebugEnabled()) log.debug(""+(zb[a-1][b][2]-1)) ;
          }
          else if (kin2!=kin1){
             dang+=kuai[kin2][0][0];
@@ -562,7 +566,7 @@ public class SiHuoYanShiApplet extends Applet {
             ks++;
             k[ks]=kin2;
             System.out.print("dian:a=" +(a-1)+",b="+b+"suo zai kuai:"+kin2);
-            System.out.println(" zeng qi:"+(kuai[kin2][0][0]-1)) ;
+            if(log.isDebugEnabled()) log.debug(" zeng qi:"+(kuai[kin2][0][0]-1)) ;
          }//ks biao shi you ji ge bu tong de kuai shu
 
       }
@@ -576,7 +580,7 @@ public class SiHuoYanShiApplet extends Applet {
             u[k0+kss]=a;
             v[k0+kss]=b+1;
             System.out.print("dian:a=" +a+",b="+(b+1)+"zeng qi:");
-            System.out.println(""+(zb[a][b+1][2]-1)) ;
+            if(log.isDebugEnabled()) log.debug(""+(zb[a][b+1][2]-1)) ;
          }
          else if (kin3!=kin2&&kin3!=kin1){
             dang+=kuai[kin3][0][0];
@@ -586,7 +590,7 @@ public class SiHuoYanShiApplet extends Applet {
             ks++;
             k[ks]=kin3;
             System.out.print("dian:a=" +a+",b="+(b+1)+"suo zai kuai:"+kin3);
-            System.out.println(" zeng qi:"+(kuai[kin3][0][0]-1)) ;
+            if(log.isDebugEnabled()) log.debug(" zeng qi:"+(kuai[kin3][0][0]-1)) ;
          }
 
       }
@@ -600,7 +604,7 @@ public class SiHuoYanShiApplet extends Applet {
             u[k0+kss]=a;
             v[k0+kss]=b-1;//kss is single point.
             System.out.print("dian:a=" +a+",b="+(b-1)+"zeng qi:");
-            System.out.println(""+(zb[a][b-1][2]-1)) ;
+            if(log.isDebugEnabled()) log.debug(""+(zb[a][b-1][2]-1)) ;
          }
          else if (kin4!=kin3&&kin4!=kin2&&kin4!=kin1){
             dang+=kuai[kin4][0][0];
@@ -610,18 +614,18 @@ public class SiHuoYanShiApplet extends Applet {
             ks++;
             k[ks]=kin4; //ks is block.
             System.out.print("dian:a=" +a+",b="+(b-1)+"suo zai kuai:"+kin4);
-            System.out.println(" zeng qi:"+(kuai[kin4][0][0]-1)) ;
+            if(log.isDebugEnabled()) log.debug(" zeng qi:"+(kuai[kin4][0][0]-1)) ;
          }
 
       }          //297
       if(dang>0){
          ktm=-1;
          ktn=-1;
-         System.out.println(" ke yi ti jie le.") ;
+         if(log.isDebugEnabled()) log.debug(" ke yi ti jie le.") ;
       }
       if(dang==0){
          showStatus("this point is prohibited,try again!");
-         System.out.println("this point is prohibited,try again!") ;
+         if(log.isDebugEnabled()) log.debug("this point is prohibited,try again!") ;
          zzq(a,b,yise);
          hui[shoushu][25]=-1;
          hui[shoushu][26]=-1;
@@ -631,7 +635,7 @@ public class SiHuoYanShiApplet extends Applet {
       }
       showStatus("qing="+dang+";  a="+a+",b="+b+";");
       if (k3==0){//4.1 no same color point surround
-         System.out.println("//k3=0");
+         if(log.isDebugEnabled()) log.debug("//k3=0");
          zb[a][b][2]=dang;
          if(dang==1&ktz==1){
             ktm=u[k0];//k0==2,3,4.
@@ -647,20 +651,20 @@ public class SiHuoYanShiApplet extends Applet {
          return;
       }
       if (ks==0){//4.2 only single point surr.
-         System.out.println("ks=0");
+         if(log.isDebugEnabled()) log.debug("ks=0");
          gq=0;
          for (i=1;i<=kss;i++){//4.1 deal surr point
             hui[shoushu][12+i*2-1]=u[k0+i];
             hui[shoushu][12+i*2]=v[k0+i];
            for ( j=1;j<=(kss-i);j++){
                gq+=dd(u[k0+i],v[k0+i],u[k0+i+j],v[k0+i+j]);
-               System.out.println("gq="+gq);
+               if(log.isDebugEnabled()) log.debug("gq="+gq);
             }
          }
          zb[a][b][2]=dang-gq;
             //zb[a][b][0]=tongse;
          zb[a][b][3]=++ki;//count from first block
-         System.out.println("ki="+ki);
+         if(log.isDebugEnabled()) log.debug("ki="+ki);
          hui[shoushu][0]=ki;
          kuai[ki][0][0]=zb[a][b][2];
          kuai[ki][0][1]=k3+1;
@@ -683,9 +687,9 @@ public class SiHuoYanShiApplet extends Applet {
            //hen hao chu li.jian qu gong qi ji ke .  jian qu gong qi
       }
       if(ks>0){
-         System.out.println("ks>0");
+         if(log.isDebugEnabled()) log.debug("ks>0");
          ki++;
-         System.out.println("ki="+ki);
+         if(log.isDebugEnabled()) log.debug("ki="+ki);
          hui[shoushu][0]=ki;
          kuai[ki][0][1]=1;
          kuai[ki][1][0]=a;
@@ -699,10 +703,10 @@ public class SiHuoYanShiApplet extends Applet {
            // dkhb(a,b,k[1]);
          for ( j=1;j<=ks;j++){
             hui[shoushu][20+j]=k[j];
-            System.out.println("kin="+k[j]+" ");
+            if(log.isDebugEnabled()) log.debug("kin="+k[j]+" ");
             kkhb(ki,k[j]);//not deal with breath
          }
-         System.out.println("xiao shi.");
+         if(log.isDebugEnabled()) log.debug("xiao shi.");
             //zb[a][b][2]=tongse;
             //kuai[k[1]][0][0]=zb[a][b][2];//? need deal with breath.
         dang=jskq(ki);
@@ -725,7 +729,7 @@ public class SiHuoYanShiApplet extends Applet {
       int kin1=0,m=0,n=0;//the block index.
       int xun;
       int yanchi;
-      System.out.println("//come into method paint");
+      if(log.isDebugEnabled()) log.debug("//come into method paint");
       if(fzhudong==true){
          if(tsa>=0&&tsb>=0){
              xz(g,tsa,tsb);
@@ -950,7 +954,7 @@ public class SiHuoYanShiApplet extends Applet {
                m=hui[xun][25];
                n=hui[xun][26];
               if(m<0||n<0){
-                  System.out.println("zheng jie zhong you qi quan.");
+                  if(log.isDebugEnabled()) log.debug("zheng jie zhong you qi quan.");
                   break;
                }
               if(zb[m][n][2]>0){
@@ -1075,15 +1079,15 @@ public class SiHuoYanShiApplet extends Applet {
             }   //bian hua de hui qi
             repaint();
          }else{
-            System.out.println("//this is original ju mian");
-            jieshuo.setText("ÒÑ¾­ÊÇÔ­Ê¼¾ÖÃæ£¬ÇëÑ¡Ôñ×Åµã");
+            if(log.isDebugEnabled()) log.debug("//this is original ju mian");
+            jieshuo.setText("å·²ç»æ˜¯åŸå§‹å±€é¢ï¼Œè¯·é€‰æ‹©ç€ç‚¹");
 
          }
           return true;
       }
       if(e.target==tishi)
       {
-         System.out.println("come into method tishi!");
+         if(log.isDebugEnabled()) log.debug("come into method tishi!");
          if(gotemp!=null){
              //a=gotemp.zba;
              // b=gotemp.zbb;
@@ -1092,7 +1096,7 @@ public class SiHuoYanShiApplet extends Applet {
             repaint();
          }// ti shi dang qian shou
          else{
-            jieshuo.setText("±ä»¯ÒÑ¾­½áÊø£¬ÇëÑ¡Ôñ\"ÖØÀ´\"°´Å¥");
+            jieshuo.setText("å˜åŒ–å·²ç»ç»“æŸï¼Œè¯·é€‰æ‹©\"é‡æ¥\"æŒ‰é’®");
          }
          return true;
       }
@@ -1100,7 +1104,7 @@ public class SiHuoYanShiApplet extends Applet {
          fshuzi=false;
          hda=-1;
          hdb=-1;
-         System.out.println("//come into method conglai!");
+         if(log.isDebugEnabled()) log.debug("//come into method conglai!");
          while(shoushu!=linss){
             clhuiqi();
          }
@@ -1117,7 +1121,7 @@ public class SiHuoYanShiApplet extends Applet {
          conglai.setEnabled(false);
          tishi.setEnabled(true) ;
          yanshi.setEnabled(true) ;
-         jieshuo.setText("\"ÌáÊ¾\"°´Å¥¿ÉÒÔÖğÊÖ¸ø³öÌáÊ¾£»\n\"ÖØÀ´\"°´Å¥¿ÉÒÔ»Ö¸´µ½³õÊ¼¾ÖÃæ£»\n\"ÑİÊ¾\"°´Å¥¿ÉÒÔÏÔÊ¾Õı½â\nÈç¹û×ß´í£¬Ö±½ÓµãÁíÒ»µã¼´¿É");
+         jieshuo.setText("\"æç¤º\"æŒ‰é’®å¯ä»¥é€æ‰‹ç»™å‡ºæç¤ºï¼›\n\"é‡æ¥\"æŒ‰é’®å¯ä»¥æ¢å¤åˆ°åˆå§‹å±€é¢ï¼›\n\"æ¼”ç¤º\"æŒ‰é’®å¯ä»¥æ˜¾ç¤ºæ­£è§£\nå¦‚æœèµ°é”™ï¼Œç›´æ¥ç‚¹å¦ä¸€ç‚¹å³å¯");
          ftishi=false;
          fbuhelidian=false;
          czhengjie=0;
@@ -1152,7 +1156,7 @@ public class SiHuoYanShiApplet extends Applet {
             a=gotemp.zba;
             b=gotemp.zbb;
             if(a<0||b<0){
-               System.out.println("qipuzhengjie zhong you qiquan.");
+               if(log.isDebugEnabled()) log.debug("qipuzhengjie zhong you qiquan.");
                break;
             }
             cgcl();
@@ -1541,8 +1545,8 @@ public class SiHuoYanShiApplet extends Applet {
       huitemp[chuiqi][0][0]=m;
       huitemp[chuiqi][0][1]=n;
       zzq(m,n,yise);
-      System.out.println("//regret the first step:"+shoushu);
-      System.out.println(";a="+m+",b="+n);
+      if(log.isDebugEnabled()) log.debug("//regret the first step:"+shoushu);
+      if(log.isDebugEnabled()) log.debug(";a="+m+",b="+n);
       if(hui[shoushu][0]>0){//you xin kuai sheng cheng.
          ki=hui[shoushu][0];
          for(i=0;i<50;i++){
@@ -1550,7 +1554,7 @@ public class SiHuoYanShiApplet extends Applet {
             kuai[ki][i][1]=0;
          }
          ki--;//zhe shi dang qian you xiao de kuai;
-         System.out.println("hui fu ki="+ki);
+         if(log.isDebugEnabled()) log.debug("hui fu ki="+ki);
       for(i=1;i<=4;i++){// xing cheng xin kuai de fan chu li
          if(hui[shoushu][2*i+12-1]<0){
             break;
@@ -1563,7 +1567,7 @@ public class SiHuoYanShiApplet extends Applet {
             zb[m][n][3]=0;
             //zb[m][n][0]=tongse;
             zb[m][n][2]=jszq(m,n);
-            System.out.println("//ji suan zi de qi wei"+zb[m][n][2]);
+            if(log.isDebugEnabled()) log.debug("//ji suan zi de qi wei"+zb[m][n][2]);
          }
       }//deal with 3 sub
       for(i=1;i<=4;i++){
@@ -1591,7 +1595,7 @@ public class SiHuoYanShiApplet extends Applet {
             n=hui[shoushu][2*i];
             hui[shoushu][2*i]=-1;
             tzs++;
-            System.out.println("hui fu bei ti zi:a="+m+",b="+n);
+            if(log.isDebugEnabled()) log.debug("hui fu bei ti zi:a="+m+",b="+n);
             huitemp[chuiqi][tzs][0]=m;
             huitemp[chuiqi][tzs][1]=n;
             zb[m][n][0]=yise;
@@ -1616,7 +1620,7 @@ public class SiHuoYanShiApplet extends Applet {
                tzs++;
                huitemp[chuiqi][tzs][0]=m;
                huitemp[chuiqi][tzs][1]=n;
-               System.out.println("hui fu bei ti zi:a="+m+",b="+n);
+               if(log.isDebugEnabled()) log.debug("hui fu bei ti zi:a="+m+",b="+n);
                zb[m][n][0]=yise;
                zb[m][n][3]=kin1;
             }
@@ -1645,6 +1649,8 @@ class TreeNode {
   }
 }
 class Tree {
+	private static final Logger log = Logger.getLogger(Tree.class);
+	
   private TreeNode root;
   public TreeNode getTreeNode(){
      return root;
@@ -1668,18 +1674,18 @@ class Tree {
            if(temp==null){
               if(old!=null){
                   temp=new TreeNode(m,n,str);
-                  System.out.println("cha ru di yi ge bianhua");
-                  System.out.println("a="+temp.zba+",b="+temp.zbb);
-                  System.out.println("str="+str);
+                  if(log.isDebugEnabled()) log.debug("cha ru di yi ge bianhua");
+                  if(log.isDebugEnabled()) log.debug("a="+temp.zba+",b="+temp.zbb);
+                  if(log.isDebugEnabled()) log.debug("str="+str);
                   old.left=temp;
                   temp.father=old;
                   old=temp;
                   temp=temp.left;
                }else{
                   root=new TreeNode(m,n,str);
-                  System.out.println("cha ru gen jie dian/zhengjie");
-                  System.out.println("a="+m+",b="+n);
-                  System.out.println("str="+str);
+                  if(log.isDebugEnabled()) log.debug("cha ru gen jie dian/zhengjie");
+                  if(log.isDebugEnabled()) log.debug("a="+m+",b="+n);
+                  if(log.isDebugEnabled()) log.debug("str="+str);
                   old=root;
                   temp=root.left;
                }
@@ -1699,10 +1705,10 @@ class Tree {
               }
              if(work==null){
                   work=new TreeNode(m,n,str);
-                  System.out.println("cha ru fei zheng jie");
-                  System.out.println("a="+m+",b="+n);
-                 //System.out.println("b="+n);
-                  System.out.println("str="+str);
+                  if(log.isDebugEnabled()) log.debug("cha ru fei zheng jie");
+                  if(log.isDebugEnabled()) log.debug("a="+m+",b="+n);
+                 //if(log.isDebugEnabled()) log.debug("b="+n);
+                  if(log.isDebugEnabled()) log.debug("str="+str);
                   temp.right=work;
                   work.father=temp;
               }

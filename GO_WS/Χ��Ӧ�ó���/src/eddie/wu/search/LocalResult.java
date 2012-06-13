@@ -24,6 +24,11 @@ public class LocalResult {
 	public List<Candidate> getCandidates() {
 		return candidates;
 	}
+	
+	public int countCandicates(){
+		if(candidates==null || candidates.size()==0) return 0;
+		else return candidates.size();
+	}
 
 	public void setCandidates(List<Candidate> candidates) {
 		this.candidates = candidates;

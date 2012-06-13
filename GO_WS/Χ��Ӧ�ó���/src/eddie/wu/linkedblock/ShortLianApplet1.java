@@ -1,34 +1,41 @@
 package eddie.wu.linkedblock;
 
 import java.applet.Applet;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Event;
+import java.awt.Graphics;
+import java.awt.Image;
+
+import org.apache.log4j.Logger;
+
+import eddie.wu.domain.Constant;
 
 
 public class ShortLianApplet1 extends Applet {
-
+	private static final Logger log = Logger.getLogger(ShortLianApplet1.class);
     boolean DONGHUA = false;
 
-    public boolean mouseDown(Event e, int x, int y) { //½ÓÊÜÊó±êÊäÈë
+    public boolean mouseDown(Event e, int x, int y) { //æ¥å—é¼ æ ‡è¾“å…¥
         if (KEXIA == true) {
-            KEXIA = false; //Ö»ÓĞ»úÆ÷Íê³ÉÒ»ÊÖ,²ÅÄÜ¼ÌĞø.
-            byte a = (byte) ((x - 4) / 28 + 1); //Íê³ÉÊıÆøÌá×ÓµÈ.
+            KEXIA = false; //åªæœ‰æœºå™¨å®Œæˆä¸€æ‰‹,æ‰èƒ½ç»§ç»­.
+            byte a = (byte) ((x - 4) / 28 + 1); //å®Œæˆæ•°æ°”æå­ç­‰.
             byte b = (byte) ((y - 4) / 28 + 1);
             goboard.cgcl(a, b);
             CHONGHUI = false;
             repaint();
-            //System.out.println("weiqiFrame de mousedown");
+            //if(log.isDebugEnabled()) log.debug("weiqiFrame de mousedown");
             //repaint();
-            System.out.println("Gocanvas de mousedown");
-            return false; //ÏòÈİÆ÷´«²¥,ÓÉFrame´¦Àí
+            if(log.isDebugEnabled()) log.debug("Gocanvas de mousedown");
+            return false; //å‘å®¹å™¨ä¼ æ’­,ç”±Frameå¤„ç†
 
         } else {
             return true;
         }
     }
 
-    //ÏîÄ¿10£ºÓÃGoAppletLian²âÊÔGoBoardLian
-    //ËùÓĞÔ´´úÂëÔÚÍ¬Ò»Ä¿Â¼ÏÂ£¬È·±£ÀàµÄÍ¨ĞÅ¡£
-    //ÈÔÓĞºÜ¶à´íÎó£¬Î´Ï¸ÖÂ¼ì²é¡£
+    //é¡¹ç›®10ï¼šç”¨GoAppletLianæµ‹è¯•GoBoardLian
+    //æ‰€æœ‰æºä»£ç åœ¨åŒä¸€ç›®å½•ä¸‹ï¼Œç¡®ä¿ç±»çš„é€šä¿¡ã€‚
+    //ä»æœ‰å¾ˆå¤šé”™è¯¯ï¼Œæœªç»†è‡´æ£€æŸ¥ã€‚
 
     public final boolean DEBUG = true;
 
@@ -54,10 +61,10 @@ public class ShortLianApplet1 extends Applet {
         this.setBackground(Color.ORANGE);
         work = this.createImage(560, 560);
         if (work == null) {
-            System.out.println("work==null");
+            if(log.isDebugEnabled()) log.debug("work==null");
         } else {
             g = work.getGraphics();
-            System.out.println("work!=null");
+            if(log.isDebugEnabled()) log.debug("work!=null");
         }
     }
 
@@ -89,38 +96,38 @@ public class ShortLianApplet1 extends Applet {
         if (work == null) {
             work = this.createImage(560, 560);
             g = work.getGraphics();
-            System.out.println("work==null");
+            if(log.isDebugEnabled()) log.debug("work==null");
         } else if (g == null) {
-            System.out.println("work!=null;g==null");
+            if(log.isDebugEnabled()) log.debug("work!=null;g==null");
             g = work.getGraphics();
         }
         g.setColor(Color.orange);
         g.fillRect(0, 0, 560, 560);
         g.setColor(Color.black);
         short kinp = 0;
-        for (int i = 1; i <= 19; i++) { //»­Ïß
+        for (int i = 1; i <= Constant.BOARD_SIZE; i++) { //ç”»çº¿
             g.drawLine(18, 28 * i - 10, 522, 28 * i - 10); //hor
             g.drawLine(28 * i - 10, 18, 28 * i - 10, 522); //ver
         }
-        for (int i = 0; i < 3; i++) { //»­ĞÇÎ»
+        for (int i = 0; i < 3; i++) { //ç”»æ˜Ÿä½
             for (int j = 0; j < 3; j++) {
                 g.fillOval(168 * i + 99, 168 * j + 99, 6, 6);
             }
         }
 
-        for (int i = 1; i <= 19; i++) { //»­×Å×Óµã
-            for (int j = 1; j <= 19; j++) {
+        for (int i = 1; i <= Constant.BOARD_SIZE; i++) { //ç”»ç€å­ç‚¹
+            for (int j = 1; j <= Constant.BOARD_SIZE; j++) {
                 if (goboard.zb[i][j][0] == 1) {
                     g.setColor(Color.black);
                     g.fillOval(28 * i - 24, 28 * j - 24, 28, 28);
-                    //System.out.println("//paint the black point.");
+                    //if(log.isDebugEnabled()) log.debug("//paint the black point.");
                 } else if (goboard.zb[i][j][0] == 2) {
                     g.setColor(Color.white);
                     g.fillOval(28 * i - 24, 28 * j - 24, 28, 28);
-                    // System.out.println("//paint the white point.");
+                    // if(log.isDebugEnabled()) log.debug("//paint the white point.");
                 }
                 kinp = goboard.zbk[i][j];
-                if (kinp != 0 & DEBUG == true) { //Êä³ö¿éºÅ
+                if (kinp != 0 & DEBUG == true) { //è¾“å‡ºå—å·
                     g.setColor(Color.green);
                     g.drawString("" + kinp, 28 * i - 14, 28 * j - 4);
 
@@ -128,7 +135,7 @@ public class ShortLianApplet1 extends Applet {
             }
         }
         gg.drawImage(work, 0, 0, this);
-    } //else»­Õû¸öÆåÅÌºÍÆå×Ó
+    } //elseç”»æ•´ä¸ªæ£‹ç›˜å’Œæ£‹å­
 
     public boolean handleEvent(Event evt) {
         if (evt.id == Event.MOUSE_DOWN) {

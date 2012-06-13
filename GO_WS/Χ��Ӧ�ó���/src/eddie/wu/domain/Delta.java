@@ -4,17 +4,39 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 /**
- * ÎªÁËÅĞ¶ÏÆå×ÓÖ®¼äµÄÏà¶ÔÎ»ÖÃ£¬¼´ËüÃÇÖ®¼äµÄ½Ó½ü·½Ê½£¬ĞèÒª°´ÕÕ¼ç³å£¬Ğ¡·ÉÖ®ÀàµÄÎ»ÖÃÀ´²éÕÒ¡£
- * ÕâĞ©Î»ÖÃÓÉÁ½×ÓÖ®¼äµÄrow£¬columnÏà¶Ô±ä»¯£¨Delta£©À´¶¨Òå¡£
+ * ä¸ºäº†åˆ¤æ–­æ£‹å­ä¹‹é—´çš„ç›¸å¯¹ä½ç½®ï¼Œå³å®ƒä»¬ä¹‹é—´çš„æ¥è¿‘æ–¹å¼ï¼Œéœ€è¦æŒ‰ç…§è‚©å†²ï¼Œå°é£ä¹‹ç±»çš„ä½ç½®æ¥æŸ¥æ‰¾ã€‚
+ * è¿™äº›ä½ç½®ç”±ä¸¤å­ä¹‹é—´çš„rowï¼Œcolumnç›¸å¯¹å˜åŒ–ï¼ˆDeltaï¼‰æ¥å®šä¹‰ã€‚
+ * 
  * @author wueddie-wym-wrz
- *
+ * 
  */
 public class Delta {
+	/**
+	 * åŒè‰²å­ç§°ä¸ºå°å°–,å¼‚è‰²å­åˆ™ç§°ä¸ºè‚©å†².
+	 */
+	private static final Delta DELTA_SHOULDER = Delta.getDelta("è‚©å†²/å°å°–",1, 1);
+
 	private byte rowDelta;
 	private byte columnDelta;
+	private String name;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	public Delta(int rowDelta, int columnDelta) {
+		this.rowDelta = (byte) rowDelta;
+		this.columnDelta = (byte) columnDelta;
+	}
+
+	public Delta(String name, int rowDelta, int columnDelta) {
+		this.name = name;
 		this.rowDelta = (byte) rowDelta;
 		this.columnDelta = (byte) columnDelta;
 	}
@@ -37,7 +59,7 @@ public class Delta {
 
 	@Override
 	public int hashCode() {
-		return (this.rowDelta + 19) * 31 + (this.columnDelta + 19);
+		return (this.rowDelta + Constant.BOARD_SIZE) * 31 + (this.columnDelta + Constant.BOARD_SIZE);
 	}
 
 	@Override
@@ -53,19 +75,19 @@ public class Delta {
 	}
 
 	public Delta topBottomSwitch() {
-		return new Delta(0 - this.rowDelta, this.columnDelta);
+		return new Delta(this.name,0 - this.rowDelta, this.columnDelta);
 	}
 
 	public Delta leftRightSwitch() {
-		return new Delta(this.rowDelta, 0 - this.columnDelta);
+		return new Delta(this.name,this.rowDelta, 0 - this.columnDelta);
 	}
 
 	public Delta diagonalSwitch() {
-		return new Delta(this.columnDelta, this.rowDelta);
+		return new Delta(this.name,this.columnDelta, this.rowDelta);
 	}
 
 	/**
-	 * ÑÜÉú³ö½Ó½ü·½Ê½£¨±ÈÈçĞ¡·É£©ÅĞ¶ÏÓÃµÄ³£Êı¡£
+	 * è¡ç”Ÿå‡ºæ¥è¿‘æ–¹å¼ï¼ˆæ¯”å¦‚å°é£ï¼‰åˆ¤æ–­ç”¨çš„å¸¸æ•°ã€‚
 	 * 
 	 * @return
 	 */
@@ -98,6 +120,10 @@ public class Delta {
 	public static Delta getDelta(int i, int j) {
 		return new Delta(i, j);
 	}
+	
+	public static Delta getDelta(String name, int i, int j) {
+		return new Delta(name, i, j);
+	}
 
 	public String toString() {
 		return "[" + rowDelta + "," + columnDelta + "]";
@@ -124,4 +150,15 @@ public class Delta {
 			return new Delta(columnDelta, rowDelta);
 		}
 	}
+
+	public int squareDistance() {
+		return this.rowDelta * rowDelta + columnDelta * columnDelta;
+	}
+
+	public boolean isShoulder() {
+		if (this.normalize().equals(DELTA_SHOULDER))
+			return true;
+		return false;
+	}
+
 }

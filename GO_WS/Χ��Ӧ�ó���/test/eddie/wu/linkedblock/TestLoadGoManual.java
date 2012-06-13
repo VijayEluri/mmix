@@ -11,8 +11,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
 
 import eddie.wu.domain.Constant;
 import eddie.wu.manual.GMDGoManual;
@@ -25,34 +25,36 @@ import eddie.wu.manual.LoadGMDGoManual;
  */
 public class TestLoadGoManual extends TestCase {
 	public static final int MOVES_THRESHOLD = 100;
-	private static final Log log = LogFactory.getLog(TestLoadGoManual.class);
-	private static final String rootDir = Constant.rootDir;// "doc/Œß∆Â¥Ú∆◊»Ìº˛/";
+	private static final Logger log = Logger.getLogger(TestLoadGoManual.class);
+	private static final String rootDir = Constant.rootDir;// "doc/Âõ¥Ê£ãÊâìË∞±ËΩØ‰ª∂/";
 
 	public void testOneFromMultiGoManual() {
-		byte[] temp = new LoadGMDGoManual(rootDir).loadSingleGoManual();
+		byte[] temp = new LoadGMDGoManual(rootDir).loadSingleGoManual()
+				.getMoves();
 		log.debug(temp.toString());
-		byte[] temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(0);
+		byte[] temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(0)
+				.getMoves();
 		assertEquals(temp.length, temp1.length);
 		for (int i = 0; i < temp.length; i++) {
 			assertEquals(temp[i], temp1[i]);
 		}
-		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(1);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(1).getMoves();
 		assertEquals(temp1.length, 247 * 2);
-		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(2);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(2).getMoves();
 		assertEquals(temp1.length, 223 * 2);
-		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(3);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(3).getMoves();
 		assertEquals(temp1.length, 349 * 2);// 93
-		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(4);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(4).getMoves();
 		assertEquals(temp1.length, 183 * 2);
 
-		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(5);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(5).getMoves();
 		assertEquals(temp1.length, 203 * 2);
-		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(6);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(6).getMoves();
 		assertEquals(temp1.length, 152 * 2);
-		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(7);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(7).getMoves();
 		assertEquals(temp1.length, 245 * 2);
 
-		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(8);
+		temp1 = new LoadGMDGoManual(rootDir).loadOneFromLib0(8).getMoves();
 		assertEquals(temp1.length, 270 * 2);// 14
 
 	}
@@ -84,9 +86,11 @@ public class TestLoadGoManual extends TestCase {
 	}
 
 	public void testLoadOneFromAllGoManual() {
-		byte[] temp = new LoadGMDGoManual(rootDir).loadSingleGoManual();
+		byte[] temp = new LoadGMDGoManual(rootDir).loadSingleGoManual()
+				.getMoves();
 		log.debug(temp.toString());
-		byte[] temp1 = new LoadGMDGoManual(rootDir).loadOneFromAllGoManual(0, 0);
+		byte[] temp1 = new LoadGMDGoManual(rootDir)
+				.loadOneFromAllGoManual(0, 0);
 		assertEquals(temp.length, temp1.length);
 		for (int i = 0; i < temp.length; i++) {
 			assertEquals(temp[i], temp1[i]);
@@ -94,9 +98,9 @@ public class TestLoadGoManual extends TestCase {
 	}
 
 	/**
-	 * GMDGoManual [ id=6356, moves=2, blackName=≥¬¡Ÿ–¬, whiteName=Õı≤Æ∏’]<br/>
-	 * GMDGoManual [ id=5490, moves=2, blackName=¡ı–°π‚, whiteName=«Æ”Ó∆Ω]<br/>
-	 * GMDGoManual [ id=6054, moves=1, blackName=µ≠¬∑–ﬁ»˝, whiteName=¡ı–°π‚]<br>
+	 * GMDGoManual [ id=6356, moves=2, blackName=Èôà‰∏¥Êñ∞, whiteName=Áéã‰ºØÂàö]<br/>
+	 * GMDGoManual [ id=5490, moves=2, blackName=ÂàòÂ∞èÂÖâ, whiteName=Èí±ÂÆáÂπ≥]<br/>
+	 * GMDGoManual [ id=6054, moves=1, blackName=Ê∑°Ë∑Ø‰øÆ‰∏â, whiteName=ÂàòÂ∞èÂÖâ]<br>
 	 * A few new manual has some problem.
 	 */
 	public void testLoadAllGoManual() {
@@ -122,12 +126,12 @@ public class TestLoadGoManual extends TestCase {
 				list.add(manual);
 			}
 		}
-		System.out.println("maxMove=" + maxMove);
-		System.out.println("maxMoveManual=" + maxMoveManual);
-		System.out.println("minMoveManual=" + minMoveManual);
-		System.out.println("manual less than " + MOVES_THRESHOLD + " moves:");
+		if(log.isDebugEnabled()) log.debug("maxMove=" + maxMove);
+		if(log.isDebugEnabled()) log.debug("maxMoveManual=" + maxMoveManual);
+		if(log.isDebugEnabled()) log.debug("minMoveManual=" + minMoveManual);
+		if(log.isDebugEnabled()) log.debug("manual less than " + MOVES_THRESHOLD + " moves:");
 		for (GMDGoManual manual : list) {
-			System.out.println(manual);
+			if(log.isDebugEnabled()) log.debug(manual);
 		}
 	}
 }

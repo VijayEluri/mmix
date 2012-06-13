@@ -24,11 +24,10 @@ public class TestBoardPoint extends TestCase {
 	public void testEquals() {
 		
 		
-		Point a=Point.getPoint(4,3);
-		a.setColumn((byte)4);
-		a.setRow((byte)3);
+		Point a=Point.getPoint(19,4,3);
 		
-		Point b=Point.getPoint((short)42);
+		
+		Point b=Point.getPoint(19,42);
 		assertEquals(a.getRow(),b.getRow());
 		assertEquals(a.getColumn(),b.getColumn());
 		assertEquals(a.getOneDimensionCoordinate(),b.getOneDimensionCoordinate());

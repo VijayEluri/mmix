@@ -1,4 +1,4 @@
-﻿package eddie.wu.ui.applet;
+package eddie.wu.ui.applet;
 /**
  * <p>Title:围棋死活题小程序 </p>
  * <p>Description: 用于死活题训练</p>
@@ -12,12 +12,16 @@ import java.applet.Applet;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+
+import org.apache.log4j.Logger;
 /**
  * 需要在网络环境下作为Applet来运行。当初是给汪剑虹围棋道场开发的。
  * @author wueddie-wym-wrz
  *
  */
 public class SiHuoApplet extends Applet {
+	private static final Logger log = Logger.getLogger(DingShiDuiKangApplet.class);
+	
    int czhengjie=0;//zheng jie de biao zhi?
    boolean fshuzi=false;
    boolean HUIQICH=false;// hui qi shi chong hua
@@ -77,35 +81,35 @@ public class SiHuoApplet extends Applet {
        String qipuwjm;
       String jieshuowjm;
       qipuwjm=getParameter("qipuwenjianming");
-      System.out.println("qipuwenjianming="+qipuwjm);
+      if(log.isDebugEnabled()) log.debug("qipuwenjianming="+qipuwjm);
       jieshuowjm=getParameter("jieshuowenjianming");
-      System.out.println("jieshuowenjinaming="+jieshuowjm);
+      if(log.isDebugEnabled()) log.debug("jieshuowenjinaming="+jieshuowjm);
       try{
          URL base=this.getCodeBase();
          URL dbase=this.getDocumentBase() ;
          String sdbase=dbase.toString();
          int index=sdbase.lastIndexOf("/");
          sdbase=sdbase.substring(0,index+1);
-         System.out.println("CodeBase="+base);
-         System.out.println("documentBase="+sdbase);
+         if(log.isDebugEnabled()) log.debug("CodeBase="+base);
+         if(log.isDebugEnabled()) log.debug("documentBase="+sdbase);
          URL urlbase=new URL( base+qipuwjm);
          //URL urlbase=new URL( sdbase+qipuwjm);
          URLConnection uconn=urlbase.openConnection();
          InputStream uc=uconn.getInputStream();
          uc.read(qipubh);
-         //System.out.println("ss="+1) ;
+         //if(log.isDebugEnabled()) log.debug("ss="+1) ;
          boolean qipujieshu=false;
          //int [][]jsweizhi=new int[30][2];
          for (i=0;i<500;i++){
               j++;
             //if((int)bianhua[i]==-1) break;
-            System.out.println("a="+qipubh[i]) ;
+            if(log.isDebugEnabled()) log.debug("a="+qipubh[i]) ;
             if(qipujieshu==true){
                if(qipubh[i]==100) break;
                 jsweizhi[j][0]=qipubh[i];
-                System.out.println("jieshuoweizhia="+qipubh[i]);
+                if(log.isDebugEnabled()) log.debug("jieshuoweizhia="+qipubh[i]);
                 jsweizhi[j][1]=qipubh[++i];
-                System.out.println("jieshuoweizhib="+qipubh[i]);
+                if(log.isDebugEnabled()) log.debug("jieshuoweizhib="+qipubh[i]);
                 continue;
             }
            if(qipubh[i]==100) break;
@@ -123,7 +127,7 @@ public class SiHuoApplet extends Applet {
                   bianhua[p][j][1]=qipubh[++i];
 
              }
-             //System.out.println("b="+qipubh[++i]) ;
+             //if(log.isDebugEnabled()) log.debug("b="+qipubh[++i]) ;
          }
          uc.close() ;
 
@@ -133,7 +137,7 @@ public class SiHuoApplet extends Applet {
          DataInputStream js=
            new DataInputStream(
               new BufferedInputStream(ucjs));
-          System.out.println("js="+js) ;
+          if(log.isDebugEnabled()) log.debug("js="+js) ;
           BufferedReader buffin=
            new BufferedReader(new InputStreamReader(js));
             String s=new String();
@@ -146,13 +150,13 @@ public class SiHuoApplet extends Applet {
               jshuo[jsweizhi[j][0]][jsweizhi[j][1]]=s;
               tempstr[j]=s;
               j++;
-             System.out.println(s) ;
+             if(log.isDebugEnabled()) log.debug(s) ;
           }
           buffin.close ();
 
           /*for(i=0;i<50;i++){
               for (j=0;j<50;j++){
-                   if(jshuo[i][j]!=null)  System.out.println(jshuo[i][j]) ;
+                   if(jshuo[i][j]!=null)  if(log.isDebugEnabled()) log.debug(jshuo[i][j]) ;
               }
           }*/
              /*  StringReader in2=
@@ -160,7 +164,7 @@ public class SiHuoApplet extends Applet {
 
 
                  while((c=in2.read())!=-1){
-                      System.out.println((char)c);
+                      if(log.isDebugEnabled()) log.debug((char)c);
                   }
                */
 
@@ -178,11 +182,11 @@ public class SiHuoApplet extends Applet {
       }
        gotree.insert(bianhua,jshuo);
        gotemp=gotree.getTreeNode();
-       if(gotemp==null) System.out.println("gotemp is null");
+       if(gotemp==null) if(log.isDebugEnabled()) log.debug("gotemp is null");
        else{
           while(gotemp!=null){
-               System.out.println("a="+gotemp.zba);
-               System.out.println("b="+gotemp.zbb);
+               if(log.isDebugEnabled()) log.debug("a="+gotemp.zba);
+               if(log.isDebugEnabled()) log.debug("b="+gotemp.zbb);
                gotemp=gotemp.left;
           }
 
@@ -285,7 +289,7 @@ public class SiHuoApplet extends Applet {
                     b=gotemp.zbb;
                     s=gotemp.jieshuo;
                     jieshuo.setText(s);
-                    System.out.println("s="+s);
+                    if(log.isDebugEnabled()) log.debug("s="+s);
                     cgcl();
                     a=-1;
                     b=-1;
@@ -350,7 +354,7 @@ public class SiHuoApplet extends Applet {
       int[] v=  {0,0,0,0,0};
       int[] k=  {0,0,0,0,0};//array for block index.
       int  tzd=0,tkd=0;//the   count for single pointeaten andblock eaten.
-       System.out.println("//come into method jhcl.jiaohu chu li");
+       if(log.isDebugEnabled()) log.debug("//come into method jhcl.jiaohu chu li");
        shoushu++;
        hui[shoushu][25]=a;
        hui[shoushu][26]=b;
@@ -591,7 +595,7 @@ public class SiHuoApplet extends Applet {
          }
 	 showStatus("qing="+dang+";  a="+a+",b="+b+";");
          if (k3==0){//4.1 no same color point surround
-             System.out.println("//k3=0");
+             if(log.isDebugEnabled()) log.debug("//k3=0");
 
                zb[a][b][2]=dang;
               if(dang==1&ktz==1){
@@ -606,7 +610,7 @@ public class SiHuoApplet extends Applet {
 	    return;
          }
          if (ks==0){//4.2 only single point surr.
-            System.out.println("ks=0");
+            if(log.isDebugEnabled()) log.debug("ks=0");
             gq=0;
 	    for (i=1;i<=kss;i++){//4.1 deal surr point
 	        hui[shoushu][12+i*2-1]=u[k0+i];
@@ -641,7 +645,7 @@ public class SiHuoApplet extends Applet {
            //hen hao chu li.jian qu gong qi ji ke .  jian qu gong qi
          }
          if(ks>0){
-             System.out.println("ks>0");
+             if(log.isDebugEnabled()) log.debug("ks>0");
 
              ki++;
              hui[shoushu][0]=ki;
@@ -688,7 +692,7 @@ public class SiHuoApplet extends Applet {
 
       int  tzd=0,tkd=0;//the   count for single pointeaten andblock eaten.
       int xun;
-      System.out.println("//come into method paint");
+      if(log.isDebugEnabled()) log.debug("//come into method paint");
 
       /*if(fbuhelidian==true){
              if(shoushu%2==0) g.setColor(Color.black);
@@ -936,7 +940,7 @@ public class SiHuoApplet extends Applet {
             }   //bian hua de hui qi
             repaint();
          }else{
-            System.out.println("//this is original ju mian");
+            if(log.isDebugEnabled()) log.debug("//this is original ju mian");
             jieshuo.setText("已经是原始局面，请选择着点");
               //huiqi.disable();
          }
@@ -944,7 +948,7 @@ public class SiHuoApplet extends Applet {
       }
       if(e.target==tishi)
       {
-          System.out.println("come into method tishi!");
+          if(log.isDebugEnabled()) log.debug("come into method tishi!");
           if(gotemp!=null){
              a=gotemp.zba;
              b=gotemp.zbb;
@@ -958,7 +962,7 @@ public class SiHuoApplet extends Applet {
           return true;
        }
        if(e.target==conglai){
-           System.out.println("come into method conglai!");
+           if(log.isDebugEnabled()) log.debug("come into method conglai!");
            while(shoushu!=linss){
               clhuiqi();
            }
@@ -1364,7 +1368,7 @@ public class SiHuoApplet extends Applet {
       int[] k=  {0,0,0,0,0};//array for block index.
       int  tzd=0,tkd=0;//the   count for single pointeaten andblock eaten.
        // zhuang=false;
-       System.out.println("hello");
+       if(log.isDebugEnabled()) log.debug("hello");
        yise=shoushu%2+1;//yi se:tiao=2
        tongse=(1+shoushu)%2+1;//tong se:tiao=1
        zb[a][b][0]=tongse;
@@ -1622,7 +1626,7 @@ public class SiHuoApplet extends Applet {
          }*/
 	 showStatus("qing="+dang+a+b);
          if (k3==0){//4.1 no same color point surround
-             System.out.println("k3=0");
+             if(log.isDebugEnabled()) log.debug("k3=0");
              zb[a][b][2]=dang;
              if(dang==1&ktz==1){
 		  ktm=u[4];
@@ -1633,7 +1637,7 @@ public class SiHuoApplet extends Applet {
 	     return;
          }
          if (ks==0){//4.2 only single point surr.
-            System.out.println("ks=0");
+            if(log.isDebugEnabled()) log.debug("ks=0");
             gq=0;
 	    for (i=1;i<=kss;i++){//4.1 deal surr point
 	        hui[shoushu][12+i*2-1]=u[kss];
@@ -1671,7 +1675,7 @@ public class SiHuoApplet extends Applet {
            //hen hao chu li.jian qu gong qi ji ke .  jian qu gong qi
          }
          if(ks>0){
-             System.out.println("ks>0");
+             if(log.isDebugEnabled()) log.debug("ks>0");
              for(i=1;i<=ks;i++){
 
              hui[shoushu][20+i]=k[ks];
@@ -1766,7 +1770,7 @@ public class SiHuoApplet extends Applet {
                      }
 
                  }
-                 System.out.println("deal with self eaten in regret");
+                 if(log.isDebugEnabled()) log.debug("deal with self eaten in regret");
 
              }*/
               //else {//fei zi ti yi kuai,dan gai kuai zhi qian wei xing cheng
@@ -1780,7 +1784,7 @@ public class SiHuoApplet extends Applet {
 
 
                    zzq(m,n,yise);
-                   System.out.println("//regret the first step:"+shoushu);
+                   if(log.isDebugEnabled()) log.debug("//regret the first step:"+shoushu);
 
                  if(hui[shoushu][0]>0){
                       ki=hui[shoushu][0];
@@ -1800,7 +1804,7 @@ public class SiHuoApplet extends Applet {
                          zb[m][n][3]=0;
                          //zb[m][n][0]=tongse;
                          zb[m][n][2]=jszq(m,n);
-                         System.out.println("//ji suan zi de qi");
+                         if(log.isDebugEnabled()) log.debug("//ji suan zi de qi");
                     }
                  }//deal with 3 sub
                  for(i=1;i<=4;i++){

@@ -1,13 +1,14 @@
 package eddie.wu.ui.canvas;
 
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Event;
 import java.awt.Graphics;
 import java.util.List;
 
-import eddie.wu.domain.Point;
+import org.apache.log4j.Logger;
+
+import eddie.wu.domain.ColorUtil;
+import eddie.wu.domain.Constant;
 import eddie.wu.domain.Step;
+import eddie.wu.ui.applet.SiHuoYanShiApplet;
 
 /**
  * Fix 1 - conversion between matrix and plane coordinate.
@@ -16,8 +17,8 @@ import eddie.wu.domain.Step;
  * 
  */
 public class EmbedBoardCanvas extends BasicBoardCanvas {
-	byte[][] state;
-
+	private static final Logger log = Logger.getLogger(EmbedBoardCanvas.class);
+	private byte[][] state;
 	List<Step> steps;
 
 	public void setSteps(List<Step> steps) {
@@ -26,12 +27,12 @@ public class EmbedBoardCanvas extends BasicBoardCanvas {
 
 	public void setState(byte[][] zb) {
 		this.state = zb;
+		this.boardSize = zb.length - 2;
 	}
 
-	
-
+	@Override
 	public void paint(Graphics g) {
-		System.out.println("EmbedBoardCanvas paint!");
+		if(log.isDebugEnabled()) log.debug("EmbedBoardCanvas paint!");
 		drawBackgroud(g);
 		drawBlankBoard(g);
 		drawPoints(g, state);
@@ -39,13 +40,11 @@ public class EmbedBoardCanvas extends BasicBoardCanvas {
 
 	private void drawPoints(Graphics g, byte[][] zb) {
 
-		for (int i = 1; i <= 19; i++) {// »­×Å×Óµã
-			for (int j = 1; j <= 19; j++) {
-				if (zb[i][j] == 1) {
-					super.drawBlackPoint(g, i, j);
-				} else if (zb[i][j] == 2) {
-					super.drawWhitePoint(g, i, j);
-				}
+		for (int i = 1; i <= boardSize; i++) {// ç”»ç€å­ç‚¹
+			for (int j = 1; j <= boardSize; j++) {
+				if (zb[i][j] == ColorUtil.BLACK || zb[i][j] == ColorUtil.WHITE)
+					super.drawPoint(g, i, j, zb[i][j]);
+
 			}
 		}// for: paint all the points owned by black and white.
 
@@ -55,11 +54,8 @@ public class EmbedBoardCanvas extends BasicBoardCanvas {
 		int stepCount = 0;
 		for (Step step : steps) {
 			stepCount++;
-			drawMoveNumber(g, step.getPoint(), stepCount);			
+			drawMoveNumber(g, step.getPoint(), stepCount);
 		}
 	}
 
-	
-
-	
 }

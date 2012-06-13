@@ -1,30 +1,49 @@
 package eddie.wu.domain;
 
+import java.util.List;
+
 import junit.framework.TestCase;
-import eddie.wu.manual.LoadGMDGoManual;
-import go.ActionAnalysis;
+
+import org.apache.log4j.Logger;
+
+import util.GBKToUTF8;
+import eddie.wu.domain.analy.ActionAnalysis;
+import eddie.wu.manual.GoManual;
+import eddie.wu.manual.SGFGoManual;
 
 public class TestActionAnalysis extends TestCase {
-	private static final String rootDir = "doc/Î§Æå´òÆ×Èí¼þ/";
+	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
+	private static final String rootDir = "doc/å›´æ£‹æ‰“è°±è½¯ä»¶/";
 
 	public void test() {
-		byte[] temp = new LoadGMDGoManual(rootDir).loadSingleGoManual();
+		//GMDGoManual manual = new LoadGMDGoManual(rootDir).loadSingleGoManual();
+		
+		GoManual manual = SGFGoManual.loadGoManual(Constant.currentManual);
 		GoBoard go = new GoBoard();
-		for (int i = 0; i < temp.length / 2; i++) {
-			Step step = new Step();
-			byte color;
-			if (i % 2 == 0) {
-				color = Constant.BLACK;
-			} else {
-				color = Constant.WHITE;
-			}
-			step.setColor(color);
-			Point point = Point.getPoint(temp[i * 2], temp[i * 2 + 1]);
-			step.setPoint(point);
+		List<Step> steps = manual.getSteps();
+			
+		for (Step step : steps) {
 			String moveName = new ActionAnalysis(go.getBoardColorState()
-					.getMatrixState()).moveName(point, color);
-			System.out.println(point + " " + moveName);
+					.getMatrixState()).moveName(step);
+			if(log.isDebugEnabled()) log.debug(step + " : " + moveName);
 			go.oneStepForward(step);
 		}
+//		
+//		for (int i = 0; i < temp.length / 2; i++) {
+//			Step step = new Step();
+//			byte color;
+//			if (i % 2 == 0) {
+//				color = Constant.BLACK;
+//			} else {
+//				color = Constant.WHITE;
+//			}
+//			step.setColor(color);
+//			Point point = Point.getPoint(temp[i * 2], temp[i * 2 + 1]);
+//			step.setPoint(point);
+//			String moveName = new ActionAnalysis(go.getBoardColorState()
+//					.getMatrixState()).moveName(point, color);
+//			if(log.isDebugEnabled()) log.debug(point + " " + moveName);
+//			go.oneStepForward(step);
+//		}
 	}
 }

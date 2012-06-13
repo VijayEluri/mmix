@@ -9,8 +9,8 @@ package eddie.wu.arrayblock;
 import java.awt.Color;
 import java.awt.Event;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
 
 import eddie.wu.manual.LoadGMDGoManual;
 
@@ -23,12 +23,12 @@ import eddie.wu.manual.LoadGMDGoManual;
 public class Goboard256TestApplet 
 
 extends GoBoard256Applet {
-	private static final Log log=LogFactory.getLog(Goboard256TestApplet.class);
+	private static final Logger log = Logger.getLogger(Goboard256TestApplet.class);
 	int shoushu = 0;
 
 	int count = 0;
 
-	byte[] temp = new LoadGMDGoManual("../doc/Î§Æå´òÆ×Èí¼ş").loadOneFromAllGoManual(1,453);
+	byte[] temp = new LoadGMDGoManual("../doc/å›´æ£‹æ‰“è°±è½¯ä»¶").loadOneFromAllGoManual(1,453);
 
 	public void init() {
 		this.setBackground(Color.ORANGE);
@@ -48,12 +48,12 @@ extends GoBoard256Applet {
 
 		}
 	}
-	public boolean mouseDown(Event e, int x, int y) { //½ÓÊÜÊó±êÊäÈë
+	public boolean mouseDown(Event e, int x, int y) { //æ¥å—é¼ æ ‡è¾“å…¥
 	    //if(KEXIA==true){
-	    //KEXIA=false;//Ö»ÓĞ»úÆ÷Íê³ÉÒ»ÊÖ,²ÅÄÜ¼ÌĞø.
-	    log.debug("·½·¨ mousedown");
+	    //KEXIA=false;//åªæœ‰æœºå™¨å®Œæˆä¸€æ‰‹,æ‰èƒ½ç»§ç»­.
+	    log.debug("æ–¹æ³• mousedown");
 	    if(count>=temp.length) return true;
-	    byte a = (byte) ( (x - 4) / 28 + 1); //Íê³ÉÊıÆøÌá×ÓµÈ.
+	    byte a = (byte) ( (x - 4) / 28 + 1); //å®Œæˆæ•°æ°”æå­ç­‰.
 	    byte b = (byte) ( (y - 4) / 28 + 1);
 	    a=temp[count++];
 	    b=temp[count++];
@@ -63,8 +63,8 @@ extends GoBoard256Applet {
 //	      goBoard.output();
 //	    }
 	    repaint();
-	    log.debug("·½·¨ mousedown");
-	    return true; //ÏòÈİÆ÷´«²¥,ÓÉFrame´¦Àí
+	    log.debug("æ–¹æ³• mousedown");
+	    return true; //å‘å®¹å™¨ä¼ æ’­,ç”±Frameå¤„ç†
 	    //}
 	    // else  return true;
 	  }

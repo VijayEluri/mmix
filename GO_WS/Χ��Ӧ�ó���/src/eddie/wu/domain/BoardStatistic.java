@@ -3,15 +3,15 @@ package eddie.wu.domain;
 import java.io.Serializable;
 
 public class BoardStatistic implements Serializable{
-	// ÒâÒå²»´ó£¬²»¹ıË³´øËã³öÀ´£¬ĞÎÊÆÅĞ¶Ï»òĞíÓĞÓÃ¡£
+	// æ„ä¹‰ä¸å¤§ï¼Œä¸è¿‡é¡ºå¸¦ç®—å‡ºæ¥ï¼Œå½¢åŠ¿åˆ¤æ–­æˆ–è®¸æœ‰ç”¨ã€‚
 	private byte numberOfWhitePointEaten = 0;
 
-	private byte numberOfBlackPointEaten = 0; // ºÚ°×±»³Ô×Ó¼ÆÊı
+	private byte numberOfBlackPointEaten = 0; // é»‘ç™½è¢«åƒå­è®¡æ•°
 
 	private short giveUpSteps = 0;
 
 	/**
-	 * Ò»°ãÀ´Ëµ,ÈÃ×ÓÆå¾Ö»á³öÏÖÆúÈ¨.
+	 * ä¸€èˆ¬æ¥è¯´,è®©å­æ£‹å±€ä¼šå‡ºç°å¼ƒæƒ.
 	 * 
 	 * @return
 	 */
@@ -27,8 +27,8 @@ public class BoardStatistic implements Serializable{
 	 * @param numberOfBlackPointEaten
 	 *            The numberOfBlackPointEaten to set.
 	 */
-	public void addNumberOfBlackPointEaten(byte tibaizishu) {
-		this.numberOfBlackPointEaten += tibaizishu;
+	public void addNumberOfBlackPointEaten(int tiheizishu) {
+		this.numberOfBlackPointEaten += tiheizishu;
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class BoardStatistic implements Serializable{
 	 * @param numberOfWhitePointEaten
 	 *            The numberOfWhitePointEaten to set.
 	 */
-	public void addNumberOfWhitePointEaten(byte tiheizishu) {
-		this.numberOfWhitePointEaten += tiheizishu;
+	public void addNumberOfWhitePointEaten(int tibaizishu) {
+		this.numberOfWhitePointEaten += tibaizishu;
 	}
 }

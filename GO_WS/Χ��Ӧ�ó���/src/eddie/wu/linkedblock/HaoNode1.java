@@ -1,7 +1,7 @@
 package eddie.wu.linkedblock;
 
 public class HaoNode1 implements Cloneable{
-   //¿éºÅ½áµã
+   //å—å·ç»“ç‚¹
    public short hao; //0-32767;
    public HaoNode1 next;
    public HaoNode1(short a) {

@@ -11,8 +11,8 @@ import java.awt.Event;
 import java.awt.Graphics;
 import java.awt.Image;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
 
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.GoBoard;
@@ -29,7 +29,7 @@ import eddie.wu.domain.Point;
 public class GoBoardApplet 
 	
 	    extends Applet {
-	private static final Log log=LogFactory.getLog(GoBoardApplet.class);
+	private static final Logger log = Logger.getLogger(GoBoardApplet.class);
 	  public final boolean DEBUG = true;
 	  //boolean KEXIA=true;
 	  boolean CHONGHUI = true;
@@ -75,11 +75,11 @@ public class GoBoardApplet
 	    g.fillRect(0, 0, 560, 560);
 	    g.setColor(Color.black);
 	    short kinp = 0;
-	    for (int i = 1; i <= 19; i++) { //»­Ïß
+	    for (int i = 1; i <= 19; i++) { //ç”»çº¿
 	      g.drawLine(18, 28 * i - 10, 522, 28 * i - 10); //hor
 	      g.drawLine(28 * i - 10, 18, 28 * i - 10, 522); //ver
 	    }
-	    for (int i = 0; i < 3; i++) { //»­ÐÇÎ»
+	    for (int i = 0; i < 3; i++) { //ç”»æ˜Ÿä½
 	      for (int j = 0; j < 3; j++) {
 	        g.fillOval(168 * i + 99, 168 * j + 99, 6, 6);
 	      }
@@ -103,21 +103,21 @@ public class GoBoardApplet
     }
 	    
 	    gg.drawImage(work, 0, 0, this);
-	  } //else»­Õû¸öÆåÅÌºÍÆå×Ó
+	  } //elseç”»æ•´ä¸ªæ£‹ç›˜å’Œæ£‹å­
 
-	  public boolean mouseDown(Event e, int x, int y) { //½ÓÊÜÊó±êÊäÈë
+	  public boolean mouseDown(Event e, int x, int y) { //æŽ¥å—é¼ æ ‡è¾“å…¥
 	    //if(KEXIA==true){
-	    //KEXIA=false;//Ö»ÓÐ»úÆ÷Íê³ÉÒ»ÊÖ,²ÅÄÜ¼ÌÐø.
-	    log.debug("·½·¨ mousedown");
-	    byte a = (byte) ( (x - 4) / 28 + 1); //Íê³ÉÊýÆøÌá×ÓµÈ.
+	    //KEXIA=false;//åªæœ‰æœºå™¨å®Œæˆä¸€æ‰‹,æ‰èƒ½ç»§ç»­.
+	    log.debug("æ–¹æ³• mousedown");
+	    byte a = (byte) ( (x - 4) / 28 + 1); //å®Œæˆæ•°æ°”æå­ç­‰.
 	    byte b = (byte) ( (y - 4) / 28 + 1);
 	    goBoard.oneStepForward( b,a);
 	    if (DEBUG == true) {
 	      goBoard.output();
 	    }
 	    repaint();
-	    log.debug("·½·¨ mousedown");
-	    return true; //ÏòÈÝÆ÷´«²¥,ÓÉFrame´¦Àí
+	    log.debug("æ–¹æ³• mousedown");
+	    return true; //å‘å®¹å™¨ä¼ æ’­,ç”±Frameå¤„ç†
 	    //}
 	    // else  return true;
 	  }

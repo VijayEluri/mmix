@@ -5,6 +5,7 @@ import java.awt.Event;
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.Label;
+import java.awt.TextArea;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,38 +19,43 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
 
 import eddie.wu.domain.Constant;
+import eddie.wu.domain.conn.ConnectivityAnalysis;
 import eddie.wu.ui.canvas.EmbedBoardCanvas;
 
 /**
- * Éú³ÉÄ³ÖÖ¾ÖÃæ¡££¨°´ÕÕ¹¦ÄÜ»®·Ö£©
+ * ç”ŸæˆæŸç§å±€é¢ã€‚ï¼ˆæŒ‰ç…§åŠŸèƒ½åˆ’åˆ†ï¼‰
  * 
  * @author wueddie-wym-wrz
  * 
  */
 public class RecordState extends Frame {
-	private static final Log log = LogFactory.getLog(RecordState.class);
-	private static final String path = "doc/Î§Æå³ÌĞòÊı¾İ/ËÀ»îÌâ¾ÖÃæ";
+	private static final Logger log = Logger.getLogger(RecordState.class);
+	private static final String path = "doc/å›´æ£‹ç¨‹åºæ•°æ®/æ­»æ´»é¢˜å±€é¢";
 	public final byte[][] state = new byte[21][21]; // 0.4k;
+//	public final byte[][] state = new byte[13][13]; // 11è·¯å°æ£‹ç›˜j
 	private byte color = Constant.BLACK;
 
 	EmbedBoardCanvas embedCanvas = new EmbedBoardCanvas();
-	Label currentColor = new Label("current color");
-	TextField currentColorT = new TextField("Black");
+	Label currentColor = new Label("å½“å‰é¢œè‰²");//current color
+	TextField currentColorT = new TextField("é»‘");//Black
+	
 	
 
-	Button changeColor = new Button("ÇĞ»»ºÚ°×");
-	Button storeState = new Button("±£´æ¾ÖÃæ");
-	Button loadState = new Button("ÔØÈë¾ÖÃæ");
-	Button clearBoard = new Button("Çå¿ÕÆåÅÌ");
-	Button clearPoint = new Button("²Á³ıÆå×Ó");
+	Button changeColor = new Button("åˆ‡æ¢é»‘ç™½");
+	Button storeState = new Button("ä¿å­˜å±€é¢");
+	Button loadState = new Button("è½½å…¥å±€é¢");
+	Button clearBoard = new Button("æ¸…ç©ºæ£‹ç›˜");
+	Button clearPoint = new Button("æ“¦é™¤æ£‹å­");
+	TextArea textArea = new TextArea();
 
 	public void clearState() {
-		for (int i = 1; i <= 19; i++) {
-			for (int j = 1; j <= 19; j++) {
+		int boardSize = state.length-2;
+		for (int i = 1; i <= boardSize; i++) {
+			for (int j = 1; j <= boardSize; j++) {
 				state[i][j] = Constant.BLANK;
 			}
 		}
@@ -63,9 +69,10 @@ public class RecordState extends Frame {
 	}
 
 	public RecordState() {
-		embedCanvas.setState(state);	
+		embedCanvas.setState(state);
+		currentColorT.setColumns(10);
 		changeColor.addActionListener(new ChangeColorActionListener());
-		currentColorT.setColumns(8);
+		//currentColorT.setColumns(8);
 		currentColorT.setEditable(false);
 		loadState.addActionListener(new LoadStateActionListener(this));
 		storeState.addActionListener(new StoreStateActionListener(this));
@@ -79,6 +86,7 @@ public class RecordState extends Frame {
 		add(loadState);
 		add(clearBoard);
 		add(clearPoint);
+		add(textArea);
 
 		currentColor.setVisible(true);
 		currentColorT.setVisible(true);
@@ -86,16 +94,18 @@ public class RecordState extends Frame {
 		changeColor.setVisible(true);
 		loadState.setVisible(true);
 		clearBoard.setVisible(true);
+		textArea.setVisible(true);
 		setLayout(null);
 
 		embedCanvas.setBounds(30, 30, 560, 560);
 		currentColor.setBounds(600, 60, 100, 30);
-		currentColorT.setBounds(700, 60, 30, 30);
+		currentColorT.setBounds(700, 60, 100, 30);
 		changeColor.setBounds(600, 100, 100, 30);
 		loadState.setBounds(600, 160, 100, 30);
 		storeState.setBounds(600, 220, 100, 30);
 		clearBoard.setBounds(600, 280, 100, 30);
 		clearPoint.setBounds(600, 280 + 60, 100, 30);
+		textArea.setBounds(30, 600, 600, 200);
 
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent event) {
@@ -106,14 +116,14 @@ public class RecordState extends Frame {
 		});
 	}
 
-	public boolean mouseDown(Event e, int x, int y) { // ½ÓÊÜÊó±êÊäÈë
+	public boolean mouseDown(Event e, int x, int y) { // æ¥å—é¼ æ ‡è¾“å…¥
 		log.debug("chuan bo dao rong qi");
 		x -= 30;
 		y -= 30;
 
-		byte a = (byte) ((x - 4) / 28 + 1);// Íê³ÉÊıÆøÌá×ÓµÈ.
+		byte a = (byte) ((x - 4) / 28 + 1);// å®Œæˆæ•°æ°”æå­ç­‰.
 		byte b = (byte) ((y - 4) / 28 + 1);
-		System.out.println("weiqiFrame de mousedown");
+		if(log.isDebugEnabled()) log.debug("weiqiFrame de mousedown");
 		// coordinate difference between matrix and plane.
 
 		state[b][a] = color;// vs. state[a][b]=color;
@@ -135,7 +145,7 @@ public class RecordState extends Frame {
 		}
 	}
 
-	class LoadStateActionListener implements ActionListener { // ÔØÈë¾ÖÃæ¡£
+	class LoadStateActionListener implements ActionListener { // è½½å…¥å±€é¢ã€‚
 
 		Frame parent;
 
@@ -145,8 +155,8 @@ public class RecordState extends Frame {
 
 		public void actionPerformed(ActionEvent e) {
 			clearState();
-			// ÔØÈë¾ÖÃæ
-			FileDialog fd = new FileDialog(parent, "ÔØÈë¾ÖÃæµÄÎ»ÖÃ", FileDialog.LOAD);
+			// è½½å…¥å±€é¢
+			FileDialog fd = new FileDialog(parent, "è½½å…¥å±€é¢çš„ä½ç½®", FileDialog.LOAD);
 			fd.setFile("1.wjm");
 			fd.setDirectory(path);
 			fd.show();
@@ -177,7 +187,13 @@ public class RecordState extends Frame {
 				throw new RuntimeException(ex);
 			}
 
-			log.debug("ÔØÈë¾ÖÃæ");
+			log.debug("è½½å…¥å±€é¢");
+			ConnectivityAnalysis analysis = new ConnectivityAnalysis(state);
+			textArea.setRows(10);
+			textArea.setColumns(50);
+			String str=analysis.groups.toString();
+			textArea.append(str);
+			
 			repaint();
 
 		}
@@ -198,7 +214,7 @@ public class RecordState extends Frame {
 
 		public void actionPerformed(ActionEvent e) {
 
-			FileDialog fd = new FileDialog(parent, "±£´æ¾ÖÃæµÄÎ»ÖÃ", FileDialog.SAVE);
+			FileDialog fd = new FileDialog(parent, "ä¿å­˜å±€é¢çš„ä½ç½®", FileDialog.SAVE);
 			fd.setFile("1.wjm");
 			fd.setDirectory(path);
 			fd.show();
@@ -210,14 +226,15 @@ public class RecordState extends Frame {
 				DataOutputStream out = new DataOutputStream(
 						new BufferedOutputStream(new FileOutputStream(dir
 								+ outname)));
-				// ¿ÉÄÜÊÇ°²È«²ßÂÔµÄÏŞÖÆ£¬¾¹È»ÎŞ·¨Ğ´ÈëÎÄ¼şÖĞ£¬×Ö½ÚÎªÊ¼ÖÕÎª0kb¡£
-				// ¶øÇÒÎÒÊÇÓÃÄäÃû¿ª»úµÄ¡£3ÔÂ7ÈÕ¡£ÍêÈ«´íÎó£¬´úÂëÓĞÎÊÌâ£¬Ã»ÓĞ¹Ø±ÕÊä³ö
-				// Êı¾İÁ÷¡£
+				// å¯èƒ½æ˜¯å®‰å…¨ç­–ç•¥çš„é™åˆ¶ï¼Œç«Ÿç„¶æ— æ³•å†™å…¥æ–‡ä»¶ä¸­ï¼Œå­—èŠ‚ä¸ºå§‹ç»ˆä¸º0kbã€‚
+				// è€Œä¸”æˆ‘æ˜¯ç”¨åŒ¿åå¼€æœºçš„ã€‚3æœˆ7æ—¥ã€‚å®Œå…¨é”™è¯¯ï¼Œä»£ç æœ‰é—®é¢˜ï¼Œæ²¡æœ‰å…³é—­è¾“å‡º
+				// æ•°æ®æµã€‚
 				log.debug(out);
 
 				// goapplet.goboard.outputState(out);
-				for (int i = 1; i < 20; i++) {
-					for (int j = 1; j < 20; j++) {
+				int boardSize = state.length-2;
+				for (int i = 1; i <=boardSize; i++) {
+					for (int j = 1; j <=boardSize; j++) {
 						if (state[i][j] != 0) {
 							out.writeByte((byte) i);
 							out.writeByte((byte) j);
@@ -238,7 +255,7 @@ public class RecordState extends Frame {
 				throw new RuntimeException(ex);
 			}
 
-			log.debug("±£´æ¾ÖÃæ");
+			log.debug("ä¿å­˜å±€é¢");
 
 		}
 

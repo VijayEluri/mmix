@@ -12,62 +12,82 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
+import eddie.wu.domain.comp.RowColumnComparator;
 
 /**
  * some concern; because the blank/white block is different from blank point
  * block. and we use same type block to present them, so must decide whether to
- * invoke special method according to the color.
+ * invoke special method according to the color. (Update, separate blank block
+ * with black/white block.we use name blank block instead of breath block
+ * because the point in breath blocks maybe not the breath.)
  * 
- * ���--breath only retain in the block. the breath of the point in the block is
- * nonsense. 1. block is divide into three subtype; one is blank point block(and
- * breath block is special. surround only by same color block) another is black
- * block the last is white block
+ * 棋块--breath only retain in the black/white block. the breath of the point in
+ * the blank block is nonsense. 1. block is divide into three sub-type; one is
+ * blank point block(and breath block is special. surround only by same color
+ * block, this is models as a flag in blank block instead of a class) another is
+ * black block the last is white block
  * 
  * 2. black/white block has enemy Block. blank point block has no enemy Block.
  * 3. black/white block has breath Block. blank point block has no breath Block.
  * 4. black/white block has breath point set. blank point block has no set of
- * breath point
+ * breath point 5. blank block has surrounded blank/white block or both.
  * 
- * fix 1; decide to contain point. not BoardPoint. avoid directional reference.
+ * change 1; decide to contain point. not BoardPoint. avoid directional
+ * reference.
+ * 
+ * change 2; separate blank block with normal black/white block.
  * 
  * @author eddie
  */
 public class Block extends BasicBlock implements Cloneable,
 		java.io.Serializable {
-	Log log = LogFactory.getLog(Block.class);
-
-	/* only used by blank/white block */
-	private Set<Point> allBreathPoints = new HashSet<Point>();// ������㼯��
-	private boolean breathCalculated;
-
-	// ��������ļ��ϡ���������ã����г�ʼ����
-	private Set<Point> eyes = new HashSet<Point>();
-	// ��������ļ���,�������ܻ��壬���ڼ��ۡ���������ã����г�ʼ����
-	private Set<Point> fakeEyes = new HashSet<Point>();
-
+	Logger log = Logger.getLogger(Block.class);
+	/**
+	 * 周围敌方的棋块.
+	 */
 	private Set<Block> enemyBlocks = new HashSet<Block>();
 
-	private Set<Block> breathBlocks = new HashSet<Block>();
+	/** 棋块气点集合 */
+	private Set<Point> allBreathPoints = new HashSet<Point>();//
 	/**
-	 * true for blank block, false for normal black/white block.
+	 * 气点对应的气块集合<br/>
+	 * record all the blocks the breath point belong to, note that not all the
+	 * Points in those blocks are breath for current block.
 	 */
-	// private boolean breathBlock;
-	// private boolean sharedBreathBlock;
-	private boolean eyeBlock;
+	private Set<BlankBlock> breathBlocks = new HashSet<BlankBlock>();
+	private boolean breathCalculated;
+
+	// 不入气点的集合。死活计算用，自行初始化。
+	private Set<Point> eyes = new HashSet<Point>();
+	// 不入气点的集合,单个不能活棋，属于假眼。死活计算用，自行初始化。
+	private Set<Point> fakeEyes = new HashSet<Point>();
+
+	private Group group;
 	/**
-	 * only meaningful when it is an eye block.
+	 * used to hash, ensure the block has same hash during its life cycle. when
+	 * block merges, get the top left point as the first point.
 	 */
-	private boolean blackEye;
-	
-	public boolean isEyeBlock() {
-		return eyeBlock;
+	private Point firstPoint;
+
+	/**
+	 * whether it is already part of group.
+	 */
+	public boolean isGrouped() {
+		return group != null;
 	}
-	
-	public boolean isBlackEye(){
-		return blackEye;
+
+	// public void setGrouped(boolean grouped) {
+	// this.grouped = grouped;
+	// }
+
+	public Group getGroup() {
+		return group;
+	}
+
+	public void setGroup(Group group) {
+		this.group = group;
 	}
 
 	// public boolean isSharedBreathBlock() {
@@ -76,42 +96,37 @@ public class Block extends BasicBlock implements Cloneable,
 	// public void setSharedBreathBlock(boolean sharedBreathBlock) {
 	// this.sharedBreathBlock = sharedBreathBlock;
 	// }
-	public boolean isBreathBlock() {
-		return color == Constant.BLANK;
-	}
+	// public boolean isBreathBlock() {
+	// return color == Constant.BLANK;
+	// }
 
 	// public void setBreathBlock(boolean breathBlock) {
 	// this.breathBlock = breathBlock;
 	// }
-	public boolean setEyeBlock(boolean eyeBlock) {
-		return this.eyeBlock = eyeBlock;
-	}
 
-	public void changeBlockForEnemyBlock(Block newBlock) {
-		Block block = null;
-		for (Iterator<Block> iter = enemyBlocks.iterator(); iter.hasNext();) {
-			block = iter.next();
-			block.removeEnemyBlock(this);
-			block.addEnemyBlock(newBlock);
+	/**
+	 * 己方块和并后,旧块和相邻块单向脱离关系.新块和旧块的敌块建立双向的相邻关系.
+	 * 
+	 * @param newBlock
+	 */
+	public void changeEnemyBlockTo(Block newBlock) {
+		for (Block block : enemyBlocks) {
+			// unlink old block (one-direction).
+			block.removeEnemyBlock_oneWay(this);
+			block.addEnemyBlock_twoWay(newBlock);
 		}
 
 	}
 
-	public void initAfterChangeToBlankblock() {
-		allBreathPoints.clear();// ������㼯��
-		enemyBlocks.clear();
-		breathBlocks.clear();
-
-	}
-
-	public Block() {
-
-	}
-
-	public Block(byte color) {
+	public Block(int color) {
 		super(color);
 	}
 
+	/**
+	 * 单点的眼位
+	 * 
+	 * @param Point
+	 */
 	public void addEye(Point Point) {
 		eyes.add(Point);
 	}
@@ -129,15 +144,19 @@ public class Block extends BasicBlock implements Cloneable,
 		eyes.remove(Point);
 	}
 
-	public void addEye(Set<Point> eye) {
+	public void addEyes(Set<Point> eye) {
 		eyes.addAll(eye);
 	}
 
+	public void addBreathPoint(BoardPoint point) {
+		addBreathPoint(point.getPoint());
+	}
+
 	public void addBreathPoint(Point point) {
-		if (point.isNotValid()) {
-			throw new RuntimeException("point is not valid when add Breath"
-					+ point);
-		}
+		// if (point.isNotValid()) {
+		// throw new RuntimeException("point is not valid when add Breath"
+		// + point);
+		// }
 		if (allBreathPoints.add(point)) {
 
 		} else {// bug fix. it is possible to return false; because of shared
@@ -149,10 +168,10 @@ public class Block extends BasicBlock implements Cloneable,
 	}
 
 	public void removeBreathPoint(Point point) {
-		if (point.isNotValid()) {
-			throw new RuntimeException(
-					"point is not valid when remove Breath Point" + point);
-		}
+		// if (point.isNotValid()) {
+		// throw new RuntimeException(
+		// "point is not valid when remove Breath Point" + point);
+		// }
 		if (allBreathPoints.remove(point)) {
 
 		} else {// bug fix. it is possible to return false; because of shared
@@ -174,16 +193,71 @@ public class Block extends BasicBlock implements Cloneable,
 	// color=Constant.BLANK_POINT;
 	// }
 
-	public short getBreaths() {
-		return (short) this.allBreathPoints.size();
+	public int getBreaths() {
+		return this.allBreathPoints.size();
 	}
 
-	public void addEnemyBlock(Block block) {
+	public Point getLastBreath() {
+		if (allBreathPoints.size() == 1)
+			return allBreathPoints.iterator().next();
+		if (log.isDebugEnabled())
+			log.debug(allBreathPoints);
+		throw new RuntimeException("allBreathPoints.size()!=1"
+				+ allBreathPoints);
+	}
+
+	public void addEnemyBlock_oneWay(Block block) {
 		this.enemyBlocks.add(block);
 	}
 
-	public void removeEnemyBlock(Block block) {
+	public void addEnemyBlock_twoWay(Block block) {
+		this.enemyBlocks.add(block);
+		block.enemyBlocks.add(this);
+	}
+
+	/**
+	 * 解除自己和相邻敌块的关系(双向解除).
+	 * 
+	 * @param block
+	 */
+	public void removeEnemyBlocks_TwoWay() {
+		for (Iterator<Block> iter = enemyBlocks.iterator(); iter.hasNext();) {
+			Block enemyBlock = iter.next();
+			enemyBlock.enemyBlocks.remove(this);
+			iter.remove();
+		}
+	}
+
+	/**
+	 * 解除自己和相邻气块的关系(双向解除).
+	 * 
+	 * @param block
+	 */
+	public void removeBreathBlocks_TwoWay() {
+		for (Iterator<BlankBlock> iter = breathBlocks.iterator(); iter
+				.hasNext();) {
+			BlankBlock breathBlock = iter.next();
+			breathBlock.removeNeighborBlock_oneWay(this);
+			iter.remove();
+		}
+	}
+
+	/**
+	 * 解除自己和相邻敌块的关系(单向解除,自己不再指向相邻敌块).
+	 * 
+	 * @param block
+	 */
+	public void removeEnemyBlock_oneWay(Block block) {
 		this.enemyBlocks.remove(block);
+	}
+
+	/**
+	 * 解除自己和相邻气块的关系(单向解除,自己不再指向相邻气块).
+	 * 
+	 * @param blankBlock
+	 */
+	public void removeBreathBlock_oneWay(BlankBlock blankBlock) {
+		this.breathBlocks.remove(blankBlock);
 	}
 
 	public String toString() {
@@ -193,7 +267,7 @@ public class Block extends BasicBlock implements Cloneable,
 		Collections.sort(list, new RowColumnComparator());
 		if (color == ColorUtil.BLACK || color == ColorUtil.WHITE) {
 			temp.append(color);
-			temp.append(", points=" + this.getTotalNumberOfPoint());
+			temp.append(", points=" + this.getNumberOfPoint());
 			temp.append(", breaths = " + this.getBreaths());
 
 			temp.append(",\r\nallPoints=");
@@ -204,15 +278,24 @@ public class Block extends BasicBlock implements Cloneable,
 			list.addAll(allBreathPoints);
 			Collections.sort(list, new RowColumnComparator());
 			temp.append(list);
-
-			if (this.breathBlocks.isEmpty() == false) {
-				temp.append(",\r\nbreathBlocks=[");
-				for (Block tempBlock : this.breathBlocks) {
-					temp.append(tempBlock.getTopLeftPoint());
-					temp.append(",eyeBlock=" + tempBlock.eyeBlock + ", ");
+			try {
+				if (this.breathBlocks.isEmpty() == false) {
+					temp.append(",\r\nbreathBlocks=[");
+					for (BlankBlock tempBlock : this.breathBlocks) {
+						temp.append(tempBlock.getTopLeftPoint());
+						temp.append(", total=");
+						temp.append(tempBlock.getNumberOfPoint());
+						temp.append(",eyeBlock=" + tempBlock.isEyeBlock()
+								+ ", ");
+					}
+					temp.append("]");
 				}
-				temp.append("]");
+			} catch (Exception e) {
+				if (log.isDebugEnabled())
+					log.debug("Block " + this.getTopLeftPoint());
+				throw new RuntimeException("Block " + this.getTopLeftPoint());
 			}
+
 			if (this.enemyBlocks.isEmpty() == false) {
 				temp.append(",\r\nenemyBlocks=[");
 				for (Block tempBlock : this.enemyBlocks) {
@@ -221,12 +304,7 @@ public class Block extends BasicBlock implements Cloneable,
 				temp.append("]");
 			}
 		} else {
-			temp.append(color);
-			temp.append(",\r\nallPoints=");
-			temp.append(allPoints.size());
-			temp.append( ", representative=");
-			temp.append(this.getTopLeftPoint());
-			temp.append(", eyeBlock=" + this.eyeBlock);
+
 		}
 
 		/*
@@ -239,47 +317,58 @@ public class Block extends BasicBlock implements Cloneable,
 		return temp.toString();
 	}
 
-	public boolean equals(Object o) {
-		if (o instanceof Block) {
-			Block other = (Block) o;
-			if (other.getColor() == this.getColor()
-					&& this.getAllPoints().equals(other.getAllPoints())
-					&& this.getAllBreathPoints().equals(
-							other.getAllBreathPoints())) {
-				return true;
-			} else {
-				return false;
-			}
+	public static boolean equals(Block a, Block other) {
+
+		if (other.getColor() == a.getColor()
+				&& a.getPoints().equals(other.getPoints())
+				&& a.getBreathPoints().equals(other.getBreathPoints())
+				&& a.getEnemyBlockRepre().equals(other.getEnemyBlockRepre())
+				&& a.getBreathBlockRepre().equals(other.getBreathBlockRepre())) {
+			return true;
+		} else {
+			return false;
 		}
-		return false;
+
 	}
 
 	/**
 	 * To prevent the has code change after the block content change. we use as
 	 * less member as possible. to put it into a map, ensure the allPoints is
-	 * correctly initialized and will not change during map operation.
+	 * correctly initialized and will not change during map operation.<br/>
+	 * but when we deal with enemy blocks, its points may increase in the life
+	 * cycle, so we have to use its first point as representative. <br/>
+	 * 该算法有很大的问题,棋块和气块的大小是会动态改变的.用set来维护非常麻烦. 相邻关系也许不应该动态维护 . <br/>
+	 * change 2012/02/05 switch to use basic hash code in Object. that is
+	 * reference equality.
 	 */
-	public int hashCode() {
-		return this.allPoints.hashCode();
-		// return this.allPoints.hashCode() + this.allBreathPoints.hashCode() *
-		// 17;
+	// public int hashCode() {
+	// // return this.getFirstPoint().hashCode();
+	// return this.allPoints.hashCode();
+	//
+	// // return this.allPoints.hashCode() + this.allBreathPoints.hashCode() *
+	// // 17;
+	// }
+
+	public Point getFirstPoint() {
+		// TODO Auto-generated method stub
+		return this.firstPoint;
 	}
 
 	/**
      *  
      */
-	public void changeColorToBlank() {
-		// TODO Auto-generated method stub
-		allBreathPoints.clear();
-		color = ColorUtil.BLANK;
-		enemyBlocks = null;
-		breathBlocks = null;
-	}
+	// public void changeColorToBlank() {
+	// // TODO Auto-generated method stub
+	// allBreathPoints.clear();
+	// color = ColorUtil.BLANK;
+	// enemyBlocks = null;
+	// breathBlocks = null;
+	// }
 
 	/**
 	 * @return Returns the allBreathPoints.
 	 */
-	public Set<Point> getAllBreathPoints() {
+	public Set<Point> getBreathPoints() {
 		return allBreathPoints;
 	}
 
@@ -287,26 +376,35 @@ public class Block extends BasicBlock implements Cloneable,
 	 * @param allBreathPoints
 	 *            The allBreathPoints to set.
 	 */
-	public void setAllBreathPoints(Set<Point> allBreathPoints) {
+	public void setBreathPoints(Set<Point> allBreathPoints) {
 		this.allBreathPoints = allBreathPoints;
 	}
 
 	/**
 	 * @return Returns the breathBlock.
 	 */
-	public Set<Block> getBreathBlocks() {
+	public Set<BlankBlock> getBreathBlocks() {
 		return breathBlocks;
 	}
 
-	public void addBreathBlock(Block abreathBlock) {
+	public void addBreathBlock_oneWay(BlankBlock abreathBlock) {
 		breathBlocks.add(abreathBlock);
+	}
+
+	public void addBreathBlock_twoWay(BlankBlock abreathBlock) {
+		breathBlocks.add(abreathBlock);
+		if (this.isBlack()) {
+			abreathBlock.addBlackBlock(this);
+		} else {
+			abreathBlock.addWhiteBlock(this);
+		}
 	}
 
 	/**
 	 * @param breathBlock
 	 *            The breathBlock to set.
 	 */
-	public void setBreathBlocks(Set<Block> breathBlock) {
+	public void setBreathBlocks(Set<BlankBlock> breathBlock) {
 		this.breathBlocks = breathBlock;
 	}
 
@@ -347,39 +445,116 @@ public class Block extends BasicBlock implements Cloneable,
 		this.breathCalculated = breathCalculated;
 	}
 
-	public boolean isBlack() {
-		return getColor() == Constant.BLACK;
+	/**
+	 * 记录棋块周围的扩展点,包括拆一和拆二.<br/>
+	 * 这个信息需要及时更新.
+	 */
+	private Set<Point> extendOne = new HashSet<Point>();
+	private Set<Point> extendTwo = new HashSet<Point>();
+
+	public Set<Point> getExtendOne() {
+		return extendOne;
 	}
 
-	public boolean isBlank() {
-		return getColor() == Constant.BLANK;
+	public Set<Point> getExtendTwo() {
+		return extendTwo;
 	}
 
-	public boolean isWhite() {
-		return getColor() == Constant.WHITE;
+	public void addExtendOnePoint(Point point) {
+		extendOne.add(point);
+	}
+
+	public void addExtendTwoPoint(Point point) {
+		extendTwo.add(point);
+	}
+
+	public void clearBreath() {
+		this.allBreathPoints.clear();
 	}
 
 	/**
-	 * �����Ƿ��ڽ��ϡ�
+	 * The simple way to represent all the enemy blocks - one representative
+	 * point for each enemy block.
 	 * 
 	 * @return
 	 */
-	public boolean isBreathCorner() {
+	public Set<Point> getEnemyBlockRepre() {
+		Set<Point> points = new HashSet<Point>();
+		for (Block block : this.enemyBlocks) {
+			points.add(block.getBehalfPoint());
+		}
+		return points;
+	}
+
+	/**
+	 * The simple way to represent all the enemy blocks - one representative
+	 * point for each breath block.
+	 * 
+	 * @return
+	 */
+	public Set<Point> getBreathBlockRepre() {
+		Set<Point> points = new HashSet<Point>();
+		for (BlankBlock block : this.breathBlocks) {
+			points.add(block.getBehalfPoint());
+		}
+		return points;
+	}
+
+	public void removeFromAllBreathBlock() {
+		for (BlankBlock blankB : this.breathBlocks) {
+			boolean removed = blankB.removeNeighborBlock_twoWay(this);
+			if (removed == false)
+				throw new RuntimeException("removed = false");
+		}
+	}
+
+	public int getEnemyColor() {
+
+		return ColorUtil.enemyColor(color);
+	}
+
+	/**
+	 * should set it first before using it
+	 */
+	private transient boolean live;
+
+	/**
+	 * all the enemy is live,itself is not live yet. there is no chance to
+	 * survive. state is unknown if both live and dead is false. which means
+	 * fight is ongoing ( 对杀尚在进行中.)
+	 */
+	private transient boolean dead;
+
+	public boolean isLive() {
+		return live;
+	}
+
+	public void setLive(boolean live) {
+		this.live = live;
+	}
+
+	public boolean isDead() {
+		return dead;
+	}
+
+	public void setDead(boolean dead) {
+		this.dead = dead;
+	}
+
+	public int getNumberOfEyeBlock() {
 		int count = 0;
-		boolean includeCorner = false;
-		for (Point point : allPoints) {
-			if (point.isCorner()) {
-				includeCorner = true;
-				count++;
-			} else if (point.isBorder()) {
+		for (BlankBlock breathBlock : this.getBreathBlocks()) {
+			if (breathBlock.isEyeBlock()) {
 				count++;
 			}
 		}
-		return includeCorner && 2 * count > allPoints.size();
+		return count;
 	}
 
-	public void setBlackEye(boolean hasBlack) {
-		this.blackEye = hasBlack;
-		
+	public Set<Point> getUniqueEyePoint() {
+		if (this.getNumberOfEyeBlock() != 1)
+			throw new RuntimeException("getNumberOfEyeBlock()!=1");
+		return this.getBreathBlocks().iterator().next().getPoints();
 	}
+
 }

@@ -5,8 +5,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -14,7 +14,7 @@ import eddie.wu.manual.ConvertGoManual;
 import eddie.wu.manual.LoadGMDGoManual;
 
 public class TestConvertGoManual extends TestCase {
-	private static final Log log = LogFactory.getLog(TestConvertGoManual.class);
+	private static final Logger log = Logger.getLogger(TestConvertGoManual.class);
 	
 	/**
 	 * iterator all manuals.
@@ -26,25 +26,25 @@ public class TestConvertGoManual extends TestCase {
 		logger.setLevel(Level.ERROR);
 		Logger logger1=Logger.getLogger(TestConvertGoManual.class);
 		logger1.setLevel(Level.ERROR);
-		byte[] temp = new LoadGMDGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadSingleGoManual();
+		byte[] temp = new LoadGMDGoManual("doc/å›´æ£‹æ‰“è°±è½¯ä»¶/").loadSingleGoManual().getMoves();
 
 		ConvertGoManual convert = new ConvertGoManual();
 		byte[] result = convert.convertFormat(temp);
 		if (log.isDebugEnabled()) {
 			for (int i = 0; i < temp.length / 2; i++) {
-				System.out.println("i=" + i + ", [" + temp[2 * i] + ","
+				if(log.isDebugEnabled()) log.debug("i=" + i + ", [" + temp[2 * i] + ","
 						+ temp[2 * i + 1] + "];" + " [" + result[2 * i] + ","
 						+ result[2 * i + 1] + "]");
 			}
 		}
 		  int count = 0;
-	        List list = new LoadGMDGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadMultiGoManualFromLib0();
+	        List list = new LoadGMDGoManual("doc/å›´æ£‹æ‰“è°±è½¯ä»¶/").loadMultiGoManualFromLib0();
 
 	        byte[] original = null;
 
 	        for (int j = 1; j < 2; j++) {
 	        	
-	            list = new LoadGMDGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadMultiGoManual(j);
+	            list = new LoadGMDGoManual("doc/å›´æ£‹æ‰“è°±è½¯ä»¶/").loadMultiGoManual(j);
 	            for (Iterator iter = list.iterator(); iter.hasNext();) {
 	                count++;
 	                //if(count<760) continue;
@@ -66,11 +66,11 @@ public class TestConvertGoManual extends TestCase {
 	public void testSimgleGoManual(){
 		Logger logger=Logger.getLogger(ConvertGoManual.class);
 		logger.setLevel(Level.DEBUG);
-		byte[] temp =new LoadGMDGoManual("doc/Î§Æå´òÆ×Èí¼þ/").loadOneFromAllGoManual(1,760);
+		byte[] temp =new LoadGMDGoManual("doc/å›´æ£‹æ‰“è°±è½¯ä»¶/").loadOneFromAllGoManual(1,760);
 		ConvertGoManual convert = new ConvertGoManual();
 		byte[] result = convert.convertFormat(temp);
 		for (int i = 0; i < temp.length / 2; i++) {
-			System.out.println("i=" + i + ", [" + temp[2 * i] + ","
+			if(log.isDebugEnabled()) log.debug("i=" + i + ", [" + temp[2 * i] + ","
 					+ temp[2 * i + 1] + "];" + " [" + result[2 * i] + ","
 					+ result[2 * i + 1] + "]");
 		}

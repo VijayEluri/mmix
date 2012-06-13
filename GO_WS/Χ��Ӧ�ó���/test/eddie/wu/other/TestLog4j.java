@@ -8,8 +8,6 @@ package eddie.wu.other;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 /**
@@ -19,7 +17,7 @@ import org.apache.log4j.Logger;
 
  */
 public class TestLog4j extends TestCase{
-	private static final Log log=LogFactory.getLog(TestLog4j.class);
+	private static final Logger log = Logger.getLogger(TestLog4j.class);
 	public void testLog4j(){
 		log.debug("debug:testLog4j");
 		log.error("error:testLog4j");
@@ -31,7 +29,7 @@ public class TestLog4j extends TestCase{
 		log.debug("log:"+log.toString());
 		log.error("log:"+log.getClass().getName());
 		log.error("log:"+log.toString());
-		Log log1=LogFactory.getLog(eddie.wu.other.TestLog4j.class);
+		Logger log1=Logger.getLogger(eddie.wu.other.TestLog4j.class);
 		assertEquals(log,log1);
 		assertTrue("log==log1",log==log1);
 		
@@ -47,7 +45,7 @@ public class TestLog4j extends TestCase{
 	public void testDynamicConfig(){
 		 
 		   Logger  logger = Logger.getLogger(TestLog4j.class);
-		   System.out.println("level="+logger.getLevel());
+		   if(log.isDebugEnabled()) log.debug("level="+logger.getLevel());
 		   // Now set its level. Normally you do not need to set the
 		   // level of a logger programmatically. This is usually done
 		   // in configuration files.

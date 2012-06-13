@@ -3,102 +3,130 @@ package eddie.wu.domain;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-/**
- * ¼ÇÂ¼Æå¾Ö½øĞĞ¹ı³ÌÖĞµÄÌá×Ó£¬Æå¿éºÏ²¢ĞÅÏ¢£¬·½±ã»ÚÆå£¬ÒÔ¼°´òÆ×ºóÍËÊ±µÄ´¦Àí¡£
- * TODO£º Æø¿éµÄºÏ²¢Ã»ÓĞ´¦Àí£¨ºóÍËÊ±£©¡£
- * @author wueddie-wym-wrz
- *
- */
-public class StepMemo implements Serializable{
-	private Point currentStepPoint;
-	private byte color;
 
-	/*
+/**
+ * è®°å½•æ£‹å±€è¿›è¡Œè¿‡ç¨‹ä¸­çš„æå­ï¼Œæ£‹å—åˆå¹¶ä¿¡æ¯ï¼Œæ–¹ä¾¿æ‚”æ£‹ï¼Œä»¥åŠæ‰“è°±åé€€æ—¶çš„å¤„ç†ã€‚<br/>
+ * TODOï¼š æ°”å—çš„åˆå¹¶æ²¡æœ‰å¤„ç†ï¼ˆåé€€æ—¶ï¼‰ã€‚
+ * 
+ * @author wueddie-wym-wrz
+ * 
+ */
+public class StepMemo implements Serializable {
+
+	private Step step;
+
+	/**
+	 * è¢«æåƒçš„æ£‹å—
+	 */
+	private Set<Block> eatenBlocks = new HashSet<Block>();
+
+	/**
+	 * è¢«åˆå¹¶çš„æ£‹å—
+	 */
+	private Set<Block> mergedBlocks = new HashSet<Block>();
+
+	/**
+	 * è¢«åˆ†è£‚çš„æ°”å—
+	 */
+	private BlankBlock dividedBlock;
+	/**
+	 * è¢«åˆ†è£‚å‡ºçš„æ°”å—
+	 */
+	private Set<BlankBlock> newBlankBlocks = new HashSet<BlankBlock>();
+
+	/**
 	 * total points after the move: help to check whether the state happens
 	 * before.
 	 */
 	private short totalPoints;
+	
+	private BoardColorState colorState;
 
-	/*
-	 * the prohibited move after this step. ´¦Àí´ò½ÙÓÃµÄ¡£
+	/**
+	 * åŸå…ˆçš„ç©ºç™½æ°”å—.(å°†å‡å°‘ä¸€å­,å¯èƒ½ä¼šæ¶ˆå¤±!)<br/>
+	 * æ¶ˆå¤±çš„ç©ºç™½ç‚¹å—æƒ…å†µã€‚æœ‰ç²˜æˆ–è€…æåŠ«ä¹‹ç±»ã€‚
+	 */
+	private BlankBlock originalBlankBlock;
+
+	/**
+	 * the prohibited move after this step. å¤„ç†æ‰“åŠ«ç”¨çš„ã€‚
 	 */
 	private Point prohibittedPoint;
-	/**
-	 * ±»Ìá³Ô µÄÆå¿é  
-	 */
-	private Set<Block> eatenBlocks = new HashSet<Block>();
-	/**
-	 * ±»ºÏ²¢µÄÆå¿é
-	 */
-	
-	private Set<Block> mergedBlocks = new HashSet<Block>();
-	/**
-	 * ±»·ÖÁÑ³öµÄÆø¿é
-	 */
-	private Set<Block> dividedBlocks = new HashSet<Block>();
 
-	//private Block originalBlankBlock;
-	
-	public Set<Block> getDividedBlocks() {
-		return dividedBlocks;
+	public Set<BlankBlock> getNewBlankBlocks() {
+		return newBlankBlocks;
 	}
 
-	public void addDividedBlocks(Block block) {
-		this.dividedBlocks.add(block);
+	public void addNewBlankBlock(BlankBlock newBlankBlock) {
+		this.newBlankBlocks.add(newBlankBlock);
 	}
 
-	public StepMemo(Point currentStepPoint, byte color, short totalPoints,
-			Point prohibittedPoint) {
-		this.currentStepPoint = currentStepPoint;
-		this.color = color;
-		this.totalPoints = totalPoints;
-		this.prohibittedPoint = prohibittedPoint;
+	public BlankBlock getOriginalBlankBlock() {
+		return originalBlankBlock;
 	}
 
-	public StepMemo(Point currentStepPoint, byte color, short totalPoints) {
-		this.currentStepPoint = currentStepPoint;
-		this.color = color;
-		this.totalPoints = totalPoints;
+	public void setOriginalBlankBlock(BlankBlock eatenBlankBlock) {
+		this.originalBlankBlock = eatenBlankBlock;
 	}
 
-	public StepMemo(Point currentStepPoint, byte color) {
-		this.currentStepPoint = currentStepPoint;
-		this.color = color;
+	public BlankBlock getDividedBlock() {
+		return dividedBlock;
 	}
 
-	public StepMemo() {
-
+	public void setDividedBlock(BlankBlock block) {
+		this.dividedBlock = block;
 	}
+
+	// public StepMemo(Point currentStepPoint, int color, short totalPoints,
+	// Point prohibittedPoint) {
+	//
+	// this.step = new Step(currentStepPoint, color);
+	// this.totalPoints = totalPoints;
+	// this.prohibittedPoint = prohibittedPoint;
+	// }
+
+	public StepMemo(Point currentStepPoint, int color, short shoushu) {
+		this.step = new Step(currentStepPoint, color, shoushu);
+		// this.totalPoints = totalPoints;
+	}
+
+	public StepMemo(Point currentStepPoint, int color) {
+		this.step = new Step(currentStepPoint, color);
+	}
+
+	// public StepMemo() {
+	//
+	// }
 
 	/**
 	 * @return Returns the color.
 	 */
 	public byte getColor() {
-		return color;
+		return step.getColor();
 	}
 
 	/**
 	 * @param color
 	 *            The color to set.
 	 */
-	public void setColor(byte color) {
-		this.color = color;
-	}
+	// public void setColor(int color) {
+	// this.step.setColor(color);
+	// }
 
 	/**
 	 * @return Returns the currentStepPoint.
 	 */
 	public Point getCurrentStepPoint() {
-		return currentStepPoint;
+		return step.getPoint();
 	}
 
-	/**
-	 * @param currentStepPoint
-	 *            The currentStepPoint to set.
-	 */
-	public void setCurrentStepPoint(Point currentStepPoint) {
-		this.currentStepPoint = currentStepPoint;
-	}
+	// /**
+	// * @param currentStepPoint
+	// * The currentStepPoint to set.
+	// */
+	// public void setCurrentStepPoint(Point currentStepPoint) {
+	// this.step.setPoint(currentStepPoint);
+	// }
 
 	/**
 	 * @return Returns the prohibittedPoint.
@@ -145,4 +173,63 @@ public class StepMemo implements Serializable{
 	public void addMergedBlock(Block block) {
 		mergedBlocks.add(block);
 	}
+
+	public boolean isGiveup() {
+		return step.isGiveUp();
+	}
+
+	public Step getStep() {
+		return step;
+	}
+
+	public void setStep(Step step) {
+		this.step = step;
+	}
+
+	@Override
+	public String toString() {
+
+		StringBuilder sb = new StringBuilder(step.toString());
+		sb.append("\r\n");
+		if (!eatenBlocks.isEmpty()) {
+			sb.append("ä¸‹åˆ—å—è¢«æåƒ: ");
+			for (Block block : eatenBlocks) {
+				sb.append(block.getBehalfPoint());
+				sb.append("\r\n");
+			}
+		}
+		if (!mergedBlocks.isEmpty()) {
+			sb.append("ä¸‹åˆ—å—è¢«åˆå¹¶: ");
+			for (Block block : mergedBlocks) {
+				sb.append(block.getBehalfPoint());
+				sb.append("\r\n");
+			}
+		}
+		if (originalBlankBlock != null) {
+			if (originalBlankBlock.getNumberOfPoint() == 0)
+				sb.append("æ°”å—åŸå…ˆä»…æœ‰ä¸€å­,è½å­æ°”å—åæ¶ˆå¤±: " + step.getPoint() + "\r\n");
+			else {
+				sb.append("æ°”å—åŸå…ˆå‡å°‘ä¸€å­: " + step.getPoint() + "\r\n");
+			}
+		} else if (dividedBlock != null) {
+			sb.append("æ°”å—" + dividedBlock.getBehalfPoint() + "è¢«åˆ†è£‚: \r\n");
+		}
+		return sb.toString();
+
+		// return "StepMemo [step=" + step + ", totalPoints=" + totalPoints
+		// + ", prohibittedPoint=" + prohibittedPoint + ", eatenBlocks="
+		// + eatenBlocks + ", mergedBlocks=" + mergedBlocks
+		// + ", eatenBlankBlock=" + eatenBlankBlock + ", dividedBlock="
+		// + dividedBlock + "]";
+	}
+
+	public BoardColorState getColorState() {
+		return colorState;
+	}
+
+	public void setColorState(BoardColorState colorState) {
+		this.colorState = colorState;
+		
+	}
+
 }

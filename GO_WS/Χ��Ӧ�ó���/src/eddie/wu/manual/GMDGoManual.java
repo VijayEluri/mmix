@@ -5,47 +5,49 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
+import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
 
 /**
- * ´¦ÀíÆåÆ×¸ñÊ½GMD.ÍÁÈËÌá¹©µÄÎåÇ§ÆåÆ×ºÍÁùÇ§ÆåÆ×½ÔÊ¹ÓÃ¸ÃÆåÆ×¸ñÊ½¡£<br/>
- * Õâ¸ö¸ñÊ½Ò²Ëã¼òÃ÷Ò×¶®¡£
+ * å¤„ç†æ£‹è°±æ ¼å¼GMD.åœŸäººæä¾›çš„äº”åƒæ£‹è°±å’Œå…­åƒæ£‹è°±çš†ä½¿ç”¨è¯¥æ£‹è°±æ ¼å¼ã€‚<br/>
+ * è¿™ä¸ªæ ¼å¼ä¹Ÿç®—ç®€æ˜æ˜“æ‡‚ã€‚
  * 
  * @author wueddie-wym-wrz
  * 
  */
-public class GMDGoManual extends GoManual{
-	private static final Log log = LogFactory.getLog(GMDGoManual.class);
+public class GMDGoManual extends GoManual {
+	private static final Logger log = Logger.getLogger(GMDGoManual.class);
 	private static final int FIRSTSTEPINDEX = 224;
 
 	private static final int SHOUSHUINDEX = 160;
 
 	private static final int ByteLengthOfSingleGoManual = 1024;
 	private static Map<String, List<GMDGoManual>> map = new HashMap<String, List<GMDGoManual>>();
-
 	
-	public static GMDGoManual loadGoManual(
-			String libFileName, int manualId) {
+	
+	public GMDGoManual(){
+		super(Constant.BOARD_SIZE);
+	}
+
+	public static GMDGoManual loadGoManual(String libFileName, int manualId) {
 		return loadMultiGoManual(libFileName).get(manualId);
 	}
-	
-	public static List<GMDGoManual> loadMultiGoManual(
-			String goManualLibFileName) {
+
+	public static List<GMDGoManual> loadMultiGoManual(String goManualLibFileName) {
 		if (map.containsKey(goManualLibFileName)) {
 			return map.get(goManualLibFileName);
-		}else{
-			return loadMultiGoManual(
-					 goManualLibFileName, 6391) ;
+		} else {
+			return loadMultiGoManual(goManualLibFileName, 6391);
 		}
 	}
 
@@ -147,23 +149,23 @@ public class GMDGoManual extends GoManual{
 					// standard[i] = b;
 					if (a < 1 || a > 19 || b < 1 || b > 19) {
 						if (Constant.DEBUG_CGCL) {
-							String string = "ÔØÈëµÄÊı¾İÓĞÎó£¡shoushou=" + shoushuCount
+							String string = "è½½å…¥çš„æ•°æ®æœ‰è¯¯ï¼shoushou=" + shoushuCount
 									+ "a=" + a + ",b=" + b;
 							log.debug(string);
 							throw new RuntimeException(string);
 						}
 
 					}
-					step = Point.getPoint(b, a);
-					manual.addStep(step);
-					manual.setMoves(standard);
+					step = Point.getPoint(Constant.BOARD_SIZE, b, a);
+					manual.addStep(step,
+							ColorUtil.getCurrentStepColor(shoushuCount));
+
 				}
 				log.debug("shoushu=" + shoushuCount);
 				list.add(manual);
 			}
 			// }
 
-			
 		}
 
 		catch (IOException ex) {
@@ -187,7 +189,8 @@ public class GMDGoManual extends GoManual{
 		for (int i = 0; i < string.length; i++) {
 			if (string[i] == 0) {
 				if (hasZero == true) {
-					return new String(Arrays.copyOfRange(string, 0, i - 1));
+					return new String(Arrays.copyOfRange(string, 0, i - 1),
+							Charset.forName("GBK"));
 				} else {
 					hasZero = true;
 				}

@@ -2,33 +2,33 @@ package eddie.wu.linkedblock;
 
 public class ZiKuai1
    implements Cloneable {
-   //ÎªÁËÊµÏÖ¶ÔÏóµÄ¸´ÖÆ£¬¼ÈÊ¹ÓÃÁË¹¹½¨Æ÷·½°¸£¬Ò²Ê¹ÓÃÁË¿ËÂ¡fang'an
-   //¾¡¹Ü¿ËÂ¡ÊÇ¸ü³£¼ûµÄ·½°¸£¬µ«ÊÇÓÉÓÚÁ´±íµÄ¹ØÏµ£¬½«µ¼ÖÂµİ¹é£¬¿ÉÄÜ
-   //Ğ§ÂÊ·´¶ø²»¸ß¡£3.7/2004
+   //ä¸ºäº†å®ç°å¯¹è±¡çš„å¤åˆ¶ï¼Œæ—¢ä½¿ç”¨äº†æ„å»ºå™¨æ–¹æ¡ˆï¼Œä¹Ÿä½¿ç”¨äº†å…‹éš†fang'an
+   //å°½ç®¡å…‹éš†æ˜¯æ›´å¸¸è§çš„æ–¹æ¡ˆï¼Œä½†æ˜¯ç”±äºé“¾è¡¨çš„å…³ç³»ï¼Œå°†å¯¼è‡´é€’å½’ï¼Œå¯èƒ½
+   //æ•ˆç‡åè€Œä¸é«˜ã€‚3.7/2004
 
-   //Æå×Ó¿éµÄĞÅÏ¢¡£
-   public byte color; //¿éµÄÑÕÉ«
-   public boolean active; //¸ÃÆå¿éÊÇ·ñÏÖÔÚÈÔÔÚÆåÅÌÉÏ¡£
-   //ÆäÊµÓÃÆøÊı£½£½1Ò²¿ÉÒÔÊµÏÖÅĞ¶Ï£¬µ«ÊÇ²»¹»ÇåÎú¡£
+   //æ£‹å­å—çš„ä¿¡æ¯ã€‚
+   public byte color; //å—çš„é¢œè‰²
+   public boolean active; //è¯¥æ£‹å—æ˜¯å¦ç°åœ¨ä»åœ¨æ£‹ç›˜ä¸Šã€‚
+   //å…¶å®ç”¨æ°”æ•°ï¼ï¼1ä¹Ÿå¯ä»¥å®ç°åˆ¤æ–­ï¼Œä½†æ˜¯ä¸å¤Ÿæ¸…æ™°ã€‚
 
-   public DianNode1 zichuang; //¿éÖĞ¸÷×ÓµÄÁ´±í:Ê×µã±íÊ¾¡£
-   public short zishu; //¿é±¾ÉíµÄ×ÓÊı£»
+   public DianNode1 zichuang; //å—ä¸­å„å­çš„é“¾è¡¨:é¦–ç‚¹è¡¨ç¤ºã€‚
+   public short zishu; //å—æœ¬èº«çš„å­æ•°ï¼›
 
-   public DianNode1 qichuang; //¿éµÄ¸÷ÆøµÄÁ´±í£»
-   public byte qishu; //¿é±¾ÉíµÄÆøÊı£»
+   public DianNode1 qichuang; //å—çš„å„æ°”çš„é“¾è¡¨ï¼›
+   public byte qishu; //å—æœ¬èº«çš„æ°”æ•°ï¼›
 
-   public HaoNode1 zwqkhao; //Æø¿éµÄºÅ£»
-   public byte zwqkshu; //ÖÜÎ§Æø¿éµÄÊıÄ¿¡£
-   public byte zwdsqkshu; //ÖÜÎ§µ¥É«Æø¿éµÄÊıÄ¿¡£
+   public HaoNode1 zwqkhao; //æ°”å—çš„å·ï¼›
+   public byte zwqkshu; //å‘¨å›´æ°”å—çš„æ•°ç›®ã€‚
+   public byte zwdsqkshu; //å‘¨å›´å•è‰²æ°”å—çš„æ•°ç›®ã€‚
 
-   public HaoNode1 zwyskhao; //ÖÜÎ§ÒìÉ«¿éµÄºÅ¡£
-   public byte zwyskshu; //ÖÜÎ§ÒìÉ«¿éÊı£»
+   public HaoNode1 zwyskhao; //å‘¨å›´å¼‚è‰²å—çš„å·ã€‚
+   public byte zwyskshu; //å‘¨å›´å¼‚è‰²å—æ•°ï¼›
 
-   public byte minqi; //ÖÜÎ§ÒìÉ«¿éÆøÊıµÄ×îĞ¡Öµ¡£
+   public byte minqi; //å‘¨å›´å¼‚è‰²å—æ°”æ•°çš„æœ€å°å€¼ã€‚
 
-   public byte yanxing; //¹«Æø£¬¼ÙÑÛ£¬ÕæÑÛ¡££¿
+   public byte yanxing; //å…¬æ°”ï¼Œå‡çœ¼ï¼ŒçœŸçœ¼ã€‚ï¼Ÿ
 
-   //ÊÇ·ñÒª°´ÆøÊıÅÅĞò£¿
+   //æ˜¯å¦è¦æŒ‰æ°”æ•°æ’åºï¼Ÿ
    public Object clone() {
       ZiKuai1 o = null;
 
@@ -77,7 +77,7 @@ public class ZiKuai1
       DianNode1 temp;
       DianNode1 back;
       temp = old.zichuang;
-      if (temp == null) { // ¸´ÖÆÆå×Ó´®
+      if (temp == null) { // å¤åˆ¶æ£‹å­ä¸²
       }
       else {
          zichuang = new DianNode1(temp.a, temp.b);
@@ -89,7 +89,7 @@ public class ZiKuai1
          }
       }
       temp = old.qichuang;
-      if (temp == null) {} //¸´ÖÆÆø´®
+      if (temp == null) {} //å¤åˆ¶æ°”ä¸²
       else {
          qichuang = new DianNode1(temp.a, temp.b);
          back = qichuang;
@@ -102,7 +102,7 @@ public class ZiKuai1
       HaoNode1 qkhtemp;
       HaoNode1 qkhback;
       qkhtemp = old.zwqkhao;
-      if (qkhtemp == null) {} //¸´ÖÆÖÜÎ§Æø¿é
+      if (qkhtemp == null) {} //å¤åˆ¶å‘¨å›´æ°”å—
       else {
          zwqkhao = new HaoNode1(qkhtemp.hao);
          qkhback = zwqkhao;
@@ -116,7 +116,7 @@ public class ZiKuai1
       HaoNode1 yskhtemp;
       HaoNode1 yskhback;
       yskhtemp = old.zwyskhao;
-      if (yskhtemp == null) {} //¸´ÖÆÖÜÎ§ÒìÉ«¿é
+      if (yskhtemp == null) {} //å¤åˆ¶å‘¨å›´å¼‚è‰²å—
       else {
          zwyskhao = new HaoNode1(yskhtemp.hao);
          yskhback = zwyskhao;
@@ -127,20 +127,20 @@ public class ZiKuai1
          }
       }
 
-      //Êı¾İ½á¹¹µÄ¸´ÖÆ£¬ÎªÁË¾ÖÃæÉú³ÉÖ®ºó²»ÔÙ»ÚÆå·µ»Ø¡£2ÔÂ16ÈÕ¡¢2004Äê
+      //æ•°æ®ç»“æ„çš„å¤åˆ¶ï¼Œä¸ºäº†å±€é¢ç”Ÿæˆä¹‹åä¸å†æ‚”æ£‹è¿”å›ã€‚2æœˆ16æ—¥ã€2004å¹´
    }
 
    public void kuaiqizhuangkuang() {
       switch (qishu) {
          case 1: {
-            //¼ÆËã³¤³öºóµÄÆøÊı¡£ÄÜ·ñ²»Êµ¼ÊÂä×Ó¾Í¼ÆËã³öÀ´¡£
+            //è®¡ç®—é•¿å‡ºåçš„æ°”æ•°ã€‚èƒ½å¦ä¸å®é™…è½å­å°±è®¡ç®—å‡ºæ¥ã€‚
          }
          case 2: {
-            //Á½¸öÑ¡µã³¤³öºóµÄ½á¹û£¬ÈôÆøÊıÎª1£¬Îª¡°ÆË¡±£¬ÎªËÀ
-            //ÆøÊı²»±ä£¬Ò»°ã²»ºÃ¡£
-            //ÆøÊıÄÜÔö³¤1£¬»¹ÓĞ±ä»¯ÓàµØ¡£
-            //ÆøÊıÄÜÔö³¤2£¬»¹ºÜÓĞ»îÁ¦¡£
-            //ÆøÊıÄÜÔö³¤3£¬²»ÊÇ¼òµ¥µÄ³¤Æø£¬¶øÊÇÁ¬½Ó¡£
+            //ä¸¤ä¸ªé€‰ç‚¹é•¿å‡ºåçš„ç»“æœï¼Œè‹¥æ°”æ•°ä¸º1ï¼Œä¸ºâ€œæ‰‘â€ï¼Œä¸ºæ­»
+            //æ°”æ•°ä¸å˜ï¼Œä¸€èˆ¬ä¸å¥½ã€‚
+            //æ°”æ•°èƒ½å¢é•¿1ï¼Œè¿˜æœ‰å˜åŒ–ä½™åœ°ã€‚
+            //æ°”æ•°èƒ½å¢é•¿2ï¼Œè¿˜å¾ˆæœ‰æ´»åŠ›ã€‚
+            //æ°”æ•°èƒ½å¢é•¿3ï¼Œä¸æ˜¯ç®€å•çš„é•¿æ°”ï¼Œè€Œæ˜¯è¿æ¥ã€‚
          }
       }
    }
@@ -160,11 +160,11 @@ public class ZiKuai1
             linshi = linshi.next;
          }
          if (i <= zwyskshu) {
-            return; //ÒÑ¾­ÓĞÕâ¸ö¿éºÅ¡£
+            return; //å·²ç»æœ‰è¿™ä¸ªå—å·ã€‚
          }
          zwyskshu++;
          HaoNode1 temp = new HaoNode1(kin);
-         temp.next = zwyskhao; //¿éºÅ¼ÓÔÚÇ°Í·¡£
+         temp.next = zwyskhao; //å—å·åŠ åœ¨å‰å¤´ã€‚
          zwyskhao = temp;
       }
 
@@ -185,11 +185,11 @@ public class ZiKuai1
             linshi = linshi.next;
          }
          if (i <= zwqkshu) {
-            return; //ÒÑ¾­ÓĞÕâ¸ö¿éºÅ¡£
+            return; //å·²ç»æœ‰è¿™ä¸ªå—å·ã€‚
          }
          zwqkshu++;
          HaoNode1 temp = new HaoNode1(kin);
-         temp.next = zwqkhao; //¿éºÅ¼ÓÔÚÇ°Í·¡£
+         temp.next = zwqkhao; //å—å·åŠ åœ¨å‰å¤´ã€‚
          zwqkhao = temp;
       }
 
@@ -315,8 +315,8 @@ public class ZiKuai1
    }
 
 }
-//ÖÜÎ§Æø¿éµÄºÅ£¬¾ÍÊÇÑÛ£¬¿ÉÄÜÊÇ¼ÙÑÛ£¬Ò²¿ÉÄÜÊÇ´ò½Ù¡£
-//ÏÈÓÃÆøÊıÅĞ¶ÏÇ¿Èõ£¬ÔÙ¸³ÓèµØ£¬¸ù¾İÑÛÎ»´óĞ¡ÅĞ¶ÏÇ¿Èõ¡£
+//å‘¨å›´æ°”å—çš„å·ï¼Œå°±æ˜¯çœ¼ï¼Œå¯èƒ½æ˜¯å‡çœ¼ï¼Œä¹Ÿå¯èƒ½æ˜¯æ‰“åŠ«ã€‚
+//å…ˆç”¨æ°”æ•°åˆ¤æ–­å¼ºå¼±ï¼Œå†èµ‹äºˆåœ°ï¼Œæ ¹æ®çœ¼ä½å¤§å°åˆ¤æ–­å¼ºå¼±ã€‚
 /*void addkuaihao( byte kin1){
            linhao =new HaoNode1();
            linhao.hao=kin1;

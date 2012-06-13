@@ -1,11 +1,15 @@
 package eddie.wu.linkedblock;
 
+import org.apache.log4j.Logger;
+
+import eddie.wu.domain.BoardBreathState;
+
 //import untitled4.*;
 //import untitled9.*;
 
 /**
- * <p>Title: ÆåÅÌ¾ÖÃæµÄ»ù´¡ĞÅÏ¢¶¼ÔÚÊı×ézbÖĞ£¬±¾Àà´ÓBoardLianShort
- * ×ª»¯¶øÀ´£¬×¨ÃÅ´¦Àí´Ó¾²Ì¬¾ÖÃæÉú³É¸ß¼¶ĞÅÏ¢¡£</p>
+ * <p>Title: æ£‹ç›˜å±€é¢çš„åŸºç¡€ä¿¡æ¯éƒ½åœ¨æ•°ç»„zbä¸­ï¼Œæœ¬ç±»ä»BoardLianShort
+ * è½¬åŒ–è€Œæ¥ï¼Œä¸“é—¨å¤„ç†ä»é™æ€å±€é¢ç”Ÿæˆé«˜çº§ä¿¡æ¯ã€‚</p>
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: </p>
@@ -14,81 +18,82 @@ package eddie.wu.linkedblock;
  */
 
 public class JuMian3 {
+	private static final Logger log = Logger.getLogger(JuMian3.class);
 
   public static final boolean DEBUG = true;
 
 
   public byte[][][] zb = new byte[21][21][4];
-  //Ã¿¸öÂä×ÓµãµÄÇé¿ö£¬ËùÓĞÔ­Ê¼ĞÅÏ¢¶¼ÔÚÕâ¸öÊı×éÖĞ¡£×ãÒÔ´ú±íÒ»¸ö¾ÖÃæ¡£
-  //Ç°Á½Î¬ÊÇÆåÅÌµÄ×ø±ê,Êı×éÏÂ±ê´Ó1µ½19;
-  //µÚÈıÎ¬ÏÂ±ê0:¸÷µã×´Ì¬:ºÚ1°×2;£¨×ãÒÔ´ú±íÒ»¸ö¾ÖÃæ£©
-  //µÚÈıÎ¬ÏÂ±ê1:¼ÆËãÆøµÄ±êÖ¾;
-  //µÚÈıÎ¬ÏÂ±ê2:ÆøÊı;
-  //µÚÈıÎ¬ÏÂ±ê3:¿Õ°×µãËùÔÚÆø¿éµÄ±àºÅ¡£
-  //ºóÈıÎ¬µÄÒâÒåÔÚÓÚ´¦Àí¹æÔò£¬Àí½âÆøºÍÆø¿é¡¢Æå¿éµÄ¸ÅÄî£¬Ö»ÓĞÊµÏÖÕâĞ©
-  //»ù±¾¸ÅÄî£¬²ÅÄÜÊµÏÖ¹æÔò£¬×Ô¶¯½øĞĞÂä×ÓºóµÄ´¦Àí¹ı³Ì¡£
+  //æ¯ä¸ªè½å­ç‚¹çš„æƒ…å†µï¼Œæ‰€æœ‰åŸå§‹ä¿¡æ¯éƒ½åœ¨è¿™ä¸ªæ•°ç»„ä¸­ã€‚è¶³ä»¥ä»£è¡¨ä¸€ä¸ªå±€é¢ã€‚
+  //å‰ä¸¤ç»´æ˜¯æ£‹ç›˜çš„åæ ‡,æ•°ç»„ä¸‹æ ‡ä»1åˆ°19;
+  //ç¬¬ä¸‰ç»´ä¸‹æ ‡0:å„ç‚¹çŠ¶æ€:é»‘1ç™½2;ï¼ˆè¶³ä»¥ä»£è¡¨ä¸€ä¸ªå±€é¢ï¼‰
+  //ç¬¬ä¸‰ç»´ä¸‹æ ‡1:è®¡ç®—æ°”çš„æ ‡å¿—;
+  //ç¬¬ä¸‰ç»´ä¸‹æ ‡2:æ°”æ•°;
+  //ç¬¬ä¸‰ç»´ä¸‹æ ‡3:ç©ºç™½ç‚¹æ‰€åœ¨æ°”å—çš„ç¼–å·ã€‚
+  //åä¸‰ç»´çš„æ„ä¹‰åœ¨äºå¤„ç†è§„åˆ™ï¼Œç†è§£æ°”å’Œæ°”å—ã€æ£‹å—çš„æ¦‚å¿µï¼Œåªæœ‰å®ç°è¿™äº›
+  //åŸºæœ¬æ¦‚å¿µï¼Œæ‰èƒ½å®ç°è§„åˆ™ï¼Œè‡ªåŠ¨è¿›è¡Œè½å­åçš„å¤„ç†è¿‡ç¨‹ã€‚
 
 
-  public short[][] zbk = new short[21][21];//Ã¿¸öµãÊôÓÚµÄ¿éºÅ¡£
-  //Æø¿éºÍ×Ó¿é·Ö¿ª£¬Æø¿éÊÇ×Ó¿éµÄ¸½Êô¡£
-  public byte turn;//ÂÖË­×ß¡£
+  public short[][] zbk = new short[21][21];//æ¯ä¸ªç‚¹å±äºçš„å—å·ã€‚
+  //æ°”å—å’Œå­å—åˆ†å¼€ï¼Œæ°”å—æ˜¯å­å—çš„é™„å±ã€‚
+  public byte turn;//è½®è°èµ°ã€‚
 
-  public short shoushu = 0; //µ±Ç°ÒÑÓĞÊÖÊı,´¦ÀíÖ®Ç°µİÔö.´Ó1¿ªÊ¼;
-  //µ¥×Ó³É¿é£¬ÔòkiºÍshoushuµÈ¼Û£¨¿¼ÂÇµ½ÆúÈ¨£¬ÈÔÓĞÎ¢Ãî²î±ğ£©¡£
+  public short shoushu = 0; //å½“å‰å·²æœ‰æ‰‹æ•°,å¤„ç†ä¹‹å‰é€’å¢.ä»1å¼€å§‹;
+  //å•å­æˆå—ï¼Œåˆ™kiå’Œshoushuç­‰ä»·ï¼ˆè€ƒè™‘åˆ°å¼ƒæƒï¼Œä»æœ‰å¾®å¦™å·®åˆ«ï¼‰ã€‚
 
-  public byte ktb = 0, ktw = 0; //ºÚ°×±»³Ô×Ó¼ÆÊı
-  //ÒâÒå²»´ó£¬²»¹ıË³´øËã³öÀ´£¬ĞÎÊÆÅĞ¶Ï»òĞíÓĞÓÃ¡£
+  public byte ktb = 0, ktw = 0; //é»‘ç™½è¢«åƒå­è®¡æ•°
+  //æ„ä¹‰ä¸å¤§ï¼Œä¸è¿‡é¡ºå¸¦ç®—å‡ºæ¥ï¼Œå½¢åŠ¿åˆ¤æ–­æˆ–è®¸æœ‰ç”¨ã€‚
 
-  //ÏŞÖÆÖ®Ò»£ºÆåÆ×ÊÖÊı²»ÄÜ³¬¹ı512ÊÖ¡£
-  public short[][] huik = new short[512][12]; //³É¿éµÄ¿éºÅ1£­4
-  //Ìá³ÔµÄ¿éºÅ5£­8£¬´ò³ÔµÄ¿éºÅ£º9£­11£»
-  //ÏàÍ¬ĞÔÖÊµÄ×ÓÖ±½ÓÁ¬½ÓÔÚÒ»Æğ¾ÍÊÇ¿é£¬ËùÒÔÓĞºÚ¿éºÍ°×¿é£¬ÒÔ¼°Æø¿é¡£
+  //é™åˆ¶ä¹‹ä¸€ï¼šæ£‹è°±æ‰‹æ•°ä¸èƒ½è¶…è¿‡512æ‰‹ã€‚
+  public short[][] huik = new short[512][12]; //æˆå—çš„å—å·1ï¼4
+  //æåƒçš„å—å·5ï¼8ï¼Œæ‰“åƒçš„å—å·ï¼š9ï¼11ï¼›
+  //ç›¸åŒæ€§è´¨çš„å­ç›´æ¥è¿æ¥åœ¨ä¸€èµ·å°±æ˜¯å—ï¼Œæ‰€ä»¥æœ‰é»‘å—å’Œç™½å—ï¼Œä»¥åŠæ°”å—ã€‚
   public byte[][] hui = new byte[512][5];
-  //¼ÇÂ¼Æå¾ÖµÄ¹ı³ÌĞÅÏ¢,ÓÃÓÚ»ÚÆå;3-4½û×Åµã£¬1£­2¸Ã²½Âäµã×ø±ê.
+  //è®°å½•æ£‹å±€çš„è¿‡ç¨‹ä¿¡æ¯,ç”¨äºæ‚”æ£‹;3-4ç¦ç€ç‚¹ï¼Œ1ï¼2è¯¥æ­¥è½ç‚¹åæ ‡.
   public ZiKuai1[] kuai = new ZiKuai1[512];
   public QiKuai1[] qikuai = new QiKuai1[128];
-  public short ki = 0; //µ±Ç°ÒÑ¾­ÓÃµ½µÄ¿éºÅ,ÓÃÇ°µİÔö;
+  public short ki = 0; //å½“å‰å·²ç»ç”¨åˆ°çš„å—å·,ç”¨å‰é€’å¢;
   public byte qiki = 0;
   byte qkzishu = 0;
 
   public JuMian3(byte [][][] tzb) {
-    zb=tzb;//Ó¦ÓÃÔ­ÏÈµÄÊı×é¡£
-    //Èç¹ûÔ¤ÏÈµÄÊı×éÃ»ÓĞÆå×ÓºÍÆå¿éµÄĞÅÏ¢£¬Ôò¿ÉÄÜ¸Ä±äÔ­Êı×é¡£
+    zb=tzb;//åº”ç”¨åŸå…ˆçš„æ•°ç»„ã€‚
+    //å¦‚æœé¢„å…ˆçš„æ•°ç»„æ²¡æœ‰æ£‹å­å’Œæ£‹å—çš„ä¿¡æ¯ï¼Œåˆ™å¯èƒ½æ”¹å˜åŸæ•°ç»„ã€‚
   }
 
   public byte jskq(short rs) {
-    System.out.println("½øÈë·½·¨£º¼ÆËã¿éÆø£¨jskq£©");
-    //Ëã³ö¿éµÄÆø£¬²¢Íê³É¿éµÄËùÓĞĞÅÏ¢£ºÆøÊıºÍÆø´®¡£
-    byte qishu = 0; //¿éµÄ×ÓÊıºÍ×Ó´®ÒÑ¾­È·¶¨¡£
+    if(log.isDebugEnabled()) log.debug("è¿›å…¥æ–¹æ³•ï¼šè®¡ç®—å—æ°”ï¼ˆjskqï¼‰");
+    //ç®—å‡ºå—çš„æ°”ï¼Œå¹¶å®Œæˆå—çš„æ‰€æœ‰ä¿¡æ¯ï¼šæ°”æ•°å’Œæ°”ä¸²ã€‚
+    byte qishu = 0; //å—çš„å­æ•°å’Œå­ä¸²å·²ç»ç¡®å®šã€‚
     byte a = 0, b = 0;
     byte m, n;
     byte i, j;
-    short zishu = kuai[rs].zishu; //¿éµÄ×ÓÊı
+    short zishu = kuai[rs].zishu; //å—çš„å­æ•°
     DianNode1 temp = kuai[rs].zichuang;
     DianNode1 qich;
-    System.out.println("kuaihao:" + rs);
-    System.out.println("zishu:" + zishu);
+    if(log.isDebugEnabled()) log.debug("kuaihao:" + rs);
+    if(log.isDebugEnabled()) log.debug("zishu:" + zishu);
     for (i = 1; i <= zishu; i++) {
       m = temp.a;
       n = temp.b;
-      zbk[m][n] = rs; //¿éÖĞµãµÄÕıÈ·ÉèÖÃ
+      zbk[m][n] = rs; //å—ä¸­ç‚¹çš„æ­£ç¡®è®¾ç½®
 
       for (j = 0; j < 4; j++) {
         a = (byte) (m + CS.szld[j][0]);
         b = (byte) (n + CS.szld[j][1]);
-        System.out.println("a=" + a);
-        System.out.println("b=" + b);
+        if(log.isDebugEnabled()) log.debug("a=" + a);
+        if(log.isDebugEnabled()) log.debug("b=" + b);
         if (zb[a][b][CS.ZTXB] == CS.BLANK) {
-          System.out.println(" kongdian");
+          if(log.isDebugEnabled()) log.debug(" kongdian");
         }
         if (zb[a][b][CS.SQBZXB] == 0) {
-          System.out.println(" weijisuanguo");
+          if(log.isDebugEnabled()) log.debug(" weijisuanguo");
         }
         if (zb[a][b][CS.ZTXB] == CS.BLANK && zb[a][b][CS.SQBZXB] == 0) {
           qishu++;
-          System.out.println(" qishu++;");
+          if(log.isDebugEnabled()) log.debug(" qishu++;");
           zb[a][b][CS.SQBZXB] = 1;
-          //½«Æøµã¼ÓÈëÆø´®¡£
+          //å°†æ°”ç‚¹åŠ å…¥æ°”ä¸²ã€‚
           qich = new DianNode1(a, b);
           qich.next = kuai[rs].qichuang;
           kuai[rs].qichuang = qich;
@@ -99,7 +104,7 @@ public class JuMian3 {
     kuai[rs].qishu = qishu;
 
     qich = kuai[rs].qichuang;
-    for (i = 1; i <= qishu; i++) { //»Ö¸´±êÖ¾
+    for (i = 1; i <= qishu; i++) { //æ¢å¤æ ‡å¿—
       a = qich.a;
       b = qich.b;
       zb[a][b][CS.SQBZXB] = 0;
@@ -107,34 +112,34 @@ public class JuMian3 {
       //zbk[a][b] = rs;
       qich = qich.next;
     }
-    System.out.println("¿éµÄÆøÊıÎª£º" + qishu);
+    if(log.isDebugEnabled()) log.debug("å—çš„æ°”æ•°ä¸ºï¼š" + qishu);
     kdq(rs, qishu);
-    System.out.println("·½·¨jskq£º·µ»Ø");
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³•jskqï¼šè¿”å›");
     return qishu;
-  } //2ÔÂ22ÈÕ¸Ä,Ô­·½·¨ËäÃî,ÈÔÖ»ÄÜÈÌÍ´¸î°®.
+  } //2æœˆ22æ—¥æ”¹,åŸæ–¹æ³•è™½å¦™,ä»åªèƒ½å¿ç—›å‰²çˆ±.
 
-  public void kdq(short kin, byte a) { //¿é¶¨Æø
-    System.out.println("·½·¨kdq£º½øÈë");
+  public void kdq(short kin, byte a) { //å—å®šæ°”
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³•kdqï¼šè¿›å…¥");
     byte m = 0, n = 0;
-    short p = 0; //¿é¼õÉÙÒ»ÆøÊ±ÓÃ¡£
+    short p = 0; //å—å‡å°‘ä¸€æ°”æ—¶ç”¨ã€‚
     short rs = kin;
     p = kuai[rs].zishu;
     DianNode1 temp = kuai[rs].zichuang;
     for (byte i = 1; i <= p; i++) {
       m = temp.a;
       n = temp.b;
-      zb[m][n][CS.QSXB] = a; //ÅäºÏkkhb£»
-      zbk[m][n] = kin; //ÈßÓà
+      zb[m][n][CS.QSXB] = a; //é…åˆkkhbï¼›
+      zbk[m][n] = kin; //å†—ä½™
       temp = temp.next;
     }
     kuai[rs].qishu = a;
-    System.out.println("¿é" + rs + "µÄÆøÊıÎª" + a);
-    System.out.println("·½·¨kdq£º·µ»Ø");
+    if(log.isDebugEnabled()) log.debug("å—" + rs + "çš„æ°”æ•°ä¸º" + a);
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³•kdqï¼šè¿”å›");
   }
 
-  public void kjq(byte r, byte tiao) { //»ÚÆåÊ±,³É¿é»Ö¸´Ê¹Í¬É«×Ó¼õÆø
+  public void kjq(byte r, byte tiao) { //æ‚”æ£‹æ—¶,æˆå—æ¢å¤ä½¿åŒè‰²å­å‡æ°”
     short n = 0; //the same color block is eaten
-    byte p = 0, q = 0; //Ã»ÓĞ×ÔÌáÊ±,tiaoÖ»ÄÜÊÇÍ¬É«.
+    byte p = 0, q = 0; //æ²¡æœ‰è‡ªææ—¶,tiaoåªèƒ½æ˜¯åŒè‰².
     short rs = (short) (128 + r);
     n = kuai[rs].zishu;
     DianNode1 temp = kuai[rs].zichuang;
@@ -144,12 +149,12 @@ public class JuMian3 {
       zjq(p, q, tiao);
       temp = temp.next;
     }
-    kuai[rs].qishu = 1; //±»Ìá¿é»Ö¸´,ÆøÊıÎª1.
-    //todo:Æø´®Îªa,b
+    kuai[rs].qishu = 1; //è¢«æå—æ¢å¤,æ°”æ•°ä¸º1.
+    //todo:æ°”ä¸²ä¸ºa,b
   }
 
-  public void kkhb(short rs1, short rs2) { //8.2²¢ÈëÇ°¿é,ÆøÊıÎ´¶¨
-    System.out.println("·½·¨kkhb:¿é¿éºÏ²¢");
+  public void kkhb(short rs1, short rs2) { //8.2å¹¶å…¥å‰å—,æ°”æ•°æœªå®š
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³•kkhb:å—å—åˆå¹¶");
     DianNode1 temp = kuai[rs1].zichuang;
     DianNode1 temp1 = kuai[rs2].zichuang;
     byte m = 0, n = 0;
@@ -165,23 +170,23 @@ public class JuMian3 {
     }
     temp.next = kuai[rs2].zichuang;
     kuai[rs1].zishu += kuai[rs2].zishu;
-    System.out.println("·½·¨kkhb:¿é¿éºÏ²¢\n");
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³•kkhb:å—å—åˆå¹¶\n");
   }
 
-  public boolean validate(byte a, byte b) {//Âä×ÓÎ»ÖÃµÄÓĞĞ§ĞÔ¡£
+  public boolean validate(byte a, byte b) {//è½å­ä½ç½®çš„æœ‰æ•ˆæ€§ã€‚
     byte m, n, qi = 0;
-    //ÔÚshoushuÔö¼ÓÖ®Ç°µ÷ÓÃ£¬yiseºÍtongseµÄ¼ÆËãÓĞËù²»Í¬¡£
-    byte tongse = (byte) (shoushu % 2 + 1); //yi se=1»ò2,ºÚÏÈĞĞÎªÆæÊı
-    byte yise = (byte) ( (1 + shoushu) % 2 + 1); //tong se=1»ò2,°×ºóĞĞÎªÅ¼Êı
+    //åœ¨shoushuå¢åŠ ä¹‹å‰è°ƒç”¨ï¼Œyiseå’Œtongseçš„è®¡ç®—æœ‰æ‰€ä¸åŒã€‚
+    byte tongse = (byte) (shoushu % 2 + 1); //yi se=1æˆ–2,é»‘å…ˆè¡Œä¸ºå¥‡æ•°
+    byte yise = (byte) ( (1 + shoushu) % 2 + 1); //tong se=1æˆ–2,ç™½åè¡Œä¸ºå¶æ•°
     if (a > CS.ZBXX && a < CS.ZBSX && b > CS.ZBXX && b < CS.ZBSX && zb[a][b][CS.ZTXB] == CS.BLANK) {
-      //ÏÂ±êºÏ·¨,¸Ãµã¿Õ°×
-      if (a == hui[shoushu][2] && b == hui[shoushu][3]) { //ÊÇ·ñ½û×Åµã
-        System.out.print("ÕâÊÇ´ò½ÙÊ±µÄ½û×Åµã,ÇëÏÈÕÒ½Ù²Ä!");
-        System.out.println("ÂäµãÎª£ºa=" + a + ",b=" + b);
+      //ä¸‹æ ‡åˆæ³•,è¯¥ç‚¹ç©ºç™½
+      if (a == hui[shoushu][2] && b == hui[shoushu][3]) { //æ˜¯å¦ç¦ç€ç‚¹
+        System.out.print("è¿™æ˜¯æ‰“åŠ«æ—¶çš„ç¦ç€ç‚¹,è¯·å…ˆæ‰¾åŠ«æ!");
+        if(log.isDebugEnabled()) log.debug("è½ç‚¹ä¸ºï¼ša=" + a + ",b=" + b);
         return false;
       }
       else {
-        //System.out.println("ÂäµãÎª£ºa=" + a + ",b=" + b);
+        //if(log.isDebugEnabled()) log.debug("è½ç‚¹ä¸ºï¼ša=" + a + ",b=" + b);
         for (byte i = 0; i < 4; i++) {
           m = (byte) (a + CS.szld[i][0]);
           n = (byte) (b + CS.szld[i][1]);
@@ -198,31 +203,31 @@ public class JuMian3 {
               return true;
             }
             else {
-              qi += zb[m][n][CS.QSXB]; //²»ÂÛ³É¿éÓë·ñ¶¼³ÉÁ¢
+              qi += zb[m][n][CS.QSXB]; //ä¸è®ºæˆå—ä¸å¦éƒ½æˆç«‹
               qi--;
             }
           }
         }
         if (qi == 0) {
-          System.out.print("ÕâÊÇ×ÔÉ±µÄ½û×Åµã£º");
-          System.out.println("a=" + a + ",b=" + b);
+          System.out.print("è¿™æ˜¯è‡ªæ€çš„ç¦ç€ç‚¹ï¼š");
+          if(log.isDebugEnabled()) log.debug("a=" + a + ",b=" + b);
           return false;
         }
         else {
-          System.out.print("ÕâÊÇºÏ·¨×Åµã£º");
-          System.out.println("a=" + a + ",b=" + b);
+          System.out.print("è¿™æ˜¯åˆæ³•ç€ç‚¹ï¼š");
+          if(log.isDebugEnabled()) log.debug("a=" + a + ",b=" + b);
           return true;
         }
       }
     }
-    else { //µÚÒ»Àà²»ºÏ·¨µã.
-      System.out.print("¸Ãµã²»ºÏ·¨,ÔÚÆåÅÌÖ®Íâ»òÕß¸ÃµãÒÑ¾­ÓĞ×Ó£º");
-      System.out.println("a=" + a + ",b=" + b);
+    else { //ç¬¬ä¸€ç±»ä¸åˆæ³•ç‚¹.
+      System.out.print("è¯¥ç‚¹ä¸åˆæ³•,åœ¨æ£‹ç›˜ä¹‹å¤–æˆ–è€…è¯¥ç‚¹å·²ç»æœ‰å­ï¼š");
+      if(log.isDebugEnabled()) log.debug("a=" + a + ",b=" + b);
       return false;
     }
   }
 
-  public void output() { //Êä³öÃ¿¿éµÄĞÅÏ¢;
+  public void output() { //è¾“å‡ºæ¯å—çš„ä¿¡æ¯;
 
     DianNode1 temp = null;
     DianNode1 first = null;
@@ -232,11 +237,11 @@ public class JuMian3 {
     short j = 0;
     byte m, n;
 
-    System.out.println("·½·¨ output");
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³• output");
     for (i = 1; i <= ki; i++) {
       temp = kuai[i].zichuang;
       zishu = kuai[i].zishu;
-      System.out.print("¿éºÅ:" + i + "£»×ÓÊı:" + zishu);
+      System.out.print("å—å·:" + i + "ï¼›å­æ•°:" + zishu);
       if(zishu>20) continue;
       for (j = 1; j <= zishu; j++) {
         m = temp.a;
@@ -244,7 +249,7 @@ public class JuMian3 {
         System.out.print("(" + m + "," + n + ")");
         temp = temp.next;
       }
-      System.out.println("");
+      if(log.isDebugEnabled()) log.debug("");
     }
 
     for (i = 1; i <= ki; i++) {
@@ -252,42 +257,42 @@ public class JuMian3 {
       qishu = kuai[i].qishu;
       if(qishu>20) continue;
 
-      System.out.print("¿éºÅ:" + i + "£»ÆøÊı:" + qishu);
+      System.out.print("å—å·:" + i + "ï¼›æ°”æ•°:" + qishu);
       for (j = 1; j <= qishu; j++) {
         m = temp.a;
         n = temp.b;
         System.out.print("(" + m + "," + n + ") ");
         temp = temp.next;
       }
-      System.out.println("");
+      if(log.isDebugEnabled()) log.debug("");
     }
     for (i = 1; i <= ki; i++) {
       HaoNode1 temp1 = kuai[i].zwyskhao;
       short kuaishu = kuai[i].zwyskshu;
-      System.out.print("¿éºÅ:" + i + "£»ÖÜÎ§¿éÊı:" + kuaishu);
+      System.out.print("å—å·:" + i + "ï¼›å‘¨å›´å—æ•°:" + kuaishu);
       for (j = 1; j <= kuaishu; j++) {
 
         System.out.print("(" + temp1.hao + ")");
         temp1 = temp1.next;
       }
-      System.out.println("");
+      if(log.isDebugEnabled()) log.debug("");
     }
     for (i = 1; i <= qiki; i++) {
 
-      System.out.println("¿éºÅ:" + i + "£»zishu:" + qikuai[i].zishu);
+      if(log.isDebugEnabled()) log.debug("å—å·:" + i + "ï¼›zishu:" + qikuai[i].zishu);
 
     }
 
     System.out.print("ki=" + ki + ";shoushu=" + shoushu);
-    System.out.println(";ktw=" + ktw + ";ktb=" + ktb);
-    System.out.println("·½·¨ output");
+    if(log.isDebugEnabled()) log.debug(";ktw=" + ktw + ";ktb=" + ktb);
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³• output");
   }
 
   public void zjq(byte a, byte b, byte tiao) { //function 6.1
-    //Ìá×ÓÔöÆøº¯Êı¡£
+    //æå­å¢æ°”å‡½æ•°ã€‚
     byte i, m1, j, n1, yiseks = 0;
     short c1 = 0;
-    short ysk[] = { //ºÍ±»Ìá×ÓÏà±ÈÎªÒìÉ«¡£
+    short ysk[] = { //å’Œè¢«æå­ç›¸æ¯”ä¸ºå¼‚è‰²ã€‚
         0, 0, 0, 0};
     for (i = 0; i < 4; i++) {
       m1 = (byte) (a + CS.szld[i][0]);
@@ -297,7 +302,7 @@ public class JuMian3 {
         /* if (c1 == 0) {
            zb[m1][n1][CS.QSXB] -= 1;
            if (zb[m1][n1][CS.QSXB] < 1) {
-             System.out.println("»ÚÆåÊ±ÆøÊı³ö´í:a=" + m1 + ",b=" + n1);
+             if(log.isDebugEnabled()) log.debug("æ‚”æ£‹æ—¶æ°”æ•°å‡ºé”™:a=" + m1 + ",b=" + n1);
            }
          }*/
         //else {
@@ -306,7 +311,7 @@ public class JuMian3 {
             break;
           }
         }
-        if (j == yiseks) { //²»ÖØ¸´
+        if (j == yiseks) { //ä¸é‡å¤
           ysk[yiseks++] = c1;
           delete(c1, a, b);
           kdq(c1, kuai[c1 + 128].qishu -= 1);
@@ -317,10 +322,10 @@ public class JuMian3 {
   }
 
   public void zzq(byte a, byte b, byte tiao)
-  //ÓÃÓÚ»ÚÆå£¨Ïàµ±ÓÚÂä×Ó±»Ìá£©;¼°Õı³£Ìá×ÓÊ±¼º·½ÔöÆø;
-  //×ÜÖ®ÊÇÄ³×Ó±»³ÔÒıÆğ¶Ô·½µÄÔöÆø.tiaoÖ¸Ìá×Ó·½µÄÑÕÉ«¡£
+  //ç”¨äºæ‚”æ£‹ï¼ˆç›¸å½“äºè½å­è¢«æï¼‰;åŠæ­£å¸¸æå­æ—¶å·±æ–¹å¢æ°”;
+  //æ€»ä¹‹æ˜¯æŸå­è¢«åƒå¼•èµ·å¯¹æ–¹çš„å¢æ°”.tiaoæŒ‡æå­æ–¹çš„é¢œè‰²ã€‚
   {
-    System.out.println("·½·¨zzq()");
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³•zzq()");
     byte i, j, yiseks = 0;
     short c1 = 0;
     short cs;
@@ -339,7 +344,7 @@ public class JuMian3 {
             break;
           }
         }
-        if (j == yiseks) { //²»ÖØ¸´
+        if (j == yiseks) { //ä¸é‡å¤
           ysk[yiseks++] = c1;
           cs = c1;
           kdq(c1, kuai[cs].qishu += 1);
@@ -355,39 +360,39 @@ public class JuMian3 {
     zb[a][b][CS.ZTXB] = CS.BLANK;
     zb[a][b][CS.QSXB] = 0;
     zbk[a][b] = 0;
-    System.out.println("·½·¨zzq()");
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³•zzq()");
   }
 
   public void kzq(short rs, byte tiao) { //6.2 yi se kuai bei ti
-    //Ìá³ÔÒìÉ«¿éÊ±,Í¬É«¿éÆøÊıÔö¼Ó
+    //æåƒå¼‚è‰²å—æ—¶,åŒè‰²å—æ°”æ•°å¢åŠ 
     short n = 0;
     byte p = 0, q = 0;
 
     n = kuai[rs].zishu;
     DianNode1 temp = kuai[rs].zichuang;
-    System.out.println("·½·¨kzq()");
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³•kzq()");
     for (byte i = 1; i <= n; i++) {
       p = temp.a;
       q = temp.b;
       zzq(p, q, tiao);
       temp = temp.next;
-      //±£ÁôÔ­¿éĞÅÏ¢,Ö÷ÒªÊÇ×ÓÊıĞÅÏ¢,±ãÓÚ»ÚÆåÊ±»Ö¸´
+      //ä¿ç•™åŸå—ä¿¡æ¯,ä¸»è¦æ˜¯å­æ•°ä¿¡æ¯,ä¾¿äºæ‚”æ£‹æ—¶æ¢å¤
     }
     kuai[rs].qishu = 0;
-    System.out.println("·½·¨kzq()");
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³•kzq()");
   }
 
   public void cgcl(byte c) {
     byte a = (byte) ( (c - 1) % 19 + 1);
     byte b = (byte) ( (c - 1) / 19 + 1);
     cgcl(a, b);
-  } //Ìá¹©Ò»Î¬×ø±êµÄ½Ó¿Ú
+  } //æä¾›ä¸€ç»´åæ ‡çš„æ¥å£
 
   public void delete(short r, byte a, byte b) {
-    //½ö´Ó¿éµÄÆø´®ÖĞÉ¾³ıÒ»¿ÚÆøµÄ×ø±ê¡£
-    //ÒòÎªÓĞ»ÚÆå£¬ËùÒÔ²»ÂÛÔöÆø¡£¼õÆø¶¼¿ÉÄÜÉæ¼°¿é¡£
-    //µ¥¸öµ÷ÓÃ²»ÄÜÈ·¶¨×îÖÕÆøÊı£¬ËùÒÔkdqº¯ÊıÈ·ÓĞ±ØÒª¡£
-    System.out.println("·½·¨delete()");
+    //ä»…ä»å—çš„æ°”ä¸²ä¸­åˆ é™¤ä¸€å£æ°”çš„åæ ‡ã€‚
+    //å› ä¸ºæœ‰æ‚”æ£‹ï¼Œæ‰€ä»¥ä¸è®ºå¢æ°”ã€‚å‡æ°”éƒ½å¯èƒ½æ¶‰åŠå—ã€‚
+    //å•ä¸ªè°ƒç”¨ä¸èƒ½ç¡®å®šæœ€ç»ˆæ°”æ•°ï¼Œæ‰€ä»¥kdqå‡½æ•°ç¡®æœ‰å¿…è¦ã€‚
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³•delete()");
 
     DianNode1 temp = kuai[r].qichuang;
     DianNode1 forward = kuai[r].qichuang;
@@ -407,7 +412,7 @@ public class JuMian3 {
         temp = temp.next;
       }
     }
-    System.out.println("·½·¨delete()");
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³•delete()");
   }
 
   public byte yiweidaoerweia(short c) {
@@ -423,41 +428,41 @@ public class JuMian3 {
   }
 
   public void cgcl(byte a, byte b) { //chang gui chu li
-    //³£¹æ´¦Àí£¬ÒÑ¾­ÅĞÃ÷ÊÇºÏ·¨×Åµã£»
-    //¿ÉÒÔ½ÓÊÜµÄÊäÈëÎª(a,b)»òc;c=b*19+a-19;Íê³ÉÊıÆøÌá×Ó
-    //aÊÇÊı×éµÄĞĞÏÂ±ê,Ò²ÊÇÆ½ÃæµÄºá×ø±ê:1-19
-    //bÊÇÊı×éµÄÁĞÏÂ±ê,Ò²ÊÇÆÁÄ»µÄ×İ×ø±ê:1-19
-    //byte c;//a,bµÄÒ»Î¬±íÊ¾:1-361;
-    byte m1 = a; //a,bÔÚ·½·¨ÖĞ²»¸Ä±ä
-    byte n1 = b; //m1,n1Îªa,bµÄÁÚµã.
-    byte yise = 0; //ÒìÉ«
-    byte tongse = 0; //ÓëÂä×ÓµãÍ¬É«
+    //å¸¸è§„å¤„ç†ï¼Œå·²ç»åˆ¤æ˜æ˜¯åˆæ³•ç€ç‚¹ï¼›
+    //å¯ä»¥æ¥å—çš„è¾“å…¥ä¸º(a,b)æˆ–c;c=b*19+a-19;å®Œæˆæ•°æ°”æå­
+    //aæ˜¯æ•°ç»„çš„è¡Œä¸‹æ ‡,ä¹Ÿæ˜¯å¹³é¢çš„æ¨ªåæ ‡:1-19
+    //bæ˜¯æ•°ç»„çš„åˆ—ä¸‹æ ‡,ä¹Ÿæ˜¯å±å¹•çš„çºµåæ ‡:1-19
+    //byte c;//a,bçš„ä¸€ç»´è¡¨ç¤º:1-361;
+    byte m1 = a; //a,båœ¨æ–¹æ³•ä¸­ä¸æ”¹å˜
+    byte n1 = b; //m1,n1ä¸ºa,bçš„é‚»ç‚¹.
+    byte yise = 0; //å¼‚è‰²
+    byte tongse = 0; //ä¸è½å­ç‚¹åŒè‰²
     byte kys = 0, kkd = 0, kts = 0;
-    //ÈıÖÖµãµÄ¼ÆÊı,kysÎªÒìÉ«µã¼ÆÊı,kkdÎªÆøµã¼ÆÊı,ktsÎªÍ¬É«µã¼ÆÊı
+    //ä¸‰ç§ç‚¹çš„è®¡æ•°,kysä¸ºå¼‚è‰²ç‚¹è®¡æ•°,kkdä¸ºæ°”ç‚¹è®¡æ•°,ktsä¸ºåŒè‰²ç‚¹è®¡æ•°
 
     byte i = 0, j = 0;
-    byte ktz = 0; //Ìá×Ó¼ÆÊı,¾Ö²¿
+    byte ktz = 0; //æå­è®¡æ•°,å±€éƒ¨
     byte tkd = 0;
-    short kin1 = 0; //a,bÖÜÎ§ËÄµãµÄ¿éË÷Òı
+    short kin1 = 0; //a,bå‘¨å›´å››ç‚¹çš„å—ç´¢å¼•
     byte[][] zijieqi = new byte[4][2];
     short[] ysk = {
-        0, 0, 0, 0}; //ËÄÒìÉ«ÁÚ×ÓµÄ¿éË÷Òı,Í¬¿é²»ÖØ¸´¼ÆËã
-    byte yiseks = 0; //ËÄÁÚÒìÉ«¿éÊı
-    byte zijieqishu = 0; //Âä×ÓµãÖÜÎ§Ö±½ÓµÄÆøÊı£¬²»°üÀ¨Ìá×ÓĞÎ³ÉµÄÆøÊı
-    //ËùÒÔÒªÔÚÌá×ÓÇ°µ÷ÓÃ¡£
+        0, 0, 0, 0}; //å››å¼‚è‰²é‚»å­çš„å—ç´¢å¼•,åŒå—ä¸é‡å¤è®¡ç®—
+    byte yiseks = 0; //å››é‚»å¼‚è‰²å—æ•°
+    byte zijieqishu = 0; //è½å­ç‚¹å‘¨å›´ç›´æ¥çš„æ°”æ•°ï¼Œä¸åŒ…æ‹¬æå­å½¢æˆçš„æ°”æ•°
+    //æ‰€ä»¥è¦åœ¨æå­å‰è°ƒç”¨ã€‚
     if (validate(a, b) == false) {
       return;
     }
 
-    System.out.println("come into method cgcl()");
+    if(log.isDebugEnabled()) log.debug("come into method cgcl()");
     zijieqishu = jszq(a, b);
-    hui[++shoushu][1] = a; //ÊÖÊı´¦ÀíÇ°µİÔö,¼´´Ó1¿ªÊ¼¼ÆÊı.ÓëÆåÆ×Í¬.
-    hui[shoushu][2] = b; //¼ÇÂ¼Ã¿²½µÄÂäµã
-    yise = (byte) (shoushu % 2 + 1); //yi se=1»ò2,ºÚÏÈĞĞÎªÆæÊı
-    tongse = (byte) ( (1 + shoushu) % 2 + 1); //tong se=1»ò2,°×ºóĞĞÎªÅ¼Êı
-    zb[a][b][CS.ZTXB] = tongse; //¿ÉÒÔ¶¯Ì¬Ò»ÖÂ
+    hui[++shoushu][1] = a; //æ‰‹æ•°å¤„ç†å‰é€’å¢,å³ä»1å¼€å§‹è®¡æ•°.ä¸æ£‹è°±åŒ.
+    hui[shoushu][2] = b; //è®°å½•æ¯æ­¥çš„è½ç‚¹
+    yise = (byte) (shoushu % 2 + 1); //yi se=1æˆ–2,é»‘å…ˆè¡Œä¸ºå¥‡æ•°
+    tongse = (byte) ( (1 + shoushu) % 2 + 1); //tong se=1æˆ–2,ç™½åè¡Œä¸ºå¶æ•°
+    zb[a][b][CS.ZTXB] = tongse; //å¯ä»¥åŠ¨æ€ä¸€è‡´
     qikuai[zb[a][b][CS.QKSYXB]].deletezidian(a, b);
-      System.out.println("qikuai[qiki].zishu="+qikuai[qiki].zishu);
+      if(log.isDebugEnabled()) log.debug("qikuai[qiki].zishu="+qikuai[qiki].zishu);
     zb[a][b][CS.QKSYXB] = 0;
 
     ZiKuai1 linshi = new ZiKuai1();
@@ -467,7 +472,7 @@ public class JuMian3 {
     ki++;
     kuai[ki] = linshi;
     zbk[a][b] = ki; //count from first block
-    huik[shoushu][0] = ki; //¼ÇÂ¼Ëù³É¿éµÄË÷Òı
+    huik[shoushu][0] = ki; //è®°å½•æ‰€æˆå—çš„ç´¢å¼•
     byte dang = 0;
     for (i = 0; i < 4; i++) {
       m1 = (byte) (a + CS.szld[i][0]);
@@ -479,40 +484,40 @@ public class JuMian3 {
       }
     }
 
-    System.out.println("´¦ÀíÍ¬É«ÁÚ×Ó");
-    for (i = 0; i < 4; i++) { //ÔÙ´¦ÀíÍ¬É«ÁÚ×Ó
+    if(log.isDebugEnabled()) log.debug("å¤„ç†åŒè‰²é‚»å­");
+    for (i = 0; i < 4; i++) { //å†å¤„ç†åŒè‰²é‚»å­
       m1 = (byte) (a + CS.szld[i][0]);
       n1 = (byte) (b + CS.szld[i][1]);
-      //ÒòÎªkkhbÊ±ÒÑ¾­¸Ä±äÁËÔ­À´¿éµÄË÷ÒıºÅ£¬ËùÒÔ²»»áÔÙÖØ¸´¡£
-      //Ëã·¨ºÍÒÔÍùÉÙÓĞ²»Í¬¡£
+      //å› ä¸ºkkhbæ—¶å·²ç»æ”¹å˜äº†åŸæ¥å—çš„ç´¢å¼•å·ï¼Œæ‰€ä»¥ä¸ä¼šå†é‡å¤ã€‚
+      //ç®—æ³•å’Œä»¥å¾€å°‘æœ‰ä¸åŒã€‚
       if (zb[m1][n1][CS.ZTXB] == tongse && zbk[m1][n1] != ki) { //3.1
-        kts++; //Í¬É«µã¼ÆÊı
+        kts++; //åŒè‰²ç‚¹è®¡æ•°
         kin1 = zbk[m1][n1];
         huik[shoushu][kts] = kin1;
-        HaoNode1 teli = kuai[kin1].zwyskhao; //ĞŞ¸ÄÖÜÎ§¿éºÅµÄÖ¸Õë
+        HaoNode1 teli = kuai[kin1].zwyskhao; //ä¿®æ”¹å‘¨å›´å—å·çš„æŒ‡é’ˆ
 
         for (byte p = 1; p <= kuai[kin1].zwyskshu; p++) {
           kuai[teli.hao].deleteyisekuaihao(kin1);
-          kuai[teli.hao].addyisekuaihao(ki); //ĞŞ¸Ä¿éºÅ
+          kuai[teli.hao].addyisekuaihao(ki); //ä¿®æ”¹å—å·
           kuai[ki].addyisekuaihao(teli.hao);
           teli = teli.next;
         }
         kkhb(ki, kin1);
 
       }
-      //¿éµÄÆøÊıĞ¡ÓÚÖÜÎ§Æø¿éµÄ×îĞ¡ÖµÊÇÎ£ÏÕµÄ£¬µ±È»»¹Òª¿¼ÂÇ
-      //ÊÇ·ñÓĞ³¤ÆøµÄÊÖ¶Î¡£
+      //å—çš„æ°”æ•°å°äºå‘¨å›´æ°”å—çš„æœ€å°å€¼æ˜¯å±é™©çš„ï¼Œå½“ç„¶è¿˜è¦è€ƒè™‘
+      //æ˜¯å¦æœ‰é•¿æ°”çš„æ‰‹æ®µã€‚
 
       /*if (zb[m1][n1][CS.ZTXB] == tongse) { //3.1
-        kts++; //Í¬É«µã¼ÆÊı
+        kts++; //åŒè‰²ç‚¹è®¡æ•°
         kin1 = zbk[m1][n1];
         for (j = 1; j < kts; j++) {
           //if(kin1==tsk[j]) break;
           if (kin1 == huik[shoushu][j]) {
             break;
           }
-        } //±äÁ¿³åÍ»µÄ²ÒÍ´½ÌÑµ
-        if (j == kts) { //²»ÖØ¸´
+        } //å˜é‡å†²çªçš„æƒ¨ç—›æ•™è®­
+        if (j == kts) { //ä¸é‡å¤
           //tsk[ks++]=kin1;
           //hui[shoushu][20+ks]=kin1;
           //kuai[kin1].addkuai(ki);
@@ -520,7 +525,7 @@ public class JuMian3 {
           HaoNode1 teli = kuai[kin1].zwkhao;
           for (byte p = 1; p <= kuai[kin1].zwkshu; p++) {
             kuai[teli.hao].deletekuaihao(kin1);
-            kuai[teli.hao].addkuaihao(ki);//ĞŞ¸Ä¿éºÅ
+            kuai[teli.hao].addkuaihao(ki);//ä¿®æ”¹å—å·
             kuai[ki].addkuaihao(teli.hao);
             teli=teli.next;
           }
@@ -529,39 +534,39 @@ public class JuMian3 {
         else {
           kts--;
         }
-        // } //³É¿éµã
+        // } //æˆå—ç‚¹
              }*/
     }
-    System.out.println("Í¬É«µãkts=" + kts);
+    if(log.isDebugEnabled()) log.debug("åŒè‰²ç‚¹kts=" + kts);
 
-    System.out.println("´¦ÀíÒìÉ«ÁÚ×Ó");
-    for (i = 0; i < 4; i++) { //ÏÈ´¦ÀíÒìÉ«ÁÚ×Ó
-      //byte bdcds = 0; //±»´ò³Ôµã¼ÆÊı.
-      byte bdcks = 0; //±»´ò³Ô¿é¼ÆÊı.
+    if(log.isDebugEnabled()) log.debug("å¤„ç†å¼‚è‰²é‚»å­");
+    for (i = 0; i < 4; i++) { //å…ˆå¤„ç†å¼‚è‰²é‚»å­
+      //byte bdcds = 0; //è¢«æ‰“åƒç‚¹è®¡æ•°.
+      byte bdcks = 0; //è¢«æ‰“åƒå—è®¡æ•°.
       m1 = (byte) (a + CS.szld[i][0]);
       n1 = (byte) (b + CS.szld[i][1]);
-      if (zb[m1][n1][CS.ZTXB] == yise) { //1.1ÓÒ±ßÏàÁÚµã
-        kys++; //ÒìÉ«µã¼ÆÊı
-        kin1 = zbk[m1][n1]; //¿éË÷Òı
-        //if (kin1==0)Îª¿é¡£
+      if (zb[m1][n1][CS.ZTXB] == yise) { //1.1å³è¾¹ç›¸é‚»ç‚¹
+        kys++; //å¼‚è‰²ç‚¹è®¡æ•°
+        kin1 = zbk[m1][n1]; //å—ç´¢å¼•
+        //if (kin1==0)ä¸ºå—ã€‚
         for (j = 0; j < yiseks; j++) {
           if (kin1 == ysk[j]) {
             break;
           }
         }
-        if (j == yiseks) { //²»ÖØ¸´
+        if (j == yiseks) { //ä¸é‡å¤
           ysk[yiseks++] = kin1;
           byte qi = (byte) (kuai[kin1].qishu - 1);
 
-          if (qi == 0) { //Ô­À´µÄÆø¡£
-            //²»½øĞĞ¼õÆø´¦ÀíÊÇÎªÁË»ÚÆå´¦Àí·½±ã
+          if (qi == 0) { //åŸæ¥çš„æ°”ã€‚
+            //ä¸è¿›è¡Œå‡æ°”å¤„ç†æ˜¯ä¸ºäº†æ‚”æ£‹å¤„ç†æ–¹ä¾¿
             kys--;
             tkd++; //<=4
-            huik[shoushu][4 + tkd] = kin1; //¾İ´Ë½øĞĞ¶ş¼¶¿é´¦Àí£»
-            ktz += kuai[kin1].zishu; //Êµ¼ÊµÄÌá×ÓÊı
-            System.out.println("¿é±»³Ô£¬¿éºÅÎª£º" + kin1);
-            kzq(kin1, tongse); //ÒìÉ«¿é±»Ìá,Í¬É«×ÓÔöÆø.
-            //ÖÜÎ§µÄ¿éµÄÏàÁÚ¿éºÅÁ´±íĞèÒªÉ¾³ı¸Ã±»ÌáµÄ¿éºÅ
+            huik[shoushu][4 + tkd] = kin1; //æ®æ­¤è¿›è¡ŒäºŒçº§å—å¤„ç†ï¼›
+            ktz += kuai[kin1].zishu; //å®é™…çš„æå­æ•°
+            if(log.isDebugEnabled()) log.debug("å—è¢«åƒï¼Œå—å·ä¸ºï¼š" + kin1);
+            kzq(kin1, tongse); //å¼‚è‰²å—è¢«æ,åŒè‰²å­å¢æ°”.
+            //å‘¨å›´çš„å—çš„ç›¸é‚»å—å·é“¾è¡¨éœ€è¦åˆ é™¤è¯¥è¢«æçš„å—å·
             HaoNode1 linh = kuai[kin1].zwyskhao;
             byte linhs = kuai[kin1].zwyskshu;
             for (byte tt = 1; tt <= linhs; tt++) {
@@ -569,62 +574,62 @@ public class JuMian3 {
               kuai[linh.hao].deleteyisekuaihao(kin1);
               linh = linh.next;
             }
-            //ĞÎ³ÉĞÂµÄÆø¿é£»
+            //å½¢æˆæ–°çš„æ°”å—ï¼›
             qiki++;
             qikuai[qiki] = new QiKuai1();
             qikuai[qiki].zichuang = kuai[kin1].zichuang;
             qikuai[qiki].zishu = kuai[kin1].zishu;
             qikuai[qiki].color = kuai[kin1].color;
-            //Éú³ÉĞÂµÄ¶ş¼¶¿é£¬ÖÜÎ§µÄ¿éÓĞÖ¸ÕëÖ¸Ïò¸Ã¶ş¼¶¿é¡£
+            //ç”Ÿæˆæ–°çš„äºŒçº§å—ï¼Œå‘¨å›´çš„å—æœ‰æŒ‡é’ˆæŒ‡å‘è¯¥äºŒçº§å—ã€‚
           }
 
           else if (qi < 0) {
-            System.out.println("ÆøÊı´íÎó:kin=" + kin1);
+            if(log.isDebugEnabled()) log.debug("æ°”æ•°é”™è¯¯:kin=" + kin1);
             return;
           }
           else {
             kuai[kin1].deleteqidian(a, b);
             kdq(kin1, qi);
             kuai[kin1].addyisekuaihao(ki);
-            kuai[ki].addyisekuaihao(kin1); //Òª·ÀÖ¹ÖØ¸´
-            System.out.println("¿é" + kin1 + "ÆøÊı¼õÎª" + zb[m1][n1][CS.QSXB]);
+            kuai[ki].addyisekuaihao(kin1); //è¦é˜²æ­¢é‡å¤
+            if(log.isDebugEnabled()) log.debug("å—" + kin1 + "æ°”æ•°å‡ä¸º" + zb[m1][n1][CS.QSXB]);
             if (qi == 1) {
 
               huik[shoushu][8 + tkd] = kin1;
-              System.out.println("¿é±»´ò³Ô£¬¿éºÅÎª£º" + kin1);
+              if(log.isDebugEnabled()) log.debug("å—è¢«æ‰“åƒï¼Œå—å·ä¸ºï¼š" + kin1);
             }
 
           }
-        } //·ÇÖØ¸´¿é
+        } //éé‡å¤å—
         //} //if kuai
       } // if==yiseks
-    } //ÓÃÑ­»·´úÌæ
+    } //ç”¨å¾ªç¯ä»£æ›¿
 
-    zb[a][b][CS.QSXB] = 0; //·ÀÖ¹Ìá×ÓÊ±µÄÔöÆø.
+    zb[a][b][CS.QSXB] = 0; //é˜²æ­¢æå­æ—¶çš„å¢æ°”.
     if (shoushu % 2 == CS.BLACK) {
       ktb += ktz;
     }
     else {
-      ktw += ktz; //½«¾Ö²¿Ìá×Ó¼ÆÈë
+      ktw += ktz; //å°†å±€éƒ¨æå­è®¡å…¥
     }
 
-    System.out.println("´¦Àí¿Õ°×ÁÚ×Ó");
-    /*for (i = 0; i < 4; i++) { //ÔÙ´¦Àí¿Õ°×ÁÚ×Ó
+    if(log.isDebugEnabled()) log.debug("å¤„ç†ç©ºç™½é‚»å­");
+    /*for (i = 0; i < 4; i++) { //å†å¤„ç†ç©ºç™½é‚»å­
       m1 = (byte) (a + CS.szld[i][0]);
       n1 = (byte) (b + CS.szld[i][1]);
       if (zb[m1][n1][CS.ZTXB] == CS.BLANK) { //2.1the breath of blank
-        kkd++; //Æøµã¼ÆÊı
+        kkd++; //æ°”ç‚¹è®¡æ•°
         chengkuai(m1,n1);
         //kuai[ki].addqidian(m1, n1);
       }
          }*/
 
-    if (kts == 0) { //4.1 Ã»ÓĞÍ¬É«ÁÚµã
-      System.out.println("Ã»ÓĞÍ¬É«ÁÚµã");
+    if (kts == 0) { //4.1 æ²¡æœ‰åŒè‰²é‚»ç‚¹
+      if(log.isDebugEnabled()) log.debug("æ²¡æœ‰åŒè‰²é‚»ç‚¹");
       zb[a][b][2] = kkd;
       kuai[ki].qishu = kkd;
-      if (kkd == 1 && ktz == 1) { //¿¼ÂÇ½Ù
-        hui[shoushu][18] = hui[shoushu][1]; //´ò½Ù½ûÊÖ
+      if (kkd == 1 && ktz == 1) { //è€ƒè™‘åŠ«
+        hui[shoushu][18] = hui[shoushu][1]; //æ‰“åŠ«ç¦æ‰‹
         hui[shoushu][19] = hui[shoushu][2];
 
       } //
@@ -634,10 +639,10 @@ public class JuMian3 {
     /* for (j = 1; j <= kts; j++) {
        //hui[shoushu][20+j]=tsk[j-1];
        kkhb(ki, huik[shoushu][j]);
-       //kkhb(ki,tsk[j-1]);//¿é¿éºÏ²¢,ÆøÉĞÎ´´¦Àí.
+       //kkhb(ki,tsk[j-1]);//å—å—åˆå¹¶,æ°”å°šæœªå¤„ç†.
      }*/
     jskq(ki);
-    //¼ÆËã×îĞ¡µÄ¿é£»
+    //è®¡ç®—æœ€å°çš„å—ï¼›
     if (kuai[ki].zwyskshu > 1) {
       byte p = kuai[ki].zwyskshu;
       HaoNode1 lint = kuai[ki].zwyskhao;
@@ -648,14 +653,14 @@ public class JuMian3 {
         }
         lint = lint.next;
       }
-      kuai[ki].minqi = qis; //×îĞ¡µÄÆø¡¢ÖÜÎ§¿éµÄminqiÒ²Ó¦¸ÃĞŞÕı
+      kuai[ki].minqi = qis; //æœ€å°çš„æ°”ã€å‘¨å›´å—çš„minqiä¹Ÿåº”è¯¥ä¿®æ­£
     }
 
-    //11ÔÂ22ÈÕ£¬×îºó´¦ÀíÆø¿éµÄÉú³É
+    //11æœˆ22æ—¥ï¼Œæœ€åå¤„ç†æ°”å—çš„ç”Ÿæˆ
     byte m2, n2, m3, n3, m4, n4, x, y;
     switch (zijieqishu) {
       case 1: {
-        System.out.println("Ö±½ÓÆøÊıÎª1£¬Ã»ÓĞĞÂ¿éÉú³É¡£");
+        if(log.isDebugEnabled()) log.debug("ç›´æ¥æ°”æ•°ä¸º1ï¼Œæ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
         break;
       }
       case 2: {
@@ -670,10 +675,10 @@ public class JuMian3 {
           x = (byte) (m1 + m2 - a);
           y = (byte) (n1 + n2 - b);
           if (zb[x][y][CS.ZTXB] == CS.BLANK) {
-            System.out.println("Ö±½ÓÆøÊıÎª2£¬¶Ô½ÇµãÎª¿Õ£¬Ã»ÓĞĞÂ¿éÉú³É¡£");
+            if(log.isDebugEnabled()) log.debug("ç›´æ¥æ°”æ•°ä¸º2ï¼Œå¯¹è§’ç‚¹ä¸ºç©ºï¼Œæ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
           }
           else if (jgzs(x, y) == 1) {
-            System.out.println("Ö±½ÓÆøÊıÎª2£¬¶Ô½ÇµãÖÜÎ§¿Õ£¬Ã»ÓĞĞÂ¿éÉú³É¡£");
+            if(log.isDebugEnabled()) log.debug("ç›´æ¥æ°”æ•°ä¸º2ï¼Œå¯¹è§’ç‚¹å‘¨å›´ç©ºï¼Œæ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
           }
           else {
 
@@ -726,14 +731,14 @@ public class JuMian3 {
           x = (byte) (m2 + m3 - a);
           y = (byte) (n2 + n3 - b);
           if (zb[x][y][CS.ZTXB] == CS.BLANK) {
-            System.out.println("Ö±½ÓÆøÊıÎª2£¬¶Ô½ÇµãÎª¿Õ£¬Ã»ÓĞĞÂ¿éÉú³É¡£");
+            if(log.isDebugEnabled()) log.debug("ç›´æ¥æ°”æ•°ä¸º2ï¼Œå¯¹è§’ç‚¹ä¸ºç©ºï¼Œæ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
           }
           else if (jgzs(x, y) == 1) {
-            System.out.println("Ö±½ÓÆøÊıÎª2£¬¶Ô½ÇµãÖÜÎ§¿Õ£¬Ã»ÓĞĞÂ¿éÉú³É¡£");
+            if(log.isDebugEnabled()) log.debug("ç›´æ¥æ°”æ•°ä¸º2ï¼Œå¯¹è§’ç‚¹å‘¨å›´ç©ºï¼Œæ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
           }
           else {
             //bianli.
-            System.out.println("Ö±½ÓÆøÊıÎª3£¬¿ÉÄÜÓĞĞÂ¿éÉú³É¡£");
+            if(log.isDebugEnabled()) log.debug("ç›´æ¥æ°”æ•°ä¸º3ï¼Œå¯èƒ½æœ‰æ–°å—ç”Ÿæˆã€‚");
 
           }
            break;
@@ -753,16 +758,16 @@ public class JuMian3 {
         n4 = (byte) (b + CS.szdjd[3][1]);
         if (zb[m1][n1][CS.ZTXB] == CS.BLANK) {
           lianjieshu++;
-          //  System.out.println("Ö±½ÓÆøÊıÎª2£¬¶Ô½ÇµãÎª¿Õ£¬Ã»ÓĞĞÂ¿éÉú³É¡£");
+          //  if(log.isDebugEnabled()) log.debug("ç›´æ¥æ°”æ•°ä¸º2ï¼Œå¯¹è§’ç‚¹ä¸ºç©ºï¼Œæ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
         }
         else if (jgzs(m1, n1) == 1) {
           lianjieshu++;
-          // System.out.println("Ö±½ÓÆøÊıÎª2£¬¶Ô½ÇµãÖÜÎ§¿Õ£¬Ã»ÓĞĞÂ¿éÉú³É¡£");
+          // if(log.isDebugEnabled()) log.debug("ç›´æ¥æ°”æ•°ä¸º2ï¼Œå¯¹è§’ç‚¹å‘¨å›´ç©ºï¼Œæ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
         }
 
         if (zb[m1][n1][CS.ZTXB] == CS.BLANK) {
           lianjieshu++;
-          //  System.out.println("Ö±½ÓÆøÊıÎª2£¬¶Ô½ÇµãÎª¿Õ£¬Ã»ÓĞĞÂ¿éÉú³É¡£");
+          //  if(log.isDebugEnabled()) log.debug("ç›´æ¥æ°”æ•°ä¸º2ï¼Œå¯¹è§’ç‚¹ä¸ºç©ºï¼Œæ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
         }
         else if (jgzs(m1, n1) == 1) {
           lianjieshu++;
@@ -782,7 +787,7 @@ public class JuMian3 {
           lianjieshu++;
        }
        if(lianjieshu>=3){
-         System.out.println("Ö±½ÓÆøÊıÎª4£¬lianjieshuwei3£¬Ã»ÓĞĞÂ¿éÉú³É¡£");
+         if(log.isDebugEnabled()) log.debug("ç›´æ¥æ°”æ•°ä¸º4ï¼Œlianjieshuwei3ï¼Œæ²¡æœ‰æ–°å—ç”Ÿæˆã€‚");
 
        }else{
 
@@ -790,13 +795,13 @@ public class JuMian3 {
         break;
       }
     }
-    System.out.println("·½·¨cgcl()·µ»Ø");
+    if(log.isDebugEnabled()) log.debug("æ–¹æ³•cgcl()è¿”å›");
   }
 
-  public byte jgzs(byte m, byte n) { //¾Å¹¬×ÓÊı¡£
+  public byte jgzs(byte m, byte n) { //ä¹å®«å­æ•°ã€‚
 
-    byte dang = 0; //ÆøÊı±äÁ¿
-    byte i, a, b; //»ÚÆå»Ö¸´Ê±£¬½âÉ¢¿éËù³Éµ¥µãµÄÆøÊı¼ÆËã£»
+    byte dang = 0; //æ°”æ•°å˜é‡
+    byte i, a, b; //æ‚”æ£‹æ¢å¤æ—¶ï¼Œè§£æ•£å—æ‰€æˆå•ç‚¹çš„æ°”æ•°è®¡ç®—ï¼›
     for (i = 0; i < 4; i++) {
       a = (byte) (m + CS.szld[i][0]);
       b = (byte) (n + CS.szld[i][1]);
@@ -816,7 +821,7 @@ public class JuMian3 {
 
   }
 
-  /* public void clhuiqi() { //ÊÇ·ñËùÓĞÊı¾İ½á¹¹¶¼ÄÜ»Ö¸´?
+  /* public void clhuiqi() { //æ˜¯å¦æ‰€æœ‰æ•°æ®ç»“æ„éƒ½èƒ½æ¢å¤?
      byte p = 0;
      byte yise = 0;
      byte tongse = 0; //yise is diff color.and 2 same.
@@ -824,31 +829,31 @@ public class JuMian3 {
      byte k0 = 0, kys = 0, kkd = 0, kts = 0, i = 0, j = 0; //the count for three kinds of point.
      byte ks = 0, kss = 0; //ks is count for block,kss for single point
      byte kin, kin1 = 0, m = 0, n = 0; //the block index.
-     System.out.println("·½·¨:´¦Àí»ÚÆå(clhuiqi)\n");
+     if(log.isDebugEnabled()) log.debug("æ–¹æ³•:å¤„ç†æ‚”æ£‹(clhuiqi)\n");
      tongse = (byte) ( (shoushu + 1) % 2 + 1); //tong se
      yise = (byte) (shoushu % 2 + 1);
      m = hui[shoushu][25];
      hui[shoushu][25] = 0;
      n = hui[shoushu][26];
      hui[shoushu][26] = 0;
-     if (m <= 0 || n <= 0) { //ÆúÈ¨µÄ»Ö¸´
+     if (m <= 0 || n <= 0) { //å¼ƒæƒçš„æ¢å¤
        shoushu--;
        return; //
      }
-     zzq(m, n, yise); //»ÚÆå,¶Ô·½ÔöÆø,Ìá×ÓÖ±½Ó»Ö¸´,²»ÓÃÔÚ´ËÔöÆø
-     System.out.println("»ÚÆå:" + shoushu);
-     System.out.println("a=" + m + ",b=" + n);
+     zzq(m, n, yise); //æ‚”æ£‹,å¯¹æ–¹å¢æ°”,æå­ç›´æ¥æ¢å¤,ä¸ç”¨åœ¨æ­¤å¢æ°”
+     if(log.isDebugEnabled()) log.debug("æ‚”æ£‹:" + shoushu);
+     if(log.isDebugEnabled()) log.debug("a=" + m + ",b=" + n);
      kin = hui[shoushu][0];
-     if (kin != 0) { //kinÊÇĞÂ³ÉµÄ¿é
+     if (kin != 0) { //kinæ˜¯æ–°æˆçš„å—
        kuai[kin].color = 0;
        kuai[kin].qishu = 0;
        kuai[kin].zishu = 0;
        kuai[kin].zichuang = null;
        kuai[kin].qichuang = null;
-       ki = kin; //È«¾Ö¿ÉÓÃ¿éºÅ?
+       ki = kin; //å…¨å±€å¯ç”¨å—å·?
        ki--; //xinzeng.
        for (i = 1; i <= 4; i++) {
-         if (hui[shoushu][2 * i + 12 - 1] <= 0) { //³ÉĞÂ¿éµÄµã
+         if (hui[shoushu][2 * i + 12 - 1] <= 0) { //æˆæ–°å—çš„ç‚¹
            break;
          }
          else {
@@ -858,11 +863,11 @@ public class JuMian3 {
            hui[shoushu][12 + 2 * i] = 0;
            zb[m][n][CS.QKSYXB] = 0;
            zb[m][n][CS.ZTXB] = tongse; //fang wei bian cheng
-           zb[m][n][CS.QSXB] = jszq(m, n); //¼ÆËã×ÓµÄÆø
-           System.out.println("//¼ÆËã³É¿éµãµÄÆø:" + "a=" + m + ",b" + n);
+           zb[m][n][CS.QSXB] = jszq(m, n); //è®¡ç®—å­çš„æ°”
+           if(log.isDebugEnabled()) log.debug("//è®¡ç®—æˆå—ç‚¹çš„æ°”:" + "a=" + m + ",b" + n);
          }
        } //deal with 3 sub
-       for (i = 1; i <= 4; i++) { //ÊÇ·ñ¾É¿é³ÉĞÂ¿é
+       for (i = 1; i <= 4; i++) { //æ˜¯å¦æ—§å—æˆæ–°å—
          kin1 = hui[shoushu][20 + i]; //21-24
          hui[shoushu][20 + i] = 0;
          if (kin1 == 0) {
@@ -871,19 +876,19 @@ public class JuMian3 {
          else {
            p = kuai[kin1 + 128].zishu;
            DianNode1 temp = kuai[kin1 + 128].zichuang;
-           for (j = 1; j <= p; j++) { //Õâ¸öÑ­»·¹Ø¼ü£¬±ÜÃâÁ½¿éµÄ»ìÏı¡£
+           for (j = 1; j <= p; j++) { //è¿™ä¸ªå¾ªç¯å…³é”®ï¼Œé¿å…ä¸¤å—çš„æ··æ·†ã€‚
              m = temp.a;
              n = temp.b;
-             zb[m][n][3] = kin1; //ĞŞ¸Ä¿éºÅ
+             zb[m][n][3] = kin1; //ä¿®æ”¹å—å·
              //zb[m][n][0]=tongse;
-             zb[m][n][2] = kuai[kin1 + 128].qishu; //»Ö¸´Ô­¿é³É¿éÊ±µÄÆø
+             zb[m][n][2] = kuai[kin1 + 128].qishu; //æ¢å¤åŸå—æˆå—æ—¶çš„æ°”
              temp = temp.next;
            }
            //jskq(kin1); //cunchukuaiqi;
          } //else
        } //for
-     } //if ÊÇ·ñĞÂ¿é
-     for (i = 1; i <= 4; i++) { //ÊÇ·ñÌá×Ó
+     } //if æ˜¯å¦æ–°å—
+     for (i = 1; i <= 4; i++) { //æ˜¯å¦æå­
        if (hui[shoushu][2 * i - 1] <= 0) {
          break;
        }
@@ -897,11 +902,11 @@ public class JuMian3 {
          zb[m][n][CS.QSXB] = 1;
          zb[m][n][CS.QKSYXB] = 0;
          zjq(m, n, tongse);
-         System.out.print("»Ö¸´±»Ìá×Ó:");
-         System.out.println("a=" + m + ",b=" + n);
+         System.out.print("æ¢å¤è¢«æå­:");
+         if(log.isDebugEnabled()) log.debug("a=" + m + ",b=" + n);
        }
      } //for
-     for (i = 1; i <= 4; i++) { //ÊÇ·ñÓĞ±»ÌáµÄ¿é
+     for (i = 1; i <= 4; i++) { //æ˜¯å¦æœ‰è¢«æçš„å—
        if (hui[shoushu][8 + i] == 0) {
          break;
        }
@@ -932,12 +937,12 @@ public class JuMian3 {
        hui[shoushu][27 + i] = 0; //2yue
      }
      shoushu--;
-     System.out.println("·½·¨clhuiqi:´¦Àí»ÚÆå\n");
+     if(log.isDebugEnabled()) log.debug("æ–¹æ³•clhuiqi:å¤„ç†æ‚”æ£‹\n");
    } //clhuiqi*/
 
   public byte jszq(byte m, byte n) { //huiqishiyong.
-    byte dang = 0; //ÆøÊı±äÁ¿
-    byte i, a, b; //»ÚÆå»Ö¸´Ê±£¬½âÉ¢¿éËù³Éµ¥µãµÄÆøÊı¼ÆËã£»
+    byte dang = 0; //æ°”æ•°å˜é‡
+    byte i, a, b; //æ‚”æ£‹æ¢å¤æ—¶ï¼Œè§£æ•£å—æ‰€æˆå•ç‚¹çš„æ°”æ•°è®¡ç®—ï¼›
     for (i = 0; i < 4; i++) {
       a = (byte) (m + CS.szld[i][0]);
       b = (byte) (n + CS.szld[i][1]);
@@ -949,7 +954,7 @@ public class JuMian3 {
   }
 
   public void chengkuai(byte a, byte b) {
-    //ºÚ°××Ó³É¿é¡£
+    //é»‘ç™½å­æˆå—ã€‚
     qiki++;
     qikuai[qiki] = new QiKuai1();
     qkzishu = 0;
@@ -957,55 +962,55 @@ public class JuMian3 {
       qikuai[qiki] = null;
       qiki--;
     }
-    //qikiµÄSQBZXBÓ¦¸ÃÇåÁã
+    //qikiçš„SQBZXBåº”è¯¥æ¸…é›¶
   }
 
   public byte bijiaoqishu(
       short k1, short k2, byte colorxian) {
-    //colorxian=ÂÖ×ß·½µÄÑÕÉ«¡£
-    //Á½¸öÆå¿é£¨×Ó£©¶ÔÉ±µÄÅĞ¶Ï¡£
-    //ÒÔ K1·½µÄ½Ç¶ÈÅĞ¶Ï£»
+    //colorxian=è½®èµ°æ–¹çš„é¢œè‰²ã€‚
+    //ä¸¤ä¸ªæ£‹å—ï¼ˆå­ï¼‰å¯¹æ€çš„åˆ¤æ–­ã€‚
+    //ä»¥ K1æ–¹çš„è§’åº¦åˆ¤æ–­ï¼›
     byte m1 = kuai[k1].qishu;
     byte m2 = kuai[k2].qishu;
     byte cha = (byte) (m1 - m2);
     if (kuai[k1].color == colorxian) {
       cha += 1;
-    }//ÕâÑù¼ÆËã£¬±ä»¯¹ı³ÌÖĞµÄchaÖµ²»±ä£¬µ«ÊÇÒÔ¶Ô·½µÄ½Ç¶Èµ÷ÓÃ£¬
-    //²»ÊÊÊÇºÃÎª¾ø¶ÔÖµÏàµÈ£¬¶øÊÇ²îÒ».
+    }//è¿™æ ·è®¡ç®—ï¼Œå˜åŒ–è¿‡ç¨‹ä¸­çš„chaå€¼ä¸å˜ï¼Œä½†æ˜¯ä»¥å¯¹æ–¹çš„è§’åº¦è°ƒç”¨ï¼Œ
+    //ä¸é€‚æ˜¯å¥½ä¸ºç»å¯¹å€¼ç›¸ç­‰ï¼Œè€Œæ˜¯å·®ä¸€.
     //bijiaoqishu(k1,k2,black)+bijiaoqishu(k2,k1,black)==1;
 
-    //·µ»ØÖµ<=0;¾ÍÊÇ¶ÔÉ±Ê§°Ü£»
-    //Ò»·½µ÷ÓÃÎª1£º¶ÔÉ±»ñÊ¤£¬ÂäºóÊÖ£»
-    //´ÓÁíÒ»·½µ÷ÓÃ¾ÍÊÇ0£º¶ÔÉ±Ê§°Ü£¬Ò²¿É
-    //¿´³ÉÆú×Ó£¬ÏÈÊÖÀûÓÃ£»
-    //Ò»·½µ÷ÓÃÎª2£º±¾·½ÍÑÏÈÈÔÈ»»ñÊ¤(ÒÑÊ¤)£»µ«ÊÇÍÑÏÈºó¶Ô·½ÓĞÏÈÊÖÀûÓÃ£»
-    //´ÓÁíÒ»·½µ÷ÓÃ¾ÍÊÇ£­1£º¶Ô·½ÍÑÏÈÈÔÈ»Ê§°Ü£»
-    //Ò»·½µ÷ÓÃÎª3£º±¾·½ÍÑÏÈÈÔ¿É»ñÊ¤£¨ÎŞ½Ù²ÄÒÑÊ¤£©£¬ÇÒÍÑÏÈºó¶Ô·½Ã»ÓĞÀûÓÃ¡£
-    //ÁíÒ»·½µ÷ÓÃÎª£­2£º¶Ô·½¼´Ê¹ÍÑÏÈ±¾·½Ò²Ã»ÓĞÏÈÊÖÀûÓÃ
+    //è¿”å›å€¼<=0;å°±æ˜¯å¯¹æ€å¤±è´¥ï¼›
+    //ä¸€æ–¹è°ƒç”¨ä¸º1ï¼šå¯¹æ€è·èƒœï¼Œè½åæ‰‹ï¼›
+    //ä»å¦ä¸€æ–¹è°ƒç”¨å°±æ˜¯0ï¼šå¯¹æ€å¤±è´¥ï¼Œä¹Ÿå¯
+    //çœ‹æˆå¼ƒå­ï¼Œå…ˆæ‰‹åˆ©ç”¨ï¼›
+    //ä¸€æ–¹è°ƒç”¨ä¸º2ï¼šæœ¬æ–¹è„±å…ˆä»ç„¶è·èƒœ(å·²èƒœ)ï¼›ä½†æ˜¯è„±å…ˆåå¯¹æ–¹æœ‰å…ˆæ‰‹åˆ©ç”¨ï¼›
+    //ä»å¦ä¸€æ–¹è°ƒç”¨å°±æ˜¯ï¼1ï¼šå¯¹æ–¹è„±å…ˆä»ç„¶å¤±è´¥ï¼›
+    //ä¸€æ–¹è°ƒç”¨ä¸º3ï¼šæœ¬æ–¹è„±å…ˆä»å¯è·èƒœï¼ˆæ— åŠ«æå·²èƒœï¼‰ï¼Œä¸”è„±å…ˆåå¯¹æ–¹æ²¡æœ‰åˆ©ç”¨ã€‚
+    //å¦ä¸€æ–¹è°ƒç”¨ä¸ºï¼2ï¼šå¯¹æ–¹å³ä½¿è„±å…ˆæœ¬æ–¹ä¹Ÿæ²¡æœ‰å…ˆæ‰‹åˆ©ç”¨
 
-    //×ª»»¹ØÏµÎª£º>0:ÏÈ¼õÒ»£¬ÔÙÈ¡·´¡£
-    //ËûÃÇÊÇµÈ¼ÛµÄ£¬Ö»ÊÇ´Ó²»Í¬·½ÃæÃèÊö¡£
-    //ÖÕÓÚ½â¾öÁË.£¨¾ÍÕâÑù½â¾ö°É£©
+    //è½¬æ¢å…³ç³»ä¸ºï¼š>0:å…ˆå‡ä¸€ï¼Œå†å–åã€‚
+    //ä»–ä»¬æ˜¯ç­‰ä»·çš„ï¼Œåªæ˜¯ä»ä¸åŒæ–¹é¢æè¿°ã€‚
+    //ç»ˆäºè§£å†³äº†.ï¼ˆå°±è¿™æ ·è§£å†³å§ï¼‰
     return cha;
 
   }
 
   public byte xingshipanduan(byte colorjiaodu) {
-    //µ÷ÓÃµÄÆõ»ú£¬ºÎÊ±µ÷ÓÃ£¿¶Ô·½ÍÑÏÈ»òÕßÓĞÌá×Ó¡£
-    //Ê×ÏÈÈ·¶¨·¢Æğµ÷ÓÃµÄµØµãÊÇÂä×ÓµÄ¾Ö²¿
-    //Í¬Ê±Òª¿¼ÂÇ¶Ô±ğ´¦µÄÓ°Ïì£¬Ò»°ãÊÇÁæ½ü¾Ö²¿µÄÓ°Ïì
-    //Éæ¼°Õ÷×Ó²Å¿¼ÂÇÔ¶´¦µÄÓ°Ïì¡£
-    //ÓĞµÄ¶ÔÉ±ÓÃÁ¿±íÊ¾£¬²»ÒªÊµ¼Ê¶ÔÉ±¡£±ÈÈçÆø³¤2£¬ÇÒ¶ÌÆø·½Ã»ÓĞ
-    //³¤Æøµã.
+    //è°ƒç”¨çš„å¥‘æœºï¼Œä½•æ—¶è°ƒç”¨ï¼Ÿå¯¹æ–¹è„±å…ˆæˆ–è€…æœ‰æå­ã€‚
+    //é¦–å…ˆç¡®å®šå‘èµ·è°ƒç”¨çš„åœ°ç‚¹æ˜¯è½å­çš„å±€éƒ¨
+    //åŒæ—¶è¦è€ƒè™‘å¯¹åˆ«å¤„çš„å½±å“ï¼Œä¸€èˆ¬æ˜¯ä¼¶è¿‘å±€éƒ¨çš„å½±å“
+    //æ¶‰åŠå¾å­æ‰è€ƒè™‘è¿œå¤„çš„å½±å“ã€‚
+    //æœ‰çš„å¯¹æ€ç”¨é‡è¡¨ç¤ºï¼Œä¸è¦å®é™…å¯¹æ€ã€‚æ¯”å¦‚æ°”é•¿2ï¼Œä¸”çŸ­æ°”æ–¹æ²¡æœ‰
+    //é•¿æ°”ç‚¹.
     byte lingxian = 0;
     return lingxian;
   }
 
   public boolean chengqikuai(byte a, byte b) {
-    //ÊÕ¼¯ĞÅÏ¢µÄ¹ı³ÌÖĞ,¿ÉÒÔÁîcolor=CS.BLANK,µ÷ÓÃ¸Ãº¯Êı,
-    //µ«ÊÇÆø¿éµÄĞÅÏ¢
-    //²»ÄÜ×¤ÁôÔÚkuaiÊı×éÄÚ,±ØĞëÔçµãµ÷ÓÃ²¢Çå³ı.
-    //µ÷ÓÃ¸Ãº¯ÊıÇ°±ØĞë½«qkzishuÇåÁã
+    //æ”¶é›†ä¿¡æ¯çš„è¿‡ç¨‹ä¸­,å¯ä»¥ä»¤color=CS.BLANK,è°ƒç”¨è¯¥å‡½æ•°,
+    //ä½†æ˜¯æ°”å—çš„ä¿¡æ¯
+    //ä¸èƒ½é©»ç•™åœ¨kuaiæ•°ç»„å†…,å¿…é¡»æ—©ç‚¹è°ƒç”¨å¹¶æ¸…é™¤.
+    //è°ƒç”¨è¯¥å‡½æ•°å‰å¿…é¡»å°†qkzishuæ¸…é›¶
     byte m1, n1;
     //byte zishu=0;
     if (qkzishu < 10) {
@@ -1014,7 +1019,7 @@ public class JuMian3 {
     }
     else {
       qkzishu++;
-      System.out.println("¸Ã¿éµÄ×ÓÊı³¬¹ı10,¿éºÅÎª:" + ki);
+      if(log.isDebugEnabled()) log.debug("è¯¥å—çš„å­æ•°è¶…è¿‡10,å—å·ä¸º:" + ki);
       return false;
     }
     zb[a][b][CS.SQBZXB] = 1;
@@ -1030,11 +1035,11 @@ public class JuMian3 {
       }
     }
     return true;
-  } //³É¿éµÄµãSQBZXB==1;
+  } //æˆå—çš„ç‚¹SQBZXB==1;
 
 
-  //×îÖÕ×´Ì¬µÄÈ·¶¨¡£Èç¹ûÃ»ÓĞ×îÆğÂëµÄÖÇÄÜ£¬Ò»ÅÌÆåÉõÖÁ¿ÉÒÔÏÂµ½·Ç³£´óµÄ²½Êı£»
-  //±ÈÈç£¬Ê¤ÁËµÄÆåÈÔÈ»¿ÉÒÔ×Ô¼ºÌîÑÛ¶øËÀµô£¬¾ÍÏóºóÊÖËÀÖ®Àà¡£ÕâÖÖÇé¿öÏÂ£¬ÍêÈ«
-  //²©ŞÄÊ÷µÄÀíÂÛ¾ÍÓĞÈ±Ïİ£¬±ÈÈç½áÊø²»ÁË£¬µ±È»Ò²¿ÉÄÜÍ¨¹ı½ûÖ¹¾ÖÃæÑ­»·À´½â¾ö¡£
+  //æœ€ç»ˆçŠ¶æ€çš„ç¡®å®šã€‚å¦‚æœæ²¡æœ‰æœ€èµ·ç çš„æ™ºèƒ½ï¼Œä¸€ç›˜æ£‹ç”šè‡³å¯ä»¥ä¸‹åˆ°éå¸¸å¤§çš„æ­¥æ•°ï¼›
+  //æ¯”å¦‚ï¼Œèƒœäº†çš„æ£‹ä»ç„¶å¯ä»¥è‡ªå·±å¡«çœ¼è€Œæ­»æ‰ï¼Œå°±è±¡åæ‰‹æ­»ä¹‹ç±»ã€‚è¿™ç§æƒ…å†µä¸‹ï¼Œå®Œå…¨
+  //åšå¼ˆæ ‘çš„ç†è®ºå°±æœ‰ç¼ºé™·ï¼Œæ¯”å¦‚ç»“æŸä¸äº†ï¼Œå½“ç„¶ä¹Ÿå¯èƒ½é€šè¿‡ç¦æ­¢å±€é¢å¾ªç¯æ¥è§£å†³ã€‚
 }
 

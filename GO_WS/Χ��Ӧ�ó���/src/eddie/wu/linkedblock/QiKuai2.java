@@ -1,5 +1,7 @@
 package eddie.wu.linkedblock;
 
+import org.apache.log4j.Logger;
+
 /**
  * similar to QiKuai1, only clone() is removed.
  * @author wueddie-wym-wrz
@@ -7,25 +9,25 @@ package eddie.wu.linkedblock;
  */
 public class QiKuai2 implements Cloneable{
 
+	private static final Logger log = Logger.getLogger(QiKuai2.class);
+   public DianNode1 zichuang; //æ°”å—ä¸­å„å­çš„é“¾è¡¨ã€‚
+   public short zishu; //æ°”å—çš„å­æ•°ï¼›åˆå§‹çš„æ°”å—å­æ•°ä¸º361ã€‚
 
-   public DianNode1 zichuang; //Æø¿éÖĞ¸÷×ÓµÄÁ´±í¡£
-   public short zishu; //Æø¿éµÄ×ÓÊı£»³õÊ¼µÄÆø¿é×ÓÊıÎª361¡£
-
-   public HaoNode1 zwzkhao; //ÖÜÎ§ĞÎ³ÉÆø¿éµÄÆå¿éµÄºÅ¡£
+   public HaoNode1 zwzkhao; //å‘¨å›´å½¢æˆæ°”å—çš„æ£‹å—çš„å·ã€‚
    byte zwzkshu;
 
-   public byte color; //Ò²Ğí¶àÓà£¬ÒòÎªËû´ÓÊôÓÚÄ³¸ö¿é,µ«ÊÇ·½±ã¡£
-   //5±íÊ¾¹«Æø£¬·´ÕıÖÜÎ§µÄ¿éÓĞºÚºÍ°×¡£ÕâÑùµÄ¿é¼òµ¥´¦Àí£¬ºÚ1°×2¡£
+   public byte color; //ä¹Ÿè®¸å¤šä½™ï¼Œå› ä¸ºä»–ä»å±äºæŸä¸ªå—,ä½†æ˜¯æ–¹ä¾¿ã€‚
+   //5è¡¨ç¤ºå…¬æ°”ï¼Œåæ­£å‘¨å›´çš„å—æœ‰é»‘å’Œç™½ã€‚è¿™æ ·çš„å—ç®€å•å¤„ç†ï¼Œé»‘1ç™½2ã€‚
    public static final byte GONGQIKUAI = 5;
 
-   public byte dingdianshu; //µ¥ÑÛ¶øÑÔ¡£
-   public byte yanxing; //¹«Æø£¬¼ÙÑÛ£¬ÕæÑÛ¡£
-   //Ö±½Ó¶ÁÈë¾ÖÃæÊ±£¬Ö»ÄÜÏÈÍ³Ò»Éú³ÉÆø¿é£¬ÔÙ¾ö¶¨yanxing£»
+   public byte dingdianshu; //å•çœ¼è€Œè¨€ã€‚
+   public byte yanxing; //å…¬æ°”ï¼Œå‡çœ¼ï¼ŒçœŸçœ¼ã€‚
+   //ç›´æ¥è¯»å…¥å±€é¢æ—¶ï¼Œåªèƒ½å…ˆç»Ÿä¸€ç”Ÿæˆæ°”å—ï¼Œå†å†³å®šyanxingï¼›
 
-   public byte minqi; //ĞÎ³ÉÑÛµÄÖÜÎ§¿éÆøÊıµÄ×îĞ¡Öµ¡£
-   //Èç¹ûĞ¡ÓÚµÈÓÚ2£¬¾Í¿ÉÄÜ±»´ò³Ô»òÕßÌá×Ó£¬ÑÛÎ»¾ÍÃ»ÓĞÁË¡£
-   //µ±È»ÓĞ´ò½ÙµÄµÖ¿¹¡£
-   //Èç¹ûµÈÓÚ1£¬¾ÍÓĞ·´Ìá»òÕß½ÙÕù£»
+   public byte minqi; //å½¢æˆçœ¼çš„å‘¨å›´å—æ°”æ•°çš„æœ€å°å€¼ã€‚
+   //å¦‚æœå°äºç­‰äº2ï¼Œå°±å¯èƒ½è¢«æ‰“åƒæˆ–è€…æå­ï¼Œçœ¼ä½å°±æ²¡æœ‰äº†ã€‚
+   //å½“ç„¶æœ‰æ‰“åŠ«çš„æŠµæŠ—ã€‚
+   //å¦‚æœç­‰äº1ï¼Œå°±æœ‰åææˆ–è€…åŠ«äº‰ï¼›
    public static final byte ZHENYAN=1;
 
    public Object clone(){
@@ -46,8 +48,8 @@ public class QiKuai2 implements Cloneable{
       return o;
 
    }
-   //HaoNode1 qkhao; //Æø¿éµÄºÅ£¬¾ÍÊÇÑÛ£¬¿ÉÄÜÊÇ¼ÙÑÛ£¬Ò²¿ÉÄÜÊÇ´ò½Ù¡£
-   //ÏÈÓÃÆøÊıÅĞ¶ÏÇ¿Èõ£¬ÔÙ¸³ÓèµØ£¬¸ù¾İÑÛÎ»´óĞ¡ÅĞ¶ÏÇ¿Èõ¡£
+   //HaoNode1 qkhao; //æ°”å—çš„å·ï¼Œå°±æ˜¯çœ¼ï¼Œå¯èƒ½æ˜¯å‡çœ¼ï¼Œä¹Ÿå¯èƒ½æ˜¯æ‰“åŠ«ã€‚
+   //å…ˆç”¨æ°”æ•°åˆ¤æ–­å¼ºå¼±ï¼Œå†èµ‹äºˆåœ°ï¼Œæ ¹æ®çœ¼ä½å¤§å°åˆ¤æ–­å¼ºå¼±ã€‚
    public QiKuai2() {
 
    }
@@ -67,11 +69,11 @@ public class QiKuai2 implements Cloneable{
             linshi = linshi.next;
          }
          if (i <= zwzkshu) {
-            return; //ÒÑ¾­ÓĞÕâ¸ö¿éºÅ¡£
+            return; //å·²ç»æœ‰è¿™ä¸ªå—å·ã€‚
          }
          zwzkshu++;
          HaoNode1 temp = new HaoNode1(kin);
-         temp.next = zwzkhao; //¿éºÅ¼ÓÔÚÇ°Í·¡£
+         temp.next = zwzkhao; //å—å·åŠ åœ¨å‰å¤´ã€‚
          zwzkhao = temp;
       }
 
@@ -88,9 +90,9 @@ public class QiKuai2 implements Cloneable{
 
       DianNode1 temp;
       DianNode1 back;
-     // System.out.println("qikuaizishuwei:"+zishu);
+     // if(log.isDebugEnabled()) log.debug("qikuaizishuwei:"+zishu);
 
-      //¸´ÖÆÆø¿éµÄ×Ó´®¡£
+      //å¤åˆ¶æ°”å—çš„å­ä¸²ã€‚
       if(old!=null){
          temp = old.zichuang;
       }else{
@@ -102,16 +104,16 @@ public class QiKuai2 implements Cloneable{
          return;
       }
       back = zichuang;
-      if(back==null)  System.out.println("back==null");
+      if(back==null)  if(log.isDebugEnabled()) log.debug("back==null");
 
       for (short i = 2; i <= zishu; i++) {
-         //×ÓÊı±ØĞëÎªshort£¬·ñÔò»áÎŞÏßÑ­»·¡££¬
+         //å­æ•°å¿…é¡»ä¸ºshortï¼Œå¦åˆ™ä¼šæ— çº¿å¾ªç¯ã€‚ï¼Œ
          temp = temp.next;
          if(temp==null) {
-            System.out.println("temp==null" + i);
+            if(log.isDebugEnabled()) log.debug("temp==null" + i);
             break;
          }
-         if(back==null)  System.out.println("back==null"+i);
+         if(back==null)  if(log.isDebugEnabled()) log.debug("back==null"+i);
          back.next = new DianNode1(temp.a, temp.b);
          back = back.next;
       }
@@ -119,7 +121,7 @@ public class QiKuai2 implements Cloneable{
       HaoNode1 qkhtemp;
       HaoNode1 qkhback;
       qkhtemp = old.zwzkhao;
-      if(qkhtemp!=null){//¸´ÖÆÖÜÎ§×Ó¿é¡£
+      if(qkhtemp!=null){//å¤åˆ¶å‘¨å›´å­å—ã€‚
          zwzkhao = new HaoNode1(qkhtemp.hao);
       }else{
          return;
@@ -146,7 +148,7 @@ public class QiKuai2 implements Cloneable{
       }
    }
 
-   public void init() { //ÓÃÓÚÆåÅÌµÄ×î³õÍêÕûÆø¿é¡£
+   public void init() { //ç”¨äºæ£‹ç›˜çš„æœ€åˆå®Œæ•´æ°”å—ã€‚
       zishu = 0;
       DianNode1 temp;
       byte i, j;
@@ -160,13 +162,13 @@ public class QiKuai2 implements Cloneable{
          }
 
       }
-      System.out.println("zishju=" + zishu);
+      if(log.isDebugEnabled()) log.debug("zishju=" + zishu);
    }
 
    public void deletezidian(byte m1, byte n1) {
       DianNode1 temp = zichuang;
       DianNode1 forward = zichuang;
-      System.out.println("½øÈëdeletezidian:Ô­Ê¼×ÓÊıÎª" + zishu);
+      if(log.isDebugEnabled()) log.debug("è¿›å…¥deletezidian:åŸå§‹å­æ•°ä¸º" + zishu);
       for (short i = 1; i <= zishu; i++) {
          if (m1 == temp.a & n1 == temp.b) {
             if (i == 1) {
@@ -184,7 +186,7 @@ public class QiKuai2 implements Cloneable{
          }
       }
       zishu--;
-      System.out.println("ÍË³ödeletezidian:ÏÖÔÚ×ÓÊıÎª" + zishu);
+      if(log.isDebugEnabled()) log.debug("é€€å‡ºdeletezidian:ç°åœ¨å­æ•°ä¸º" + zishu);
    }
 
 }

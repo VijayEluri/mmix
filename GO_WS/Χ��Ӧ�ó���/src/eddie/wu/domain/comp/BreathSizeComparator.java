@@ -16,8 +16,8 @@ public class BreathSizeComparator implements Comparator<Block> {
 		if (delta != 0)
 			return delta;
 		else {
-			return block1.getTotalNumberOfPoint()
-					- block2.getTotalNumberOfPoint();
+			return block1.getNumberOfPoint()
+					- block2.getNumberOfPoint();
 		}
 	}
 

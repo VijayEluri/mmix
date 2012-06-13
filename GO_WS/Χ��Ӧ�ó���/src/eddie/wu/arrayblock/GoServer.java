@@ -5,8 +5,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
 
 /**
  * <p>
@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
  */
 
 public class GoServer {
-	private static final Log log = LogFactory.getLog(GoServer.class);
+	private static final Logger log = Logger.getLogger(GoServer.class);
 	private DatagramSocket s;
 	byte[] buf = new byte[3];
 	DatagramPacket dp = new DatagramPacket(buf, buf.length);

@@ -3,10 +3,14 @@ package eddie.wu.domain.survive;
 import java.util.HashMap;
 import java.util.Map;
 
+import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Delta;
-import eddie.wu.domain.Point;
-import eddie.wu.linkedblock.ColorUtil;
 
+/**
+ * 
+ * @author Eddie
+ *
+ */
 public class SmallEyeKnowledge {
 	private static Map<BreathPattern, RelativeSurviveResult> map = new HashMap<BreathPattern, RelativeSurviveResult>();
 
@@ -93,9 +97,9 @@ public class SmallEyeKnowledge {
 		// }
 		// }
 		/**
-		 * Æø¿éµãÈ¡ÖµÎª0¡£²»Ïà¸ÉµÄµã£¬ÎŞÂÛºÚ°×£¬¶¼ÉèÎªOutOfBound¡£
+		 * æ°”å—ç‚¹å–å€¼ä¸º0ã€‚ä¸ç›¸å¹²çš„ç‚¹ï¼Œæ— è®ºé»‘ç™½ï¼Œéƒ½è®¾ä¸ºOutOfBoundã€‚
 		 */
-		pattern[1][1] = ColorUtil.OutOfBound;
+		pattern[1][1] = ColorUtil.OutOfBoard;
 		bp = new BreathPattern(pattern);
 		if (map.containsKey(bp) == false) {
 			point = Delta.getDelta(0, 0); // this is actually delta, index

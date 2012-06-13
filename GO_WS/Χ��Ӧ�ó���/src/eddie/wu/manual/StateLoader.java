@@ -5,40 +5,42 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-<<<<<<< HEAD
+import org.apache.log4j.Logger;
+
+import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.BoardPoint;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
-import eddie.wu.linkedblock.BoardColorState;
-=======
-import eddie.wu.domain.BoardColorState;
-import eddie.wu.domain.Constant;
-import eddie.wu.domain.Point;
-import eddie.wu.linkedblock.BoardPoint;
->>>>>>> 3d8aa49ce83f747c9170d697ba2d051c700809f6
 
 public class StateLoader {
+	private static final Logger log = Logger.getLogger(StateLoader.class);
+
 	/**
-	 * ´ÓÒÔÇ°ÖÆ×÷µÄÕ÷×ÓÌâÄ¿ÎÄ¼şÖĞµÃµ½ColorBoardState
+	 * ä»ä»¥å‰åˆ¶ä½œçš„å¾å­é¢˜ç›®æ–‡ä»¶ä¸­å¾—åˆ°ColorBoardState
 	 * 
 	 * @param jmin
 	 * @throws IOException
 	 */
 	public static BoardColorState load(String fileName) {
+
 		BoardColorState state;
 		try {
 			DataInputStream in = new DataInputStream(new BufferedInputStream(
 					new FileInputStream(fileName)));
 			state = load(in);
 			in.close();
-			System.out.println(state.getBlackPoints());
-			System.out.println(state.getWhitePoints());
+			if (log.isDebugEnabled())
+				log.debug(state.getBlackPoints());
+			if (log.isDebugEnabled())
+				log.debug(state.getWhitePoints());
 			return state;
 		}
 
 		catch (IOException ex) {
-			System.out.println("the input meet some trouble!");
-			System.out.println("Exception" + ex.toString());
+			if (log.isDebugEnabled())
+				log.debug("the input meet some trouble!");
+			if (log.isDebugEnabled())
+				log.debug("Exception" + ex.toString());
 			throw new RuntimeException(ex);
 		}
 
@@ -46,28 +48,30 @@ public class StateLoader {
 
 	public static BoardColorState load(DataInputStream jmin) throws IOException {
 
-		BoardColorState an = new BoardColorState();
+		BoardColorState an = new BoardColorState(Constant.BOARD_SIZE);
 		byte a, b, color;
 		byte i, j;
 		while (jmin.available() != 0) {
 			a = jmin.readByte();
 			b = jmin.readByte();
 			color = jmin.readByte();
-			an.add(new BoardPoint(Point.getPoint(b, a), color));
+			an.add(new BoardPoint(Point.getPoint(Constant.BOARD_SIZE, a, b),
+					color));
 
 			if (a < 1 || a > 19 || b < 1 || b > 19 || color < 1 || color > 2) {
 				if (Constant.DEBUG_CGCL) {
-					System.out.print("ÔØÈëµÄÊı¾İÓĞÎó£¡" + a);
+					System.out.print("è½½å…¥çš„æ•°æ®æœ‰è¯¯ï¼" + a);
 					System.out.print("i=" + a);
 					System.out.print("j=" + b);
-					System.out.println("color=" + color);
+					if (log.isDebugEnabled())
+						log.debug("color=" + color);
 				}
 			}
 
 		}
 
 		if (Constant.DEBUG_CGCL) {
-			System.out.print("ÔØÈë¾ÖÃæ");
+			System.out.print("è½½å…¥å±€é¢");
 		}
 		return an;
 	}

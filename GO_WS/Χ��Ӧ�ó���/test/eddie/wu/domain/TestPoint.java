@@ -5,80 +5,84 @@ import java.util.Set;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import eddie.wu.domain.Point;
+
+import org.apache.log4j.Logger;
+
+import util.GBKToUTF8;
 
 public class TestPoint extends TestCase {
-	public static Set<Point> xing = new HashSet<Point>();// –«
-	public static Set<Point> xiaomu = new HashSet<Point>();// –°ƒø
-	public static Set<Point> muwai = new HashSet<Point>();// ƒøÕ‚
-	public static Set<Point> gaomu = new HashSet<Point>();// ∏ﬂƒø
-	public static Set<Point> sansan = new HashSet<Point>();// »˝»˝
+	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
+	public static Set<Point> xing = new HashSet<Point>();// Êòü
+	public static Set<Point> xiaomu = new HashSet<Point>();// Â∞èÁõÆ
+	public static Set<Point> muwai = new HashSet<Point>();// ÁõÆÂ§ñ
+	public static Set<Point> gaomu = new HashSet<Point>();// È´òÁõÆ
+	public static Set<Point> sansan = new HashSet<Point>();// ‰∏â‰∏â
 	static {
-		xing.add(Point.getPoint(4, 4));
-		xing.add(Point.getPoint(4, 16));
-		xing.add(Point.getPoint(16, 4));
-		xing.add(Point.getPoint(16, 16));
+		xing.add(Point.getPoint(Constant.BOARD_SIZE, 4, 4));
+		xing.add(Point.getPoint(Constant.BOARD_SIZE, 4, 16));
+		xing.add(Point.getPoint(Constant.BOARD_SIZE, 16, 4));
+		xing.add(Point.getPoint(Constant.BOARD_SIZE, 16, 16));
 
-		xiaomu.add(Point.getPoint(3, 4));
-		xiaomu.add(Point.getPoint(3, 16));
-		xiaomu.add(Point.getPoint(17, 4));
-		xiaomu.add(Point.getPoint(17, 16));
+		xiaomu.add(Point.getPoint(Constant.BOARD_SIZE, 3, 4));
+		xiaomu.add(Point.getPoint(Constant.BOARD_SIZE, 3, 16));
+		xiaomu.add(Point.getPoint(Constant.BOARD_SIZE, 17, 4));
+		xiaomu.add(Point.getPoint(Constant.BOARD_SIZE, 17, 16));
 
-		xiaomu.add(Point.getPoint(4, 3));
-		xiaomu.add(Point.getPoint(16, 3));
-		xiaomu.add(Point.getPoint(4, 17));
-		xiaomu.add(Point.getPoint(16, 17));
+		xiaomu.add(Point.getPoint(Constant.BOARD_SIZE, 4, 3));
+		xiaomu.add(Point.getPoint(Constant.BOARD_SIZE, 16, 3));
+		xiaomu.add(Point.getPoint(Constant.BOARD_SIZE, 4, 17));
+		xiaomu.add(Point.getPoint(Constant.BOARD_SIZE, 16, 17));
 
-		muwai.add(Point.getPoint(3, 5));
-		muwai.add(Point.getPoint(3, 15));
-		muwai.add(Point.getPoint(17, 5));
-		muwai.add(Point.getPoint(17, 15));
-		muwai.add(Point.getPoint(5, 3));
-		muwai.add(Point.getPoint(15, 3));
-		muwai.add(Point.getPoint(5, 17));
-		muwai.add(Point.getPoint(15, 17));
+		muwai.add(Point.getPoint(Constant.BOARD_SIZE, 3, 5));
+		muwai.add(Point.getPoint(Constant.BOARD_SIZE, 3, 15));
+		muwai.add(Point.getPoint(Constant.BOARD_SIZE, 17, 5));
+		muwai.add(Point.getPoint(Constant.BOARD_SIZE, 17, 15));
+		muwai.add(Point.getPoint(Constant.BOARD_SIZE, 5, 3));
+		muwai.add(Point.getPoint(Constant.BOARD_SIZE, 15, 3));
+		muwai.add(Point.getPoint(Constant.BOARD_SIZE, 5, 17));
+		muwai.add(Point.getPoint(Constant.BOARD_SIZE, 15, 17));
 
-		gaomu.add(Point.getPoint(4, 5));
-		gaomu.add(Point.getPoint(4, 15));
-		gaomu.add(Point.getPoint(16, 5));
-		gaomu.add(Point.getPoint(16, 15));
-		gaomu.add(Point.getPoint(5, 4));
-		gaomu.add(Point.getPoint(15, 4));
-		gaomu.add(Point.getPoint(5, 16));
-		gaomu.add(Point.getPoint(15, 16));
+		gaomu.add(Point.getPoint(Constant.BOARD_SIZE, 4, 5));
+		gaomu.add(Point.getPoint(Constant.BOARD_SIZE, 4, 15));
+		gaomu.add(Point.getPoint(Constant.BOARD_SIZE, 16, 5));
+		gaomu.add(Point.getPoint(Constant.BOARD_SIZE, 16, 15));
+		gaomu.add(Point.getPoint(Constant.BOARD_SIZE, 5, 4));
+		gaomu.add(Point.getPoint(Constant.BOARD_SIZE, 15, 4));
+		gaomu.add(Point.getPoint(Constant.BOARD_SIZE, 5, 16));
+		gaomu.add(Point.getPoint(Constant.BOARD_SIZE, 15, 16));
 
-		sansan.add(Point.getPoint(3, 3));
-		sansan.add(Point.getPoint(3, 17));
-		sansan.add(Point.getPoint(17, 3));
-		sansan.add(Point.getPoint(17, 17));
+		sansan.add(Point.getPoint(Constant.BOARD_SIZE, 3, 3));
+		sansan.add(Point.getPoint(Constant.BOARD_SIZE, 3, 17));
+		sansan.add(Point.getPoint(Constant.BOARD_SIZE, 17, 3));
+		sansan.add(Point.getPoint(Constant.BOARD_SIZE, 17, 17));
 	}
 
 	public void testReflection() {
 		Set<Point> points;
 		points = Point.xings;
-		System.out.println(points);
-		System.out.println(xing);
+		if(log.isDebugEnabled()) log.debug(points);
+		if(log.isDebugEnabled()) log.debug(xing);
 		Assert.assertTrue(points.equals(xing));
-		
+
 		points = Point.xiaomus;
-		System.out.println(points);
-		System.out.println(xiaomu);
+		if(log.isDebugEnabled()) log.debug(points);
+		if(log.isDebugEnabled()) log.debug(xiaomu);
 		Assert.assertTrue(points.equals(xiaomu));
-		
+
 		points = Point.gaomus;
-		System.out.println(points);
-		System.out.println(gaomu);
+		if(log.isDebugEnabled()) log.debug(points);
+		if(log.isDebugEnabled()) log.debug(gaomu);
 		Assert.assertTrue(points.equals(gaomu));
-		
+
 		points = Point.muwais;
-		System.out.println(points);
-		System.out.println(muwai);
+		if(log.isDebugEnabled()) log.debug(points);
+		if(log.isDebugEnabled()) log.debug(muwai);
 		Assert.assertTrue(points.equals(muwai));
-		
+
 		points = Point.sansans;
-		System.out.println(points);
-		System.out.println(sansan);
+		if(log.isDebugEnabled()) log.debug(points);
+		if(log.isDebugEnabled()) log.debug(sansan);
 		Assert.assertTrue(points.equals(sansan));
-		
+
 	}
 }

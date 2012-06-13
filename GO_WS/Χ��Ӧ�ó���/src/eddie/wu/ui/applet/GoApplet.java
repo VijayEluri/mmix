@@ -4,12 +4,13 @@ import java.awt.Button;
 import java.awt.Event;
 import java.awt.TextField;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger
+;
 
-import eddie.wu.arrayblock.GoBoard;
+import eddie.wu.arrayblock.ArrayGoBoard;
 import eddie.wu.arrayblock.GoBoard1;
 import eddie.wu.arrayblock.JisuanBoard;
+import eddie.wu.domain.Constant;
 import eddie.wu.ui.canvas.EmbedBoardCanvas;
 
 /**
@@ -17,7 +18,7 @@ import eddie.wu.ui.canvas.EmbedBoardCanvas;
  * Title:
  * </p>
  * <p>
- * Description: GoApplet ºÍGoApplet1µÄÇø±ğÔÚÓÚÇ°Õß²»Ö±½Ó´¦ÀíÊó±êÊÂ¼ş£¬¶øÊÇÏòÈİÆ÷´«²¥
+ * Description: GoApplet å’ŒGoApplet1çš„åŒºåˆ«åœ¨äºå‰è€…ä¸ç›´æ¥å¤„ç†é¼ æ ‡äº‹ä»¶ï¼Œè€Œæ˜¯å‘å®¹å™¨ä¼ æ’­
  * </p>
  * <p>
  * Copyright: Copyright (c) 2003
@@ -30,15 +31,15 @@ import eddie.wu.ui.canvas.EmbedBoardCanvas;
  * @version 1.0
  */
 
-public class GoApplet extends EmbedBoardCanvas {// ÓÃÓÚ»­ÆåÅÌµÄ»­²¼
-	private static final Log log = LogFactory.getLog(GoApplet.class);
+public class GoApplet extends EmbedBoardCanvas {// ç”¨äºç”»æ£‹ç›˜çš„ç”»å¸ƒ
+	private static final Logger log = Logger.getLogger(GoApplet.class);
 	public boolean KEXIA = true;
 	public boolean ZZ = false;
 	JisuanBoard goji;
-	GoBoard goboard1 = new GoBoard();
-	public GoBoard goboard = new GoBoard1(goboard1);
+	ArrayGoBoard goboard1 = new ArrayGoBoard(Constant.BOARD_SIZE);
+	public ArrayGoBoard goboard = new GoBoard1(goboard1);
 	boolean CHONGHUI = true;
-	Button zhzi = new Button("¼ÆËãÕ÷×Ó");
+	Button zhzi = new Button("è®¡ç®—å¾å­");
 	TextField zzk = new TextField();
 
 //	public void init() {

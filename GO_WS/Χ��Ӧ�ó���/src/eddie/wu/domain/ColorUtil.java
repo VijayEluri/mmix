@@ -6,8 +6,6 @@
  */
 package eddie.wu.domain;
 
-import com.sun.corba.se.impl.orbutil.closure.Constant;
-
 /**
  * @author eddie
  * 
@@ -16,32 +14,48 @@ import com.sun.corba.se.impl.orbutil.closure.Constant;
  */
 public class ColorUtil {
 
+	public final static char BLACK_STRING = 'B';
+	public final static char WHITE_STRING = 'W';
+
 	/**
 	 * color for single point
 	 */
-	public final static byte BLANK = eddie.wu.domain.Constant.BLANK; // 0±íÊ¾¿Õ°×µã.
+	public final static byte BLANK = eddie.wu.domain.Constant.BLANK; // 0è¡¨ç¤ºç©ºç™½ç‚¹.
 
-	public final static byte BLACK = eddie.wu.domain.Constant.BLACK; // 1±íÊ¾ºÚ×Ó;
+	public final static byte BLACK = eddie.wu.domain.Constant.BLACK; // 1è¡¨ç¤ºé»‘å­;
 
-	public final static byte WHITE = eddie.wu.domain.Constant.WHITE; // 2±íÊ¾°××Ó;
+	public final static byte WHITE = eddie.wu.domain.Constant.WHITE; // 2è¡¨ç¤ºç™½å­;
 
-	public final static byte Mixture = 3; // 3±íÊ¾ÆÕÍ¨µÄ¿Õ°Ù¿é.²»ÊÇÆø¿é;
-
-	//public final static byte BREATH = 4; // ´óÑÛËÀ»îÄ£Ê½Ê¶±ğÊ±±íÊ¾Ìá×ÓĞÎ³ÉµÄÆø¿é
-
-	// »òÕßÊÇÃ»ÓĞ¼ÓÒÔÈ·ÈÏ.Ïàµ±ÓÚUNKnown
-	public final static byte OutOfBound = 10; // 2±íÊ¾°××Ó;
+	public final static byte Mixture = 3; // 3è¡¨ç¤ºæ™®é€šçš„ç©ºç™¾å—.ä¸æ˜¯æ°”å—;
 
 	/**
-	 * ÔÚshoushuÔö¼ÓÖ®Ç°µ÷ÓÃ£¬yiseºÍtongseµÄ¼ÆËãÓĞËù²»Í¬¡£
+	 * @deprecated
+	 */
+	public final static byte BREATH = 4; // å¤§çœ¼æ­»æ´»æ¨¡å¼è¯†åˆ«æ—¶è¡¨ç¤ºæå­å½¢æˆçš„æ°”å—
+
+	// æˆ–è€…æ˜¯æ²¡æœ‰åŠ ä»¥ç¡®è®¤.ç›¸å½“äºUNKnown
+	public final static byte OutOfBoard = 10; // 2è¡¨ç¤ºç™½å­;
+	public static final char BLANK_STRING = '_';
+
+	/**
+	 * åœ¨shoushuå¢åŠ ä¹‹å‰è°ƒç”¨
 	 * 
 	 * @param shoushu
 	 * @return
 	 */
-	public static byte getNextStepColor(short shoushu) {
+	public static int getNextStepColor(int shoushu) {
+		return (shoushu % 2 + 1);
+	}
 
-		byte tongse = (byte) (shoushu % 2 + 1);
-		return tongse;
+	/**
+	 * åœ¨shoushuå¢åŠ ä¹‹å‰è°ƒç”¨
+	 * 
+	 * @param shoushu
+	 * @return
+	 */
+	public static byte getNextStepEnemyColor(short shoushu) {
+		byte yise = (byte) ((1 + shoushu) % 2 + 1);
+		return yise;
 	}
 
 	public static int enemyColor(int myColor) {
@@ -55,36 +69,64 @@ public class ColorUtil {
 	}
 
 	/**
-	 * ÔÚshoushuÔö¼ÓÖ®Ç°µ÷ÓÃ£¬yiseºÍtongseµÄ¼ÆËãÓĞËù²»Í¬¡£
+	 * æ ¹æ®æ‰‹æ•°åˆ¤æ–­è½å­ç‚¹çš„é¢œè‰²ã€‚æ‰‹æ•°å·²ç»å¢åŠ ã€‚
 	 * 
 	 * @param shoushu
+	 *            =1 for first play/move.
 	 * @return
 	 */
-	public static byte getNextStepEnemyColor(short shoushu) {
-		byte yise = (byte) ((1 + shoushu) % 2 + 1);
-		return yise;
+	public static int getCurrentStepColor(int shoushu) {
+		return ((1 + shoushu) % 2 + 1); // ç™½åè¡Œä¸ºå¶æ•°
 	}
 
 	/**
-	 * ¸ù¾İÊÖÊıÅĞ¶ÏÂä×ÓµãµÄÑÕÉ«¡£ÊÖÊıÒÑ¾­Ôö¼Ó¡£
+	 * æ ¹æ®æ‰‹æ•°åˆ¤æ–­è½å­ç‚¹çš„é¢œè‰²ã€‚æ‰‹æ•°å·²ç»å¢åŠ ã€‚
 	 * 
 	 * @param shoushu
 	 * @return
 	 */
-	public static byte getCurrentStepColor(short shoushu) {
+	public static int getCurrentStepEnemyColor(short shoushu) {
+		return (shoushu % 2 + 1); // é»‘å…ˆè¡Œä¸ºå¥‡æ•°
 
-		byte tongse = (byte) ((1 + shoushu) % 2 + 1); // tong se=1»ò2,°×ºóĞĞÎªÅ¼Êı
-		return tongse;
+	}
+
+	public boolean isBlackTurn(int shoushu) {
+		return evenNumberOfPoints(shoushu);
+	}
+
+	public boolean isWhiteTurn(int shoushu) {
+		return !evenNumberOfPoints(shoushu);
+	}
+
+	public static boolean evenNumberOfPoints(int count) {
+		if (count % 2 == 0)
+			return true;
+		else
+			return false;
 	}
 
 	/**
-	 * ¸ù¾İÊÖÊıÅĞ¶ÏÂä×ÓµãµÄÑÕÉ«¡£ÊÖÊıÒÑ¾­Ôö¼Ó¡£
 	 * 
-	 * @param shoushu
-	 * @return
+	 * @param a
+	 *            index from 0
+	 * @param boardSize
+	 * @return state index from 1
 	 */
-	public static byte getCurrentStepEnemyColor(short shoushu) {
-		byte yise = (byte) (shoushu % 2 + 1); // yi se=1»ò2,ºÚÏÈĞĞÎªÆæÊı
-		return yise;
+	public static byte[][] initState(String a, int boardSize) {
+		byte[][] state = new byte[boardSize + 2][boardSize + 2];
+		char color;
+		for (int row = 1; row <= boardSize; row++) {
+			for (int column = 1; column <= boardSize; column++) {
+				int endIndex = (row - 1) * boardSize + column - 1;
+				color = a.charAt(endIndex);
+				if (color == ColorUtil.BLACK_STRING) {
+					state[row][column] = Constant.BLACK;
+				} else if (color == ColorUtil.WHITE_STRING) {
+					state[row][column] = Constant.WHITE;
+				}
+			}
+		}
+		return state;
 	}
+
 }

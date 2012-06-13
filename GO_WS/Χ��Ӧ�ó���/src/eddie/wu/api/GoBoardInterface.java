@@ -1,6 +1,9 @@
 package eddie.wu.api;
 
+import java.util.Set;
+
 import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
 
 /**
@@ -21,13 +24,31 @@ public interface GoBoardInterface {
 	 * @param step
 	 * @return
 	 */
-	boolean oneStepForward(Step step);
+	public boolean oneStepForward(Step step);
 
-	void output();
+	/**
+	 * the impl. need to record at least its last step.
+	 * @return
+	 */
+	public boolean oneStepBackward();
+
+	/**
+	 * 
+	 * @return current board status
+	 */
+	public byte[][] getMatrixState();
+
+	/**
+	 * 
+	 * @return the points eaten in current step.
+	 */
+	public Set<Point> getEatenPoints();
+
+	// void output();
 
 	/**
 	 * 
 	 * @return
 	 */
-	BoardColorState getBoardColorState();
+	//BoardColorState getBoardColorState();
 }

@@ -1,24 +1,27 @@
 package eddie.wu.manual;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
 
 /**
- * convert between symmetry GoManual
- * though copy code is not a good practice.
- * I will separate the code from GoBoard to simpleGoBoard 
+ * convert between symmetry GoManual though copy code is not a good practice. I
+ * will separate the code from GoBoard to simpleGoBoard <br/>
+ * 
+ * 在具有对称性的局面下,棋谱记录的着手可能有多种变体,尽管其实质相同.<br/>
+ * 这里试图规范化棋谱,使得实质相同的棋谱有唯一的记录.比如说,第一步总是下在左上角.<br/>
+ * 而且小目的占角也是取(row<colummn)的点.<br>
+ * 注意打破对称的局面可能在随后的进行中恢复对称.
  * 
  * @author eddie
  * 
  */
 public class ConvertGoManual {
-	private static final int NUMBER_FOR_COMPLETE = Constant.SIZEOFBOARD + 1;
+	private static final int NUMBER_FOR_COMPLETE = Constant.BOARD_SIZE + 1;
 
-	private static final Log log = LogFactory.getLog(ConvertGoManual.class);
+	private static final Logger log = Logger.getLogger(ConvertGoManual.class);
 
 	public byte[] convertFormat(byte[] position) {
 		int t = position.length / 2;
@@ -34,7 +37,7 @@ public class ConvertGoManual {
 	public void display(final byte[] row, final byte[] column) {
 		if (log.isDebugEnabled()) {
 			for (int i = 0; i < 10; i++) {
-				System.out.println("i=" + i + ", [" + row[i] + "," + column[i]
+				if(log.isDebugEnabled()) log.debug("i=" + i + ", [" + row[i] + "," + column[i]
 						+ "]");
 			}
 		}
@@ -57,19 +60,21 @@ public class ConvertGoManual {
 		int a = 0;
 		int b = 0;
 		Point point = null;
-		int timesOfSymmetry=0;
+		int timesOfSymmetry = 0;
 		for (int i = 0; i < row.length; i++) {
 			if (simpleGoBoard.numberOfSymmetry() == 0) {
 				goBoard.oneStepForward(row[i], column[i]);
-				simpleGoBoard=new GoBoardSymmetry(goBoard.getBoardColorState());
+				simpleGoBoard = new GoBoardSymmetry(
+						goBoard.getBoardColorState());
 				continue;
 			} else if (simpleGoBoard.numberOfSymmetry() == 15) {
 				timesOfSymmetry++;
-				log.debug("i="+i+";timesOfSymmetry="+timesOfSymmetry+
-						";numberOfSymmetry="+simpleGoBoard.numberOfSymmetry());
+				log.debug("i=" + i + ";timesOfSymmetry=" + timesOfSymmetry
+						+ ";numberOfSymmetry="
+						+ simpleGoBoard.numberOfSymmetry());
 				a = row[i];
 				b = column[i];
-				point = Point.getPoint(a, b);
+				point = Point.getPoint(Constant.BOARD_SIZE, a, b);
 				if (point.isLeftTop()) {
 					if (a < b) {
 						backwardSlashLineConvert(row, column, i);
@@ -85,20 +90,22 @@ public class ConvertGoManual {
 					conditionalBackwardConvert(row, column, i);
 				}
 				goBoard.oneStepForward(row[i], column[i]);
-				simpleGoBoard=new GoBoardSymmetry(goBoard.getBoardColorState());
+				simpleGoBoard = new GoBoardSymmetry(
+						goBoard.getBoardColorState());
 				continue;
-			} else if (simpleGoBoard.numberOfSymmetry() == 1||
-					simpleGoBoard.numberOfSymmetry() == 2||
-					simpleGoBoard.numberOfSymmetry() == 4||
-					simpleGoBoard.numberOfSymmetry() == 8) {
-				
+			} else if (simpleGoBoard.numberOfSymmetry() == 1
+					|| simpleGoBoard.numberOfSymmetry() == 2
+					|| simpleGoBoard.numberOfSymmetry() == 4
+					|| simpleGoBoard.numberOfSymmetry() == 8) {
+
 				timesOfSymmetry++;
-//				if(timesOfSymmetry>1){
-//					log.error("i="+i+";timesOfSymmetry="+timesOfSymmetry+
-//							";numberOfSymmetry="+simpleGoBoard.numberOfSymmetry());
-//				}
-				log.debug("i="+i+";timesOfSymmetry="+timesOfSymmetry+
-						";numberOfSymmetry="+simpleGoBoard.numberOfSymmetry());
+				// if(timesOfSymmetry>1){
+				// log.error("i="+i+";timesOfSymmetry="+timesOfSymmetry+
+				// ";numberOfSymmetry="+simpleGoBoard.numberOfSymmetry());
+				// }
+				log.debug("i=" + i + ";timesOfSymmetry=" + timesOfSymmetry
+						+ ";numberOfSymmetry="
+						+ simpleGoBoard.numberOfSymmetry());
 				if (simpleGoBoard.verticalSymmetry()) {
 					this.verticalLineConvert(row, column, i);
 				} else if (simpleGoBoard.horizontalSymmetry()) {
@@ -111,24 +118,26 @@ public class ConvertGoManual {
 					this.backwardSlashLineConvert(row, column, i);
 				}
 				goBoard.oneStepForward(row[i], column[i]);
-				simpleGoBoard=new GoBoardSymmetry(goBoard.getBoardColorState());
+				simpleGoBoard = new GoBoardSymmetry(
+						goBoard.getBoardColorState());
 				continue;
-			} else if(simpleGoBoard.numberOfSymmetry() == 3||
-					simpleGoBoard.numberOfSymmetry() == 12) {
+			} else if (simpleGoBoard.numberOfSymmetry() == 3
+					|| simpleGoBoard.numberOfSymmetry() == 12) {
 				timesOfSymmetry++;
-//				log.error("i="+i+";timesOfSymmetry="+timesOfSymmetry+
-//						";numberOfSymmetry="+simpleGoBoard.numberOfSymmetry());
-//			
-				log.debug("timesOfSymmetry="+timesOfSymmetry+
-						";numberOfSymmetry="+simpleGoBoard.numberOfSymmetry());
-				System.out.println("numberOfSymmetry="
+				// log.error("i="+i+";timesOfSymmetry="+timesOfSymmetry+
+				// ";numberOfSymmetry="+simpleGoBoard.numberOfSymmetry());
+				//
+				log.debug("timesOfSymmetry=" + timesOfSymmetry
+						+ ";numberOfSymmetry="
 						+ simpleGoBoard.numberOfSymmetry());
-				System.out.println(goBoard.getBoardColorState());
+				if(log.isDebugEnabled()) log.debug("numberOfSymmetry="
+						+ simpleGoBoard.numberOfSymmetry());
+				if(log.isDebugEnabled()) log.debug(goBoard.getBoardColorState());
 				/**
-				 * only two kinds of scenarios when the number  of symmetry is 2
-				 * one is horizontal and vertical symmetry.
-				 * another is slash and back slash symmetry.
-				 * horizontal (or vertical) and slash (or back slash) is impossible.
+				 * only two kinds of scenarios when the number of symmetry is 2
+				 * one is horizontal and vertical symmetry. another is slash and
+				 * back slash symmetry. horizontal (or vertical) and slash (or
+				 * back slash) is impossible.
 				 */
 				if (point.isLeftTop()) {
 					if (a < b) {
@@ -142,24 +151,24 @@ public class ConvertGoManual {
 						a = row[i];
 						b = column[i];
 						if (a < b) {
-							if (simpleGoBoard.backwardSlashSymmetry()) {//impossible
+							if (simpleGoBoard.backwardSlashSymmetry()) {// impossible
 								backwardSlashLineConvert(row, column, i);
 							}
 						}
-					}else{//salsh symmetry
-						
+					} else {// salsh symmetry
+
 					}
 				} else if (point.isRightTop()) {
 					if (simpleGoBoard.verticalSymmetry()) {
 						this.verticalLineConvert(row, column, i);
 						a = row[i];
 						b = column[i];
-						if (a < b) {//impossible
+						if (a < b) {// impossible
 							if (simpleGoBoard.backwardSlashSymmetry()) {
 								backwardSlashLineConvert(row, column, i);
 							}
 						}
-					}else{//salsh symmetry
+					} else {// salsh symmetry
 						if (simpleGoBoard.backwardSlashSymmetry()) {
 							backwardSlashLineConvert(row, column, i);
 						}
@@ -174,26 +183,26 @@ public class ConvertGoManual {
 								backwardSlashLineConvert(row, column, i);
 							}
 						}
-					}else{//horizontal/vertical symmetry
-						this.horizontalLineConvert(row,column,i);
-						this.verticalLineConvert(row,column,i);
+					} else {// horizontal/vertical symmetry
+						this.horizontalLineConvert(row, column, i);
+						this.verticalLineConvert(row, column, i);
 					}
 				}
 				goBoard.oneStepForward(row[i], column[i]);
-				simpleGoBoard=new GoBoardSymmetry(goBoard.getBoardColorState());
-				
+				simpleGoBoard = new GoBoardSymmetry(
+						goBoard.getBoardColorState());
 
-			}
-			else{
+			} else {
 				/**
-				 * It is impossible to be 3 kinds of symmetry. 
-				 * if there are three kinds of symmetry
-				 * there must be total 4 kinds of symmetry
+				 * It is impossible to be 3 kinds of symmetry. if there are
+				 * three kinds of symmetry there must be total 4 kinds of
+				 * symmetry
 				 */
-				throw new RuntimeException(goBoard.getBoardColorState().toString());
+				throw new RuntimeException(goBoard.getBoardColorState()
+						.toString());
 			}
 		}
-		log.debug("Tatal: timesOfSymmetry="+timesOfSymmetry);
+		log.debug("Tatal: timesOfSymmetry=" + timesOfSymmetry);
 		byte[] temp = new byte[row.length * 2];
 		for (int i = 0; i < row.length; i++) {
 			temp[2 * i] = row[i];
@@ -230,7 +239,7 @@ public class ConvertGoManual {
 	public void verticalLineConvert(byte[] row, byte[] column, int index) {
 		validateParam(row, column);
 		int b = column[index];
-		if (NUMBER_FOR_COMPLETE - b > b) {
+		if (NUMBER_FOR_COMPLETE - b > b) {// 棋谱着手在左边
 			return;
 		}
 		display(row, column);

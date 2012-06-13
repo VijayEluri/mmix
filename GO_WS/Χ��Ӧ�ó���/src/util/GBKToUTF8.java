@@ -4,34 +4,51 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GBKToUTF8 {
-	private static final String template = "native2ascii -encoding GBK <file_name>.java "
-			+ "<file_name>.unicode; "
-			+ "native2ascii -reverse -encoding UTF-8  <file_name>.unicode <file_name>.utf8; "
-			+ "copy <file_name>.java <file_name>.bak; "
-			+ "copy <file_name>.utf8 <file_name>.java ";
+import org.apache.log4j.Logger;
 
-	private static String root = "C:/scm/github/mmix/GO_WS/";
+import eddie.wu.util.FileUtil;
+
+public class GBKToUTF8 {
+	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
+	static final String template1 = "native2ascii -encoding GBK <file_name>.java <file_name>.unicode";
+	static final String template2 = "native2ascii -reverse -encoding UTF-8 <file_name>.unicode <file_name>.utf8";
+	static final String template3 = "copy <file_name>.java <file_name>.bak";
+	static final String template4 = "copy <file_name>.utf8 <file_name>.java";
+
+	private static String root = "./src";
 
 	public static void main2(String[] args) {
 
-		for (String filepath : getFileList(root)) {
-			String command = template.replace("<file_name>", filepath);
+		List<String> fileList = getFileList(root);
+		for (String filepath : fileList) {
+			String command = template1.replace("<file_name>", filepath);
 			executeCommand(command);
 		}
-		String fileList = "c:\file.list";
-
+		// String fileList = "c:\file.list";
+		if(log.isDebugEnabled()) log.debug(fileList.get(0));
 	}
 
 	public static void main(String[] args) {
 
-		String command = template.replace("<file_name>",
-				"src/untitled8/GoApplet");
-		System.out.println("command is [" + command + "]");
+	}
+
+	public static void convertOneFile(String filepath) {
+		String command;
+		command = template1.replace("<file_name>", filepath);
+		if(log.isDebugEnabled()) log.debug(command);
+		executeCommand(command);
+		command = template2.replace("<file_name>", filepath);
+		if(log.isDebugEnabled()) log.debug(command);
+		executeCommand(command);
+		command = template3.replace("<file_name>", filepath);
+		if(log.isDebugEnabled()) log.debug(command);
+		executeCommand(command);
+		command = template4.replace("<file_name>", filepath);
+		if(log.isDebugEnabled()) log.debug(command);
 		executeCommand(command);
 	}
 
-	private static void executeCommand(String cmdarray) {
+	static void executeCommand(String cmdarray) {
 		Runtime rt = Runtime.getRuntime();
 
 		Process p = null;
