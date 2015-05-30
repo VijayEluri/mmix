@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.Assert;
+import junit.framework.TestCase;
 
 /**
  * 记录棋局进行过程中的提子，棋块合并信息，方便悔棋，以及打谱后退时的处理。<br/>
@@ -14,8 +14,6 @@ import junit.framework.Assert;
  * 
  */
 public class StepMemo implements Serializable {
-
-	
 
 	private Step step;
 
@@ -42,7 +40,7 @@ public class StepMemo implements Serializable {
 
 	private BoardColorState colorState;
 
-	private NeighborState neighborState;
+	private SimpleNeighborState neighborState;
 
 	/**
 	 * 原先的空白气块.(将减少一子,可能会消失!)<br/>
@@ -55,10 +53,8 @@ public class StepMemo implements Serializable {
 	 */
 	private Point prohibittedPoint;
 	private int prohibittedColor;
-	
-	
-	private SymmetryResult symmetry; 
-	
+
+	private SymmetryResult symmetry;
 
 	public Set<BlankBlock> getNewBlankBlocks() {
 		return newBlankBlocks;
@@ -165,6 +161,18 @@ public class StepMemo implements Serializable {
 		return eatenBlocks;
 	}
 
+	public boolean isBlockEaten(Point target) {
+		if (eatenBlocks.isEmpty())
+			return false;
+		// Set<Point> eatenP= new HashSet<Point>();
+		for (Block block : eatenBlocks) {
+			if (block.getPoints().contains(target)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void addEatenBlock(Block block) {
 		eatenBlocks.add(block);
 	}
@@ -193,7 +201,7 @@ public class StepMemo implements Serializable {
 
 		sb.append("\r\n");
 		if (neighborState.isEating()) {
-			Assert.assertFalse(eatenBlocks.isEmpty());
+			TestCase.assertFalse(eatenBlocks.isEmpty());
 			sb.append("下列块被提吃: ");
 			for (Block block : eatenBlocks) {
 				sb.append(block.getBehalfPoint());
@@ -202,7 +210,7 @@ public class StepMemo implements Serializable {
 			sb.append("\r\n");
 		}
 		if (neighborState.isFriendBlockMerged()) {
-			Assert.assertFalse(mergedBlocks.isEmpty());
+			TestCase.assertFalse(mergedBlocks.isEmpty());
 			sb.append("下列块被合并: ");
 			for (Block block : mergedBlocks) {
 				sb.append(block.getBehalfPoint());
@@ -211,7 +219,7 @@ public class StepMemo implements Serializable {
 			sb.append("\r\n");
 		}
 		if (neighborState.isOriginalBlankBlockDivided()) {
-			Assert.assertNotNull(originalBlankBlock);
+			TestCase.assertNotNull(originalBlankBlock);
 			sb.append("气块" + this.originalBlankBlock.getBehalfPoint()
 					+ "被分裂: \r\n");
 
@@ -238,11 +246,11 @@ public class StepMemo implements Serializable {
 
 	}
 
-	public NeighborState getNeighborState() {
+	public SimpleNeighborState getNeighborState() {
 		return neighborState;
 	}
 
-	public void setNeighborState(NeighborState neighborState) {
+	public void setNeighborState(SimpleNeighborState neighborState) {
 		this.neighborState = neighborState;
 	}
 

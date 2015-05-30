@@ -24,8 +24,8 @@ import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
-import eddie.wu.manual.SimpleGoManual;
 import eddie.wu.manual.SGFGoManual;
+import eddie.wu.manual.SimpleGoManual;
 import eddie.wu.ui.canvas.ReviewManualCanvas;
 
 /**

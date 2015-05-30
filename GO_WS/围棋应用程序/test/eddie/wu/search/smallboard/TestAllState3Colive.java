@@ -14,7 +14,11 @@ import eddie.wu.search.global.GoBoardSearch;
 import eddie.wu.search.global.SmallBoardGlobalSearch;
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
+/**
+ * 处理3*3小棋盘的死活题。比较有意思，很多意外的结果。
+ * @author think
+ *
+ */
 public class TestAllState3Colive extends TestCase {
 	private static Logger log = Logger.getLogger(Block.class);
 	static {
@@ -28,12 +32,15 @@ public class TestAllState3Colive extends TestCase {
 		text[1] = new String("[_, _, B]");
 		text[2] = new String("[B, B, B]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
-		GoBoardSearch goS = new SmallBoardGlobalSearch(state);
+		GoBoardSearch goS = new SmallBoardGlobalSearch(state, Constant.BLACK,
+				9, -9);
 		int score = goS.globalSearch();
-		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(1, score);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("Score=" + score);
+		assertEquals(1, score);
 	}
 
 	public void testState_specialColive2() {
@@ -42,13 +49,15 @@ public class TestAllState3Colive extends TestCase {
 		text[1] = new String("[W, _, B]");
 		text[2] = new String("[B, B, B]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		SmallBoardGlobalSearch goS = new SmallBoardGlobalSearch(state,
-				Constant.BLACK);
+				Constant.BLACK,9,-9);
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.WARN);
 		int score = goS.globalSearch();
-		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("Score=" + score);
 		goS.outputSearchStatistics();
 	}
 
@@ -61,11 +70,12 @@ public class TestAllState3Colive extends TestCase {
 		text[1] = new String("[B, B, B]");
 		text[2] = new String("[B, B, B]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		SurviveAnalysis sa = new SurviveAnalysis(state);
 		Point point = Point.getPoint(3, 2, 1);
-		Assert.assertFalse(sa.isAlreadyLive_dynamic(point));
+		assertFalse(sa.isAlreadyLive_dynamic(point));
 
 		// SmallBoardGlobalSearch goS = new SmallBoardGlobalSearch(state,
 		// Constant.BLACK);
@@ -83,11 +93,12 @@ public class TestAllState3Colive extends TestCase {
 		text[1] = new String("[B, B, B]");
 		text[2] = new String("[_, W, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		SurviveAnalysis sa = new SurviveAnalysis(state);
 		Point point = Point.getPoint(3, 2, 1);
-		Assert.assertTrue(sa.isAlreadyLive_dynamic(point));
+		assertTrue(sa.isAlreadyLive_dynamic(point));
 
 	}
 
@@ -97,14 +108,16 @@ public class TestAllState3Colive extends TestCase {
 		text[1] = new String("[_, B, B]");
 		text[2] = new String("[B, B, B]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		SmallBoardGlobalSearch goS = new SmallBoardGlobalSearch(state,
-				Constant.BLACK);
+				Constant.BLACK, 9, -9);
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.WARN);
 		int score = goS.globalSearch();
-		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(4, score);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("Score=" + score);
+		assertEquals(4, score);
 		goS.outputSearchStatistics();
 	}
 
@@ -114,13 +127,15 @@ public class TestAllState3Colive extends TestCase {
 		text[1] = new String("[_, _, _]");
 		text[2] = new String("[_, _, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		SmallBoardGlobalSearch goS = new SmallBoardGlobalSearch(state,
-				Constant.BLACK);
+				Constant.BLACK, 9, -9);
 		int score = goS.globalSearch();
-		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(3, score);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("Score=" + score);
+		assertEquals(-3, score);
 		goS.outputSearchStatistics();
 	}
 

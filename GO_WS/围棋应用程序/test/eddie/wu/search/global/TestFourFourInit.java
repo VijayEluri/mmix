@@ -90,7 +90,7 @@ public class TestFourFourInit extends TestCase {
 			log.warn(goS.getSearchProcess().size());
 		if (log.isEnabledFor(Level.WARN))
 			log.warn("Score=" + score);
-		// Assert.assertTrue(score >= 1);
+		// assertTrue(score >= 1);
 		if (goS.getBestResult() != null) {
 			for (Step step : goS.getBestResult()) {
 				if (log.isEnabledFor(Level.WARN))
@@ -141,7 +141,7 @@ public class TestFourFourInit extends TestCase {
 		text[3] = new String("[_, _, _, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		int score = testProblem_internal(state, 100000, 1);
-		Assert.assertEquals(1, score);
+		assertEquals(1, score);
 		// testProblem_internal(state, 16);
 	}
 
@@ -153,7 +153,7 @@ public class TestFourFourInit extends TestCase {
 		text[3] = new String("[_, W, _, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		int score = testProblem_internal(state, 5000, 1);
-		Assert.assertEquals(1, score);
+		assertEquals(1, score);
 		// testProblem_internal(state, 16);
 	}
 
@@ -165,7 +165,7 @@ public class TestFourFourInit extends TestCase {
 		text[3] = new String("[_, _, _, W]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		int score = testProblem_internal(state, 1500, 1);
-		Assert.assertTrue(score > 1);
+		assertTrue(score > 1);
 		// testProblem_internal(state, 16);
 	}
 
@@ -179,7 +179,7 @@ public class TestFourFourInit extends TestCase {
 		text[3] = new String("[_, _, _, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		int score = testProblem_internal(state, 1500, 1);
-		Assert.assertTrue(score > 1);
+		assertTrue(score > 1);
 		// testProblem_internal(state, 16);
 	}
 
@@ -196,7 +196,7 @@ public class TestFourFourInit extends TestCase {
 			log.warn(ta.getBoardColorState().getStateString());
 		Point point = Point.getPoint(4, 2, 1);
 		boolean live = ta.isAlreadyLive_dynamic(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 		List<Candidate> candidate = ta.getCandidate(Constant.BLACK, false);
 
 		ta.getBlock(point).setLive(true);
@@ -223,7 +223,7 @@ public class TestFourFourInit extends TestCase {
 			log.warn(ta.getBoardColorState().getStateString());
 		Point point = Point.getPoint(4, 2, 1);
 		boolean live = ta.isAlreadyLive_dynamic(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 		List<Candidate> candidate = ta.getCandidate(Constant.BLACK, false);
 
@@ -260,13 +260,13 @@ public class TestFourFourInit extends TestCase {
 			log.warn(ta.getBoardColorState().getStateString());
 		// Logger.getLogger(SmallGoBoard.class).setLevel(Level.WARN);
 		// boolean finalState_deadExist = ta.isFinalState_deadExist();
-		// Assert.assertTrue(finalState_deadExist);
+		// assertTrue(finalState_deadExist);
 		//
 		// if(log.isEnabledFor(Level.WARN))
 		// log.warn(ta.getBoardColorState().getStateString());
 		// Point point = Point.getPoint(4, 2, 1);
 		// boolean live = ta.isAlreadyLive_dynamic(point);
-		// Assert.assertTrue(live);
+		// assertTrue(live);
 
 		List<Candidate> candidate = ta.getCandidate(Constant.BLACK, false);
 
@@ -303,13 +303,13 @@ public class TestFourFourInit extends TestCase {
 			log.warn(ta.getBoardColorState().getStateString());
 		// Logger.getLogger(SmallGoBoard.class).setLevel(Level.WARN);
 		// boolean finalState_deadExist = ta.isFinalState_deadExist();
-		// Assert.assertTrue(finalState_deadExist);
+		// assertTrue(finalState_deadExist);
 		//
 		// if(log.isEnabledFor(Level.WARN))
 		// log.warn(ta.getBoardColorState().getStateString());
 		// Point point = Point.getPoint(4, 2, 1);
 		// boolean live = ta.isAlreadyLive_dynamic(point);
-		// Assert.assertTrue(live);
+		// assertTrue(live);
 
 		List<Candidate> candidate = ta.getCandidate(Constant.WHITE, false);
 
@@ -331,7 +331,7 @@ public class TestFourFourInit extends TestCase {
 		text[3] = new String("[W, _, _, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		int score = testProblem_internal(state, 1500, 1);
-		Assert.assertTrue(score > 1);
+		assertTrue(score > 1);
 		// testProblem_internal(state, 16);
 	}
 
@@ -343,7 +343,7 @@ public class TestFourFourInit extends TestCase {
 		text[3] = new String("[_, _, _, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		int score = testProblem_internal(state, 5000, 1);
-		Assert.assertTrue(score > 1);
+		assertTrue(score > 1);
 		// testProblem_internal(state, 16);
 	}
 
@@ -370,7 +370,7 @@ public class TestFourFourInit extends TestCase {
 		Point point = Point.getPoint(4, 2, 4);
 		ta.oneStepForward(point, Constant.BLACK);
 		boolean condition = ta.isAlreadyLive_dynamic(point);
-		Assert.assertTrue(condition);
+		assertTrue(condition);
 	}
 
 	public void testProblem141() {
@@ -381,7 +381,7 @@ public class TestFourFourInit extends TestCase {
 		text[3] = new String("[_, _, _, W]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		int score = testProblem_internal(state, 1500, 1);
-		Assert.assertTrue(score > 1);
+		assertTrue(score > 1);
 		// testProblem_internal(state, 16);
 	}
 
@@ -435,7 +435,7 @@ public class TestFourFourInit extends TestCase {
 		SmallGoBoard ta = new SmallGoBoard(state);
 		Point point = Point.getPoint(4, 2, 1);
 		boolean condition = ta.isAlreadyLive_dynamic(point);
-		Assert.assertTrue(condition);
+		assertTrue(condition);
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(ta.getBoardColorState().getStateString());
 		List<Candidate> candidate = ta.getCandidate(Constant.BLACK, false);
@@ -1060,11 +1060,11 @@ public class TestFourFourInit extends TestCase {
 		SmallGoBoard ta = new SmallGoBoard(state);
 		Logger.getLogger(SmallGoBoard.class).setLevel(Level.WARN);
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 		int score = ta.finalResult_deadExist().getScore();
 		if (log.isEnabledFor(Level.WARN))
 			log.warn("score=" + score);
-		Assert.assertEquals(-16, score);
+		assertEquals(-16, score);
 		// testProblem_internal(state, 150000, 16);
 	}
 
@@ -1081,13 +1081,13 @@ public class TestFourFourInit extends TestCase {
 
 		Point point = Point.getPoint(4, 2, 1);
 		boolean live = ta.isAlreadyLive_dynamic(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 		int score = ta.finalResult_deadExist().getScore();
 		if (log.isEnabledFor(Level.WARN))
 			log.warn("score=" + score);
-		Assert.assertEquals(-2, score);
+		assertEquals(-2, score);
 		// testProblem_internal(state, 150000, 16);
 	}
 
@@ -1108,9 +1108,9 @@ public class TestFourFourInit extends TestCase {
 
 		// Point point = Point.getPoint(4, 2, 1);
 		// boolean live = ta.isAlreadyLive_dynamic(point);
-		// Assert.assertTrue(live);
+		// assertTrue(live);
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 	}
 
 	/**
@@ -1130,11 +1130,11 @@ public class TestFourFourInit extends TestCase {
 
 		Point point = Point.getPoint(4, 2, 1);
 		boolean live = ta.isAlreadyLive_dynamic(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 		// boolean finalState_deadExist = ta.isFinalState_deadExist();
-		// Assert.assertTrue(finalState_deadExist);
+		// assertTrue(finalState_deadExist);
 		// int score = ta.finalResult_deadExist().getScore();
-		// Assert.assertEquals(0, score);
+		// assertEquals(0, score);
 	}
 
 	// [INIT]B-->[2,2]W-->[2,3]B-->[1,3]W-->[2,1]B-->[1,1]W-->[2,1]B-->[2,2]W-->[1,2]B-->[1,4]W-->[4,2](FINAL
@@ -1152,7 +1152,7 @@ public class TestFourFourInit extends TestCase {
 
 		Point point = Point.getPoint(4, 2, 1);
 		boolean live = ta.isAlreadyLive_dynamic(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 	}
 
@@ -1179,9 +1179,9 @@ public class TestFourFourInit extends TestCase {
 			log.warn(ta.getBoardColorState().getStateString());
 
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 		int score = ta.finalResult_deadExist().getScore();
-		Assert.assertEquals(-16, score);
+		assertEquals(-16, score);
 	}
 
 	public void testPrintState2() {
@@ -1207,7 +1207,7 @@ public class TestFourFourInit extends TestCase {
 			log.warn(ta.getBoardColorState().getStateString());
 
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertFalse(finalState_deadExist);
+		assertFalse(finalState_deadExist);
 
 	}
 

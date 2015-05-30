@@ -20,10 +20,16 @@ import eddie.wu.domain.Delta;
 public class RelativeResult {
 
 	// public static final int MAY_lIVE_MAY_DEAD = -1;
-	public static final int LOOP_LIVE = 64;
-	public static final int CO_LIVE = 96;
+	/**
+	 * loop live is same as loop dead, so they are only intermediate score!
+	 */
+	public static final int LOOP_LIVE = 32;
+	public static final int LOOP_DEAD = -64;
+	public static final int DUAL_LIVE = 64;//DUAL LIVE included
+	
 	public static final int ALREADY_DEAD = -128;
-	public static final int ALREADY_LIVE = 128;
+	public static final int ALREADY_LIVE = 128; 
+	public static final int TWO_EYE_LIVE = 128;
 	/**
 	 * 走firstStep 达到结果score
 	 */

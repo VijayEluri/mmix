@@ -31,18 +31,18 @@ public class LoopSearch extends BigEyeSearch {
 		return 128;
 	}
 
-	public LoopSearch(byte[][] state, Point target, boolean makeEye,
-			boolean targetSuperior) {
-		super(state, target, makeEye, targetSuperior);
+	public LoopSearch(byte[][] state, Point target, int targetColor,
+			boolean makeEye, boolean targetSuperior) {
+		super(state, target, targetColor, makeEye, targetSuperior);
 	}
 
 	@Override
 	protected List<Candidate> getCandidate(int color) {
-		Block targetBlock = goBoard.getBlock(target);
+		Block targetBlock = goBoard.getBlock(getTarget());
 		boolean forTarget = color == targetBlock.getColor();
 		// 目标方劫财有利。
-		return goBoard.getCandidate(null,target, candidates, color, forTarget,
-				forTarget);
+		return goBoard.getCandidate_forTarget(null, getTarget(), candidates, color,
+				forTarget, forTarget);
 		// if(targetColor==color){
 		// if()
 		// }else{
@@ -63,17 +63,6 @@ public class LoopSearch extends BigEyeSearch {
 		return 0;
 	}
 
-	@Override
-	protected int getLowestExp() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	protected int getHighestExp() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	@Override
 	public GoBoard getGoBoard() {

@@ -34,7 +34,7 @@ public class TestGoBoardForwardPerf extends TestCase {
 			// }
 		}
 		int aver = Step.outputOverAllStatistic(time, 10, log);
-		Assert.assertTrue(
+		assertTrue(
 				"average time should be less than 100 ms for one manual.",
 				aver < 100000000);
 	}
@@ -84,7 +84,7 @@ public class TestGoBoardForwardPerf extends TestCase {
 
 		}
 		int aver = Step.outputStatistic(manual.getSteps(), 1, log);
-		Assert.assertTrue(
+		assertTrue(
 				"average time should be less than 0.5 ms for one step.",
 				aver < 500000);
 

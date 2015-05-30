@@ -10,16 +10,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
+import eddie.wu.domain.GoBoardSymmetry;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
+import eddie.wu.domain.SymmetryResult;
 import eddie.wu.manual.SGFGoManual;
 import eddie.wu.manual.SearchNode;
 import eddie.wu.manual.TreeGoManual;
@@ -28,9 +32,11 @@ import eddie.wu.ui.canvas.ReviewManualCanvas;
 /**
  * copy from review manual. <br/>
  * intention: to support tree go manual. <br/>
- * 1. to show search result, computer play first to justify its result. no
- * matter how player respond, computer have to ensure it reach the target
- * result.<br/>
+ * 1. to show search result.<br/>
+ * a. for positive result, computer play first to justify its result. no matter
+ * how player respond, computer have to ensure it reach the target result.<br/>
+ * b. for negative result. (cannot reach target for first player) computer play
+ * second to show all candidates does not work.<br/>
  * 2. it also support the problem solving for novice; the novice player first,
  * computer try to defeat the novice with all possible tricks.<br/>
  * Note current search result does not support feature 2 yet. in case novice
@@ -43,6 +49,9 @@ import eddie.wu.ui.canvas.ReviewManualCanvas;
  */
 public class InteractiveGo extends Frame {
 	private static final Logger log = Logger.getLogger(InteractiveGo.class);
+	static {
+		log.setLevel(Level.WARN);
+	}
 	private Frame parent = this;
 	/**
 	 * domain object.
@@ -50,11 +59,17 @@ public class InteractiveGo extends Frame {
 	private GoBoard go;// for showing current state
 	private TreeGoManual manual;// all variant
 
+	private Object immutable = new Object();
+
 	// share data between UI and back end.
 	private List<UIPoint> points = new ArrayList<UIPoint>();
 
 	private boolean computerFirst = true;
-	private boolean manTurn = false;
+	private volatile boolean manTurn = false;
+
+	private synchronized void setManTurn(boolean manTurn) {
+		this.manTurn = manTurn;
+	}
 
 	/**
 	 * UI elements
@@ -63,13 +78,13 @@ public class InteractiveGo extends Frame {
 			Constant.BOARD_SIZE);
 	private Button load = new Button("载入棋谱");
 	private Button forward = new Button("下一步");
-	private Button backward = new Button("上一步");
+	private Button backward = new Button("后退");
 	/**
 	 * 更加人性化的显示方式，自动以提子为分割，一次显示若干手数。<br/>
 	 * 每次不超过100手，这样数字不会超过两位。
 	 */
 	Button forwardManual = new Button("下一谱");
-	Button backwardManual = new Button("上一谱");
+	Button backwardManual = new Button("后退");
 
 	/**
 	 * 显示对局信息
@@ -83,6 +98,7 @@ public class InteractiveGo extends Frame {
 	TextField whitePlayerV = new TextField();
 	TextField resultV = new TextField();
 	TextField shoushuV = new TextField();
+	private SymmetryResult normalizeOperation;
 
 	public static void main(String[] args) {
 		// if (args.length > 1) {
@@ -148,13 +164,13 @@ public class InteractiveGo extends Frame {
 		shoushu.setVisible(true);
 		shoushuV.setVisible(true);
 
-		backwardManual.setEnabled(false);
+		backwardManual.setEnabled(true);
+		backward.setEnabled(true);
 		blackPlayerV.setEditable(false);
 		whitePlayerV.setEditable(false);
 		resultV.setEditable(false);
 		shoushuV.setEditable(false);
 
-		backward.setEnabled(false);
 		setLayout(null);
 
 		embedCanvas.setBounds(30, 30, 560, 560);
@@ -183,70 +199,289 @@ public class InteractiveGo extends Frame {
 			}
 
 		});
+		// thread.start();
 	}
 
-	public boolean mouseDown(Event e, int x, int y) { // 接受鼠标输入
-		if (log.isDebugEnabled()) {
-			log.debug("chuan bo dao rong qi - forward one step.");
+	// public boolean mouseDown(Event e, int x, int y) { // 接受鼠标输入
+	// if (manTurn == false) {
+	// return true;
+	// }
+	// if (log.isDebugEnabled()) {
+	// log.debug("chuan bo dao rong qi - forward one step.");
+	// }
+	// x -= 30;
+	// y -= 30;
+	// int a = (x - 4) / 28 + 1;
+	// int b = (y - 4) / 28 + 1;
+	//
+	// // coordinate difference between matrix and plane..
+	// int row = b;
+	// int column = a;
+	// if (Point.isValid(go.boardSize, row, column) == false) {
+	// return true;
+	// }
+	//
+	// // record symmetry before forwarding
+	// SymmetryResult symmetryResult = go.getSymmetryResult();
+	// Point point = Point.getPoint(go.boardSize, row, column);
+	// boolean valid = go.oneStepForward(point);
+	// if (valid == false) {
+	// System.out.print("Invalid step:" + point);
+	// if (point.equals(go.getLastPoint())) {
+	// go.oneStepBackward();
+	// System.out.print("step back at " + point);
+	// }
+	// return true;
+	// }
+	//
+	// // valid move, response mode.
+	// this.setManTurn(false);
+	// go.initUIPoint(points);
+	// repaint();
+	// embedCanvas.repaint();
+	//
+	// // copy since we will convert by symmetry.
+	// Step childMove = go.getLastStep().getStep().getCopy();
+	// if (manual.getCurrent().containsChildMove(childMove)) {
+	// manual.navigateToChild(childMove);
+	// log.warn("Manual contains move" + childMove);
+	// } else {
+	// if (symmetryResult.getNumberOfSymmetry() > 0) {
+	// childMove.normalize(symmetryResult);
+	// if (manual.getCurrent().containsChildMove(childMove)) {
+	// manual.navigateToChild(childMove);
+	// normalizeOperation = GoBoardSymmetry.getNormalizeOperation(
+	// point, symmetryResult);
+	// log.warn("Move at " + point
+	// + " is equivalent to " + childMove);
+	// } else {
+	// log.warn("Manual does not contain move "
+	// + childMove);
+	// }
+	// } else {
+	// log.warn("Need to calculate response of :"
+	// + childMove + " on the fly.");
+	// // TODO:
+	// }
+	// }
+	// synchronized (immutable) {
+	// immutable.notify();
+	// }
+	// return true;
+	// // TODO: dynamic code here.
+	//
+	// }
+	//
+	// Thread thread = new Thread() {
+	// public void run() {
+	// while (true) {
+	// try {
+	// synchronized (immutable) {
+	// immutable.wait();
+	// }
+	// // computer responds one move in a 2 seconds.
+	// Thread.sleep(2000);
+	// } catch (InterruptedException e1) {
+	// e1.printStackTrace();
+	// }
+	// SearchNode child = manual.getCurrent().getChild();
+	// if (child == null) {
+	// System.out.print("Computer has no choice; pass");
+	// return;
+	// }
+	// Step response = child.getStep();
+	// manual.navigateToChild(response);
+	// log.warn("response at " + response);
+	// if (normalizeOperation != null) {
+	// response.convert(normalizeOperation);
+	// System.out.print("is converted to " + response);
+	// }
+	// go.oneStepForward(response);
+	// go.initUIPoint(points);
+	// repaint();
+	// embedCanvas.repaint();
+	// setManTurn(true);
+	// }
+	// }
+	// };
+
+	/**
+	 * it seems not easy to get multiple thread right, even just to wait 2
+	 * seconds after man's play. so I implement simple version first, just
+	 * display man's move and computer's response together. it will be not nice
+	 * if some block is eaten in between.<br/>
+	 * 接受鼠标输入
+	 */
+	public boolean mouseDown(Event e, int x, int y) {
+		if (manTurn == false) {
+			return true;
 		}
 		x -= 30;
 		y -= 30;
+		int a = (x - 4) / 28 + 1;
+		int b = (y - 4) / 28 + 1;
 
-		byte a = (byte) ((x - 4) / 28 + 1);// 完成数气提子等.
-		byte b = (byte) ((y - 4) / 28 + 1);
-		if (log.isDebugEnabled())
-			log.debug("weiqiFrame de mousedown");
 		// coordinate difference between matrix and plane..
-		Point point = Point.getPoint(go.boardSize, b, a);
-		if (manTurn) {
-			boolean valid = go.oneStepForward(point);
-			if (valid == false) {
-				System.out.print("invalid step:" + point);
-				return true;
-			}
-			go.initUIPoint(points);
-			repaint();
-			embedCanvas.repaint();
-
-			Step childMove = go.getLastStep().getStep();
-			if (manual.getCurrent().containsChildMove(childMove)) {
-				manual.navigateToChild(childMove);
-			} else {
-				System.out.print("Need to calculate respond of :" + point);
-				return true;
-				//TODO: dynamic code here.
-			}
-
-			// computer respond one move in a second.
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
-			SearchNode child = manual.getCurrent().getChild();
-			if(child == null){
-				System.out.print("Computer has no choise; pass");
-				return true;
-			}
-			Step response = child.getStep();
-			go.oneStepForward(response);
-			manual.navigateToChild(response);
-			
-			go.initUIPoint(points);
-			repaint();
-			embedCanvas.repaint();
-
+		int row = b;
+		int column = a;
+		if (Point.isValid(go.boardSize, row, column) == false) {
+			return true;
 		}
+
+		Point point = Point.getPoint(go.boardSize, row, column);
+		boolean validate = go.validate(row, column);
+		if (validate == false) {
+			log.warn("Invalid step:" + point);
+			return true;
+		}
+
+		// record symmetry before forwarding
+		SymmetryResult symmetryResult = go.getSymmetryResult();
+
+		// for further calculation on the fly.
+		BoardColorState oldState = go.getBoardColorState();
+
+		validate = go.oneStepForward(point);
+		if (validate == false) {
+			log.warn("Invalid step:" + point);
+			// should step back internally! we did not do that because we do not
+			// want forward class to depend on backward class!
+			if (point.equals(go.getLastPoint())) {
+				go.oneStepBackward();
+				log.warn("One step back at " + point);
+				return true;
+			}
+		}
+
+		log.warn("Man Play at " + point);
+		// valid move, response mode.
+		this.setManTurn(false);
+
+		// copy since we will convert by symmetry.
+		Step childMove = go.getLastStep().getStep().getCopy();
+
+		// reach an final state, need to load its tree
+		if (manual.getCurrent().getChild() == null) {
+			log.warn("Need to calculate response of :"
+					+ childMove.toNonSGFString() + " on the fly.");
+
+			// try another solution: load another file
+			if (go.boardSize != 3) {
+				return true;// no way to response.
+			} else {
+
+				String name = oldState.getStateAsOneLineString();
+				String fileName1 = Constant.rootDir + "smallboard/threethree/"
+						+ name + "win.sgf";
+				String fileName2 = Constant.rootDir + "smallboard/threethree/"
+						+ name + "lose.sgf";
+				if (computerFirst) {
+					if (new File(fileName1).exists()) {
+						System.out.println("File name" + fileName1);
+						TreeGoManual manual2 = SGFGoManual.loadTreeGoManual(
+								fileName1).get(0);
+						SearchNode temp = manual2.getRoot().getChild();
+						manual.getCurrent().addChild(temp);
+						log.warn("Add child " + temp.getStep().toNonSGFString());
+						log.warn("Loading known WIN result: " + fileName1);
+					} else {
+						System.err.println("File not exist " + fileName1);
+						return true;
+					}
+				} else {
+					if (new File(fileName2).exists()) {
+						System.out.println("File name" + fileName2);
+						TreeGoManual manual2 = SGFGoManual.loadTreeGoManual(
+								fileName2).get(0);
+						SearchNode temp = manual2.getRoot().getChild();
+						while (temp != null) {
+							manual.getCurrent().addChild(temp);
+							log.warn("Add child "
+									+ temp.getStep().toNonSGFString());
+							temp = temp.getBrother();
+						}
+						log.warn("Loading known LOSE result: " + fileName2);
+					} else {
+						System.err.println("File not exist " + fileName1);
+						return true;
+					}
+				}
+				// normalizeOperation = null; // start all over again.
+				// manual.navigateToChild(childMove);
+				// log.warn("Manual contains move " + childMove);
+			}
+		}
+
+		// if (normalizeOperation != null
+		// && symmetryResult.getNumberOfSymmetry() > 0) {
+		// normalizeOperation.and(symmetryResult);
+		// childMove.convert(normalizeOperation);
+		// log.warn("Move at " + point + " is equivalent to "
+		// + childMove.getPoint());
+		// }
+
+		if (manual.getCurrent().containsChildMove(childMove)) {
+			// short cut path
+			manual.navigateToChild(childMove);
+			log.warn("Manual contains move " + childMove.toNonSGFString());
+		} else {
+			if (symmetryResult.getNumberOfSymmetry() > 0) {
+				manual.getCurrent().mirrorSubTree(symmetryResult);
+				// childMove.normalize(symmetryResult);
+				if (manual.getCurrent().containsChildMove(childMove)) {
+					manual.navigateToChild(childMove);
+					// if (normalizeOperation == null) {
+					// normalizeOperation = GoBoardSymmetry
+					// .getNormalizeOperation(point, symmetryResult);
+					// } else {
+					// normalizeOperation.and(GoBoardSymmetry
+					// .getNormalizeOperation(point, symmetryResult));
+					// }
+					// log.warn("Move at " + point + " is equivalent to "
+					// + childMove);
+				} else {
+					log.warn("Manual does not contain move " + childMove
+							+ " Strange!");
+					go.oneStepBackward();
+					return true;
+				}
+			}
+		}
+
+		SearchNode child = manual.getCurrent().getChild();
+		if (child == null) {
+			log.warn("Computer has no choice; pass");
+			return true;
+		}
+		Step response = child.getStep();
+		manual.navigateToChild(response);
+		log.warn("response at " + response.toNonSGFString());
+		if (normalizeOperation != null) {
+			response.convert(normalizeOperation);
+			log.warn("is converted to " + response);
+		}
+		go.oneStepForward(response);
+
+		go.initUIPoint(points);
+		repaint();
+		embedCanvas.repaint();
+		this.setManTurn(true);
 		return true;
+
 	}
 
 	class BackwardActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-
-			go.oneStepBackward();
-
-			repaint();
-			embedCanvas.repaint();
+			if (computerFirst && go.getShoushu() == 1) {
+				return;// keep computer's first auto play.
+			} else {
+				go.oneStepBackward();
+				go.oneStepBackward();
+				manual.up();
+				manual.up();
+			}
+			repaint_complete();
+			// embedCanvas.repaint();
 
 		}
 	}
@@ -262,7 +497,7 @@ public class InteractiveGo extends Frame {
 
 			// 载入局面
 			FileDialog fd = new FileDialog(parent, "载入局面的位置", FileDialog.LOAD);
-			fd.setFile("1.wjm");
+			fd.setFile("*.sgf");
 			fd.setDirectory(Constant.rootDir);
 			fd.show();
 
@@ -270,8 +505,21 @@ public class InteractiveGo extends Frame {
 			String dir = fd.getDirectory();
 			if (inname == null || inname.isEmpty())
 				return;
+			if (inname.toLowerCase().endsWith("lose.sgf")) {
+				computerFirst = false;
+				manTurn = true;
+			} else {
+				computerFirst = true;
+			}
+
 			manual = SGFGoManual.loadTreeGoManual(dir + inname).get(0);
 			go = new GoBoard(manual.getInitState());
+
+			if (log.isEnabledFor(Level.WARN)) {
+				log.info("载入局面");
+				log.warn(go.getBoardColorState().getStateString());
+				log.warn(manual.getSGFBodyString());
+			}
 			blackPlayerV.setText(manual.getBlackName());
 			whitePlayerV.setText(manual.getWhiteName());
 			resultV.setText(manual.getResult());
@@ -279,25 +527,50 @@ public class InteractiveGo extends Frame {
 			if (computerFirst == true && manual.isEmpty() == false) {
 				Step firstStep = manual.getRoot().getChild().getStep();
 				boolean valid = go.oneStepForward(firstStep);
-				if(log.isEnabledFor(Level.WARN)) log.warn("correct color = "+manual.getInitTurn());
-				if(valid==false){
-					System.err.println("Wrong first step:"+firstStep);
-					
+				if (log.isEnabledFor(Level.WARN))
+					log.warn("correct color = " + manual.getInitTurn());
+				if (valid == false) {
+					log.warn("Wrong first step:" + firstStep.toNonSGFString());
+				} else {
+					log.warn("Computer play at:" + firstStep.toNonSGFString());
 				}
 				manual.navigateToChild(firstStep);
-				if(log.isEnabledFor(Level.WARN)) log.warn("computer played the first step "
-						+ firstStep);
+				if (log.isEnabledFor(Level.WARN))
+					log.warn("computer played the first step " + firstStep);
 				manTurn = true;
 			}
 
-			log.debug("载入局面");
-			if(log.isEnabledFor(Level.WARN)) log.warn(go.getBoardColorState().getStateString());
-			if(log.isEnabledFor(Level.WARN)) log.warn(manual.getSGFBodyString());
-			go.initUIPoint(points);
-			embedCanvas.setBoardSize(go.boardSize);
-			repaint();
-			embedCanvas.repaint();
+			repaint_complete();
+			normalizeOperation = null;
 
 		}
 	}
+
+	public void repaint_complete() {
+		go.initUIPoint(points);
+		embedCanvas.setBoardSize(go.boardSize);
+		repaint();
+		embedCanvas.repaint();
+		// TODO Auto-generated method stub
+
+	}
 }
+// TODO:
+// TODO: dynamic code here.
+// if (go.boardSize == 3) {
+// // need to store result score!
+// int score = 4;
+// int high = score;
+// int low = score;
+// if (computerFirst) {
+// if (manual.getInitTurn() == Constant.BLACK) {
+// low = high - 1;
+// }else{
+// high = score+1;
+// }
+// }else{
+//
+// }
+// ThreeThreeBoardSearch goS = new ThreeThreeBoardSearch(
+// oldState, high, low);
+// }

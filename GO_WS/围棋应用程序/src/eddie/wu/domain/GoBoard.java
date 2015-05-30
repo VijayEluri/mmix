@@ -89,11 +89,11 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 		super(BoardColorState.getInstance(board, whoseTurn));
 	}
 
-	public List<Candidate> getCandidate(Set<Point> targets, Point target,
-			Set<Point> scope, Set<Point> externalBreath, int color,
-			boolean forTarget, boolean loopSuperior) {
-		List<Candidate> candidates = this.getCandidate(targets, target, scope,
-				color, forTarget, loopSuperior);
+	public List<Candidate> getCandidate_forAttacker(Set<Point> targets,
+			Point target, Set<Point> scope, Set<Point> externalBreath,
+			int color, boolean forTarget, boolean loopSuperior) {
+		List<Candidate> candidates = this.getCandidate_forTarget(targets,
+				target, scope, color, forTarget, loopSuperior);
 		List<Candidate> gifts = new ArrayList<Candidate>();
 		for (Iterator<Candidate> iter = candidates.iterator(); iter.hasNext();) {
 			Candidate candidate = iter.next();// candidates
@@ -153,7 +153,12 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 		}
 		// put the gifting candidate at the end of list.
 		candidates.addAll(gifts);
-
+		if (candidates.isEmpty()) {
+			// add one pass step anyway!
+			Candidate candidateP = new Candidate();
+			candidateP.setStep(new Step(null, color, getShoushu() + 1));
+			candidates.add(candidateP);
+		}
 		return candidates;
 
 	}
@@ -164,15 +169,17 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 	 * 排序可以避免一些无意义的局面或选择，但是我们仍然需要能够处理这些变化，。<br/>
 	 * 成眼方如果选择了缩小眼位的废棋，如何继续。缩小了，用归纳法。不用继续计算。 直二是死棋。做不出两眼。<br/>
 	 * 计算何时该停止，做静态判断？<br/>
-	 * 这里大眼死活的上下文是外围是对方活棋，因此只考虑在目前的眼位中做出两眼或者和眼位内的敌子共活。
+	 * 这里大眼死活的上下文是外围是对方活棋，因此只考虑在目前的眼位中做出两眼或者和眼位内的敌子共活。 <br/>
+	 * also called by _forAttacker(). so forTarget parameter is still necessary.
 	 * 
 	 * @param scope
 	 *            候选点的范围就是原始眼位所在眼块的所有点
 	 * @param color
 	 * @return
 	 */
-	public List<Candidate> getCandidate(Set<Point> targets, Point target,
-			Set<Point> scope, int color, boolean forTarget, boolean loopSuperior) {
+	public List<Candidate> getCandidate_forTarget(Set<Point> targets,
+			Point target, Set<Point> scope, int color, boolean forTarget,
+			boolean loopSuperior) {
 		List<Point> can = new ArrayList<Point>();
 		List<Candidate> cans = new ArrayList<Candidate>();
 
@@ -238,7 +245,8 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 					continue;
 				}
 			}
-			NeighborState state = this.getNeighborState(point, color);
+			SimpleNeighborState state = this.getNeighborState_bigEye(point,
+					color);
 			Candidate candidate = new Candidate();
 			candidate.setStep(new Step(point, color, this.shoushu + 1));
 			candidate.setEating(state.isEating());
@@ -253,7 +261,7 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 					}
 				}
 				if (justified == false) {
-					state.setEatingDead(true);
+					// state.setEatingDead(true);
 					candidate.setEatingDead(true);
 				}
 			}
@@ -381,15 +389,322 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 		// for (Candidate candidate2 : cans) {
 		// can.add(candidate2.getStep().getPoint());
 		// }
+
+		// if(this.liveSearch){
+		//
+		// }
 		if (forTarget) {
+			// || (this.noStep() == false && this.getLastStep().isGiveup() ==
+			// true)) {
 			/**
-			 * 做活方可能需要考虑弃权，至少在形式双活时。正常情况下，加入也无害，因为别的着手已经可以做活。
+			 * 做活方可能需要考虑弃权，至少在形式双活时。正常情况下，加入也无害，因为别的着手已经可以做活。<br/>
+			 * 另一方面攻击一方可以弃权.
 			 */
-			Candidate candidateP = new Candidate();
-			candidateP.setStep(new Step(null, color, getShoushu() + 1));
+			if (isDualLivePotential(target, scope)||cans.isEmpty()) {
+				Candidate candidateP = new Candidate();
+				candidateP.setStep(new Step(null, color, getShoushu() + 1));
+				cans.add(0,candidateP);
+			}
+		} else if (this.noStep() == false
+				&& this.getLastStep().isGiveup() == true) {
+			//only consider pass as last option in case of potential dual live.
+			if (isDualLivePotential(target, scope)) {
+				Candidate candidateP = new Candidate();
+				candidateP.setStep(new Step(null, color, getShoushu() + 1));
+				cans.add(candidateP);
+			}
+//			Candidate candidateP = new Candidate();
+//			candidateP.setStep(new Step(null, color, getShoushu() + 1));
+//			cans.add(candidateP);//
+//			cans.add(0, candidateP);// put at the beginning.
+		}
+		return cans;
+	}
+
+	/**
+	 * single target block
+	 * 
+	 * @param target
+	 * @param scope
+	 * @param color
+	 * @param forTarget
+	 * @param loopSuperior
+	 * @return
+	 */
+	public List<Candidate> getCandidate_forTarget(Point target,
+			Set<Point> scope, boolean forTarget, boolean loopSuperior,
+			boolean liveSearch) {
+		int color = this.getColor(target);
+		if (forTarget) {
+			// OK.
+		} else {
+			color = ColorUtil.enemyColor(color);
+		}
+
+		List<Candidate> cans = new ArrayList<Candidate>();
+
+		/**
+		 * we need to extend the scope in case of one block of target group is
+		 * eaten and we can eat back.--hot fix
+		 * 
+		 */
+		if (this.noStep() == false && this.getLastStep().isGiveup() == false) {
+			if (this.getBreaths(this.getLastPoint()) == 1) {
+				scope.add(this.getBlock(this.getLastPoint()).getLastBreath());
+			}
+			if (this.getLastStep().getNeighborState().isEating()) {
+				for (Block eaten : (getLastStep().getNeighborState()
+						.getEatenBlocks())) {
+					scope.addAll(eaten.allPoints);
+				}
+			}
+		}
+		// Point prohibitedP = getLastStep().getProhibittedPoint();
+		// if (prohibitedP != null) {
+		//
+		// // }
+		boolean loop;
+		for (Point point : scope) {
+			// because validate below has flaw without continue, we need check
+			// here to ensure correctness.
+			if (this.getColor(point) != Constant.BLANK) {
+				continue;
+			}
+			/**
+			 * 打劫的禁着点进行特殊处理：<br/>
+			 * 劫材有利的话，通过大劫材（绝对劫材）提回劫。 劫材不利的话不考虑这个选择。
+			 * 
+			 */
+			loop = false;
+			if (this.validate(point, color) == false) {
+				if (noStep())
+					continue;
+				Point prohibitedP = getLastStep().getProhibittedPoint();
+				if (prohibitedP != null && prohibitedP == point) {
+					if (loopSuperior) {
+						loop = true;
+						if (log.isEnabledFor(Level.WARN))
+							log.warn("color=" + color + "劫材有利" + " 考虑 " + point
+									+ "强行提回劫。");
+					} else {
+						if (log.isEnabledFor(Level.WARN))
+							log.warn("color=" + color + "劫材不利，弃权，" + " 不考虑"
+									+ point);
+						// 找劫材，局部就是弃权。
+						if (forTarget == false) { // avoid duplicate give up.???
+						// Candidate candidate = new Candidate();
+						// candidate.setStep(new Step(null, color,
+						// this.shoushu + 1));
+						// cans.add(candidate);
+						}// target give up is done later.
+						continue;
+					}
+
+				} else {
+
+					continue;
+				}
+			}
+			SimpleNeighborState state = this.getNeighborState_bigEye(point,
+					color);
+			Candidate candidate = new Candidate();
+			candidate.setStep(new Step(point, color, this.shoushu + 1));
+			candidate.setEating(state.isEating());
+
+			if (state.isEating()) {
+				if (forTarget == false) {
+					// attacker eating target always make sense!
+				} else {
+					boolean justified = false;
+
+					// 气数为一,又不能长气,必然可以被提子.
+					for (Block block : state.getEatenBlocks()) {
+						if (block.getMinBreathEnemyBlock().getBreaths() == 1) {
+							justified = true;
+							break;
+						}
+					}
+					if (justified == false) {
+						candidate.setEatingDead(true);
+					}
+				}
+			}
+			candidate.setCapturing(state.isCapturing());
+			candidate.setGifting(state.isGifting());
+			candidate.setBreaths(breathAfterPlay(point, color).size());
+			// this.EyesAfterPlay(candidate, point, color);
+
+			if (forTarget) {// 做眼方
+
+				if (candidate.getBreaths() == 0) {// 不允许自杀
+					continue;
+				}
+				if (candidate.getBreaths() == 1) {// 不能使目标块处于被打吃状态
+					/**
+					 * 有两种情况：<br/>
+					 * 1. 做眼棋块送吃。<br/>
+					 * 2. 送吃的是单子，不与原做眼棋块相邻。(比如盘角曲四的扑）
+					 */
+					Block targetBlock = this.getBlock(target);
+					if (targetBlock.getBreathPoints().contains(point)) {
+						continue;
+					} else {
+
+					}
+				} else if (this.getBlankBlock(point).isEyeBlock()) {
+					// bug here, only pass is left.
+					// if (this.getBlankBlock(point).getNeighborMinimumBreath()
+					// > 1) {
+					// continue;// 眼位不粘，除非被打吃。
+					// }
+				}
+			}
+
+			if (forTarget && state.isEating() == false) {
+				// EyesAfterPlay(candidate, point, color);
+				// replace by dynamic calculation.
+
+				/**
+				 * tricky bug, it takes 1 day.<br/>
+				 * ##01,02,03,04,05,06,07 <br/>
+				 * 01[_, _, B, _, _, _, _]01<br/>
+				 * 02[_, _, B, _, _, _, _]02<br/>
+				 * 03[_, _, B, _, _, B, W]03<br/>
+				 * 04[B, B, B, B, B, _, _]04<br/>
+				 * 05[B, W, B, _, B, B, W]05<br/>
+				 * 06[B, W, W, B, W, W, W]06<br/>
+				 * 07[B, W, W, _, W, _, _]07<br/>
+				 * ##01,02,03,04,05,06,07 <br/>
+				 * whoseTurn=Black<br/>
+				 * root cause, we evaluate the eye effect by revert color, so
+				 * [5,4]become invalid step.
+				 */
+				boolean valid = this.oneStepForward(candidate.getStep());
+				if (valid) {
+					Group group = this.getBlock(target).getGroup();
+					EyeResult eyeRes = null;
+					if (group != null) {
+						eyeRes = this.getRealEyes(group, false);
+					} else {
+						eyeRes = this.getRealEyes(target, false);
+					}
+					int eyes = eyeRes.getRealEyes().size() * 2;
+					eyes += eyeRes.getFakeEyes().size();
+					candidate.setEyes(eyes);
+				}
+				if (valid
+						|| this.getLastPoint() == candidate.getStep()
+								.getPoint()) {
+					this.oneStepBackward();
+				}
+				// this.initEyesAfterPlay_dynamic(candidate);
+				candidate.setTigerMouths(this.tigerMouthAfterPlay(point, color)
+						.size());
+			} else if (forTarget == false && state.isEating() == false) {
+				candidate.getStep().revertColor();
+				// this.initEyesAfterPlay_dynamic(candidate);
+				boolean valid = this.oneStepForward(candidate.getStep());
+				if (valid) {
+					Group group = this.getBlock(target).getGroup();
+					EyeResult eyeRes = null;
+					if (group != null) {
+						eyeRes = this.getRealEyes(group, false);
+					} else {
+						eyeRes = this.getRealEyes(target, false);
+					}
+					int eyes = eyeRes.getRealEyes().size() * 2;
+					eyes += eyeRes.getFakeEyes().size();
+					candidate.setEyes(eyes);
+				}
+				if (valid
+						|| this.getLastPoint() == candidate.getStep()
+								.getPoint()) {
+					this.oneStepBackward();
+				}
+				candidate.getStep().revertColor();
+
+				candidate.setTigerMouths(this.tigerMouthAfterPlay(point,
+						ColorUtil.enemyColor(color)).size());
+
+				// candidate.setTigerMouths(this.tigerMouthAfterPlay(point,
+				// color)
+				// .size());
+			}
+			if (loop) {
+				candidate.setLoopSuperior(loop);
+			}
+			cans.add(candidate);
+		}
+		Collections.sort(cans, new MakeEyeComparator());
+		// if (forTarget) {
+		// Collections.sort(cans, new MakeEyeComparator());
+		// } else {
+		// Collections.sort(cans, new BreakEyeComparator());
+		// }
+
+		// 先不考虑排序（优化）
+		// for (Candidate candidate2 : cans) {
+		// can.add(candidate2.getStep().getPoint());
+		// }
+
+		Candidate candidateP = new Candidate();
+		candidateP.setStep(new Step(null, color, getShoushu() + 1));
+		if (liveSearch) {
+			boolean dualLivePotential = isDualLivePotential(target, scope);
+			if (dualLivePotential) {
+
+				if (forTarget) {
+					/**
+					 * 做活方可能需要考虑弃权，至少在形式双活时。<br/>
+					 * 但是正常情况下，不得弃权,即使攻击方弃权也不得弃权.<br/>
+					 * 这是为了让攻击方在计算中不需要紧外气
+					 */
+					cans.add(candidateP);
+				} else {
+					if (this.noStep() == false
+							&& this.getLastStep().isGiveup() == true) {
+						// put at the beginning.若目标方已经弃权,可以弃权.得到双活结论.
+						cans.add(0, candidateP);
+					} else {
+						// 攻击方主动弃权则放在最后.
+						cans.add(candidateP);
+					}
+				}
+			}
+
+		} else { // dead search. target at cleaning up!
+
+		}
+
+		if (cans.isEmpty()) {
 			cans.add(candidateP);
 		}
 		return cans;
+	}
+
+	/**
+	 * 两口内气作为双活的潜在条件.
+	 * 
+	 * @param target
+	 * @param scope
+	 * @return
+	 */
+	public boolean isDualLivePotential(Point target, Set<Point> scope) {
+		Set<Point> breaths = new HashSet<Point>();
+		Block targetBlock = getBlock(target);
+		// safe copy
+		breaths.addAll(targetBlock.getBreathPoints());
+		breaths.retainAll(scope);
+		if (breaths.size() != 2)
+			return false;
+		/**
+		 * 这两口内气都是对方的送吃不入气点.
+		 */
+		for (Point point : scope) {
+			if (breathAfterPlay(point, targetBlock.getEnemyColor()).size() != 1)
+				return false;
+		}
+		return true;
 	}
 
 	/**
@@ -452,7 +767,14 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 		return bigEyeFilledWithEnemy(block, true);
 	}
 
-	// TODO:
+	/**
+	 * TODO:
+	 * 
+	 * @deprecated Not mature!
+	 * @param block
+	 * @param includePureEye
+	 * @return
+	 */
 	public Candidate bigEyeFilledWithEnemy(Block block, boolean includePureEye) {
 		int color = block.getColor();
 		int enemyColor = ColorUtil.enemyColor(color);
@@ -792,7 +1114,8 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 		// }
 		if (this.noStep())
 			return;
-		NeighborState neighborState = this.getLastStep().getNeighborState();
+		SimpleNeighborState neighborState = this.getLastStep()
+				.getNeighborState();
 		Candidate bigEyeFilledWithEnemy = this.bigEyeFilledWithEnemy(this
 				.getBlock(neighborState.getOriginal()));
 

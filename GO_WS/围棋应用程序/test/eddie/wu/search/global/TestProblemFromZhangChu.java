@@ -14,12 +14,13 @@ import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
 import eddie.wu.domain.analy.SmallGoBoard;
+import eddie.wu.domain.analy.SurviveAnalysis;
 import eddie.wu.manual.SearchNode;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.manual.TreeGoManual;
 
 public class TestProblemFromZhangChu extends TestCase {
-	private static Logger log = Logger.getLogger(Block.class);
+	private static Logger log = Logger.getLogger(TestProblemFromZhangChu.class);
 	static {
 		// Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
 	}
@@ -89,7 +90,7 @@ public class TestProblemFromZhangChu extends TestCase {
 		}
 		if (log.isEnabledFor(Level.WARN))
 			log.warn("Score=" + score);
-		// Assert.assertTrue(score >= 1);
+		// assertTrue(score >= 1);
 		if (goS.getBestResult() != null) {
 			for (Step step : goS.getBestResult()) {
 				if (log.isEnabledFor(Level.WARN))
@@ -305,7 +306,7 @@ public class TestProblemFromZhangChu extends TestCase {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 
 		int internal = testProblem_internal(state, 150000, 16);
-		Assert.assertEquals(16, internal);
+		assertEquals(16, internal);
 	}
 
 	/**
@@ -325,7 +326,7 @@ public class TestProblemFromZhangChu extends TestCase {
 		text[3] = new String("[_, _, W, W]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		int score = testProblem_internal(state, 1500, 16);
-		Assert.assertEquals(16, score);
+		assertEquals(16, score);
 		// testProblem_internal(state, 150000, 16);
 	}
 
@@ -334,7 +335,7 @@ public class TestProblemFromZhangChu extends TestCase {
 	// EXHAUST)
 	public void testProblem611() {
 		// Logger.getLogger(SmallBoardGlobalSearch.class).setLevel(Level.WARN);
-
+		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
 		String[] text = new String[4];
 		text[0] = new String("[B, _, _, _]");
 		text[1] = new String("[_, _, W, B]");
@@ -586,7 +587,7 @@ public class TestProblemFromZhangChu extends TestCase {
 		SmallGoBoard ta = new SmallGoBoard(state);
 		Logger.getLogger(SmallGoBoard.class).setLevel(Level.WARN);
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 
 		// testProblem_internal(state, 150000, 16);
 	}
@@ -613,7 +614,7 @@ public class TestProblemFromZhangChu extends TestCase {
 			log.warn(ta.getBoardColorState().getStateString());
 		Logger.getLogger(SmallGoBoard.class).setLevel(Level.WARN);
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 
 		// testProblem_internal(state, 150000, 16);
 	}
@@ -679,11 +680,11 @@ public class TestProblemFromZhangChu extends TestCase {
 		SmallGoBoard ta = new SmallGoBoard(state);
 		Logger.getLogger(SmallGoBoard.class).setLevel(Level.WARN);
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 		int score = ta.finalResult_deadExist().getScore();
 		if (log.isEnabledFor(Level.WARN))
 			log.warn("score=" + score);
-		Assert.assertEquals(-16, score);
+		assertEquals(-16, score);
 		// testProblem_internal(state, 150000, 16);
 	}
 
@@ -700,11 +701,11 @@ public class TestProblemFromZhangChu extends TestCase {
 		SmallGoBoard ta = new SmallGoBoard(state);
 		Logger.getLogger(SmallGoBoard.class).setLevel(Level.WARN);
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 		int score = ta.finalResult_deadExist().getScore();
 		if (log.isEnabledFor(Level.WARN))
 			log.warn("score=" + score);
-		Assert.assertEquals(-16, score);
+		assertEquals(-16, score);
 		// testProblem_internal(state, 150000, 16);
 	}
 
@@ -723,10 +724,10 @@ public class TestProblemFromZhangChu extends TestCase {
 			log.warn(ta.getBoardColorState().getStateString());
 		Logger.getLogger(SmallGoBoard.class).setLevel(Level.WARN);
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 		// int score = ta.finalResult_deadExist().getScore();
 		// if(log.isEnabledFor(Level.WARN)) log.warn("score="+score);
-		// Assert.assertEquals(-16, score);
+		// assertEquals(-16, score);
 		// testProblem_internal(state, 150000, 16);
 	}
 
@@ -745,7 +746,7 @@ public class TestProblemFromZhangChu extends TestCase {
 			log.warn(ta.getBoardColorState().getStateString());
 		Logger.getLogger(SmallGoBoard.class).setLevel(Level.WARN);
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 	}
 
 	// [INIT]B-->[1,2]W-->[1,4]B-->[1,3]W-->[4,1]B-->[3,2]W-->[1,2]B-->[3,4]W-->[1,4]B-->[2,4]W-->[3,1]
@@ -762,7 +763,7 @@ public class TestProblemFromZhangChu extends TestCase {
 			log.warn(ta.getBoardColorState().getStateString());
 		Logger.getLogger(SmallGoBoard.class).setLevel(Level.WARN);
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 
 	}
 
@@ -858,7 +859,7 @@ public class TestProblemFromZhangChu extends TestCase {
 				log.warn(can);
 		}
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		// Assert.assertTrue(finalState_deadExist);
+		// assertTrue(finalState_deadExist);
 	}
 
 	public void testFinalState6213() {
@@ -871,7 +872,7 @@ public class TestProblemFromZhangChu extends TestCase {
 		SmallGoBoard ta = new SmallGoBoard(state);
 		Logger.getLogger(SmallGoBoard.class).setLevel(Level.WARN);
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 	}
 
 	// [INIT]B-->[PAS]W-->[2,2]B-->[PAS]W-->[1,3]B-->[1,4]W-->[3,4]B-->[PAS]W-->[2,4](-16
@@ -886,7 +887,7 @@ public class TestProblemFromZhangChu extends TestCase {
 		SmallGoBoard ta = new SmallGoBoard(state);
 		Logger.getLogger(SmallGoBoard.class).setLevel(Level.WARN);
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 	}
 
 	// [INIT]B-->[4,2]W-->[2,2]B-->[1,2]W-->[1,3]B-->[PAS]W-->[2,1]B-->[1,1]W-->[4,1]B-->[PAS]
@@ -952,7 +953,7 @@ public class TestProblemFromZhangChu extends TestCase {
 		SmallGoBoard ta = new SmallGoBoard(state);
 		Logger.getLogger(SmallGoBoard.class).setLevel(Level.WARN);
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
-		Assert.assertTrue(finalState_deadExist);
+		assertTrue(finalState_deadExist);
 	}
 
 	public void testCandidate6() {

@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -342,19 +342,19 @@ public class Block extends BasicBlock implements Cloneable,
 		this.eyes.clear();
 	}
 
-	public Object clone() {
-		Block temp = null;
-		try {
-			temp = (Block) super.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		temp.breathPoints = (Set<Point>) ((HashSet<Point>) breathPoints)
-				.clone();
-		temp.allPoints = (Set) ((HashSet) allPoints).clone();
-		temp.enemyBlocks = (Set) ((HashSet) enemyBlocks).clone();
-		return temp;
-	}
+//	public Object clone() {
+//		Block temp = null;
+//		try {
+//			temp = (Block) super.clone();
+//		} catch (CloneNotSupportedException e) {
+//			e.printStackTrace();
+//		}
+//		temp.breathPoints = (Set<Point>) ((HashSet<Point>) breathPoints)
+//				.clone();
+//		temp.allPoints = (Set) ((HashSet) allPoints).clone();
+//		temp.enemyBlocks = (Set) ((HashSet) enemyBlocks).clone();
+//		return temp;
+//	}
 
 	/**
 	 * 自己仍指向相邻气块；相邻气块不再指向自己
@@ -564,6 +564,18 @@ public class Block extends BasicBlock implements Cloneable,
 		return minBlock;
 	}
 
+	public Block getMaxBreathEnemyBlock() {
+		int max = 0;
+		Block maxBlock = null;
+		for (Block block : enemyBlocks) {
+			if (block.getBreaths() > max) {
+				maxBlock = block;
+				max = block.getBreaths();
+			}
+		}
+		return maxBlock;
+	}
+
 	public int getMinEnemyBreath() {
 		int min = 128;
 		for (Block block : enemyBlocks) {
@@ -590,7 +602,7 @@ public class Block extends BasicBlock implements Cloneable,
 	}
 
 	public Point getUniqueBreath() {
-		Assert.assertEquals(1, this.breathPoints.size());
+		TestCase.assertEquals(1, this.breathPoints.size());
 		return this.breathPoints.iterator().next();
 	}
 
@@ -1020,6 +1032,20 @@ public class Block extends BasicBlock implements Cloneable,
 
 	public void addLiveWithSet(Set<BlankBlock> liveWithSet) {
 		this.liveWith.addAll(liveWithSet);
+	}
+
+	/**
+	 * sometime we need more steps to cleanup the block due to special
+	 * situation like 不入气.
+	 * @param goBoard
+	 * @return
+	 */
+	public int stepsToCleanUp(GoBoard goBoard) {
+		int breath = this.getBreaths();
+		
+		
+		return breath;
+
 	}
 
 }

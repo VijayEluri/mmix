@@ -1,10 +1,11 @@
 package eddie.wu.search.global;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import eddie.wu.domain.ColorUtil;
-import eddie.wu.domain.Constant;
+import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
 import eddie.wu.manual.SearchNode;
 
@@ -17,54 +18,46 @@ import eddie.wu.manual.SearchNode;
  * 
  */
 public class SearchLevel {
-	private int level;// root's level = 0
-	private int color;// whose turn at current level/status.
 	/**
-	 * 当前层取max还是min
+	 * root's levelIndex = 0
 	 */
-	private int whoseTurn = 0;
+	private int levelIndex;
 
 	/**
-	 * 当前是否计算一个打劫脱先的变化（score计算不同。）
+	 * whose turn at current level/status.
 	 */
-	// boolean skip;
+	private int color;
+	/**
+	 * 当前层取max还是min<br/>
+	 * black未必是max,比如死活计算时.
+	 */
+	private boolean max;
 
 	/**
-	 * TODO: highestExp is needed only for root=max<br/>
-	 * lowestExp is needed only for root=min<br/>
+	 * TODO: highExp is needed only for root=max<br/>
+	 * lowExp is needed only for root=min<br/>
 	 */
-	private int highestExp;// for max
-	private int lowestExp; // for min
+	private int highExp;// for max
+	private int lowExp; // for min
+
+	private List<Candidate> candidates;
+	private Iterator<Candidate> iterator;
 
 	/**
-	 * 待处理局面的索引号.(=已经处理的局面数)
-	 */
-	private int currentIndex = 0;
-	List<Candidate> candidates;
-
-	/**
-	 * the node without play at current level candidate <br/>
-	 * just played previous step to reach current level.<br/>
-	 * at level 0, node = null;
+	 * the node without play at current level's candidate <br/>
+	 * just played previous level's candidate/step to reach current level.<br/>
+	 * at level 0, node is a special root node;
 	 */
 	private SearchNode node;
 
-	/**
-	 * 该层包含的局面数
-	 */
 	// private int numberOfCandidate = 0;
 	/**
 	 * 当前层临时的计算结果
 	 */
 	private int tempBestScore = 0;
 
-	/**
-	 * 当前层临时的计算结果对应的走法
-	 */
-	private List<Step> tempBestSteps = new ArrayList<Step>();
-
 	public SearchLevel(int level, int color) {
-		this.level = level;
+		this.levelIndex = level;
 		this.color = color;
 	}
 
@@ -76,71 +69,56 @@ public class SearchLevel {
 	 * @return
 	 */
 	public boolean alreadyWin() {
-		if (this.whoseTurn == Constant.MAX) {
-			if (this.tempBestScore >= this.highestExp)
-				return true;
-		} else if (this.whoseTurn == Constant.MIN) {
-			if (this.tempBestScore <= this.lowestExp)
+		if (isInitialized() == false)
+			return false;
+		if (max) {
+			if (this.tempBestScore >= this.highExp)
 				return true;
 		} else {
-			throw new RuntimeException("whoseTurn = " + whoseTurn);
+			if (this.tempBestScore <= this.lowExp)
+				return true;
 		}
 		return false;
 	}
 
-	public List<Candidate> getCandidates() {
-		return candidates;
+	public boolean isMax() {
+		return max;
 	}
+
 
 	/**
 	 * 下一层的结果已知，反馈给上一层。
 	 * 
 	 * @param score
 	 */
-	public void getChildScore(int score, List<Step> steps) {
-		List<Step> steps2 = new ArrayList<Step>();
-		steps2.add(this.getCurrentCandidate().getStep());
-		steps2.addAll(steps);
-		updateWithScore(score, steps2);
+	public void getChildScore(int score) {
+		updateWithScore(score);
 	}
 
 	public int getColor() {
 		return color;
 	}
 
-	public int getCurrentIndex() {
-		return currentIndex;
-	}
-
-	// public void setNumberOfCandidate(int numberOfCandidate) {
-	// this.numberOfCandidate = numberOfCandidate;
-	// }
-
 	public int getHighestExp() {
-		return highestExp;
+		return highExp;
 	}
 
 	public int getLevel() {
-		return level;
+		return levelIndex;
 	}
 
 	public int getLowestExp() {
-		return lowestExp;
+		return lowExp;
 	}
 
-	// public void setCandidates(List<Point> candidates) {
-	// this.candidates = candidates;
-	// }
 
 	/**
 	 * 在展开中的level的某个候选点的分数已知。
 	 * 
 	 * @param score
 	 */
-	public void getNeighborScore(int score) {
-		List<Step> steps = new ArrayList<Step>();
-		steps.add(this.getCurrentCandidate().getStep());
-		updateWithScore(score, steps);
+	public void getNeighborScore(int score, Step step) {
+		updateWithScore(score);
 
 	}
 
@@ -149,20 +127,24 @@ public class SearchLevel {
 	 * @return null if all candidates are handled.
 	 */
 	public Candidate getNextCandidate() {
-		if (currentIndex < this.getNumberOfCandidate())
-			return candidates.get(currentIndex++);
-		else
-			return null;
+		return iterator.next();
 	}
 
-	public Candidate getCurrentCandidate() {
-		if (currentIndex - 1 >= 0
-				&& currentIndex - 1 < this.getNumberOfCandidate())
-			return candidates.get(currentIndex - 1);
-		else
-			return null;
+	public boolean hasNext() {
+		return iterator.hasNext();
 	}
 
+	public String getAllCanPoint() {
+		StringBuilder sb = new StringBuilder();
+		for (Candidate can : candidates) {
+			sb.append(can.getStep().toNonSGFString());
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * 该层包含的局面数
+	 */
 	public int getNumberOfCandidate() {
 		return candidates.size();
 	}
@@ -171,21 +153,17 @@ public class SearchLevel {
 	// private int firstSuperiorScore;//先手提劫方劫材有利的结果
 	// private int firstInteriorScore;//先手提劫方劫材不利的结果
 	// private
-	public void updateWithScore(int score, List<Step> steps) {
+	public void updateWithScore(int score) {
 		// if (skip == true) {
 		// firstSuperiorScore = score;// = score / 2;
 		// }
-		if (this.whoseTurn == Constant.MAX) {
+		if (max) {
 			if (score > this.tempBestScore) {
 				this.tempBestScore = score;
-				this.tempBestSteps.clear();
-				this.tempBestSteps.addAll(steps);
 			}
-		} else if (this.whoseTurn == Constant.MIN) {
+		} else {
 			if (score < this.tempBestScore) {
 				this.tempBestScore = score;
-				this.tempBestSteps.clear();
-				this.tempBestSteps.addAll(steps);
 			}
 		}
 
@@ -195,46 +173,18 @@ public class SearchLevel {
 		return tempBestScore;
 	}
 
-	public int getWhoseTurn() {
-		return whoseTurn;
+	public void setCandidates(List<Candidate> candidates) {
+		this.candidates = new ArrayList<Candidate>();
+		this.candidates.addAll(candidates);
+		iterator = candidates.iterator();
 	}
 
-	/**
-	 * Initial version, do not care the sequence.
-	 * 
-	 * @param candidates
-	 * @param color
-	 */
-	// public void setCandidates(Set<Point> candidates, int color) {
-	//
-	// this.candidates = new ArrayList<Step>(candidates.size());
-	// for (Point candidate : candidates) {
-	// Step step = new Step(candidate, color);
-	// this.candidates.add(step);
-	// }
-	//
-	// }
-
-	public void setCandidates(List<Candidate> candidates, int color) {
-
-		this.candidates = candidates;
-		// for (Point candidate : candidates) {
-		// Step step = new Step(candidate, color, level + 1);
-		// this.candidates.add(step);
-		// }
-
+	public void setMaxExp(int highestExp) {
+		this.highExp = highestExp;
 	}
 
-	public void setCurrentIndex(int currentIndex) {
-		this.currentIndex = currentIndex;
-	}
-
-	public void setHighestExp(int highestExp) {
-		this.highestExp = highestExp;
-	}
-
-	public void setLowestExp(int lowestExp) {
-		this.lowestExp = lowestExp;
+	public void setMinExp(int lowestExp) {
+		this.lowExp = lowestExp;
 	}
 
 	public void setTempBestScore(int tempBestScore) {
@@ -248,46 +198,31 @@ public class SearchLevel {
 	 * 
 	 * @param whoseTurn
 	 */
-	public void setWhoseTurn(int whoseTurn) {
-		this.whoseTurn = whoseTurn;
+	public void setMax(boolean max) {
+		this.max = max;
 	}
-
-	// public boolean isSkip() {
-	// return skip;
-	// }
-	//
-	// public void setSkip(boolean skip) {
-	// this.skip = skip;
-	// }
 
 	@Override
 	public String toString() {
-		if (whoseTurn == Constant.MAX)
-			return "Level [level=" + level + ", color="
+		if (max)
+			return "Level [level=" + levelIndex + ", color="
 					+ ColorUtil.getColorText(color) + ", whoseTurn="
-					+ this.getWhoseTurnString() + ",  highestExp=" + highestExp
-					+ ", currentIndex=" + currentIndex + ", tempBestScore="
-					+ tempBestScore + "]";
-		else if (whoseTurn == Constant.MIN)
-			return "Level [level=" + level + ", color="
+					+ this.getWhoseTurnString() + ",  highestExp=" + highExp
+					+ ", tempBestScore=" + tempBestScore + "]";
+		else
+			return "Level [level=" + levelIndex + ", color="
 					+ ColorUtil.getColorText(color) + ", whoseTurn="
-					+ this.getWhoseTurnString() + ", lowestExp=" + lowestExp
-					+ ", currentIndex=" + currentIndex + ", tempBestScore="
-					+ tempBestScore + "]";
-		return null;
+					+ this.getWhoseTurnString() + ", lowestExp=" + lowExp
+					+ ", tempBestScore=" + tempBestScore + "]";
 
 	}
 
 	private String getWhoseTurnString() {
-		if (whoseTurn == Constant.MAX)
+		if (max)
 			return "MAX";
-		else if (whoseTurn == Constant.MIN)
+		else
 			return "MIN";
-		return null;
-	}
 
-	public List<Step> getTempBestSteps() {
-		return tempBestSteps;
 	}
 
 	public SearchNode getNode() {
@@ -296,6 +231,10 @@ public class SearchLevel {
 
 	public void setNode(SearchNode node) {
 		this.node = node;
+	}
+
+	public boolean isInitialized() {
+		return candidates != null;
 	}
 
 }

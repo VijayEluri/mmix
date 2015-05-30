@@ -293,6 +293,7 @@ public abstract class StateGoBoard extends BasicGoBoard {
 
 	/**
 	 * 3. 点眼的选择,点入后气数多为好.
+	 * not used now!
 	 */
 	public List<Point> getBrokenPoint(BlankBlock eyeBlock) {
 		List<Point> candidates = new ArrayList<Point>();

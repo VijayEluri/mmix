@@ -47,8 +47,8 @@ public class TestFinalState3 extends TestCase {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		TerritoryAnalysis analysis = new TerritoryAnalysis(state);
 		boolean state2 = analysis.isFinalState_deadExist();
-		Assert.assertTrue(state2);
-		Assert.assertEquals(9, analysis.finalResult_deadExist().getScore());
+		assertTrue(state2);
+		assertEquals(9, analysis.finalResult_deadExist().getScore());
 
 	}
 	public void testFinal1() {
@@ -59,8 +59,35 @@ public class TestFinalState3 extends TestCase {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		TerritoryAnalysis analysis = new TerritoryAnalysis(state);
 		boolean state2 = analysis.isFinalState_deadExist();
-		Assert.assertTrue(state2);
-		Assert.assertEquals(9, analysis.finalResult_deadExist().getScore());
+		assertTrue(state2);
+		assertEquals(9, analysis.finalResult_deadExist().getScore());
+
+	}
+	public void testFinal11() {
+		String[] text = new String[3];
+		text[0] = new String("[W, W, _]");
+		text[1] = new String("[W, B, B]");
+		text[2] = new String("[_, B, _]");
+		byte[][] state = StateLoader.LoadStateFromText(text);
+		TerritoryAnalysis analysis = new TerritoryAnalysis(state);
+		boolean state2 = analysis.isFinalState_deadExist();
+		assertTrue(state2);
+		assertEquals(9, analysis.finalResult_deadExist().getScore());
+
+	}
+	//WARN  (TestAllState3.java:566) - [INIT]W-->[2,2]B-->[2,3]W-->[3,2]B-->[1,2]W-->[2,1](FINAL 0)
+	public void testFinal12() {
+		String[] text = new String[3];
+		text[0] = new String("[B, B, _]");
+		text[1] = new String("[W, W, B]");
+		text[2] = new String("[_, W, _]");
+		byte[][] state = StateLoader.LoadStateFromText(text);
+		TerritoryAnalysis analysis = new TerritoryAnalysis(state,Constant.BLACK);
+		boolean state2 = analysis.isFinalState_deadCleanedUp();
+		assertTrue(state2);
+		 state2 = analysis.isFinalState_deadExist();
+		assertTrue(state2);
+		assertEquals(9, analysis.finalResult_deadExist().getScore());
 
 	}
 	
@@ -156,7 +183,7 @@ public class TestFinalState3 extends TestCase {
 		TerritoryAnalysis go = new TerritoryAnalysis(state);
 		boolean finalState = go
 				.isFinalState_deadCleanedUp();
-		Assert.assertTrue(finalState == deadCleanedUp);
+		assertTrue(finalState == deadCleanedUp);
 		
 		if(finalState){
 			System.out.println("Clean up: score:"+go.finalResult_deadCleanedUp().getScore());
@@ -164,7 +191,7 @@ public class TestFinalState3 extends TestCase {
 		}
 
 		finalState = go.isFinalState_deadExist();
-		Assert.assertTrue(finalState == deadExist);
+		assertTrue(finalState == deadExist);
 		if(finalState){
 			System.out.println("Dead Exist score:"+go.finalResult_deadExist().getScore());
 		}

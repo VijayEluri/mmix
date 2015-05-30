@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -18,6 +18,8 @@ import eddie.wu.domain.gift.Gift;
 /**
  * include the basic data structure, but instantiation is done in subclass
  * BasicGoBoard
+ * test
+ * 
  * 
  * @author Administrator
  * 
@@ -409,13 +411,134 @@ public abstract class AbsGoBoard {
 	}
 
 	/**
+	 * 不仅计算落子点周围的空白点数.还计算气的增加情况. 可以提供Candidate需要的信息. <br/>
+	 * 大眼搜索和小棋盘的全局搜索要求不同, 比如大眼搜索打吃可能是好棋,但是 小棋盘可能认为是吃死子,没有必要下.
+	 * 
+	 * @param original
+	 * @param color
+	 * @return
+	 */
+	public SimpleNeighborState getNeighborState_bigEye(Point original, int color) {
+		SimpleNeighborState state = new SimpleNeighborState();
+		state.setOriginal(original);
+
+		int enemyColor = ColorUtil.enemyColor(color);
+		state.setFriendColor(color);
+		state.setEnemyColor(enemyColor);
+		state.setOriginalBlankBlock(this.getBlankBlock(original));
+
+		int enemy = 0;
+		int friend = 0;
+		int blank = 0;
+		for (Delta delta : Constant.ADJACENTS) {
+			Point nb = original.getNeighbour(delta);
+			if (nb == null) {
+				continue;
+			} else if (this.getColor(nb) == ColorUtil.BLANK) {
+				// 落子点周围有空白点
+				blank++;
+				state.addBlankPoint(nb);
+				state.setValid(true);
+
+			} else if (getColor(nb) == enemyColor) {
+				// 落子点周围有敌子
+				enemy++;
+				state.addEnemyBlock(getBlock(nb));
+				try {
+					if (this.getBreaths(nb) == 1) {// 落子点周围有敌子可提.
+						state.addEatenBlocks(getBlock(nb));
+						state.setEating(true);
+						state.setValid(true);
+
+					} else if (this.getBreaths(nb) == 2) {// 落子点周围有敌子可打吃.
+						state.setCapturing(true);
+					}
+
+				} catch (RuntimeException e) {
+					System.err.println("nb=" + nb);
+					log.setLevel(Level.DEBUG);
+					this.printInternalData(log);
+					throw e;
+				}
+			} else if (getColor(nb) == color) {
+				// 落子点周围有同色子
+				friend++;
+				state.addFriendBlock(getBlock(nb));
+				if (getBreaths(nb) > 1) {
+					state.setValid(true);
+				}
+			}
+		}
+		state.setBlank(blank);
+		state.setEnemy(enemy);
+		state.setFriend(friend);
+
+		return state;
+	}
+
+	/**
 	 * 不仅计算落子点周围的空白点数.还计算气的增加情况. 可以提供Candidate需要的信息.
 	 * 
 	 * @param original
 	 * @param color
 	 * @return
 	 */
-	public NeighborState getNeighborState(Point original, int color) {
+	public SimpleNeighborState getNeighborState(Point original, int color) {
+		SimpleNeighborState state = new SimpleNeighborState();
+		state.setOriginal(original);
+
+		int enemyColor = ColorUtil.enemyColor(color);
+		state.setFriendColor(color);
+		state.setEnemyColor(enemyColor);
+		state.setOriginalBlankBlock(this.getBlankBlock(original));
+
+		int enemy = 0;
+		int friend = 0;
+		int blank = 0;
+		for (Delta delta : Constant.ADJACENTS) {
+			Point nb = original.getNeighbour(delta);
+			if (nb == null) {
+				continue;
+			} else if (this.getColor(nb) == ColorUtil.BLANK) {
+				// 落子点周围有空白点
+				blank++;
+				state.addBlankPoint(nb);
+				state.setValid(true);
+
+			} else if (getColor(nb) == enemyColor) {
+				// 落子点周围有敌子
+				enemy++;
+				state.addEnemyBlock(getBlock(nb));
+				try {
+					if (this.getBreaths(nb) == 1) {// 落子点周围有敌子可提.
+						state.addEatenBlocks(getBlock(nb));
+						state.setEating(true);
+						state.setValid(true);
+
+					}
+				} catch (RuntimeException e) {
+					System.err.println("nb=" + nb);
+					log.setLevel(Level.DEBUG);
+					this.printInternalData(log);
+					throw e;
+				}
+			} else if (getColor(nb) == color) {
+				// 落子点周围有敌子
+				friend++;
+				state.addFriendBlock(getBlock(nb));
+				if (getBreaths(nb) > 1) {
+					state.setValid(true);
+				}
+			}
+		}
+		state.setBlank(blank);
+		state.setEnemy(enemy);
+		state.setFriend(friend);
+
+		return state;
+	}
+
+	public NeighborState getNeighborState_forCandidate(Point original, int color) {
 		NeighborState state = new NeighborState();
 		state.setOriginal(original);
 
@@ -436,25 +559,54 @@ public abstract class AbsGoBoard {
 				blank++;
 				state.addBlankPoint(nb);
 				state.setValid(true);
+				if (isRealEye(original, nb, color)) {
+					state.setEyes(1);
+				}
+
 			} else if (getColor(nb) == enemyColor) {
+				// 落子点周围有敌子
 				enemy++;
 				state.addEnemyBlock(getBlock(nb));
 				try {
+					Block minBreathEnemyBlock = this.getBlock(nb)
+							.getMinBreathEnemyBlock();
 					if (this.getBreaths(nb) == 1) {// 落子点周围有敌子可提.
 						state.addEatenBlocks(getBlock(nb));
 						state.setEating(true);
 						state.setValid(true);
 
 						// eaten block originally are capturing its enemy
-						Block minBreathEnemyBlock = this.getBlock(nb)
-								.getMinBreathEnemyBlock();
+
 						if (minBreathEnemyBlock != null
 								&& minBreathEnemyBlock.getBreaths() == 1) {
-							state.setRemoveCapturing(true);
+
+							int countMinBreathBlock = 0;
+							for (Block minEnemy : this.getBlock(nb)
+									.getEnemyBlocks()) {
+								if (minEnemy.getBreaths() == 1) {
+									countMinBreathBlock++;
+								}
+							}
+							state.setRemoveCapturing(countMinBreathBlock);
+
 						}
 					} else if (this.getBreaths(nb) == 2) {
-						state.setCapturing(true);
-						state.addCapturingBlocks(this.getBlock(nb));
+						if (minBreathEnemyBlock != null
+								&& minBreathEnemyBlock.getBreaths() < 4) {
+							state.setCapturing(true);
+							state.addCapturingBlocks(this.getBlock(nb));
+						} else {// >=4 v.s. 2. should be safe!
+							// superior in breath race, no need to capture now.
+							/**
+							 * <br/>
+							 * 01[_, _, B, _]01<br/>
+							 * 02[_, B, W, _]02<br/>
+							 * 03[W, B, W, _]03<br/>
+							 * 04[_, _, _, _]04<br/>
+							 * <br/>
+							 * to avoid B[2,1] whoseTurn=Black
+							 */
+						}
 					}
 				} catch (RuntimeException e) {
 					System.err.println("nb=" + nb);
@@ -463,6 +615,7 @@ public abstract class AbsGoBoard {
 					throw e;
 				}
 			} else if (getColor(nb) == color) {
+				// 落子点周围有同色子.
 				friend++;
 				state.addFriendBlock(getBlock(nb));
 				if (getBreaths(nb) > 1) {
@@ -485,7 +638,6 @@ public abstract class AbsGoBoard {
 								log.info("提劫 " + original);
 							else {
 								log.info("提一子 " + original);
-								state.setIncreaseBreath(false);
 
 								Set<Point> breath = new HashSet<Point>();
 								for (Block friendB : state.getFriendBlocks()) {
@@ -560,7 +712,30 @@ public abstract class AbsGoBoard {
 						log.info("多子送吃 " + original);
 					} else {
 						if (minFriendBreath == 1) {
-							state.setRemoveCapturing(true);
+							// check whether we have breath than its enemy!
+							// otherwise temporarily remove capturing is not
+							// good in long term.
+							boolean enemyHasMoreBreath = true;
+							int count = 0;
+							for (Block block : state.getFriendBlocks()) {
+								if (block.getBreaths() == 1) {
+									count++;
+									for (Block enemyB : block.getEnemyBlocks()) {
+										if (enemyB.getBreaths() < breaths
+												.size()) {
+											enemyHasMoreBreath = false;
+										} else if (enemyB.getBreaths() == breaths
+												.size()) {
+											if (enemyB.getBreathPoints()
+													.contains(original))
+												enemyHasMoreBreath = false;
+										}
+									}
+								}
+							}
+							if (enemyHasMoreBreath == false) {
+								state.setRemoveCapturing(count);
+							}
 						}
 					}
 				} else if (blank == 1) {
@@ -581,8 +756,17 @@ public abstract class AbsGoBoard {
 			}
 		}
 
-		if (state.isEating()) {
-			return state;
+		/**
+		 * not only calculate the breath increased, but also calculate the
+		 * effect of breath increasing - how the breath difference with enemy
+		 * change?
+		 */
+		if (state.getFriendBlocks().isEmpty() == false) {
+
+		}
+
+		if (state.getEnemyBlocks().isEmpty() == false) {
+
 		}
 
 		// breath increase?
@@ -605,32 +789,189 @@ public abstract class AbsGoBoard {
 		breaths.remove(state.getOriginal());
 		state.setBreath(breaths.size());
 
+		/***
+		 * some time gigting and eating at the same time (loop), need to check
+		 * the size of blocks<br/>
+		 * some time gifting and capturing at the same time, need to check
+		 * whether it is daopu(倒扑) <br/>
+		 * solve it outside. <br/>
+		 * 倒扑的识别,只看一步还是挺难的.
+		 */
+		if (state.isGifting()) {
+			if (state.isCapturing()) {
+				if (state.getGift() == null) {
+					state.setCapturing(false);
+				} else if (state.getGift().getOriginalStones() >= 1) {
+					state.setCapturing(false);
+				} else if (state.getGift().getOriginalStones() < 1) {
+					// include gift one stone.
+					Point pointTemp = breaths.iterator().next();
+					int breath = this.breathAfterPlay(pointTemp, enemyColor)
+							.size();
+					boolean hasSameColorEnemy = false;
+					for (Delta delta : Constant.ADJACENTS) {
+						Point t = pointTemp.getNeighbour(delta);
+						if (t == null || t == original)
+							continue;
+						if (this.getColor(t) == enemyColor) {
+							hasSameColorEnemy = true;
+						}
+					}
+					if (breath == 1 && hasSameColorEnemy == true) {
+						state.setGifting(false);
+						state.setEating(true);// 倒扑与提子同.
+					} else {// 扑劫
+
+						state.setCapturing(false);
+					}
+				}
+			} else if (state.isEating()) {
+				if (state.getEatenBlocks().isEmpty() == false) {
+					int count = 0;
+					for (Block eatenB : state.getEatenBlocks()) {
+						count += eatenB.getNumberOfPoint();
+					}
+					if (count > 1) {
+						state.setGifting(false);
+					} else if (count == 1) {
+						if (state.getGift() == null) {
+							state.setGifting(false);
+						} else if (state.getGift().getOriginalStones() < 1) {
+							state.setGifting(false);// prefer eating in loop.
+						} else {
+							state.setEating(false);// 倒扑(daopu)
+						}
+
+					}
+				}
+			}
+		}
+
+		if (state.isEating()) {
+			return state;
+		}
+
 		/**
 		 * oldBreath!=0 is necessary, otherwise single stone is preferred! <br/>
 		 * huge difference v.s. <br/>
 		 * oldBreath!=0&&
 		 */
-		if (oldBreath == 0) {
+		if (oldBreath == 0) { // stand alone stone
 			// adjustment for stand-alone play
 			if (breaths.size() >= 2) {
-				state.setIncreaseBreath(true);
-				state.setIncreasedBreath(1);
+
 				if (state.getEnemyBlocks().isEmpty() == false) {
 					// decreasing enemy breath is counted.
-					state.setIncreasedBreath(1 + 1);
+					state.setAttacking(true);
+					state.setIncreasedBreath(1);
+					for (Block eB : state.getEnemyBlocks()) {
+						for (Block eeB : eB.getEnemyBlocks()) {
+							Set<Point> temp = new HashSet<Point>();
+							temp.addAll(state.getBlankPoints());
+							temp.retainAll(eeB.getBreathPoints());
+							if (temp.isEmpty()) {
+								// no shared breath.
+							} else {
+								state.setConnection(Constant.CAN_CONNECT);
+							}
+						}
+					}
+
+					// state.setIncreasedBreath(1 + 1);
+				} else {
+					// normal play, not preferred!
 				}
 			} else {
-				// send gift
+				// send gift-further ensure.
+				state.setGifting(true);
 			}
-		} else {
+		} else { // has friend block
+
 			// decreasing enemy breath is considered increase of own breath.
-			int newBreath = breaths.size() + state.getEnemyBlocks().size();
+			int newBreath = breaths.size();// ......+
+											// state.getEnemyBlocks().size();
 			if (newBreath > oldBreath) {
-				state.setIncreaseBreath(true);
+				// state.setIncreaseBreath(true);
 				state.setIncreasedBreath(newBreath - oldBreath);
+				if (state.getEnemyBlocks().isEmpty() == false
+						&& newBreath >= state.getMinEnemyBreath() - 1) {
+					for (Block eB : state.getEnemyBlocks()) {
+						if (eB.getBreaths() - 1 == eB.getMinEnemyBreath()
+								|| eB.getBreaths() - 1 == eB
+										.getMinEnemyBreath() + 1) {
+							// 有紧气效果.
+							state.setAttacking(true);
+							state.setConnection(2);
+							state.setIncreasedBreath(1);
+						}
+					}
+				}
+			} else if (newBreath == oldBreath) {
+				if (state.getEnemyBlocks().isEmpty() == false
+						&& newBreath >= state.getMinEnemyBreath()) {
+					for (Block eB : state.getEnemyBlocks()) {
+						if (eB.getBreaths() == eB.getMinEnemyBreath()
+								|| eB.getBreaths() == eB.getMinEnemyBreath() + 1) {
+							// 有紧气效果.
+							state.setAttacking(true);
+							state.setConnection(2);
+							state.setIncreasedBreath(1);
+						}
+					}
+				}
+				// just so so
+			} else {
+				// usually not good, like gifting
+				if (state.getEnemyBlocks().isEmpty() == false
+						&& newBreath >= state.getMinEnemyBreath()) {
+					for (Block eB : state.getEnemyBlocks()) {
+						if (eB.getBreaths() == eB.getMinEnemyBreath()
+								|| eB.getBreaths() == eB.getMinEnemyBreath() + 1) {
+							// 有紧气效果.
+							state.setAttacking(true);
+							state.setIncreasedBreath(1);
+							state.setConnection(2);
+						}
+					}
+				} else {
+					state.setGifting(true);
+				}
 			}
 		}
 		return state;
+	}
+
+	/**
+	 * play at original, get a single point eye at eyePoint. check whether it is
+	 * the simple real eye.
+	 * 
+	 * @param original
+	 * @param eyePoint
+	 * @param color
+	 * @return
+	 */
+	private boolean isRealEye(Point original, Point eyePoint, int color) {
+		for (Delta delta : Constant.ADJACENTS) {
+			Point nb = eyePoint.getNeighbour(delta);
+			if (nb == null || nb == original) {
+				continue;
+			} else if (this.getColor(nb) != color) {
+
+				return false;
+			}
+
+		}
+		for (Delta delta : Constant.SHOULDERS) {
+			Point nb = eyePoint.getNeighbour(delta);
+			if (nb == null || nb == original) {
+				continue;
+			} else if (this.getColor(nb) != color) {
+				return false;
+			}
+
+		}
+
+		return true;
 	}
 
 	public int getNumberOfPoint() {
@@ -810,7 +1151,7 @@ public abstract class AbsGoBoard {
 	}
 
 	public boolean canIncreaseBreath_netly(Block block) {
-		// Assert.assertTrue("target block should only have one or two breath",
+		// assertTrue("target block should only have one or two breath",
 		// block.getBreaths() <= 2);
 		for (Point breath : block.getBreathPoints()) {
 			for (Delta delta : Constant.ADJACENTS) {
@@ -828,7 +1169,36 @@ public abstract class AbsGoBoard {
 	}
 
 	/**
-	 * 白雪皑皑呢 要送吃的块,原先只有二气,落子后会减少一气.如果两口气都是这种情况,只有送吃一途.<br/>
+	 * whether we can decrease enemy's breath without any side effect. <br/>
+	 * if not the case, we may need prioritize the sequence of close breath. <br/>
+	 * precondition. block cannot increase breath. it it can , we may prevent it
+	 * first.
+	 * 
+	 * @return
+	 */
+	public boolean easyDecreaseBreath(Block block) {
+		int color = block.getEnemyColor();
+		Block strongB = block.getMaxBreathEnemyBlock();
+		for (Point breathPoint : block.getBreathPoints()) {
+			SimpleNeighborState state = getNeighborState(breathPoint, color);
+			int breath = breathAfterPlay(breathPoint, block.getColor()).size();
+			if (breath <= block.getBreaths()) {
+				if (state.isStandAlone() == false) {
+					// may gifting, need further check.
+					return false;
+				} else if (connectted_notPlayed(breathPoint,
+						strongB.getBehalfPoint())) {
+					continue;
+				} else {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * 要送吃的块,原先只有二气,落子后会减少一气.如果两口气都是这种情况,只有送吃一途.<br/>
 	 * 但未必不行.若有一个能长气,则也是脱困之道.<br/>
 	 * 还有扑的情况.<br>
 	 * 简化处理.要求该块的气点除了不入气点,就是送吃点. <br/>
@@ -845,7 +1215,7 @@ public abstract class AbsGoBoard {
 		 * 02[B, B, _]02<br/>
 		 * 03[B, _, _]03<br/>
 		 */
-		Assert.assertTrue("target block should only have one or two breath",
+		TestCase.assertTrue("target block should only have one or two breath",
 				block.getBreaths() <= 2);
 		for (Point breath : block.getBreathPoints()) {
 			for (Delta delta : Constant.ADJACENTS) {
@@ -862,4 +1232,62 @@ public abstract class AbsGoBoard {
 		return false;
 	}
 
+	public boolean canConnect_notPlayed(Point low, Point high) {
+		Block strongB = this.getBlock(high);
+		for (Delta delta : Constant.ADJACENTS) {
+			Point nb = low.getNeighbour(delta);
+			if (nb == null) {
+				continue;
+			} else if (this.getColor(nb) == ColorUtil.BLANK) {
+				// 落子点周围有空白点
+				if (strongB.getBreathPoints().contains(nb)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 
+	 * @param original
+	 *            _singleStone_notPlayed
+	 * @return
+	 */
+	public int getNeighborBlackPoint(Point original) {
+		int blank = 0;
+		for (Delta delta : Constant.ADJACENTS) {
+			Point nb = original.getNeighbour(delta);
+			if (nb == null) {
+				continue;
+			} else if (this.getColor(nb) == ColorUtil.BLANK) {
+				// 落子点周围有空白点
+				blank++;
+			}
+		}
+		return blank;
+	}
+
+	/**
+	 * whether low(not played single stone with breath >=2) can connect to
+	 * Strong block (point high)
+	 */
+	public boolean connectted_notPlayed(Point low, Point high) {
+		Block strongB = this.getBlock(high);
+		for (Delta delta : Constant.ADJACENTS) {
+			Point nb = low.getNeighbour(delta);
+			if (nb == null) {
+				continue;
+			} else if (this.getColor(nb) == ColorUtil.BLANK) {
+				// 落子点周围有空白点
+				if (strongB.getBreathPoints().contains(nb)) {
+					// 落子后形成虎口.
+					if (getNeighborBlackPoint(nb) <= 2) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 }

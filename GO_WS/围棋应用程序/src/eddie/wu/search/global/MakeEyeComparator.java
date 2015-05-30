@@ -10,7 +10,8 @@ import java.util.Comparator;
  */
 public class MakeEyeComparator implements Comparator<Candidate> {
 	/**
-	 * TODO: eating some time is not efficient. ##01,02,03,04,05,06,07 <br/>
+	 * TODO: eating some time is not efficient.<br/>
+	 * ##01,02,03,04,05,06,07 <br/>
 	 * 01[_, _, B, _, _, _, _]01<br/>
 	 * 02[_, _, B, _, _, _, _]02<br/>
 	 * 03[_, _, B, _, _, B, W]03<br/>

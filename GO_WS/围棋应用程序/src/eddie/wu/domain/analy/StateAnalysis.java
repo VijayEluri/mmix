@@ -72,7 +72,7 @@ public class StateAnalysis extends GoBoard {
 	 * 
 	 * @param state
 	 */
-	public StateAnalysis(byte[][] state, int color) {
+	public StateAnalysis(byte[][] state, int whoseTurn) {
 
 		// for (int i = Constant.ZBXX; i <= Constant.ZBSX; i++) { // 2月22日加
 		//
@@ -89,7 +89,7 @@ public class StateAnalysis extends GoBoard {
 		// makeBlock();// 将棋子聚合成棋块,气点则聚合成气块.
 		// generateBlockInfo();
 		// generateBreathBlockInfo();
-		super(state, color);
+		super(state, whoseTurn);
 		// this.state = state;
 		// for (int i = 0; i < state.length; i++) {
 		// state[i][0] = -1;

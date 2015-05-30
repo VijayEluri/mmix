@@ -1,4 +1,0 @@
-log4j-1.2.14.jar
-commons-logging/commons-logging/1.1/commons-logging-1.1.jar
-JUNIT
-commons-lang-2.4.jar

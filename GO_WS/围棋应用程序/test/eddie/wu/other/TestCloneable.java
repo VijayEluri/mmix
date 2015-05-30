@@ -40,22 +40,24 @@ public class TestCloneable extends TestCase {
         super(name);
         // TODO Auto-generated constructor stub
     }
-    
+    /**
+     * better we manually copy it if necessary.
+     */
     public void testCloneable(){
-        BoardPoint point=new BoardPoint();
-        point.setColor(ColorUtil.BLACK);
-        point.setPoint(Point.getPoint(4,4));
-        Block block=new Block(ColorUtil.BLACK);
-        block.addPoint(Point.getPoint(4,4));
-        block.addBreathPoint(Point.getPoint(4,5));
-        block.setColor(ColorUtil.BLACK);
-        point.setBlock(block);
-        BoardPoint pointNew=(BoardPoint)point.clone();
-        assertNotSame(point,pointNew);
-        assertNotSame(point.getBlock(),pointNew.getBlock());
-        assertNotSame(point.getBlock().getPoints(),pointNew.getBlock().getPoints());
-        assertEquals(point,pointNew);
-        assertEquals(point.getBlock(),pointNew.getBlock());
+//        BoardPoint point=new BoardPoint();
+//        point.setColor(ColorUtil.BLACK);
+//        point.setPoint(Point.getPoint(4,4));
+//        Block block=new Block(ColorUtil.BLACK);
+//        block.addPoint(Point.getPoint(4,4));
+//        block.addBreathPoint(Point.getPoint(4,5));
+//        block.setColor(ColorUtil.BLACK);
+//        point.setBlock(block);
+//        BoardPoint pointNew=(BoardPoint)point.clone();
+//        assertNotSame(point,pointNew);
+//        assertNotSame(point.getBlock(),pointNew.getBlock());
+//        assertNotSame(point.getBlock().getPoints(),pointNew.getBlock().getPoints());
+//        assertEquals(point,pointNew);
+//        assertEquals(point.getBlock(),pointNew.getBlock());
     }
     public void testArrayClone() throws CloneNotSupportedException{
     	//GoBoard goBoard=new GoBoard();
@@ -68,32 +70,33 @@ public class TestCloneable extends TestCase {
     }
     
     public void testPerformance(){
-    	Block [] blocks=new Block[1000];
-    	Block [] blocks2=new Block[1000];
-    	long oldTime=0;
-        long newTime=0;
-        oldTime=System.currentTimeMillis();
-    	for(int i=0;i<1000;i++){
-    		blocks [i]=new Block(ColorUtil.BLACK);
-    		blocks [i].addPoint(Point.getPoint(4,4));
-    		blocks [i].addBreathPoint(Point.getPoint(4,5));
-    		blocks [i].setColor(ColorUtil.BLACK);
-    	}
-    	newTime=System.currentTimeMillis();
-    	if(log.isDebugEnabled()) log.debug("new 1000 Block cost ms:"+(newTime-oldTime));
-
-    	oldTime=System.currentTimeMillis();
-    	for(int i=0;i<1000;i++){
-    		blocks2[i]=(Block)blocks[i].clone();
-    	}
-    	newTime=System.currentTimeMillis();
-    	if(log.isDebugEnabled()) log.debug("clone 1000 Block cost ms:"+(newTime-oldTime));
-    	
-    	for(int i=0;i<1000;i++){
-    		assertNotSame(blocks[i],blocks2[i]);
-    		assertEquals(blocks[i],blocks2[i]);
-    	}
+//    	Block [] blocks=new Block[1000];
+//    	Block [] blocks2=new Block[1000];
+//    	long oldTime=0;
+//        long newTime=0;
+//        oldTime=System.currentTimeMillis();
+//    	for(int i=0;i<1000;i++){
+//    		blocks [i]=new Block(ColorUtil.BLACK);
+//    		blocks [i].addPoint(Point.getPoint(4,4));
+//    		blocks [i].addBreathPoint(Point.getPoint(4,5));
+//    		blocks [i].setColor(ColorUtil.BLACK);
+//    	}
     }
+//    	newTime=System.currentTimeMillis();
+//    	if(log.isDebugEnabled()) log.debug("new 1000 Block cost ms:"+(newTime-oldTime));
+//
+//    	oldTime=System.currentTimeMillis();
+//    	for(int i=0;i<1000;i++){
+//    		blocks2[i]=(Block)blocks[i].clone();
+//    	}
+//    	newTime=System.currentTimeMillis();
+//    	if(log.isDebugEnabled()) log.debug("clone 1000 Block cost ms:"+(newTime-oldTime));
+//    	
+//    	for(int i=0;i<1000;i++){
+//    		assertNotSame(blocks[i],blocks2[i]);
+//    		assertEquals(blocks[i],blocks2[i]);
+//    	}
+//    }
     
 }
 class  TestForArray implements Cloneable{

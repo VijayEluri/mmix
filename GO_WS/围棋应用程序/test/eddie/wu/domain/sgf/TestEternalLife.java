@@ -17,7 +17,7 @@ public class TestEternalLife extends TestCase {
 		for(Step step:goManual.getSteps()){
 			boolean valid = goB.oneStepForward(step);
 			if(valid==false){
-				Assert.assertEquals(41, goB.getShoushu());
+				assertEquals(41, goB.getShoushu());
 			}
 		}
 	}

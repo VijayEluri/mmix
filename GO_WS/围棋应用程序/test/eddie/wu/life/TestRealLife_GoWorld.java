@@ -45,7 +45,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		TerritoryAnalysis ta = new TerritoryAnalysis(state);
 		Point point = Point.getPoint(6, 2, 1);
 		boolean live = ta.isStaticLive(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 		SurviveAnalysis survive = new SurviveAnalysis(state);
 		Group group = new Group();
@@ -66,7 +66,7 @@ public class TestRealLife_GoWorld extends TestCase {
 				targetFirst);
 		live = result.getSurvive() == RelativeResult.ALREADY_LIVE;
 		// live = ta.isBigEyeLive_dynamic(target, eyeBlock, targetFirst)
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 	}
 
@@ -86,7 +86,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		TerritoryAnalysis ta = new TerritoryAnalysis(state);
 		Point point = Point.getPoint(6, 2, 1);
 		boolean live = ta.isStaticLive(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 		SurviveAnalysis survive = new SurviveAnalysis(state);
 		Group group = new Group();
@@ -105,7 +105,7 @@ public class TestRealLife_GoWorld extends TestCase {
 				targetFirst);
 		live = result.getSurvive() == RelativeResult.ALREADY_LIVE;
 		// live = ta.isBigEyeLive_dynamic(target, eyeBlock, targetFirst)
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 	}
 
@@ -123,7 +123,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		TerritoryAnalysis ta = new TerritoryAnalysis(state);
 		Point point = Point.getPoint(6, 2, 1);
 		boolean live = ta.isStaticLive(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 		SurviveAnalysis survive = new SurviveAnalysis(state);
 		Group group = new Group();
@@ -142,7 +142,7 @@ public class TestRealLife_GoWorld extends TestCase {
 				targetFirst);
 		live = result.getSurvive() == RelativeResult.ALREADY_LIVE;
 		// live = ta.isBigEyeLive_dynamic(target, eyeBlock, targetFirst)
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 	}
 
@@ -160,13 +160,13 @@ public class TestRealLife_GoWorld extends TestCase {
 		TerritoryAnalysis ta = new TerritoryAnalysis(state);
 		Point point = Point.getPoint(6, 5, 2);
 		boolean live = ta.isAlreadyDead_dynamic(point);
-		Assert.assertFalse(live);
+		assertFalse(live);
 		point = Point.getPoint(6, 5, 6);
 		live = ta.isAlreadyDead_dynamic(point);
-		Assert.assertFalse(live);
+		assertFalse(live);
 		point = Point.getPoint(6, 6, 5);
 		live = ta.isAlreadyDead_dynamic(point);
-		Assert.assertFalse(live);
+		assertFalse(live);
 
 	}
 
@@ -183,7 +183,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		TerritoryAnalysis ta = new TerritoryAnalysis(state);
 		Point point = Point.getPoint(6, 2, 1);
 		boolean live = ta.isStaticLive(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 		SurviveAnalysis survive = new SurviveAnalysis(state);
 		Group group = new Group();
@@ -214,7 +214,7 @@ public class TestRealLife_GoWorld extends TestCase {
 			if (live)
 				break;
 		}
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 	}
 
@@ -233,7 +233,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		Point point = Point.getPoint(7, 4, 1);
 		boolean live = false;
 		live = ta.isAlreadyLive_dynamic(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 	}
 
 	public void testRealLifeProblem_20131393_5_six_2() {
@@ -251,7 +251,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		Point point = Point.getPoint(6, 4, 1);
 		boolean live = false;
 		live = ta.isAlreadyLive_dynamic(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 	}
 
 	public void testRealLifeProblem_20131393_7D() {
@@ -270,7 +270,7 @@ public class TestRealLife_GoWorld extends TestCase {
 
 		// boolean live = false;
 		// live = ta.isAlreadyLive_dynamic(point);
-		// Assert.assertTrue(live);
+		// assertTrue(live);
 
 		// TODO: connectivity
 		ta.getBlock(point).setLive(true);
@@ -291,8 +291,8 @@ public class TestRealLife_GoWorld extends TestCase {
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(eyeArea2);
 
-		List<Candidate> candidate = ta.getCandidate(null, point, eyeArea2,
-				Constant.WHITE, true, false);
+		List<Candidate> candidate = ta.getCandidate_forTarget(null, point,
+				eyeArea2, Constant.WHITE, true, false);
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(ta.getBoardColorState().getStateString());
 		if (log.isEnabledFor(Level.WARN))
@@ -340,8 +340,8 @@ public class TestRealLife_GoWorld extends TestCase {
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(result);
 
-		List<Candidate> candidate = ta.getCandidate(null, point, eyeArea2,
-				Constant.WHITE, true, false);
+		List<Candidate> candidate = ta.getCandidate_forTarget(null, point,
+				eyeArea2, Constant.WHITE, true, false);
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(ta.getBoardColorState().getStateString());
 		if (log.isEnabledFor(Level.WARN))
@@ -381,13 +381,14 @@ public class TestRealLife_GoWorld extends TestCase {
 			log.warn(eyeArea2);
 
 		point = Point.getPoint(7, 5, 2);
-		List<Candidate> candidate = ta.getCandidate(null, point, eyeArea2,
-				Constant.WHITE, true, false);
-		//if (log.isEnabledFor(Level.WARN))
-			log.warn(ta.getBoardColorState().getStateString());
-//		if (log.isEnabledFor(Level.WARN))
+		List<Candidate> candidate = ta.getCandidate_forTarget(null, point,
+				eyeArea2, Constant.WHITE, true, false);
+		// if (log.isEnabledFor(Level.WARN))
+		log.warn(ta.getBoardColorState().getStateString());
+		// if (log.isEnabledFor(Level.WARN))
+		log.warn(candidate);
+		if (log.isEnabledFor(Level.WARN))
 			log.warn(candidate);
-			if(log.isEnabledFor(Level.WARN)) log.warn(candidate);
 
 	}
 
@@ -422,8 +423,8 @@ public class TestRealLife_GoWorld extends TestCase {
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(eyeArea2);
 
-		List<Candidate> candidate = ta.getCandidate(null, point, eyeArea2,
-				Constant.BLACK, false, false);
+		List<Candidate> candidate = ta.getCandidate_forTarget(null, point,
+				eyeArea2, Constant.BLACK, false, false);
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(ta.getBoardColorState().getStateString());
 		if (log.isEnabledFor(Level.WARN))
@@ -447,10 +448,10 @@ public class TestRealLife_GoWorld extends TestCase {
 		TerritoryAnalysis ta = new TerritoryAnalysis(state);
 		Point target = Point.getPoint(7, 7, 2);
 		boolean dead = ta.isAlreadyDead_dynamic(target);
-		Assert.assertTrue(dead);
+		assertTrue(dead);
 
 		// boolean fina = ta.isFinalState_deadExist();
-		// Assert.assertTrue(dead);
+		// assertTrue(dead);
 
 	}
 
@@ -472,7 +473,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		target = Point.getPoint(7, 7, 2);
 		targets.add(target);
 		boolean live = ta.potentialEyeLive(targets);
-		Assert.assertFalse(live);
+		assertFalse(live);
 
 	}
 
@@ -492,10 +493,10 @@ public class TestRealLife_GoWorld extends TestCase {
 		Set<Point> targets = new HashSet<Point>();
 		targets.add(target);
 		boolean live = ta.potentialEyeLive(targets);
-		Assert.assertFalse(live);
+		assertFalse(live);
 
 		// boolean fina = ta.isFinalState_deadExist();
-		// Assert.assertTrue(dead);
+		// assertTrue(dead);
 
 	}
 
@@ -516,7 +517,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		Set<Point> targets = new HashSet<Point>();
 		targets.add(point);
 		boolean condition = ta.isAlreadyDead_dynamic(targets, point);
-		Assert.assertFalse(condition);
+		assertFalse(condition);
 	}
 
 	public void testRealLifeProblem_20131393_7() {
@@ -554,15 +555,15 @@ public class TestRealLife_GoWorld extends TestCase {
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(eyeArea2);
 
-		List<Candidate> candidate = ta.getCandidate(null, point, eyeArea2,
-				Constant.WHITE, true, false);
+		List<Candidate> candidate = ta.getCandidate_forTarget(null, point,
+				eyeArea2, Constant.WHITE, true, false);
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(ta.getBoardColorState().getStateString());
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(candidate);
 
-		candidate = ta.getCandidate(null, point, eyeArea2, Constant.BLACK,
-				false, false);
+		candidate = ta.getCandidate_forTarget(null, point, eyeArea2,
+				Constant.BLACK, false, false);
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(candidate);
 
@@ -585,7 +586,7 @@ public class TestRealLife_GoWorld extends TestCase {
 			if (count == 1)
 				break;
 		}
-		Assert.assertFalse(live);
+		assertFalse(live);
 
 	}
 
@@ -604,7 +605,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		Point point = Point.getPoint(7, 4, 1);
 		boolean live = false;
 		// live = ta.isAlreadyLive_dynamic(point);
-		// Assert.assertTrue(live);
+		// assertTrue(live);
 		ta.getBlock(point).setLive(true);
 
 		SurviveAnalysis survive = new SurviveAnalysis(state);
@@ -643,7 +644,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		// if (count == 1)
 		// break;
 		// }
-		// Assert.assertTrue(live);
+		// assertTrue(live);
 
 	}
 
@@ -660,7 +661,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		TerritoryAnalysis ta = new TerritoryAnalysis(state);
 		Point point = Point.getPoint(6, 2, 1);
 		boolean live = ta.isStaticLive(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 		SurviveAnalysis survive = new SurviveAnalysis(state);
 		Group group = new Group();
@@ -691,7 +692,7 @@ public class TestRealLife_GoWorld extends TestCase {
 			if (live)
 				break;
 		}
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 	}
 
@@ -708,7 +709,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		TerritoryAnalysis ta = new TerritoryAnalysis(state);
 		Point point = Point.getPoint(6, 2, 1);
 		boolean live = ta.isStaticLive(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 		SurviveAnalysis survive = new SurviveAnalysis(state);
 		Group group = new Group();
@@ -739,7 +740,7 @@ public class TestRealLife_GoWorld extends TestCase {
 			if (live)
 				break;
 		}
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 	}
 
@@ -756,7 +757,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		TerritoryAnalysis ta = new TerritoryAnalysis(state);
 		Point point = Point.getPoint(6, 2, 1);
 		boolean live = ta.isStaticLive(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 		SurviveAnalysis survive = new SurviveAnalysis(state);
 		Group group = new Group();
@@ -787,7 +788,7 @@ public class TestRealLife_GoWorld extends TestCase {
 			if (live)
 				break;
 		}
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 	}
 
@@ -804,7 +805,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		TerritoryAnalysis ta = new TerritoryAnalysis(state);
 		Point point = Point.getPoint(6, 2, 1);
 		boolean live = ta.isStaticLive(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 		SurviveAnalysis survive = new SurviveAnalysis(state);
 		Group group = new Group();
@@ -835,7 +836,7 @@ public class TestRealLife_GoWorld extends TestCase {
 			if (live)
 				break;
 		}
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 	}
 
@@ -852,7 +853,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		TerritoryAnalysis ta = new TerritoryAnalysis(state);
 		Point point = Point.getPoint(6, 4, 1);
 		boolean live = ta.isStaticLive(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 		SurviveAnalysis survive = new SurviveAnalysis(state);
 		Group group = new Group();
 		group.addBlock(survive.getBlock(Point.getPoint(6, 5, 2)));
@@ -872,7 +873,7 @@ public class TestRealLife_GoWorld extends TestCase {
 				targetFirst);
 		live = result.getSurvive() == RelativeResult.ALREADY_LIVE;
 		// live = ta.isBigEyeLive_dynamic(target, eyeBlock, targetFirst)
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 	}
 
@@ -889,7 +890,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		TerritoryAnalysis ta = new TerritoryAnalysis(state);
 		Point point = Point.getPoint(6, 4, 4);
 		boolean dead = ta.isAlreadyDead_dynamic(point);
-		Assert.assertFalse(dead);
+		assertFalse(dead);
 	}
 
 	public void testRealLifeProblem3() {
@@ -905,7 +906,7 @@ public class TestRealLife_GoWorld extends TestCase {
 		TerritoryAnalysis ta = new TerritoryAnalysis(state);
 		Point point = Point.getPoint(6, 4, 1);
 		boolean live = ta.isStaticLive(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 		SurviveAnalysis survive = new SurviveAnalysis(state);
 		Group group = new Group();
 		group.addBlock(survive.getBlock(Point.getPoint(6, 5, 2)));
@@ -916,11 +917,11 @@ public class TestRealLife_GoWorld extends TestCase {
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(eyeArea2);
 		// assertEquals(result, live);live = ta.isStaticLive(point);
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 		point = Point.getPoint(6, 4, 4);
 		live = ta.isAlreadyLive_dynamic(point);
-		Assert.assertFalse(live);
+		assertFalse(live);
 
 	}
 

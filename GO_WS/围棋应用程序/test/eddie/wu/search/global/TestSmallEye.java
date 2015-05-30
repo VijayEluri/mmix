@@ -6,6 +6,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import eddie.wu.domain.Block;
+import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.analy.StateAnalysis;
@@ -21,12 +22,12 @@ public class TestSmallEye extends TestCase {
 
 		BigEyeSearch search;
 		int score;
-		search = new BigEyeSearch(state, point, false, false);
+		search = new BigEyeSearch(state, point, Constant.BLACK,false, false);
 		score = search.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("score=" + score);
 		assertEquals(score, RelativeResult.ALREADY_DEAD);
 
-		search = new BigEyeSearch(state, point, true, false);
+		search = new BigEyeSearch(state, point, Constant.BLACK,true, false);
 		score = search.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("score=" + score);
 		assertEquals(score, RelativeResult.ALREADY_LIVE);

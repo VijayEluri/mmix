@@ -2,10 +2,8 @@ package eddie.wu.domain.conn;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-
-import org.apache.log4j.Level;
+import static eddie.wu.domain.Constant.*;
 import org.apache.log4j.Logger;
 
 import eddie.wu.domain.BasicBlock;
@@ -20,7 +18,6 @@ import eddie.wu.domain.Group;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.analy.StateAnalysis;
 import eddie.wu.domain.comp.BlockBreathComparatorDesc;
-import eddie.wu.manual.StateLoader;
 import eddie.wu.search.global.CaptureSearch;
 
 /**
@@ -34,9 +31,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 	private transient static final Logger log = Logger
 			.getLogger(ConnectivityAnalysis.class);
 
-	public static final int CONNECTED = 10;
-	public static final int CAN_CONNECT = 5;
-	public static final int NOT_CONNECTED = 0;
+	
 	public List<Group> groups = new ArrayList<Group>();
 
 	public ConnectivityAnalysis(int boardSize) {
@@ -46,19 +41,19 @@ public class ConnectivityAnalysis extends StateAnalysis {
 	public ConnectivityAnalysis(byte[][] state) {
 		this(state,Constant.BLACK);
 	}
-	public ConnectivityAnalysis(byte[][] state, int color) {
-		super(state, color);
+	public ConnectivityAnalysis(byte[][] state, int whoseTurn) {
+		super(state, whoseTurn);
 
 		// TODO recover the code later when connectivity is needed,
-		// List<Block> blocks = this.getBlackWhiteBlocks();
+		// List<Block> blocks = getBlackWhiteBlocks();
 		//
 		// if (log.isDebugEnabled()) {
 		// log.debug("全局共有" + blocks.size() + "块");
 		// }
-		// this.weakStrongAnalysis(blocks);
-		// this.eyeConnected();
-		// this.tigerMouthConnected();
-		// this.connectBlock(blocks);
+		// weakStrongAnalysis(blocks);
+		// eyeConnected();
+		// tigerMouthConnected();
+		// connectBlock(blocks);
 		// for (Iterator<Group> iter = groups.iterator(); iter.hasNext();) {
 		// Group temp = iter.next();
 		// if (temp.getBlocks().isEmpty()) {
@@ -66,7 +61,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 		// iter.remove();
 		// }
 		// }
-		// this.logGroups(groups);
+		// logGroups(groups);
 	}
 
 	// TODO: init
@@ -85,7 +80,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 		// sort block according to its breath, deal with strong block first.
 		Collections.sort(list, new BlockBreathComparatorDesc());
 		for (Block block : list) {
-			this.connectBlock(block);
+			connectBlock(block);
 		}
 
 		// return listGroup;
@@ -105,7 +100,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 		}
 
 		Group group = null;
-		for (BlankBlock blankBlock : this.eyeBlocks) {
+		for (BlankBlock blankBlock : eyeBlocks) {
 			if (blankBlock.isEyeBlock() == false)
 				continue;
 			// TODO check whether some special situation exist. like 倒扑.
@@ -153,7 +148,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("通过眼块相连形成的块组。" + groups.size());
-			this.logGroups(groups);
+			logGroups(groups);
 		}
 
 	}
@@ -167,8 +162,8 @@ public class ConnectivityAnalysis extends StateAnalysis {
 
 		Group group = null;
 		List<Point> tigerCandidate = new ArrayList<Point>();
-		for (Point point : this.tigerMouth) {
-			if (this.getBlankBlock(point).isEyeBlock())
+		for (Point point : tigerMouth) {
+			if (getBlankBlock(point).isEyeBlock())
 				continue;
 			else {
 				tigerCandidate.add(point);
@@ -183,7 +178,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 				Point neighbourPoint = point.getNeighbour(delta);
 				if (neighbourPoint == null)
 					continue;
-				Block neighbourBlock = this.getBlock(neighbourPoint);
+				Block neighbourBlock = getBlock(neighbourPoint);
 				if (neighbourBlock != null && neighbourBlock.isGrouped()) {
 					group = neighbourBlock.getGroup();
 					break;
@@ -202,7 +197,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 				if (neighbourPoint == null)
 					continue;
 
-				Block neighbourBlock = this.getBlock(neighbourPoint);
+				Block neighbourBlock = getBlock(neighbourPoint);
 				if (neighbourBlock != null) {
 					Group mergedGroup = group.addBlock(neighbourBlock);
 					if (mergedGroup != null)
@@ -223,37 +218,37 @@ public class ConnectivityAnalysis extends StateAnalysis {
 	 *            point in friend block
 	 */
 	public int isDiagonalConnected(Point a, Point b, int myColor) {
-		if (this.getBreaths(a) == 1 || this.getBreaths(b) == 1)
-			return this.CAN_CONNECT;
+		if (getBreaths(a) == 1 || getBreaths(b) == 1)
+			return CAN_CONNECT;
 
 		int enemyCount = 0;
 		List<Point> cutPoints = new ArrayList<Point>();
 		List<Point> toCut = new ArrayList<Point>();
 		int enemyColor = ColorUtil.enemyColor(myColor);
 		Point temp = Point.getPoint(boardSize, a.getRow(), b.getColumn());
-		if (this.getColor(temp) == enemyColor) {
+		if (getColor(temp) == enemyColor) {
 			enemyCount++;
 			cutPoints.add(temp);
-		} else if (this.getColor(temp) == Constant.BLANK) {
+		} else if (getColor(temp) == Constant.BLANK) {
 			toCut.add(temp);
 		}
 		temp = Point.getPoint(boardSize, b.getRow(), a.getColumn());
-		if (this.getColor(temp) == enemyColor) {
+		if (getColor(temp) == enemyColor) {
 			enemyCount++;
 			cutPoints.add(temp);
-		} else if (this.getColor(temp) == Constant.BLANK) {
+		} else if (getColor(temp) == Constant.BLANK) {
 			toCut.add(temp);
 		}
 
 		if (enemyCount == 0 || toCut.size() == 0) {
-			return this.CONNECTED;
+			return CONNECTED;
 		} else if (enemyCount == 1) {// TODO:判断断开的可能性
-			if (this.getBreaths(cutPoints.get(0)) == 1)
-				return this.CONNECTED;
+			if (getBreaths(cutPoints.get(0)) == 1)
+				return CONNECTED;
 
-			if (this.breathAfterPlay(toCut.get(0), enemyColor).size() <= 1)
-				return this.CONNECTED;
-			GoBoardLadder ladder = new GoBoardLadder(this.getBoardColorState());
+			if (breathAfterPlay(toCut.get(0), enemyColor).size() <= 1)
+				return CONNECTED;
+			GoBoardLadder ladder = new GoBoardLadder(getBoardColorState());
 			ladder.oneStepForward(toCut.get(0), enemyColor);
 			if (log.isDebugEnabled())
 				log.debug("this=" + ladder + " shoushu=" + ladder.getShoushu()
@@ -263,30 +258,30 @@ public class ConnectivityAnalysis extends StateAnalysis {
 			CaptureSearch cs = new CaptureSearch(ladder.getMatrixState(),
 					toCut.get(0), enemyColor, false);
 			if (cs.globalSearch() == CaptureSearch.CAPTURE_SUCCESS) {
-				return this.CONNECTED;
+				return CONNECTED;
 			} else {
-				return this.CAN_CONNECT;
+				return CAN_CONNECT;
 			}
 			// byte[][] result = ladder.jiSuanZhengZi(toCut.get(0));
 			// if (result[0][0] == 127) {// 征子成立!
 			// cs.
 			// log.debug(toCut.get(0) + "will be caught");
-			// return this.CONNECTED;
+			// return CONNECTED;
 			// } else {
-			// return this.CAN_CONNECT;
+			// return CAN_CONNECT;
 			// }
 		} else if (enemyCount == 2) {// TODO重要信息,善 加利用.
 			for (Point cutPoint : cutPoints) {
-				CaptureSearch cs = new CaptureSearch(this.getMatrixState(),
-						cutPoint, this.getColor(cutPoint), false);
+				CaptureSearch cs = new CaptureSearch(getMatrixState(),
+						cutPoint, getColor(cutPoint), false);
 
 				if (cs.globalSearch() == CaptureSearch.CAPTURE_SUCCESS) {// 征子成立
-					return this.CONNECTED;
+					return CONNECTED;
 				} else {
 
 				}
 			}
-			return this.NOT_CONNECTED;
+			return NOT_CONNECTED;
 		}
 
 		return enemyCount;
@@ -324,7 +319,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 				Point neighbourPoint = point.getNeighbour(delta);
 				if (neighbourPoint == null)// out of border
 					continue;
-				Block neighbourBlock = this.getBlock(neighbourPoint);
+				Block neighbourBlock = getBlock(neighbourPoint);
 				// neighbourBlock.isGrouped() == true we merge it.
 				if (neighbourBlock == null
 						|| neighbourBlock.getColor() != block.getColor())
@@ -354,7 +349,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 					conn = isSmallKnightConnected(point, neighbourPoint,
 							block.getColor());
 				}
-				if (conn == this.CONNECTED) {
+				if (conn == CONNECTED) {
 					if (log.isDebugEnabled()) {
 						log.debug("小尖  connect to"
 								+ neighbourBlock.getBehalfPoint());
@@ -373,13 +368,13 @@ public class ConnectivityAnalysis extends StateAnalysis {
 					else if (block.isAlreadyLive())
 						neighbourBlock.addLiveFriend_canConn(block);
 
-				} else if (conn == this.CAN_CONNECT) {// TODO:判断断开的可能性
+				} else if (conn == CAN_CONNECT) {// TODO:判断断开的可能性
 					// but block is not necessarily live.
 					if (neighbourBlock.isAlreadyLive())
 						block.addLiveFriend_canConn(neighbourBlock);
 					else if (block.isAlreadyLive())
 						neighbourBlock.addLiveFriend_canConn(block);
-				} else if (conn == this.NOT_CONNECTED) {// TODO重要信息,善 加利用.
+				} else if (conn == NOT_CONNECTED) {// TODO重要信息,善 加利用.
 
 				}
 
@@ -393,7 +388,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 			// Point neighbourPoint = point.getNeighbour(delta);
 			// if (neighbourPoint == null)
 			// continue;
-			// Block neighbourBlock = this.getBlock(neighbourPoint);
+			// Block neighbourBlock = getBlock(neighbourPoint);
 			// // neighbourBlock.isGrouped() == true we merge it.
 			// if (neighbourBlock == null
 			// || neighbourBlock.getColor() != block.getColor())
@@ -401,16 +396,16 @@ public class ConnectivityAnalysis extends StateAnalysis {
 			// // 有三种可能: 已经连接,可断可连接.已经断开.(仅从形式上说,断开之子也可能可以吃住).
 			// int connectivity = isJumpConnected(point, neighbourPoint,
 			// block.getColor());
-			// if (connectivity == this.CONNECTED) {
+			// if (connectivity == CONNECTED) {
 			// if (log.isDebugEnabled()) {
 			// log.debug("一间跳 connect to"
 			// + neighbourBlock.getBehalfPoint());
 			// }
 			// Group mergedGroup = group.addBlock(neighbourBlock);
 			// groups.remove(mergedGroup);
-			// } else if (connectivity == this.CAN_CONNECT) {// TODO:判断断开的可能性
+			// } else if (connectivity == CAN_CONNECT) {// TODO:判断断开的可能性
 			//
-			// } else if (connectivity == this.NOT_CONNECTED) {// TODO重要信息,尚加利用.
+			// } else if (connectivity == NOT_CONNECTED) {// TODO重要信息,尚加利用.
 			//
 			// }
 			//
@@ -422,7 +417,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 			// if (neighbourPoint == null)
 			// continue;
 			//
-			// Block neighbourBlock = this.getBlock(neighbourPoint);
+			// Block neighbourBlock = getBlock(neighbourPoint);
 			// // neighbourBlock.isGrouped() == true we merge it.
 			// if (neighbourBlock == null
 			// || neighbourBlock.getColor() != block.getColor())
@@ -430,16 +425,16 @@ public class ConnectivityAnalysis extends StateAnalysis {
 			// // 有三种可能: 已经连接,可断可连接.已经断开.(仅从形式上说,断开之子也可能可以吃住).
 			// int connectivity = isSmallKnightConnected(point,
 			// neighbourPoint, block.getColor());
-			// if (connectivity == this.CONNECTED) {
+			// if (connectivity == CONNECTED) {
 			// if (log.isDebugEnabled()) {
 			// log.debug("小飞 onnect to"
 			// + neighbourBlock.getBehalfPoint());
 			// }
 			// Group mergedGroup = group.addBlock(neighbourBlock);
 			// groups.remove(mergedGroup);
-			// } else if (connectivity == this.CAN_CONNECT) {// TODO:判断断开的可能性
+			// } else if (connectivity == CAN_CONNECT) {// TODO:判断断开的可能性
 			//
-			// } else if (connectivity == this.NOT_CONNECTED) {// TODO重要信息,尚加利用.
+			// } else if (connectivity == NOT_CONNECTED) {// TODO重要信息,尚加利用.
 			//
 			// }
 			// }
@@ -447,9 +442,9 @@ public class ConnectivityAnalysis extends StateAnalysis {
 
 		// block.setGroup(group);
 		// for (Point point : block.getAllBreathPoints()) {
-		// if (this.isTigerMouth(point)) {// 虎口的情况
+		// if (isTigerMouth(point)) {// 虎口的情况
 		// for (Delta delta : Constant.NEAR_NEIGHBOUR) {
-		// Block neighbourBlock = this.getBlock(point
+		// Block neighbourBlock = getBlock(point
 		// .getNeighbour(delta));
 		// group.addBlock(neighbourBlock);
 		// }
@@ -486,14 +481,14 @@ public class ConnectivityAnalysis extends StateAnalysis {
 		if (point.getRow() == neighbourPoint.getRow()) {
 			row = point.getRow();
 			column = (point.getColumn() + neighbourPoint.getColumn()) / 2;
-			if (this.getColor(row, column) == enemyColor) {
-				return this.NOT_CONNECTED;
+			if (getColor(row, column) == enemyColor) {
+				return NOT_CONNECTED;
 			} else {
-				if (this.getColor(row, column + 1) == enemyColor) {
+				if (getColor(row, column + 1) == enemyColor) {
 					count++;
 				}
 
-				if (this.getColor(row, column - 1) == enemyColor) {
+				if (getColor(row, column - 1) == enemyColor) {
 					count++;
 				}
 			}
@@ -501,18 +496,18 @@ public class ConnectivityAnalysis extends StateAnalysis {
 		} else {// same column
 			column = point.getColumn();
 			row = (point.getRow() + neighbourPoint.getRow()) / 2;//
-			if (this.getColor(row, column) == enemyColor)
-				return this.NOT_CONNECTED;
+			if (getColor(row, column) == enemyColor)
+				return NOT_CONNECTED;
 
-			if (this.getColor(row + 1, column) == enemyColor) {
+			if (getColor(row + 1, column) == enemyColor) {
 				count++;
 			}
-			if (this.getColor(row - 1, column) == enemyColor) {
+			if (getColor(row - 1, column) == enemyColor) {
 				count++;
 			}
 		}
 		if (count > 0)
-			return this.CAN_CONNECT;
+			return CAN_CONNECT;
 		else
 			return CONNECTED;
 
@@ -526,7 +521,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 	 */
 	public void weakStrongAnalysis(List<Block> blocks) {
 		for (Block block : blocks) {
-			int count = this.extensionable(block);
+			int count = extensionable(block);
 			if (block.getBreaths() > 8) {// strong enough except special case
 
 			} else if (block.getBreaths() > 4) {//
@@ -544,7 +539,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 	public void weakStrongAnalysis(Group group) {
 		List<Block> blocks = new ArrayList<Block>();// = ;
 		for (Block block : group.getBlocks()) {
-			this.extensionable(block);
+			extensionable(block);
 			if (block.getBreaths() > 8) {// strong enough except special case
 
 			} else if (block.getBreaths() > 4) {//
@@ -634,7 +629,7 @@ public class ConnectivityAnalysis extends StateAnalysis {
 		Point ext = point.getNeighbour(delta);
 		if (ext == null)
 			return false;
-		if (this.getColor(ext) != ColorUtil.BLANK) // 已经被占领
+		if (getColor(ext) != ColorUtil.BLANK) // 已经被占领
 			return false;
 
 		// 直线扩展路径上必须都为空白点
@@ -642,13 +637,13 @@ public class ConnectivityAnalysis extends StateAnalysis {
 			if (delta.getColumnDelta() > 0) {
 				for (int i = 1; i < delta.getColumnDelta(); i++) {
 					ext = point.getNeighbour(0, i);
-					if (ext == null || this.getColor(ext) != ColorUtil.BLANK)
+					if (ext == null || getColor(ext) != ColorUtil.BLANK)
 						return false;
 				}
 			} else {
 				for (int i = 1 + delta.getColumnDelta(); i < 0; i++) {
 					ext = point.getNeighbour(0, i);
-					if (ext == null || this.getColor(ext) != ColorUtil.BLANK)
+					if (ext == null || getColor(ext) != ColorUtil.BLANK)
 						return false;
 				}
 			}
@@ -656,13 +651,13 @@ public class ConnectivityAnalysis extends StateAnalysis {
 			if (delta.getColumnDelta() > 0) {
 				for (int i = 1; i < delta.getRowDelta(); i++) {
 					ext = point.getNeighbour(i, 0);
-					if (ext == null || this.getColor(ext) != ColorUtil.BLANK)
+					if (ext == null || getColor(ext) != ColorUtil.BLANK)
 						return false;
 				}
 			} else {
 				for (int i = delta.getRowDelta(); i < 0; i++) {
 					ext = point.getNeighbour(i, 0);
-					if (ext == null || this.getColor(ext) != ColorUtil.BLANK)
+					if (ext == null || getColor(ext) != ColorUtil.BLANK)
 						return false;
 				}
 			}
@@ -679,8 +674,8 @@ public class ConnectivityAnalysis extends StateAnalysis {
 				if (neighbor.squareDistance() < n * n) {
 					// temp = point.getNeighbour(neighbor);
 					temp = ext.getNeighbour(neighbor);
-					// if (temp != null && this.getColor(temp) == enemyColor)
-					if (temp != null && this.getColor(temp) != ColorUtil.BLANK)
+					// if (temp != null && getColor(temp) == enemyColor)
+					if (temp != null && getColor(temp) != ColorUtil.BLANK)
 						return false;
 				} else {
 					return true;

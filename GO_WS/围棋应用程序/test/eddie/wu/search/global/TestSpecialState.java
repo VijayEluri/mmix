@@ -20,6 +20,9 @@ import eddie.wu.manual.StateLoader;
 
 public class TestSpecialState extends TestCase {
 	private static Logger log = Logger.getLogger(Block.class);
+	static{
+		Logger.getLogger(TerritoryAnalysis.class).setLevel(Level.INFO);
+	}
 	public void testStraightThree() {
 		String inname = "doc/围棋程序数据/围棋规则/循环劫单劫加摇橹劫.wjm";
 		byte[][] state = StateAnalysis.LoadState(inname);
@@ -197,8 +200,14 @@ public class TestSpecialState extends TestCase {
 		point = Point.getPoint(4, 3, 1);
 		assertTrue(sa.isAlreadyLive_dynamic(point));
 
-		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
-		Assert.assertTrue(sa.isFinalState_deadExist());
+		point = Point.getPoint(4, 4, 1);
+		assertTrue(sa.isRemovable_static(point));
+		
+		point = Point.getPoint(4, 4, 4);
+		assertTrue(sa.isRemovable_static(point));
+		
+		//Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
+		assertTrue(sa.isFinalState_deadExist());
 		FinalResult finalResult = sa.finalResult_deadExist();
 		if(log.isEnabledFor(Level.WARN)) log.warn(finalResult);
 		int score = finalResult.getScore();

@@ -22,10 +22,10 @@ import eddie.wu.manual.StateLoader;
  */
 public class TwoTwoBoardSearch extends SmallBoardGlobalSearch {
 
-	public TwoTwoBoardSearch(byte[][] boards, int whoseTurn) {
-		super(boards, whoseTurn);
-		initKnownState();
-	}
+//	public TwoTwoBoardSearch(byte[][] boards, int whoseTurn) {
+//		super(boards, whoseTurn);
+//		initKnownState();
+//	}
 
 	public TwoTwoBoardSearch(byte[][] boards, int whoseTurn, int highestScore,
 			int lowestScore) {
@@ -65,9 +65,9 @@ public class TwoTwoBoardSearch extends SmallBoardGlobalSearch {
 	protected List<Candidate> getCandidate(int color) {
 		int expectedScore;
 		if (color == Constant.BLACK) {
-			expectedScore = this.highestScore;
+			expectedScore = getMaxExp();
 		} else {
-			expectedScore = this.lowestScore;
+			expectedScore = getMinExp();
 		}
 		if (goBoard.getInitSymmetryResult().getNumberOfSymmetry() == 0) {
 			return goBoard.getCandidate_smallBoard(color, false, expectedScore);

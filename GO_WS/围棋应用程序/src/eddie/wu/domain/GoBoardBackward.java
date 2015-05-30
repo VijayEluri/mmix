@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -173,7 +173,7 @@ public class GoBoardBackward extends GoBoardForward implements GoBoardInterface 
 			log.info("恢复旧块");
 			log.info("1.悔棋时处理被提吃的棋块");
 		}
-		NeighborState state = memo.getNeighborState();
+		SimpleNeighborState state = memo.getNeighborState();
 		if (state.isEating()) {
 			for (Block eatenBlock : memo.getEatenBlocks()) {
 				eatenBlock.setActive(true);
@@ -226,7 +226,7 @@ public class GoBoardBackward extends GoBoardForward implements GoBoardInterface 
 
 		} else if (state.isNewSinglePointBlock()) {
 
-			Assert.assertTrue(originalBlock.getNumberOfPoint() == 1);
+			TestCase.assertTrue(originalBlock.getNumberOfPoint() == 1);
 			originalBlock.removeEnemyBlocks_TwoWay();
 			originalBlock.removeBreathBlocks_TwoWay();
 			originalBlock.setActive(false);
@@ -292,7 +292,7 @@ public class GoBoardBackward extends GoBoardForward implements GoBoardInterface 
 
 		else if (state.isOriginalBlankBlockDisappear()) {
 			BlankBlock originalBlankBlock = memo.getOriginalBlankBlock();
-			Assert.assertEquals(1, originalBlankBlock.getNumberOfPoint());
+			TestCase.assertEquals(1, originalBlankBlock.getNumberOfPoint());
 			originalBlankBlock.attachToNeighbor();
 			originalBlankBlock.setActive(true);
 			if (log.isInfoEnabled()) {
@@ -457,7 +457,7 @@ public class GoBoardBackward extends GoBoardForward implements GoBoardInterface 
 
 		}
 
-		Assert.assertTrue("state should equal internally!", result);
+		TestCase.assertTrue("state should equal internally!", result);
 		GoBoardForward goBoard = new GoBoardForward(copy);
 		for (Point point : Point.getAllPoints(boardSize)) {
 			boolean equals = BasicBlock.equals(this.getBasicBlock(point),
@@ -470,7 +470,7 @@ public class GoBoardBackward extends GoBoardForward implements GoBoardInterface 
 				log.error(this.getBasicBlock(point));
 
 			}
-			Assert.assertTrue(equals);
+			TestCase.assertTrue(equals);
 		}
 
 	}
@@ -495,7 +495,7 @@ public class GoBoardBackward extends GoBoardForward implements GoBoardInterface 
 				log.warn("curernt state whose turn = "
 						+ boardColorState.getWhoseTurnString());
 			this.printState();
-			Assert.assertTrue("state should equal internally!", result);
+			TestCase.assertTrue("state should equal internally!", result);
 		}
 
 		for (BasicBlock basicBlock : this.getAllBlocks()) {
@@ -527,7 +527,7 @@ public class GoBoardBackward extends GoBoardForward implements GoBoardInterface 
 
 				outputManualWithIssue();
 			}
-			Assert.assertTrue(
+			TestCase.assertTrue(
 					"all block should be equal internally shoushu = ", equals);
 		}
 

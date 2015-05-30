@@ -12,11 +12,10 @@ import java.util.BitSet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 
@@ -254,7 +253,7 @@ public class BoardColorState {
 				blackPoints.add(Point.getPointFromOneDim(boardSize, i));
 			}
 		}
-		Assert.assertEquals(blackPoints.size(), blackStones);
+		TestCase.assertEquals(blackPoints.size(), blackStones);
 
 		return blackPoints;
 	}
@@ -267,7 +266,7 @@ public class BoardColorState {
 				sum += point.getColumn();
 			}
 
-			Assert.assertEquals(sum, this.blackRowColumnSum);
+			TestCase.assertEquals(sum, this.blackRowColumnSum);
 			return sum;
 		} else {
 			return this.blackRowColumnSum;
@@ -281,7 +280,7 @@ public class BoardColorState {
 				sum += point.getRow();
 			}
 
-			Assert.assertEquals(sum, this.blackRowSum);
+			TestCase.assertEquals(sum, this.blackRowSum);
 			return sum;
 		} else {
 			return this.blackRowSum;
@@ -462,7 +461,7 @@ public class BoardColorState {
 				sum += point.getRow();
 				sum += point.getColumn();
 			}
-			Assert.assertEquals(sum, this.rowColumnSum);
+			TestCase.assertEquals(sum, this.rowColumnSum);
 			return sum;
 		} else {
 			return this.rowColumnSum;
@@ -478,7 +477,7 @@ public class BoardColorState {
 			for (Point point : this.getWhitePoints()) {
 				sum += point.getRow();
 			}
-			Assert.assertEquals(sum, this.rowSum);
+			TestCase.assertEquals(sum, this.rowSum);
 			return sum;
 		} else {
 			return this.rowSum;
@@ -532,8 +531,24 @@ public class BoardColorState {
 		}
 		result.append(footer);
 		result.append("whoseTurn=" + this.getWhoseTurnString());
-		result.append(Constant.lineSeparator);
+//		result.append(Constant.lineSeparator);//
 		return result;
+	}
+
+	public String getStateAsOneLineString() {
+		char[][] state = this.getDisplayMatrixState();
+		StringBuilder result = new StringBuilder();
+		result.append(this.getWhoseTurnString());
+		result.append(" ");
+		for (int i = 0; i < state.length; i++) {
+			for (int j = 0; j < state.length; j++) {
+				result.append(state[i][j]);
+			}
+			result.append(" ");
+		}
+		
+		
+		return result.toString();
 	}
 
 	public SymmetryResult getSymmetryResult() {
@@ -570,7 +585,7 @@ public class BoardColorState {
 				whitePoints.add(Point.getPointFromOneDim(boardSize, i));
 			}
 		}
-		Assert.assertEquals(whitePoints.size(), whiteStones);
+		TestCase.assertEquals(whitePoints.size(), whiteStones);
 		return whitePoints;
 	}
 

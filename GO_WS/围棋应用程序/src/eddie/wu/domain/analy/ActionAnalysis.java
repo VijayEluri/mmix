@@ -226,19 +226,19 @@ public class ActionAnalysis extends StateAnalysis {
 		/*
 		 * 附近（大飞范围之内）没有子
 		 */
-		if (point.Normalize().equals(Point.GAOMU)) {
+		if (point.normalize().equals(Point.GAOMU)) {
 			return "高目占角";
-		} else if (point.Normalize().equals(Point.XIAOMU)) {
+		} else if (point.normalize().equals(Point.XIAOMU)) {
 			return "小目占角";
-		} else if (point.Normalize().equals(Point.MUWAI)) {
+		} else if (point.normalize().equals(Point.MUWAI)) {
 			return "目外占角";
-		} else if (point.Normalize().equals(Point.SANSAN)) {
+		} else if (point.normalize().equals(Point.SANSAN)) {
 			return "三三占角";
-		} else if (point.Normalize().equals(Point.XING)) {
+		} else if (point.normalize().equals(Point.XING)) {
 			return "星位占角";
-		} else if (point.Normalize().nearConer()) {
+		} else if (point.normalize().nearConer()) {
 			return "特殊占角方式";
-		} else if (point.Normalize().nearBorder()) {
+		} else if (point.normalize().nearBorder()) {
 			return "边上分投";
 		} else {
 			return "中央分投";

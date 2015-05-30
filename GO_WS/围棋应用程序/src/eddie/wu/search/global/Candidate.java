@@ -10,6 +10,17 @@ import eddie.wu.domain.Step;
  * 
  */
 public class Candidate {
+	/**
+	 * increase one breath is equivalent to decrease one enemy's breath. but we
+	 * prefer decreasing (mark it as attacking).
+	 */
+	private boolean attacking;
+
+	/**
+	 * in case of decrease breath by stand alone play, we prefer the stone is
+	 * connect to (or could be connected to) friend block
+	 */
+	private int connection;
 
 	private boolean eatingDead;
 	/**
@@ -51,7 +62,7 @@ public class Candidate {
 	/**
 	 * 同样是提子,是否同时解除对方的打吃.
 	 */
-	private boolean removeCapturing;
+	private int removeCapturing;
 
 	/**
 	 * 是否被对方打吃
@@ -113,12 +124,13 @@ public class Candidate {
 				+ "Candidate [step="
 				+ (step.getPoint() == null ? "PAS" : step.getPoint().toString())
 				+ ", color=" + step.getColorString() + ", breaths=" + breaths
-				+ ", increasedBreath=" + increasedBreath + ", eatingDead = "
-				+ eatingDead + ",\r\n\t" + "eating=" + eating + ", capturing="
-				+ capturing + ", removeCapturing=" + removeCapturing
-				+ ", gifting=" + gifting + ", tigerMouths=" + tigerMouths
-				+ ", becomeLive=" + becomeLive + ", eyes=" + eyes
-				+ ", eyeSizecount=" + countEyePoint + "]";
+				+ ", increasedBreath=" + increasedBreath + ", attacking="
+				+ attacking + ", connection=" + connection + ",\r\n\t"
+				+ "eating=" + eating + ", eatingDead = " + eatingDead
+				+ ", removeCapturing=" + removeCapturing + ", capturing="
+				+ capturing + ", gifting=" + gifting + ",\r\n\t"
+				+ "tigerMouths=" + tigerMouths + ", becomeLive=" + becomeLive
+				+ ", eyes=" + eyes + ", eyeSizecount=" + countEyePoint + "]";
 	}
 
 	public boolean isSkip() {
@@ -164,11 +176,11 @@ public class Candidate {
 		this.countEyePoint = countEyePoint;
 	}
 
-	public boolean isRemoveCapturing() {
+	public int getRemoveCapturing() {
 		return removeCapturing;
 	}
 
-	public void setRemoveCapturing(boolean removeCapturing) {
+	public void setRemoveCapturing(int removeCapturing) {
 		this.removeCapturing = removeCapturing;
 	}
 
@@ -198,6 +210,22 @@ public class Candidate {
 
 	public void setEatingDead(boolean eatingDead) {
 		this.eatingDead = eatingDead;
+	}
+
+	public boolean isAttacking() {
+		return attacking;
+	}
+
+	public void setAttacking(boolean attacking) {
+		this.attacking = attacking;
+	}
+
+	public int getConnection() {
+		return connection;
+	}
+
+	public void setConnection(int connection) {
+		this.connection = connection;
 	}
 
 }

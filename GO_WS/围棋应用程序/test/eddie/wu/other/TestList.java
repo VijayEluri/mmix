@@ -21,7 +21,7 @@ public class TestList extends TestCase {
 		aList.add(null);
 		if(log.isDebugEnabled()) log.debug(aList.size());
 		if(log.isDebugEnabled()) log.debug(aList.isEmpty());
-		Assert.assertEquals(2, aList.size());
+		assertEquals(2, aList.size());
 	}
 	public void test2() {
 		Set<Object> aSet = new HashSet<Object>();
@@ -29,6 +29,6 @@ public class TestList extends TestCase {
 		aSet.add(null);
 		if(log.isDebugEnabled()) log.debug(aSet.size());
 		if(log.isDebugEnabled()) log.debug(aSet.isEmpty());
-		Assert.assertEquals(1, aSet.size());
+		assertEquals(1, aSet.size());
 	}
 }

@@ -91,6 +91,32 @@ public class Step {// implements Step{
 		this.point = this.point.backwardSlashMirror();
 	}
 
+	public void normalize() {
+		this.point = this.point.normalize();
+	}
+
+	public void normalize(SymmetryResult operation) {
+		this.point = point.normalize(operation);
+	}
+
+	public void convert(SymmetryResult operation) {
+		if (point == null)
+			return;
+		if (operation.isBackwardSlashSymmetry()) {
+			backwardSlashMirror();
+		}
+		if (operation.isForwardSlashSymmetry()) {
+			forwardSlashMirror();
+
+		}
+		if (operation.isHorizontalSymmetry()) {
+			horizontalMirror();
+		}
+		if (operation.isVerticalSymmetry()) {
+			verticalMirror();
+		}
+	}
+
 	// public void setColor(int color) {
 	// this.color = (byte) color;
 	// }
@@ -116,6 +142,10 @@ public class Step {// implements Step{
 		return point.getColumn();
 	}
 
+	/**
+	 * this field is not necessary during searching
+	 * @return
+	 */
 	public int getIndex() {
 		return index;
 	}
@@ -214,8 +244,8 @@ public class Step {// implements Step{
 			sb.append(CHAR[point.getRow() - 1]);
 		} else {
 			// get [tt] for pass in 19*19
-//			sb.append(CHAR[point.boardSize]);
-//			sb.append(CHAR[point.boardSize]);
+			// sb.append(CHAR[point.boardSize]);
+			// sb.append(CHAR[point.boardSize]);
 		}
 		sb.append("]");
 		return sb.toString();
@@ -235,7 +265,6 @@ public class Step {// implements Step{
 			sb.append(point.getColumn());
 
 		} else {
-			//sb.append("0,0");
 			sb.append("PAS");
 		}
 		sb.append("]");
@@ -279,8 +308,56 @@ public class Step {// implements Step{
 		return true;
 	}
 
+	public Step getCopy() {
+		return new Step(point, color);
+	}
+
+	public void switchColor() {
+		this.color = (byte) ColorUtil.enemyColor(color);
+
+	}
+
 	// public void setPoint(Point mirror) {
 	// // TODO Auto-generated method stub
 	//
 	// }
+
+	public static int getPasses(List<Step> list) {
+		int count = 0;
+		for (Step step : list) {
+			if (step.isGiveUp()) {
+				count++;
+			}
+		}
+		System.out.print(Step.getString(list));
+		System.out.println("---" + count);
+		return count;
+	}
+
+	public static String getString(List<Step> list) {
+		StringBuilder sb = new StringBuilder();
+		for (Step step : list) {
+			sb.append(step.toNonSGFString() + "-->");
+		}
+		return sb.toString();
+	}
+
+	public static String getString(List<Step> list, String score) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[INIT]");
+		for (Step step : list) {
+			if (step.isBlack()) {
+				sb.append("B-->");
+			} else {
+				sb.append("W-->");
+			}
+			if (step.getPoint() == null) {
+				sb.append("[PAS]");
+			} else {
+				sb.append(step.getPoint());
+			}
+		}
+		sb.append("(" + score + ")");
+		return sb.toString();
+	}
 }

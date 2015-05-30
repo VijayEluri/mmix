@@ -1,10 +1,12 @@
 package eddie.wu.manual;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
+import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
 import eddie.wu.domain.analy.SmallGoBoard;
 
@@ -33,7 +35,11 @@ public class TreeGoManual extends AbsGoManual {
 
 	public String getSGFBodyString(boolean sgf) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("INIT variant=" + root.getVariant() + Constant.lineSeparator);
+		if (sgf == false) {
+			sb.append("INIT variant=" + root.getVariant() + ", score="
+					+ root.getScore() + ", max=" + root.isMax()
+					+ Constant.lineSeparator);
+		}
 		SearchNode temp = root.getChild();
 		if (temp != null) {
 			temp.getSGFBodyString(sb, sgf);
@@ -66,9 +72,33 @@ public class TreeGoManual extends AbsGoManual {
 		return sb.toString();
 	}
 
+	/**
+	 * initialize the score assuming only terminator has score assigned.
+	 */
+	public int initScore() {
+		return this.root.initScore();
+	}
+
 	public String getMostExpPath() {
 		return getMostExpPath(false, new SimpleGoManual(this.getInitState()));
 	}
+	
+	/**
+	 * for killed target, we check the longest breath path.
+	 * @return
+	 */
+	public SimpleGoManual getLongestBreathPath(){
+		SimpleGoManual manual =  new SimpleGoManual(this.getInitState());
+		SearchNode temp = root;
+		while(temp!=null){
+			
+		}
+		
+		return manual;
+		
+	}
+	
+	
 
 	public String getMostExpPath(boolean sgf, SimpleGoManual manual) {
 		GoBoard goB = null;
@@ -79,8 +109,11 @@ public class TreeGoManual extends AbsGoManual {
 		if (sgf == false) {
 			goB = new SmallGoBoard(manual.getInitState());
 			sb.append(goB.getBoardColorState().getStateString());
+			sb.append(" (variant=" + root.getVariant() + ")");
+			sb.append(Constant.lineSeparator );
 
 		}
+		List<Point> candidate = new ArrayList<Point>();
 		while (farther.getChild() != null) {
 			temp = farther.getChild();
 			max = temp;
@@ -88,17 +121,21 @@ public class TreeGoManual extends AbsGoManual {
 				if (temp.variant > max.variant) {
 					max = temp;
 				}
+				candidate.add(temp.getStep().getPoint());
+				sb.append(temp.getStep().toNonSGFString());
+				sb.append("(variant=" + temp.getVariant() + ") ");
 				temp = temp.getBrother();
 			}
 			if (sgf) {
 				sb.append(max.getStep().toSGFString());
 			} else {
-				sb.append("--");
-				sb.append(max.getStep().toNonSGFString() + " (variant="
-						+ max.getVariant() + ")" + Constant.lineSeparator);
-				sb.append("-->");
+				sb.append(Constant.lineSeparator + "--"
+						+ max.getStep().toNonSGFString() + "-->");
+				sb.append(Constant.lineSeparator);
 				goB.oneStepForward(max.getStep());
 				sb.append(goB.getBoardColorState().getStateString());
+				sb.append(" (variant=" + max.getVariant() + ")");
+				sb.append(Constant.lineSeparator );
 			}
 			if (manual != null) {
 				manual.addStep(max.getStep());
@@ -184,6 +221,47 @@ public class TreeGoManual extends AbsGoManual {
 		System.out.println(manual.getInitState());
 		this.getMostExpPath(true, manual);
 		return manual;
+	}
+
+	public void cleanupBadMove_firstWin(int whoseTurn, int expectedScore) {
+		root.initScore();
+		this.setResult(String.valueOf(root.getScore()));
+		root.cleanupBadMove_firstWin(whoseTurn, expectedScore);
+	}
+
+	public void cleanupBadMove_firstLose(int whoseTurn, int expectedScore) {
+		root.initScore();
+		SearchNode brother = root.getChild();
+		while (brother != null) {
+			brother.cleanupBadMove_firstLose(whoseTurn, expectedScore);
+			brother = brother.brother;
+		}
+	}
+
+	public void up() {
+		if (current != root)
+			this.current = current.farther;
+		// this.current = current.farther;
+
+	}
+
+	public void blackWhiteSwitch() {
+		BoardColorState state = this.getInitState().blackWhiteSwitch();
+		this.setInitState(state.getMatrixState());
+		this.setInitTurn(state.getWhoseTurn());
+		this.root.blackWhiteSwitch();
+		int resultI = 0 - root.getScore();
+		this.setResult(String.valueOf(resultI));
+
+	}
+
+	public void mergeWith(TreeGoManual goManual) {
+		SearchNode temp = goManual.getRoot().getChild();
+		while (temp != null) {
+			getCurrent().addChild(temp);
+			// log.warn("Add child "+temp.getStep().toNonSGFString());
+			temp = temp.getBrother();
+		}
 	}
 
 }

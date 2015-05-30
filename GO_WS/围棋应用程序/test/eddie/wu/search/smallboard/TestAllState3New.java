@@ -57,7 +57,7 @@ public class TestAllState3New extends TestCase {
 				if(log.isEnabledFor(Level.WARN)) log.warn("count=" + count);
 		}
 		if(log.isEnabledFor(Level.WARN)) log.warn(goS.getSearchProcess().size());
-		Assert.assertEquals(1, score);
+		assertEquals(1, score);
 	}
 
 	/** 198 seconds */
@@ -72,7 +72,7 @@ public class TestAllState3New extends TestCase {
 				Constant.BLACK, 4, 3);
 		int score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(4, score);
+		assertEquals(4, score);
 		goS.outputSearchStatistics();
 
 		for (String list : goS.getSearchProcess()) {
@@ -99,7 +99,7 @@ public class TestAllState3New extends TestCase {
 				if(log.isEnabledFor(Level.WARN)) log.warn("count=" + count);
 		}
 		if(log.isEnabledFor(Level.WARN)) log.warn(goS.getSearchProcess().size());
-		Assert.assertEquals(4, score);
+		assertEquals(4, score);
 	}
 
 	public void testState_GlobalLoop() {
@@ -113,7 +113,7 @@ public class TestAllState3New extends TestCase {
 				Constant.WHITE, 3, 2);
 		int score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(3, score);
+		assertEquals(3, score);
 		goS.outputSearchStatistics();
 
 		for (String list : goS.getSearchProcess()) {
@@ -156,7 +156,7 @@ public class TestAllState3New extends TestCase {
 		text[2] = new String("[B, W, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		SmallGoBoard ta = new SmallGoBoard(state,Constant.WHITE);
-		Assert.assertFalse(ta.isFinalState_deadExist());
+		assertFalse(ta.isFinalState_deadExist());
 	}
 
 	// [INIT]B-->[1,3]W-->[1,1]B-->[1,2]W-->[1,1]B-->[2,2]W-->[1,2]B-->[2,3]W-->[2,1]B-->[3,2](FINAL
@@ -168,16 +168,16 @@ public class TestAllState3New extends TestCase {
 		text[2] = new String("[_, B, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		SmallGoBoard ta = new SmallGoBoard(state);
-		Assert.assertTrue(ta.isFinalState_deadExist());
-		Assert.assertEquals(9, ta.finalResult_deadExist().getScore());
+		assertTrue(ta.isFinalState_deadExist());
+		assertEquals(9, ta.finalResult_deadExist().getScore());
 
-		Assert.assertFalse(ta.isFinalState_deadCleanedUp());
-		// Assert.assertEquals(9, ta.finalResult_deadCleanedUp().getScore());
+		assertFalse(ta.isFinalState_deadCleanedUp());
+		// assertEquals(9, ta.finalResult_deadCleanedUp().getScore());
 		// ThreeThreeBoardSearch goS = new ThreeThreeBoardSearch(state,
 		// Constant.BLACK, 4, 3);
 		// int score = goS.globalSearch();
 		// if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		// Assert.assertEquals(4, score);
+		// assertEquals(4, score);
 		// goS.outputSearchStatistics();
 		//
 		// for (String list : goS.getSearchProcess()) {
@@ -205,7 +205,7 @@ public class TestAllState3New extends TestCase {
 				if(log.isEnabledFor(Level.WARN)) log.warn("count=" + count);
 		}
 		if(log.isEnabledFor(Level.WARN)) log.warn(goS.getSearchProcess().size());
-		Assert.assertEquals(-3, score);
+		assertEquals(-3, score);
 	}
 
 	public void testState_oneBreathCoLive() {
@@ -228,7 +228,7 @@ public class TestAllState3New extends TestCase {
 				if(log.isEnabledFor(Level.WARN)) log.warn("count=" + count);
 		}
 		if(log.isEnabledFor(Level.WARN)) log.warn(goS.getSearchProcess().size());
-		Assert.assertEquals(4, score);
+		assertEquals(4, score);
 	}
 
 	/**
@@ -247,7 +247,7 @@ public class TestAllState3New extends TestCase {
 				8);
 		int score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(9, score);
+		assertEquals(9, score);
 
 		for (String list : goS.getSearchProcess()) {
 			if(log.isEnabledFor(Level.WARN)) log.warn(list);
@@ -267,7 +267,7 @@ public class TestAllState3New extends TestCase {
 				Constant.BLACK, 9, 8);
 		int score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(9, score);
+		assertEquals(9, score);
 		goS.outputSearchStatistics();
 
 		for (String list : goS.getSearchProcess()) {
@@ -285,7 +285,7 @@ public class TestAllState3New extends TestCase {
 		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
 		boolean finalState = new SmallGoBoard(state)
 				.isFinalState_deadCleanedUp();
-		Assert.assertTrue(finalState);
+		assertTrue(finalState);
 	}
 
 	public void testState_3110() {
@@ -297,13 +297,13 @@ public class TestAllState3New extends TestCase {
 
 		boolean finalState = new SmallGoBoard(state)
 				.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 		GoBoardSearch goS;
 		int score;
-		goS = new ThreeThreeBoardSearch(state, Constant.BLACK);
+		goS = new ThreeThreeBoardSearch(state, Constant.BLACK,9,-9);
 		score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(9, score);
+		assertEquals(9, score);
 
 		for (String list : goS.getSearchProcess()) {
 			if(log.isEnabledFor(Level.WARN)) log.warn(list);
@@ -320,7 +320,7 @@ public class TestAllState3New extends TestCase {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 
 		SurviveAnalysis sa = new SurviveAnalysis(state);
-		Assert.assertFalse(sa.isAlreadyLive_dynamic(Point.getPoint(3, 2, 1)));
+		assertFalse(sa.isAlreadyLive_dynamic(Point.getPoint(3, 2, 1)));
 
 	}
 
@@ -333,15 +333,15 @@ public class TestAllState3New extends TestCase {
 
 		SmallGoBoard ta = new SmallGoBoard(state);
 		Point point = Point.getPoint(3, 2, 2);
-		Assert.assertFalse(ta.isAlreadyLive_dynamic(point));
+		assertFalse(ta.isAlreadyLive_dynamic(point));
 
 		GoBoardSearch goS;
 		int score;
 		// goS = new ThreeThreeBoardSearch(state, Constant.BLACK);
-		goS = new ThreeThreeBoardSearch(state, Constant.WHITE);
+		goS = new ThreeThreeBoardSearch(state, Constant.WHITE,9,-9);
 		score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(9, score);
+		assertEquals(9, score);
 
 		for (String list : goS.getSearchProcess()) {
 			if(log.isEnabledFor(Level.WARN)) log.warn(list);
@@ -358,10 +358,10 @@ public class TestAllState3New extends TestCase {
 
 		boolean finalState = new SmallGoBoard(state)
 				.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 
 		finalState = new SmallGoBoard(state).isFinalState_deadExist();
-//		Assert.assertTrue(finalState);
+//		assertTrue(finalState);
 		GoBoardSearch goS = new ThreeThreeBoardSearch(state, Constant.BLACK, -2, -3);
 		int score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
@@ -373,7 +373,7 @@ public class TestAllState3New extends TestCase {
 				if(log.isEnabledFor(Level.WARN)) log.warn("count=" + count);
 		}
 		if(log.isEnabledFor(Level.WARN)) log.warn(goS.getSearchProcess().size());
-		Assert.assertEquals(-3, score);
+		assertEquals(-3, score);
 		
 		 goS = new ThreeThreeBoardSearch(state, Constant.WHITE, -2,
 				-3);
@@ -387,7 +387,7 @@ public class TestAllState3New extends TestCase {
 				if(log.isEnabledFor(Level.WARN)) log.warn("count=" + count);
 		}
 		if(log.isEnabledFor(Level.WARN)) log.warn(goS.getSearchProcess().size());
-		Assert.assertEquals(-3, score);
+		assertEquals(-3, score);
 
 	}
 
@@ -400,10 +400,10 @@ public class TestAllState3New extends TestCase {
 
 		boolean finalState = new SmallGoBoard(state)
 				.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 
 		finalState = new SmallGoBoard(state).isFinalState_deadExist();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 
 		GoBoardSearch goS = new ThreeThreeBoardSearch(state, Constant.BLACK, 3, 2);
 		int score = goS.globalSearch();
@@ -416,7 +416,7 @@ public class TestAllState3New extends TestCase {
 				if(log.isEnabledFor(Level.WARN)) log.warn("count=" + count);
 		}
 		if(log.isEnabledFor(Level.WARN)) log.warn(goS.getSearchProcess().size());
-		Assert.assertEquals(3, score);
+		assertEquals(3, score);
 
 	}
 
@@ -429,10 +429,10 @@ public class TestAllState3New extends TestCase {
 
 		boolean finalState = new SmallGoBoard(state)
 				.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 
 		finalState = new SmallGoBoard(state).isFinalState_deadExist();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 
 		GoBoardSearch goS = new ThreeThreeBoardSearch(state, Constant.WHITE, 3,
 				2);
@@ -446,7 +446,7 @@ public class TestAllState3New extends TestCase {
 				if(log.isEnabledFor(Level.WARN)) log.warn("count=" + count);
 		}
 		if(log.isEnabledFor(Level.WARN)) log.warn(goS.getSearchProcess().size());
-		Assert.assertEquals(3, score);
+		assertEquals(3, score);
 
 	}
 
@@ -466,17 +466,17 @@ public class TestAllState3New extends TestCase {
 
 		boolean finalState = new SmallGoBoard(state)
 				.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 
-		GoBoardSearch goS = new ThreeThreeBoardSearch(state, Constant.WHITE);
+		GoBoardSearch goS = new ThreeThreeBoardSearch(state, Constant.WHITE,9,-9);
 		int score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(9, score);
+		assertEquals(9, score);
 
-		goS = new ThreeThreeBoardSearch(state, Constant.BLACK);
+		goS = new ThreeThreeBoardSearch(state, Constant.BLACK,9,-9);
 		score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(9, score);
+		assertEquals(9, score);
 
 		for (String list : goS.getSearchProcess()) {
 			if(log.isEnabledFor(Level.WARN)) log.warn(list);
@@ -484,7 +484,7 @@ public class TestAllState3New extends TestCase {
 		if(log.isEnabledFor(Level.WARN)) log.warn(goS.getSearchProcess().size());
 
 		// finalState = new SmallGoBoard(state).isFinalState();
-		// Assert.assertFalse(finalState);
+		// assertFalse(finalState);
 	}
 
 	public void testState_3141() {
@@ -496,15 +496,15 @@ public class TestAllState3New extends TestCase {
 
 		SmallGoBoard ta = new SmallGoBoard(state);
 		Point point = Point.getPoint(3, 1, 2);
-		Assert.assertTrue(ta.isAlreadyLive_dynamic(point));
+		assertTrue(ta.isAlreadyLive_dynamic(point));
 
 		boolean finalState = ta.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 
-		GoBoardSearch goS = new ThreeThreeBoardSearch(state, Constant.WHITE);
+		GoBoardSearch goS = new ThreeThreeBoardSearch(state, Constant.WHITE,9,-9);
 		int score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(9, score);
+		assertEquals(9, score);
 
 		for (String list : goS.getSearchProcess()) {
 			if(log.isEnabledFor(Level.WARN)) log.warn(list);
@@ -521,15 +521,15 @@ public class TestAllState3New extends TestCase {
 
 		SmallGoBoard ta = new SmallGoBoard(state);
 		Point point = Point.getPoint(3, 1, 2);
-		Assert.assertTrue(ta.isAlreadyLive_dynamic(point));
+		assertTrue(ta.isAlreadyLive_dynamic(point));
 
 		boolean finalState = ta.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 
-		GoBoardSearch goS = new ThreeThreeBoardSearch(state, Constant.WHITE);
+		GoBoardSearch goS = new ThreeThreeBoardSearch(state, Constant.WHITE,9,-9);
 		int score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(9, score);
+		assertEquals(9, score);
 
 		for (String list : goS.getSearchProcess()) {
 			if(log.isEnabledFor(Level.WARN)) log.warn(list);
@@ -546,15 +546,15 @@ public class TestAllState3New extends TestCase {
 
 		SmallGoBoard ta = new SmallGoBoard(state);
 		Point point = Point.getPoint(3, 1, 2);
-		// Assert.assertTrue(ta.isLive(point));
+		// assertTrue(ta.isLive(point));
 
 		boolean finalState = ta.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 
-		GoBoardSearch goS = new ThreeThreeBoardSearch(state, Constant.WHITE);
+		GoBoardSearch goS = new ThreeThreeBoardSearch(state, Constant.WHITE,9,-9);
 		int score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(9, score);
+		assertEquals(9, score);
 
 		for (String list : goS.getSearchProcess()) {
 			if(log.isEnabledFor(Level.WARN)) log.warn(list);
@@ -571,10 +571,10 @@ public class TestAllState3New extends TestCase {
 
 		boolean finalState = new SmallGoBoard(state)
 				.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 
 		finalState = new SmallGoBoard(state).isFinalState_deadExist();
-		Assert.assertTrue(finalState);
+		assertTrue(finalState);
 	}
 
 	public void testState_316() {
@@ -586,13 +586,13 @@ public class TestAllState3New extends TestCase {
 
 		boolean finalState = new SmallGoBoard(state)
 				.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 		GoBoardSearch goS;
 		int score;
-		goS = new ThreeThreeBoardSearch(state, Constant.BLACK);
+		goS = new ThreeThreeBoardSearch(state, Constant.BLACK,9,-9);
 		score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(9, score);
+		assertEquals(9, score);
 		for (String list : goS.getSearchProcess()) {
 			if(log.isEnabledFor(Level.WARN)) log.warn(list);
 		}
@@ -601,13 +601,13 @@ public class TestAllState3New extends TestCase {
 		goS = new ThreeThreeBoardSearch(state, Constant.WHITE, 4, 3);
 		score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(3, score);
+		assertEquals(3, score);
 		for (String list : goS.getSearchProcess()) {
 			if(log.isEnabledFor(Level.WARN)) log.warn(list);
 		}
 		if(log.isEnabledFor(Level.WARN)) log.warn(goS.getSearchProcess().size());
 		// finalState = new SmallGoBoard(state).isFinalState();
-		// Assert.assertFalse(finalState);
+		// assertFalse(finalState);
 	}
 
 	public void testState_317() {
@@ -619,13 +619,13 @@ public class TestAllState3New extends TestCase {
 
 		boolean finalState = new SmallGoBoard(state)
 				.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 		GoBoardSearch goS;
 		int score;
-		goS = new ThreeThreeBoardSearch(state, Constant.BLACK);
+		goS = new ThreeThreeBoardSearch(state, Constant.BLACK,9,-9);
 		score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(9, score);
+		assertEquals(9, score);
 		for (String list : goS.getSearchProcess()) {
 			if(log.isEnabledFor(Level.WARN)) log.warn(list);
 		}
@@ -639,9 +639,9 @@ public class TestAllState3New extends TestCase {
 			if(log.isEnabledFor(Level.WARN)) log.warn(list);
 		}
 		if(log.isEnabledFor(Level.WARN)) log.warn(goS.getSearchProcess().size());
-		Assert.assertEquals(4, score);
+		assertEquals(4, score);
 		// finalState = new SmallGoBoard(state).isFinalState();
-		// Assert.assertFalse(finalState);
+		// assertFalse(finalState);
 	}
 
 	public void testState_318() {
@@ -653,13 +653,13 @@ public class TestAllState3New extends TestCase {
 
 		boolean finalState = new SmallGoBoard(state)
 				.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 		GoBoardSearch goS;
 		int score;
 		goS = new ThreeThreeBoardSearch(state, Constant.WHITE, 4, 3);
 		score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(4, score);
+		assertEquals(4, score);
 
 	}
 
@@ -675,7 +675,7 @@ public class TestAllState3New extends TestCase {
 
 		boolean finalState = new SmallGoBoard(state)
 				.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 		GoBoardSearch goS;
 		int score;
 		goS = new ThreeThreeBoardSearch(state, Constant.BLACK, -2, -3);
@@ -686,7 +686,7 @@ public class TestAllState3New extends TestCase {
 			if(log.isEnabledFor(Level.WARN)) log.warn(list);
 		}
 		if(log.isEnabledFor(Level.WARN)) log.warn(goS.getSearchProcess().size());
-		Assert.assertEquals(-3, score);
+		assertEquals(-3, score);
 	}
 
 	/**
@@ -706,13 +706,13 @@ public class TestAllState3New extends TestCase {
 
 		boolean finalState = new SmallGoBoard(state)
 				.isFinalState_deadCleanedUp();
-		Assert.assertFalse(finalState);
+		assertFalse(finalState);
 		ThreeThreeBoardSearch goS;
 		int score;
 		goS = new ThreeThreeBoardSearch(state, Constant.WHITE, -8, -9);
 		score = goS.globalSearch();
 		if(log.isEnabledFor(Level.WARN)) log.warn("Score=" + score);
-		Assert.assertEquals(-9, score);
+		assertEquals(-9, score);
 		goS.outputSearchStatistics();
 
 		for (String list : goS.getSearchProcess()) {
@@ -732,15 +732,15 @@ public class TestAllState3New extends TestCase {
 		Point point = Point.getPoint(3, 1, 2);
 		boolean live = new SurviveAnalysis(state).isLive_Special(point,
 				Constant.BLACK);
-		Assert.assertFalse(live);
+		assertFalse(live);
 
 		point = Point.getPoint(3, 2, 1);
 		live = new SurviveAnalysis(state).isAlreadyLive_dynamic(point);
-		Assert.assertFalse(live);
+		assertFalse(live);
 
 		point = Point.getPoint(3, 2, 3);
 		live = new SurviveAnalysis(state).isAlreadyLive_dynamic(point);
-		Assert.assertFalse(live);
+		assertFalse(live);
 
 	}
 

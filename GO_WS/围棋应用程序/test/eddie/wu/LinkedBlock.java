@@ -1,6 +1,6 @@
 package eddie.wu;
-import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 
@@ -8,7 +8,7 @@ import util.GBKToUTF8;
 
 class LinkedBlock {
 	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
-   LinkedList linkedList=new LinkedList();
+   LinkedList<String> linkedList=new LinkedList<String>();
    public static void main(String[] args){
      new LinkedBlock().test();
    }
@@ -25,7 +25,7 @@ class LinkedBlock {
 
       linkedList.add("rrr");
       linkedList.addLast("sdfasdfa");
-      Iterator eee=linkedList.iterator();
+      Iterator<String> eee=linkedList.iterator();
       while(eee.hasNext()){
          if(log.isDebugEnabled()) log.debug(eee.next());
       }

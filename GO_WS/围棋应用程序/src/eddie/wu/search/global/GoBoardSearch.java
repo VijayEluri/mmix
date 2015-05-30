@@ -24,20 +24,26 @@ import eddie.wu.manual.TreeGoManual;
  * 1. only for small board (3<=size<=?).<br/>
  * 2. no copy of board, use backward/forward feature.
  * 
- * @author Eddie
+ * @author Eddie Wu
  * 
  */
 public abstract class GoBoardSearch {
-	private int NUMBER_OF_VARIANT = 5000*5;
-	public int dupCount;
 
-	public void setVariant(int variant) {
-		NUMBER_OF_VARIANT = variant;
+	private int minExpScore;
+	private int maxExpScore;
+
+	GoBoardSearch(int maxExp, int minExp) {
+		maxExpScore = maxExp;
+		minExpScore = minExp;
 	}
+
+	private int NUMBER_OF_VARIANT = 5000 * 3;
+
+	public int dupCount;
 
 	private static final Logger log = Logger.getLogger(GoBoardSearch.class);
 	public static int deepth = 81;
-	protected List<SearchLevel> levels = new ArrayList<SearchLevel>(deepth);
+	private List<SearchLevel> levels = new ArrayList<SearchLevel>(deepth);
 	/**
 	 * initial state is in level 0
 	 */
@@ -69,130 +75,235 @@ public abstract class GoBoardSearch {
 	 */
 	// Set<BoardColorState> knownState = new HashSet<BoardColorState>();
 
+	List<Step> bestResult;
+
 	/**
-	 * 初始局面在level 0中，其中有所有的候选点。<br/>
-	 * 每次展开某一层中的一个候选点，一般形成新的层，包括该层的候选点。同时相应的棋盘状态前进了一步。<br/>
+	 * keep the search tree internally and help output result tree.
+	 */
+	private SearchNode root = SearchNode.getSpecialRoot();
+
+	public List<Step> getBestResult() {
+		return bestResult;
+	}
+
+	abstract public GoBoard getGoBoard();
+
+	public SearchNode getRoot() {
+		return root;
+	}
+
+	public abstract int getScore(BoardColorState boardColorState);
+
+	public List<String> getSearchProcess() {
+		return searchProcess;
+	}
+
+	/**
+	 * get the tree according to the search process, it is similar to the tree
+	 * in the goBoard! <br/>
+	 * since goBoard already record all the steps. we can clean up the bad move
+	 * here to simplify the result.
+	 * 
+	 * @return
+	 */
+	public TreeGoManual getTreeGoManual() {
+		TreeGoManual manual = new TreeGoManual(this.getGoBoard()
+				.getInitColorState());
+		manual.setRoot(root);
+		return manual;
+		
+	}
+
+	/**
+	 * 初始局面在level 0中，所有的候选点尚未初始化。棋盘对应到初始状态<br/>
+	 * 如果该层已经遍历所有候选点,就作出结论-得到score.<br/>
+	 * 每次展开某一层中的一个候选点(如果没有初始化候选点,就马上初始化.如果已经初始化, <br/>
+	 * 就从下一个没有尝试的候选点开始)<br/>
+	 * 一般形成新的层，同时相应的棋盘状态前进了一步。该层的候选点暂时先不初始化。<br/>
 	 * 这个不变量在每个循环的开始和结束处始终得到保持。<br/>
 	 * 
 	 * @return
 	 */
 	public int globalSearch() {
 		GoBoard goBoard = this.getGoBoard();
+		// level 0: all candidates of original state.
+		SearchLevel initLevel = getInitLevel();
+		initLevel.setNode(root);
+		root.setMax(initLevel.isMax());
+		levels.add(initLevel);
 		/**
+		 * exit when we are at level 0 again and exhaust all the candidates;
+		 * 1.Candidates are generated on the fly for current state/level<br/>
 		 * 2.开始计算。 第一层循环：展开最后一个局面。 <br/>
 		 * decide to completely rewrite it.<br/>
 		 * 有未确定状态才需要继续搜索.
 		 */
 
-		while (true) {// exit when we are at level 0 again;
+		while (true) {
 			SearchLevel level = levels.get(levelIndex);
 			BoardColorState boardColorState = this.getGoBoard()
 					.getBoardColorState();
 
 			log.warn("level=" + level);
-			/**
-			 * 该层的结果已知，无需查看其他候选点。下一层的结果返回到上层的tempBestScore<br/>
-			 * 此时配合处理。
-			 */
-			if (level.alreadyWin()) {
-
-				int score = level.getTempBestScore();
-				List<Step> steps = level.getTempBestSteps();
-
-				int expectS = this.getGoBoard().boardSize
-						* this.getGoBoard().boardSize;
-				if (level.getWhoseTurn() == Constant.MAX) {
-					if (level.getHighestExp() == expectS) {
-						BoardColorState boardColorStateN = this.getGoBoard()
-								.getBoardColorState();
-						// this.stateFinalizeed(boardColorStateN,
-						// level.getHighestExp());
-						this.stateDecided(boardColorStateN,
-								level.getHighestExp());
-					}
-				} else {
-					if (level.getLowestExp() + expectS == 0) {
-						BoardColorState boardColorStateN = this.getGoBoard()
-								.getBoardColorState();
-						// this.stateFinalizeed(boardColorStateN,
-						// level.getLowestExp());
-						this.stateDecided(boardColorStateN,
-								level.getHighestExp());
-					}
-				}
-
-				;
-				// level.getChildScore(score, steps);
-
-				if (levelIndex == 0) {
-					// if(log.isInfoEnabled())log.info("final path:");
-					// for (Step step :
-					// levels.get(levelIndex).getTempBestSteps()) {
-					// if(log.isInfoEnabled())log.info(step);
-					// }
-					GoBoard goDemo = this.getGoBoard();
-					log.warn("Initial state");
-					goDemo.printState(log);
-					for (Step step : levels.get(levelIndex).getTempBestSteps()) {
-
-						goDemo.oneStepForward(step);
-						goDemo.printState(log);
-					}
-					break;
-					// return score;
-				}
-				levels.remove(levelIndex--);
-				level = levels.get(levelIndex);
-				level.getChildScore(score, steps);
-				getGoBoard().oneStepBackward();
-				continue;
+			log.warn("new Round started in search" + " at previous state: ");
+			this.getGoBoard().printState(log);
+			if (levelIndex != 0) {
+				log.warn(" with history: "
+						+ getGoBoard().getCurrent()
+								.getSingleManualStringToRoot(false));
 			}
 
-			Candidate nextCandidate = level.getNextCandidate();
-			/**
-			 * 是否当前层的所有的候选点都处理完了。这也意味着该层对应的状态结果已知。<br/>
-			 * all candidates are handled
-			 */
-			if (nextCandidate == null) {
-				if (levelIndex == 0) {
-					if (log.isDebugEnabled()) {
-						log.debug("final score at level 0: "
-								+ level.getTempBestScore());
-						log.debug("path to final score at level 0: "
-								+ level.getTempBestSteps());
+			if (level.isInitialized()) {
+
+				/**
+				 * 该层的结果已知，无需查看其他候选点。下一层的结果返回到上层的tempBestScore<br/>
+				 * 此时配合处理。
+				 */
+				if (level.alreadyWin()) {
+					if(level.isMax()){
+						log.warn("Max Already Win:");
+					}else{
+						log.warn("Max Already lose:");
 					}
-					break;
-				} else {
 					int score = level.getTempBestScore();
-					this.stateDecided(boardColorState, score);
-					// this.results.put(boardColorState, score);
-					// this.results.put(colorStateSwitch, -score);
-					// if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-					// log.warn("add non-final state with score = " + score);
-					// log.warn(boardColorState.getStateString());
-					//
-					// log.warn("add reverse non-final state with score = "
-					// + (-score));
-					// log.warn(colorStateSwitch.getStateString());
-					// }
-					List<Step> steps = level.getTempBestSteps();
+
+					int expectS = this.getGoBoard().boardSize
+							* this.getGoBoard().boardSize;
+					if (level.isMax()) {
+						if (level.getHighestExp() == expectS) {
+							BoardColorState boardColorStateN = this
+									.getGoBoard().getBoardColorState();
+							// this.stateFinalizeed(boardColorStateN,
+							// level.getHighestExp());
+							if (getGoBoard().getStepHistory().isDupReached(
+									boardColorStateN) == false
+									&& (getGoBoard().noStep() == true || getGoBoard()
+											.getLastStep().isGiveup() == false)) {
+								log.warn("current state is not a history dependent state");
+								getGoBoard().getStepHistory().printDupState();
+								// this.stateDecided(boardColorStateN,
+								// level.getHighestExp());
+								// better
+								this.stateDecided(boardColorStateN,
+										level.getTempBestScore());
+							}
+						}
+					} else {
+						if (level.getLowestExp() + expectS == 0) {
+							BoardColorState boardColorStateN = this
+									.getGoBoard().getBoardColorState();
+							// this.stateFinalizeed(boardColorStateN,
+							// level.getLowestExp());
+							if (getGoBoard().getStepHistory().isDupReached(
+									boardColorStateN) == false
+									&& (getGoBoard().noStep() == true || getGoBoard()
+											.getLastStep().isGiveup() == false)) {
+								log.warn("current state is not a history dependent state");
+								getGoBoard().getStepHistory().printDupState();
+								// this.stateDecided(boardColorStateN,
+								// level.getLowestExp());
+								// better
+								this.stateDecided(boardColorStateN,
+										level.getTempBestScore());
+							}
+						}
+					}
+
+					;
+					// level.getChildScore(score, steps);
+
+					if (levelIndex == 0) {
+						break;
+						// return score;
+					}
 					levels.remove(levelIndex--);
 					level = levels.get(levelIndex);
-					level.getChildScore(score, steps);
-
-					/**
-					 * for debugging
-					 * 
-					 */
-					List<Step> process = new ArrayList<Step>();
-					for (StepMemo memo : this.getGoBoard().getStepHistory()
-							.getAllSteps()) {
-						process.add(memo.getStep());
-					}
-					searchProcess.add(getString(process, score + " EXHAUST"));
-
+					level.getChildScore(score);
 					getGoBoard().oneStepBackward();
 					continue;
+				} else if (level.hasNext() == false) {
+					/**
+					 * 是否当前层的所有的候选点都处理完了。这也意味着该层对应的状态结果已知。<br/>
+					 * all candidates are handled
+					 */
+					if(level.isMax()){
+						log.warn("Max Already Lose: ");
+					}else{
+						log.warn("Max Already Win: ");
+					}
+					if (levelIndex == 0) {
+						if (log.isDebugEnabled()) {
+							log.debug("final score at level 0: "
+									+ level.getTempBestScore());
+
+						}
+						break;
+					} else {
+						int score = level.getTempBestScore();
+						if (getGoBoard().getStepHistory().isDupReached(
+								boardColorState) == false
+								&& (getGoBoard().noStep() == true || getGoBoard()
+										.getLastStep().isGiveup() == false)) {
+							log.warn("current state is not a history dependent state");
+							getGoBoard().getStepHistory().printDupState();
+							this.stateDecided(boardColorState, score);
+						}
+
+						levels.remove(levelIndex--);
+						level = levels.get(levelIndex);
+						level.getChildScore(score);
+						// level.getNode()
+						/**
+						 * for debugging
+						 * 
+						 */
+						List<Step> process = new ArrayList<Step>();
+						for (StepMemo memo : this.getGoBoard().getStepHistory()
+								.getAllSteps()) {
+							process.add(memo.getStep());
+						}
+						searchProcess.add(Step.getString(process, score
+								+ " EXHAUST"));
+
+						getGoBoard().oneStepBackward();
+						continue;
+					}
+				} else { // on going -- Not Win, still has candidates to try.
+					log.warn("Not Win yet -- Old Candidate: "
+							+ level.getAllCanPoint());
+				}
+			} else { // candidate is not initialized.
+				int color = level.getColor();
+				List<Candidate> candidates = getCandidate(color);
+				level.setCandidates(candidates);
+				log.warn("New Candidate Just initialized: "
+						+ level.getAllCanPoint());
+
+				/**
+				 * 不是最终状态，却又没有候选点，是很奇怪的事情，要注意处理。<br/>
+				 * 当我把打劫的变化滤掉的时候，出现过这种情况。score＝0。因为终止于非确定状态。<br/>
+				 * 需要区别对待，是应为劫材禁手导致没有候选点，还是本身就是终止状态而没有候选点<br/>
+				 * 这可能是识别终止状态的能力不够所致。
+				 * 
+				 */
+				if (candidates.isEmpty()) {
+					if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+						log.warn("不是最终状态，却又没有候选点");
+					}
+					this.getGoBoard().printState();
+					/**
+					 * change the strategy: give up the step to decide the
+					 * state.
+					 */
+					// has to be done in subclass, to avoid concurrent
+					// modification
+					// Candidate candidateP = new Candidate();
+					// candidateP.setStep(new Step(null, color, goBoard
+					// .getShoushu() + 1));
+					// candidates.add(candidateP);
+
+					throw new RuntimeException(color + ": no candidate");
+					// + Arrays.deepToString(getGoBoard().getMatrixState()));
 				}
 			}
 
@@ -200,21 +311,11 @@ public abstract class GoBoardSearch {
 			 * goBoard is in state of level above.<br/>
 			 * 现在处理候选点，展开得到下一level
 			 */
+			Candidate nextCandidate = level.getNextCandidate();
 			Step step = nextCandidate.getStep();
 			if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-				log.warn("new Round started in search" + " at previous state: ");
-				this.getGoBoard().printState(log);
-				log.warn(" at level: ");
-				log.warn(level);
+
 				log.warn("choose step " + step);
-
-				List<Candidate> candidates = level.getCandidates();
-				log.warn("from " + candidates.size() + " candidate: ");
-				// log.info(candidates);
-				for (Candidate candidate : candidates) {
-					log.info(candidate.getStep());
-				}
-
 			}
 
 			/**
@@ -238,26 +339,29 @@ public abstract class GoBoardSearch {
 
 				if (this.getGoBoard().noStep()) {
 					process.add(step);
-					searchProcess.add(getString(process, "DUPLI "));
+					searchProcess.add(Step.getString(process, "DUPLI "));
 					dupCount++;
 					if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 						log.warn("invalid Step: have Not taken the step."
 								+ step);
 				} else if (step.getColor() == this.getGoBoard().getLastStep()
-						.getColor()) {
+						.getColor()
+						&& step.getPoint() == this.getGoBoard().getLastPoint()) {
 					if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 						log.warn("invalid Step: have taken the step." + step);
 					// TODO 如全局再现.已经走了.需要回退.
-					searchProcess.add(getString(process, "DUPLI "));
+					searchProcess.add(Step.getString(process, "DUPLI "));
 					dupCount++;
 					getGoBoard().oneStepBackward();
 				} else {
 					process.add(step);
-					searchProcess.add(getString(process, "DUPLI "));
+					searchProcess.add(Step.getString(process, "DUPLI "));
 					dupCount++;
-					if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+					if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 						log.warn("invalid Step: have Not taken the step."
 								+ step);
+						log.warn("last step is " + getGoBoard().getLastStep());
+					}
 				}
 				// ignore invalid candidate.666
 				continue;
@@ -274,20 +378,21 @@ public abstract class GoBoardSearch {
 			 * 解决最终状态识别的问题.
 			 * 
 			 */
-			if (log.isInfoEnabled())
+			if (log.isInfoEnabled()) {
 				log.info("check state after step " + step);
-			if (log.isInfoEnabled())
 				log.info(goBoard.getStateString());
-			if (goBoard.noStep() == false) {
-				if (log.isInfoEnabled())
+				if (goBoard.noStep() == false) {
 					log.info("Last Step at " + goBoard.getLastPoint());
+				}
 			}
+
 			if (step.isGiveUp() == false
 					&& goBoard.getColor(step.getPoint()) != step.getColor()) {
 				String message = "step " + step + " does not take effect";
 				log.error(message);
 				throw new RuntimeException(message);
 			}
+
 			TerminalState terminateState = getTerminalState();
 			if (terminateState.isTerminalState()) {
 				log.warn("Teminal State");
@@ -295,21 +400,7 @@ public abstract class GoBoardSearch {
 					log.info("Teminal State");
 				goBoard.hasLoopInHistory();
 				int scoreTerminator = terminateState.getScore();
-				if (this.isDoubleGiveup() == false) {
-					List<Step> process = new ArrayList<Step>();
-					for (StepMemo memo : this.getGoBoard().getStepHistory()
-							.getAllSteps()) {
-						process.add(memo.getStep());
-					}
-					String string = getString(process, "FINAL "
-							+ scoreTerminator);
-					searchProcess.add(string);
-					if (log.isEnabledFor(Level.WARN))
-						log.warn(string);
-					if (log.isEnabledFor(Level.WARN))
-						log.warn(this.getGoBoard().getTreeGoManual()
-								.getSGFBodyString());
-				} else {
+				if (goBoard.isDoubleGiveup() == true) {
 					if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 						log.warn("double give up");
 					}
@@ -318,16 +409,33 @@ public abstract class GoBoardSearch {
 							.getAllSteps()) {
 						process.add(memo.getStep());
 					}
-					searchProcess.add(getString(process, "DB_PASS "
+					searchProcess.add(Step.getString(process, "DB_PASS "
 							+ scoreTerminator));
-				}
-				level.getNeighborScore(scoreTerminator);
+				} else {
 
-				updateTreeWhenTerminate(null, level, step, scoreTerminator);
+					List<Step> process = new ArrayList<Step>();
+					for (StepMemo memo : this.getGoBoard().getStepHistory()
+							.getAllSteps()) {
+						process.add(memo.getStep());
+					}
+					String string = Step.getString(process, "FINAL "
+							+ scoreTerminator);
+					searchProcess.add(string);
+					if (log.isEnabledFor(Level.WARN)) {
+						log.warn(string);
+						log.warn(this.getGoBoard().getTreeGoManual()
+								.getSGFBodyString(false));
+					}
+				}
+				level.getNeighborScore(scoreTerminator, step);
+
+				updateTreeWhenTerminate(level, step, scoreTerminator);
 
 				if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 					log.warn("new state after step " + step);
 					log.warn(" is final state with score = " + scoreTerminator);
+//					log.warn(getGoBoard().getCurrent()
+//							.getSingleManualStringToRoot(false));
 
 					GoBoard goOld = this.getGoBoard();
 					goOld.printState(log);
@@ -341,7 +449,7 @@ public abstract class GoBoardSearch {
 
 					for (StepMemo memo : this.getGoBoard().getStepHistory()
 							.getAllSteps()) {
-						log.warn(memo.getStep());
+//						log.warn(memo.getStep());
 						boolean validStep = go.oneStepForward(memo.getStep());
 						if (validStep == false) {
 							System.out
@@ -358,7 +466,7 @@ public abstract class GoBoardSearch {
 					for (StepMemo memo : this.getGoBoard().getStepHistory()
 							.getAllSteps()) {
 						boolean validStep = go.oneStepForward(memo.getStep());
-						go.printState(log);
+						//go.printState(log);
 					}
 					List<BoardColorState> colorStates = new ArrayList<BoardColorState>();
 					colorStates.addAll(go.getStepHistory().getColorStates());
@@ -376,7 +484,7 @@ public abstract class GoBoardSearch {
 				 * we already know the result
 				 */
 				int scoreTerminator = this.getScore(boardColorStateN);
-				level.getNeighborScore(scoreTerminator);
+				level.getNeighborScore(scoreTerminator, step);
 				if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 					log.warn("we already know the result after " + step);
 					// this.getGoBoard().printState();
@@ -389,94 +497,31 @@ public abstract class GoBoardSearch {
 				 * for debugging
 				 * 
 				 */
-				updateTreeWhenTerminate(null, level, step, scoreTerminator);
+				updateTreeWhenTerminate(level, step, scoreTerminator);
 				List<Step> process = new ArrayList<Step>();
 				for (StepMemo memo : this.getGoBoard().getStepHistory()
 						.getAllSteps()) {
 					process.add(memo.getStep());
 				}
 
-				searchProcess
-						.add(getString(process, "KNOWN " + scoreTerminator));
+				searchProcess.add(Step.getString(process, "KNOWN "
+						+ scoreTerminator));
 
+				getGoBoard().oneStepBackward();
+				continue;
+			}
+			if (levels.size() == deepth) {
+				// cannot expand further. equivalent to ignore one candidate
 				getGoBoard().oneStepBackward();
 				continue;
 			}
 
 			/**
 			 * continue expanding <br/>
-			 * 生成新层的候选点。
+			 * 生成新层。
 			 */
-			int color = ColorUtil.enemyColor(level.getColor());
-			List<Candidate> candidatesNextLevel = getCandidate(color);
-
-			/**
-			 * 不是最终状态，却又没有候选点，是很奇怪的事情，要注意处理。<br/>
-			 * 当我把打劫的变化滤掉的时候，出现过这种情况。score＝0。因为终止于非确定状态。<br/>
-			 * 需要区别对待，是应为劫材禁手导致没有候选点，还是本身就是终止状态而没有候选点<br/>
-			 * 这可能是识别终止状态的能力不够所致。
-			 * 
-			 */
-			if (candidatesNextLevel.isEmpty()) {
-				if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-					log.warn(ColorUtil.getColorText(color)
-							+ " turn: no candidate after step " + step);
-					log.warn("不是最终状态，却又没有候选点");
-				}
-				this.getGoBoard().printState();
-
-				// candidate = getCandidate(color);// ?
-				// FinalResult finalResult =
-				// getGoBoard().finalResult_noCandidate();
-				// level.getNeighborScore(getScore());
-
-				// printState();
-				// if(log.isEnabledFor(org.apache.log4j.Level.WARN))
-				// log.warn("equivalent to final state");
-				// level.getNeighborScore(0);
-				// getGoBoard().oneStepBackward();
-				//
-				// continue;
-				/**
-				 * change the strategy: give up the step to decide the state.
-				 */
-				Candidate candidateP = new Candidate();
-				candidateP.setStep(new Step(null, color,
-						goBoard.getShoushu() + 1));
-				candidatesNextLevel.add(candidateP);
-
-				// continue;
-				// throw new RuntimeException(color + ": no candidate"
-				// + Arrays.deepToString(getGoBoard().getMatrixState()));
-			}
-
-			// if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-			if (log.isInfoEnabled())
-				log.info(goBoard.getStateString());
-			for (Candidate candidate : candidatesNextLevel) { //
-
-				if (log.isInfoEnabled())
-					log.info(candidate);
-			}
-			// }
-			SearchLevel newLevel = buildNewLevel(level, candidatesNextLevel);
-
-			updateTreeWhenTerminate(newLevel, level, step, Integer.MIN_VALUE);
-			// if (tree()) {
-			// Node node = new Node(step);
-			//
-			// newLevel.setNode(node);
-			// if(level.getNode()==null){
-			// assert level.getLevel()==0;
-			// if(root==null){
-			// root = node;
-			// }else{
-			// root.addBrother(node);
-			// }
-			// }else{
-			// level.getNode().addChild(node);
-			// }
-			// }
+			SearchLevel newLevel = buildNewLevel(level);
+			updateTreeWithNewLevel(newLevel, level, step);
 			levels.add(newLevel);
 			if (levels.size() > deepth) {
 				log.error("levels >" + deepth);
@@ -485,7 +530,7 @@ public abstract class GoBoardSearch {
 				log.error("variants >" + NUMBER_OF_VARIANT);
 				break;
 			}
-
+			log.warn(Constant.lineSeparator);
 		} // while
 
 		if (levelIndex <= 0) {
@@ -498,12 +543,6 @@ public abstract class GoBoardSearch {
 					log.info(this.getGoBoard().getInitColorState()
 							.getStateString());
 				if (log.isInfoEnabled())
-					log.info("final path:");
-				for (Step step : levels.get(levelIndex).getTempBestSteps()) {
-					if (log.isInfoEnabled())
-						log.info(step);
-				}
-				if (log.isInfoEnabled())
 					log.info(this.getGoBoard().getBoardColorState()
 							.getStateString());
 			}
@@ -511,40 +550,12 @@ public abstract class GoBoardSearch {
 			log.warn("Initial state");
 			goDemo.printState(log);
 
-			bestResult = new ArrayList<Step>();
-			bestResult.addAll(levels.get(levelIndex).getTempBestSteps());
-			boolean valid = true;
-			String initS = goDemo.getBoardColorState().toString();
-			for (Step step : bestResult) {
-				valid = goDemo.oneStepForward(step);
-				if (valid == false) {
-					if (log.isEnabledFor(Level.WARN))
-						log.warn("Invalid Step" + step);
-					if (log.isEnabledFor(Level.WARN))
-						log.warn(initS);
-					break;
-				}
-				goDemo.printState(log);
-			}
-			if (valid == false) {
-
-				if (log.isEnabledFor(Level.WARN))
-					log.warn("of All Steps:");
-				for (Step step : bestResult) {
-					if (log.isEnabledFor(Level.WARN))
-						log.warn(step);
-				}
-			}
-
 			return levels.get(levelIndex).getTempBestScore();
 		} else {
 			log.error("levelIndex = " + levelIndex);
 			log.error(this.getClass().getName()
 					+ ": cannot find result after deepth = " + levels.size());
 			log.error(this.getGoBoard().getInitColorState().getStateString());
-			for (Step step : levels.get(levelIndex).getTempBestSteps()) {
-				log.error(step);
-			}
 			SimpleGoManual manual = this.getGoBoard().getSimpleGoManual();
 			String fileName = Constant.DEBUG_MANUAL + "globalSearch_last.sgf";
 			SGFGoManual.storeGoManual(fileName, manual);
@@ -560,126 +571,77 @@ public abstract class GoBoardSearch {
 			}
 			log.error("Final State");
 			log.error(this.getGoBoard().getBoardColorState().getStateString());
-			// GoBoardForward forward = new GoBoardForward()
+			 GoBoardForward forward = new GoBoardForward(this.getGoBoard().boardSize);
+			 
 			return Constant.UNKOWN;
 		}
 
 	}
 
-	private void updateTreeWhenTerminate(SearchLevel newLevel,
-			SearchLevel level, Step step, int scoreTerminator) {
+	public void setVariant(int variant) {
+		NUMBER_OF_VARIANT = variant;
+	}
+
+	public abstract void stateFinalizeed(BoardColorState boardColorStateN,
+			int scoreTerminator);
+
+	public boolean tree() {
+		return this.NUMBER_OF_VARIANT <= 15000;
+	}
+
+	private void updateTreeWhenTerminate(SearchLevel oldLevel, Step step,
+			int scoreTerminator) {
 		if (tree()) {
 			SearchNode node = new SearchNode(step);
 			node.setScore(scoreTerminator);
-			if (level.getNode() == null) {
-				assert level.getLevel() == 0;
-
-				root.addChild(node);
-
-			} else {
-				assert level.getLevel() != 0;
-				level.getNode().addChild(node);
-			}
-			if (newLevel != null) {
-				newLevel.setNode(node);
-			}
+			oldLevel.getNode().addChild(node);
+			node.setMax(!oldLevel.isMax());
 		}
+	}
+
+	private void updateTreeWithNewLevel(SearchLevel newLevel,
+			SearchLevel level, Step step) {
+		if (tree()) {
+			SearchNode node = new SearchNode(step);
+			level.getNode().addChild(node);
+			newLevel.setNode(node);
+			node.setMax(newLevel.isMax());
+
+		}
+	}
+
+	protected SearchLevel buildNewLevel(SearchLevel preLevel) {
+		int enemyColor = ColorUtil.enemyColor(preLevel.getColor());
+		SearchLevel newLevel = new SearchLevel(++levelIndex, enemyColor);
+		if (preLevel.isMax()) {
+			newLevel.setMax(false);
+			newLevel.setMinExp(this.getMinExp());
+			newLevel.setTempBestScore(Integer.MAX_VALUE);
+		} else {
+			newLevel.setMax(true);
+			newLevel.setMaxExp(this.getMaxExp());
+			newLevel.setTempBestScore(Integer.MIN_VALUE);
+		}
+		return newLevel;
+	}
+
+	public int getMinExp() {
+		return this.minExpScore;
+	}
+
+	public int getMaxExp() {
+		return this.maxExpScore;
 	}
 
 	abstract protected List<Candidate> getCandidate(int color);
 
 	abstract protected TerminalState getTerminalState();
 
-	abstract protected boolean isDoubleGiveup();
+	// abstract protected void printKnownResult();
 
-	abstract protected void printKnownResult();
+	abstract SearchLevel getInitLevel();
 
-	abstract protected int getLowestExp();
-
-	abstract protected int getHighestExp();
-
-	abstract public GoBoard getGoBoard();
+	abstract boolean isKnownState(BoardColorState boardColorState);
 
 	abstract void stateDecided(BoardColorState boardColorState, int score);
-
-	public abstract void stateFinalizeed(BoardColorState boardColorStateN,
-			int scoreTerminator);
-
-	public abstract boolean isKnownState(BoardColorState boardColorState);
-
-	public abstract int getScore(BoardColorState boardColorState);
-
-	protected SearchLevel buildNewLevel(SearchLevel preLevel,
-			List<Candidate> candidates) {
-		int enemyColor = ColorUtil.enemyColor(preLevel.getColor());
-		SearchLevel newLevel = new SearchLevel(++levelIndex, enemyColor);
-		if (preLevel.getWhoseTurn() == Constant.MIN) {
-			newLevel.setWhoseTurn(Constant.MAX);
-			newLevel.setHighestExp(this.getHighestExp());
-			newLevel.setTempBestScore(Integer.MIN_VALUE);
-		} else if (preLevel.getWhoseTurn() == Constant.MAX) {
-			newLevel.setWhoseTurn(Constant.MIN);
-			newLevel.setLowestExp(this.getLowestExp());
-			newLevel.setTempBestScore(Integer.MAX_VALUE);
-		}
-		newLevel.setCandidates(candidates, enemyColor);
-		return newLevel;
-	}
-
-	public List<String> getSearchProcess() {
-		return searchProcess;
-	}
-
-	List<Step> bestResult;
-
-	public List<Step> getBestResult() {
-		return bestResult;
-	}
-
-	public static String getString(List<Step> list, String score) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("[INIT]");
-		for (Step step : list) {
-			if (step.isBlack()) {
-				sb.append("B-->");
-			} else {
-				sb.append("W-->");
-			}
-			if (step.getPoint() == null) {
-				sb.append("[PAS]");
-			} else {
-				sb.append(step.getPoint());
-			}
-		}
-		sb.append("(" + score + ")");
-		return sb.toString();
-	}
-
-	private SearchNode root = SearchNode.getSpecialRoot();
-
-	public boolean tree() {
-		return this.NUMBER_OF_VARIANT < 10000;
-	}
-
-	public SearchNode getRoot() {
-		return root;
-	}
-
-	/**
-	 * get the tree according to the search process, it is similar to the tree
-	 * in the goBoard!
-	 * 
-	 * @return
-	 */
-	public TreeGoManual getTreeGoManual() {
-		TreeGoManual manual = new TreeGoManual(this.getGoBoard()
-				.getInitColorState());
-		manual.setRoot(root);
-		// root.setFather(null);
-		return manual;
-	}
-
-	// public void setRoot(Node root) {
-	// this.root = root;
-	// }
 }

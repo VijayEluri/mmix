@@ -36,8 +36,8 @@ public class TerritoryAnalysis extends SurviveAnalysis {
 		super(state);
 	}
 
-	public TerritoryAnalysis(byte[][] state, int color) {
-		super(state, color);
+	public TerritoryAnalysis(byte[][] state, int whoseTurn) {
+		super(state, whoseTurn);
 	}
 
 	public TerritoryAnalysis(int boardSize) {
@@ -179,10 +179,16 @@ public class TerritoryAnalysis extends SurviveAnalysis {
 	 * @return
 	 */
 	public static boolean isFinalState_dynamic(byte[][] state) {
-		GoBoardSearch goS1 = new SmallBoardGlobalSearch(state, Constant.BLACK);
+
+		int boardSize = state.length - 2;
+		int maxExp = boardSize * boardSize;
+		int minExp = 0 - maxExp;
+		GoBoardSearch goS1 = new SmallBoardGlobalSearch(state, Constant.BLACK,
+				maxExp, minExp);
 		int score1 = goS1.globalSearch();
 
-		GoBoardSearch goS2 = new SmallBoardGlobalSearch(state, Constant.WHITE);
+		GoBoardSearch goS2 = new SmallBoardGlobalSearch(state, Constant.WHITE,
+				maxExp, minExp);
 		int score2 = goS2.globalSearch();
 
 		if (score1 == score2) {
@@ -539,7 +545,8 @@ public class TerritoryAnalysis extends SurviveAnalysis {
 				}
 			}
 
-			if (boardSize < 5) {
+//			if (boardSize < 5) {
+			if (boardSize <= 3) {
 				block.setLive(this.isStaticLive(block.getBehalfPoint()));
 			} else {
 				// TODO:may change board data structure to be inconsistent.
@@ -674,6 +681,13 @@ public class TerritoryAnalysis extends SurviveAnalysis {
 					&& block.isAlreadyDead() == false) {
 				unknown = true;
 				break;
+			} else if (block.isAlreadyDead()) {
+				for (Block enemyB : block.getEnemyBlocks()) {
+					if (enemyB.isAlreadyDead()) {
+						unknown = true;
+						break;
+					}
+				}
 			}
 
 		}

@@ -64,6 +64,8 @@ public class StepHistory implements java.io.Serializable {
 		}
 		// 回退时删除记录的历史状态.
 		colorStates.remove(this.getLastStep().getColorState());
+		// remove if exist
+		this.reachedDupStates.remove(this.getLastStep().getColorState());
 		this.decreateVirtualStepInLoop();
 		return allSteps.remove(shoushu - 1);
 	}
@@ -115,16 +117,23 @@ public class StepHistory implements java.io.Serializable {
 	}
 
 	public StepMemo getLastStep() {
-		if(allSteps.isEmpty()) return null;
+		if (allSteps.isEmpty())
+			return null;
 		return allSteps.get(allSteps.size() - 1);
 	}
 
 	public StepMemo getSecondLastStep() {
-		if(allSteps.size()<2) return null;
+		if (allSteps.size() < 2)
+			return null;
 		return allSteps.get(allSteps.size() - 2);
 	}
 
 	Set<BoardColorState> colorStates = new HashSet<BoardColorState>();
+	/**
+	 * ever reached duplicated state. even it is not really a true loop. we will
+	 * not treat its state as decided (history independent.)
+	 */
+	Set<BoardColorState> reachedDupStates = new HashSet<BoardColorState>();
 
 	/**
 	 * 
@@ -140,6 +149,10 @@ public class StepHistory implements java.io.Serializable {
 		return 0;
 	}
 
+	public boolean isDupReached(BoardColorState colorState) {
+		return reachedDupStates.contains(colorState);
+	}
+
 	/**
 	 * 为了适应打劫的计算?????????<br/>
 	 * 有让弃权一方有同型再现的权利<br/>
@@ -152,6 +165,7 @@ public class StepHistory implements java.io.Serializable {
 	 */
 	public boolean setColorState(BoardColorState colorState) {
 		if (colorStates.contains(colorState)) {
+			reachedDupStates.add(colorState);
 			return false;
 			// int color = this.getLastGiveupColor();
 			// if (color == 0)
@@ -207,4 +221,12 @@ public class StepHistory implements java.io.Serializable {
 
 	}
 
+	public void printDupState() {
+		//System.out.println("reached duplicate states:"+reachedDupStates.size());
+//		for (BoardColorState state : this.reachedDupStates) {
+//			System.out.println("duplicate states:");
+//			System.out.println(state.getStateString());
+//		}
+
+	}
 }

@@ -25,11 +25,13 @@ public abstract class AbsGoManual {
 
 	public AbsGoManual(int size, int initTurn) {
  		this.boardSize = size;
+ 		this.setInitTurn(initTurn);
 	}
 
 	public AbsGoManual(byte[][] state, int initTurn) {
 		this.boardSize = state.length - 2;
 		setInitState(state);
+		this.setInitTurn(initTurn);
 	}
 
 	public void setInitState(byte[][] state) {

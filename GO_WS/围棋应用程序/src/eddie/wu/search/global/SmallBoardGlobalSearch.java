@@ -1,5 +1,6 @@
 package eddie.wu.search.global;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,10 +9,14 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.analy.SmallGoBoard;
 import eddie.wu.domain.analy.TerritoryAnalysis;
+import eddie.wu.domain.survive.RelativeResult;
+import eddie.wu.manual.SGFGoManual;
+import eddie.wu.manual.TreeGoManual;
 
 /**
  * 这里的search都是由黑方先行。
@@ -20,12 +25,12 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	private static final Logger log = Logger
 			.getLogger(SmallBoardGlobalSearch.class);
 	SmallGoBoard goBoard;
-	int boardSize;
-	int lowestScore;
-	int highestScore;
+	public int initTurn;
 
 	/**
-	 * 存储已知的状态的结果，因为不同搜索需要的表示方法不同，放在子类中。
+	 * 存储已知的状态的结果，因为不同搜索需要的表示方法不同，放在子类中。<br/>
+	 * we may need to extend the result acore from a integer to a scope
+	 * [low,high] like [-6, -9]
 	 */
 	protected Map<BoardColorState, Integer> results = new HashMap<BoardColorState, Integer>();
 
@@ -38,18 +43,28 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		}
 	}
 
+	List<TreeGoManual> manuals = new ArrayList<TreeGoManual>();
+
 	public void outputSearchStatistics(Logger log) {
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-//			for (Entry<BoardColorState, Integer> entry : results.entrySet()) {
-//				log.warn(entry.getKey().getStateString() + " the score is = "
-//						+ entry.getValue());
-//
-//			}
+
+			log.warn("Black expect: " + getMaxExp() + ", White expect:"
+					+ getMinExp());
 			log.warn("we calculate steps = " + countSteps);
 			log.warn("we know the result = " + results.size());
-			log.warn("Black expect: "+ this.highestScore+", White expect:"+this.lowestScore);
+			for (Entry<BoardColorState, Integer> entry : results.entrySet()) {
+				if (entry.getKey().getWhoseTurn() == Constant.WHITE)
+					continue;
+				// log.warn(entry.getKey().getStateString() + " the score is = "
+				// + entry.getValue());
+
+			}
+			String fileName = Constant.rootDir
+					+ "smallboard/threethree/decided/" + "all_state.sgf";
+			SGFGoManual.storeGoManual(fileName, manuals);
 		}
 	}
+
 	public void outputSearchStatistics() {
 		outputSearchStatistics(log);
 	}
@@ -106,8 +121,9 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		}
 	}
 
-	public SmallBoardGlobalSearch(int boardSize) {
-		this.boardSize = boardSize;
+	public SmallBoardGlobalSearch(int boardSize, int highestScore,
+			int lowestScore) {
+		super(highestScore, lowestScore);
 		byte[][] board = new byte[boardSize + 2][boardSize + 2];
 		int whoseTurn = Constant.BLACK;
 		goBoard = new SmallGoBoard(
@@ -116,9 +132,9 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		this.initLevel(whoseTurn);
 	}
 
-	public SmallBoardGlobalSearch(byte[][] board) {
-		this(board, Constant.BLACK);
-	}
+	// public SmallBoardGlobalSearch(byte[][] board) {
+	// this(board, Constant.BLACK);
+	// }
 
 	public SmallBoardGlobalSearch(byte[][] boards, int highestScore,
 			int lowestScore) {
@@ -126,46 +142,58 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	}
 
 	/**
-	 * @deprecated
-	 * it may cause too much calculation, since all the branch need to be considered
+	 * @deprecated it may cause too much calculation, since all the branch need
+	 *             to be considered
 	 * @param boards
 	 * @param whoseTurn
 	 */
-	public SmallBoardGlobalSearch(byte[][] boards, int whoseTurn) {
-		this.boardSize = boards.length - 2;
-		this.highestScore = boardSize * boardSize;
-		this.lowestScore = 0 - highestScore;
-		goBoard = new SmallGoBoard(BoardColorState.getInstance(boards,
-				whoseTurn));
-		this.initLevel(whoseTurn);
-	}
+	// public SmallBoardGlobalSearch(byte[][] boards, int whoseTurn) {
+	//
+	// int boardSize = boards.length - 2;
+	// super(boardSize * boardSize,boardSize * boardSize);
+	// this.maxExpScore = boardSize * boardSize;
+	// this.minExpScore = 0 - maxExpScore;
+	// goBoard = new SmallGoBoard(BoardColorState.getInstance(boards,
+	// whoseTurn));
+	// this.initLevel(whoseTurn);
+	// }
 
 	public SmallBoardGlobalSearch(byte[][] boards, int whoseTurn,
 			int highestScore, int lowestScore) {
-		this.boardSize = boards.length - 2;
+		super(highestScore, lowestScore);
 		goBoard = new SmallGoBoard(BoardColorState.getInstance(boards,
 				whoseTurn));
-		this.highestScore = highestScore;
-		this.lowestScore = lowestScore;
 		this.initLevel(whoseTurn);
 	}
 
-	private void initLevel(int whoseTurn) {
-		SearchLevel level = new SearchLevel(0, whoseTurn);
+	public SmallBoardGlobalSearch(BoardColorState state, int highestScore,
+			int lowestScore) {
+		super(highestScore, lowestScore);
+		goBoard = new SmallGoBoard(state);
+		this.initLevel(state.getWhoseTurn());
+	}
+
+	@Override
+	public SearchLevel getInitLevel() {
+
+		SearchLevel level = new SearchLevel(0, initTurn);
+
 		// level 0: all candidates of original state.
-		if (whoseTurn == Constant.BLACK) {
-			level.setWhoseTurn(Constant.MAX);
-			level.setHighestExp(this.getHighestExp());
+		if (initTurn == Constant.BLACK) {
+			level.setMax(true);
+			level.setMaxExp(this.getMaxExp());
 			level.setTempBestScore(Integer.MIN_VALUE);
 
 		} else {
-			level.setWhoseTurn(Constant.MIN);
-			level.setLowestExp(this.getLowestExp());
+			level.setMax(false);
+			level.setMinExp(this.getMinExp());
 			level.setTempBestScore(Integer.MAX_VALUE);
 		}
-		List<Candidate> candidates = getCandidate(whoseTurn);
-		level.setCandidates(candidates, whoseTurn);
-		levels.add(level);
+		return level;
+	}
+
+	private void initLevel(int whoseTurn) {
+		initTurn = whoseTurn; // (brother)
 	}
 
 	protected List<Candidate> getCandidate(int color) {
@@ -201,7 +229,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	@Override
 	protected TerminalState getTerminalState() {
 		TerminalState ts = new TerminalState();
-		if (this.isDoubleGiveup()) {
+		if (goBoard.isDoubleGiveup()) {
 			ts.setTerminalState(true);
 			ts.setFinalResult(goBoard
 					.finalResult(TerritoryAnalysis.DEAD_CLEANED_UP));
@@ -223,25 +251,9 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		return ts;
 	}
 
-	protected int getLowestExp() {
-		// return 0 - boardSize * boardSize;
-		return this.lowestScore;
-	}
-
-	@Override
-	protected int getHighestExp() {
-		// return boardSize * boardSize;
-		return this.highestScore;
-	}
-
 	@Override
 	public GoBoard getGoBoard() {
 		return goBoard;
-	}
-
-	@Override
-	protected boolean isDoubleGiveup() {
-		return goBoard.isDoubleGiveup();
 	}
 
 	/**
@@ -252,10 +264,12 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		BoardColorState boardColorStateN = boardColorState.normalize();
 		if (results.containsKey(boardColorStateN))
 			return true;
-		BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
-				.normalize();
-		if (results.containsKey(boardColorStateS))
-			return true;
+		// Black is not symmetry with White due to different expecting score
+		// like [-8,-9]
+		// BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
+		// .normalize();
+		// if (results.containsKey(boardColorStateS))
+		// return true;
 		return false;
 	}
 
@@ -266,7 +280,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			return results.get(boardColorStateN).intValue();
 		BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
 				.normalize();
-		return 0-results.get(boardColorStateS).intValue();
+		return 0 - results.get(boardColorStateS).intValue();
 
 	}
 

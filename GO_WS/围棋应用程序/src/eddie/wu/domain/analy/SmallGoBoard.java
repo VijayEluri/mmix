@@ -58,7 +58,8 @@ public class SmallGoBoard extends TerritoryAnalysis {
 	public List<Candidate> getCandidate(int color,
 			boolean filterSymmetricEquivalent, int expectedScore) {
 		assert this.boardSize <= 5;
-
+		List<Candidate> fillingEyes = new ArrayList<Candidate>();
+		List<Point> fillingEyeP = new ArrayList<Point>();
 		// Map<Point, Integer> breathMap = new HashMap<Point, Integer>();
 
 		Set<Point> points = new HashSet<Point>();
@@ -115,7 +116,10 @@ public class SmallGoBoard extends TerritoryAnalysis {
 										if (blankBlock
 												.getMinBreathNeighborBlock()
 												.getBreaths() >= 2) {
-											continue;
+											// maybe we can handle it better now
+											fillingEyeP.add(boardPoint
+													.getPoint());
+											// continue;
 										}
 									}
 								}
@@ -153,7 +157,7 @@ public class SmallGoBoard extends TerritoryAnalysis {
 					if (listAll.contains(point))
 						continue;
 
-					List<Point> listVar = deNormalize(point, symmetryResult);
+					List<Point> listVar = point.deNormalize(symmetryResult);
 					listAll.addAll(listVar);
 					// only keep one of all the symmetric candidates.
 					points2.add(listVar.get(0));
@@ -178,16 +182,24 @@ public class SmallGoBoard extends TerritoryAnalysis {
 		for (Point point : can) {
 			Candidate candidate = new Candidate();
 			candidate.setStep(new Step(point, color, getShoushu() + 1));
+			if (fillingEyeP.contains(point)) {
+				fillingEyes.add(candidate);
+				continue;
+			}
+
 			NeighborState state = null;
 			try {
-				state = this.getNeighborState(point, color);
+				state = this.getNeighborState_forCandidate(point, color);
 			} catch (RuntimeException e) {
 				if (log.isEnabledFor(Level.WARN)) {
 					log.warn(this.getBoardColorState().getStateString());
 					log.warn("point" + point);
-					// this.printState();
-					throw e;
+
 				}
+				System.err.println(point);
+				System.err.print(getBoardColorState().getStateString());
+				// this.printState();
+				throw e;
 			}
 
 			/**
@@ -199,19 +211,25 @@ public class SmallGoBoard extends TerritoryAnalysis {
 							.next();
 					Point pointT = friendBlock.getBehalfPoint();
 					if (friendBlock.getNumberOfPoint() >= 4) {
-						boolean live = false;
+						boolean selfLive = false;
 						if (boardSize > 5) {
-							live = this.isAlreadyLive_dynamic(pointT);
+							selfLive = this.isAlreadyLive_dynamic(pointT);
 						} else {
-							live = this.isStaticLive(pointT);
+							selfLive = this.isStaticLive(pointT);
 						}
-						if (live) {
-							Candidate eatingDead = new Candidate();
-							eatingDead.setStep(new Step(point, color,
-									getShoushu() + 1));
-							eatingDead.setEatingDead(true);
-							eatingDeads.add(eatingDead);
-							continue;
+						if (selfLive) {
+							Block enemyBlock = state.getEatenBlocks()
+									.iterator().next();
+							boolean enemyDead = this
+									.isRemovable_static(enemyBlock);
+							if (enemyDead) {
+								Candidate eatingDead = new Candidate();
+								eatingDead.setStep(new Step(point, color,
+										getShoushu() + 1));
+								eatingDead.setEatingDead(true);
+								eatingDeads.add(eatingDead);
+								continue;
+							}
 						}
 
 					}
@@ -220,9 +238,11 @@ public class SmallGoBoard extends TerritoryAnalysis {
 			candidate.setEating(state.isEating());
 			candidate.setGifting(state.isGifting());
 			candidate.setCapturing(state.isCapturing());
-			candidate.setRemoveCapturing(state.isRemoveCapturing());
+			candidate.setRemoveCapturing(state.getRemoveCapturing());
 			candidate.setBreaths(state.getBreath());
 			candidate.setIncreasedBreath(state.getIncreasedBreath());
+			candidate.setAttacking(state.isAttacking());
+			candidate.setConnection(state.getConnection());
 
 			/**
 			 * 缩小眼位的紧气看成类似送礼，送吃。<br/>
@@ -254,6 +274,11 @@ public class SmallGoBoard extends TerritoryAnalysis {
 			} else {
 				candidates.add(candidate);
 			}
+
+			// simple static eye counting
+			if (state.isEating() == false) {
+				candidate.setEyes(state.getEyes());
+			}
 		}
 
 		// Collections.sort(can, new LowLineComparator());
@@ -265,7 +290,7 @@ public class SmallGoBoard extends TerritoryAnalysis {
 				&& this.getLastStep().isGiveup() == true) {
 			// 前一步对方弃权,下一步有限考虑弃权,有望及早到达终点状态.
 			// this logic is only good for 2*2 board.
-			if (boardSize == 2 || boardSize == 3) {
+			if (boardSize <= 4) {
 				candidates.add(0, candidatePass);
 			}
 		} else {
@@ -278,6 +303,7 @@ public class SmallGoBoard extends TerritoryAnalysis {
 		// static live/dead judgment.
 		candidates.addAll(decreaseBreath);
 		candidates.addAll(eatingDeads);
+		candidates.addAll(fillingEyes);
 		return candidates;
 	}
 }

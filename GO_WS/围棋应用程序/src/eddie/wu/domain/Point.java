@@ -3,12 +3,16 @@
  */
 package eddie.wu.domain;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import eddie.wu.domain.analy.StateAnalysis;
+import eddie.wu.domain.comp.SymmetryRowColumnComparator;
 
 /**
  * @author eddie may be no use to separate out this class at the first glance.
@@ -61,7 +65,7 @@ public class Point implements java.io.Serializable {
 	 * 该点作为眼位是否为中央眼位（这里二线也算中央。）
 	 */
 	public boolean isCenterEye() {
-		Point p = this.Normalize();
+		Point p = this.normalize();
 		return p.getRow() != 1 && p.getColumn() != 1;
 	}
 
@@ -71,7 +75,7 @@ public class Point implements java.io.Serializable {
 	 * @return
 	 */
 	public boolean isCornerEye() {
-		Point p = this.Normalize();
+		Point p = this.normalize();
 		return p.getRow() == 1 && p.getColumn() == 1;
 	}
 
@@ -81,12 +85,12 @@ public class Point implements java.io.Serializable {
 	 * @return
 	 */
 	public boolean isBorderEye() {
-		Point p = this.Normalize();
+		Point p = this.normalize();
 		return p.getRow() == 1 && p.getColumn() != 1;
 	}
 
 	public boolean nearConer() {
-		Point temp = this.Normalize();
+		Point temp = this.normalize();
 		return temp.getRow() <= 5 && temp.getColumn() <= 5;
 	}
 
@@ -96,7 +100,7 @@ public class Point implements java.io.Serializable {
 	 * @return
 	 */
 	public boolean nearBorder() {
-		Point p = this.Normalize();
+		Point p = this.normalize();
 		return p.getRow() >= 2 && p.getRow() <= 5 && p.getColumn() > 5;
 	}
 
@@ -357,7 +361,7 @@ public class Point implements java.io.Serializable {
 	 * @return
 	 */
 	public int getMinLine() {
-		return this.Normalize().getRow();
+		return this.normalize().getRow();
 	}
 
 	/**
@@ -367,7 +371,7 @@ public class Point implements java.io.Serializable {
 	 */
 
 	public int getMaxLine() {
-		return this.Normalize().getColumn();
+		return this.normalize().getColumn();
 	}
 
 	public boolean isDiagonal(Point other) {
@@ -391,7 +395,7 @@ public class Point implements java.io.Serializable {
 	 * 
 	 * @return
 	 */
-	public Point Normalize() {
+	public Point normalize() {
 		int row, column, middle;
 		middle = (boardSize + 1) / 2;
 		if (this.getRow() > middle) {
@@ -502,6 +506,22 @@ public class Point implements java.io.Serializable {
 		return Point.getPoint(boardSize, row, column);
 	}
 
+	public Point convert(SymmetryResult operation) {
+		if (operation.isBackwardSlashSymmetry()) {
+			return backwardSlashMirror();
+		}
+		if (operation.isForwardSlashSymmetry()) {
+			return forwardSlashMirror();
+		}
+		if (operation.isHorizontalSymmetry()) {
+			return horizontalMirror();
+		}
+		if (operation.isVerticalSymmetry()) {
+			return verticalMirror();
+		}
+		return this;
+	}
+
 	/**
 	 * the lesser of value, the higher of priority.
 	 * 
@@ -519,6 +539,86 @@ public class Point implements java.io.Serializable {
 
 	public int getRowColSum() {
 		return row + column;
+	}
+
+	public Point normalize(SymmetryResult symmetryResult) {
+		return deNormalize(symmetryResult).get(0);
+	}
+
+	/**
+	 * brute force (ugly) implementation. 展开得到所有对称的候选点.
+	 * 
+	 * @param point
+	 * @param symmetryResult
+	 * @return all the symmetric points
+	 */
+	public List<Point> deNormalize(SymmetryResult symmetryResult) {
+		Point point = this;
+		List<Point> list = new ArrayList<Point>();
+		int numberOfSymmetry = symmetryResult.getNumberOfSymmetry();
+		Point horizontalMirror = point.horizontalMirror();
+		Point verticalMirror = point.verticalMirror();
+		if (numberOfSymmetry == 4) {
+			list.add(horizontalMirror);
+			list.add(verticalMirror);
+			list.add(horizontalMirror.verticalMirror());
+			list.add(point);
+			List<Point> list2 = new ArrayList<Point>();
+			list2.addAll(list);
+			for (Point temp : list2) {
+				// allow duplicates in list.
+				list.add(temp.backwardSlashMirror());
+				list.add(temp.forwardSlashMirror());
+			}
+		} else if (numberOfSymmetry == 2) {
+			if (symmetryResult.isHorizontalSymmetry()) {
+				list.add(horizontalMirror);
+			}
+			if (symmetryResult.isVerticalSymmetry()) {
+				list.add(verticalMirror);
+			}
+			if (symmetryResult.isForwardSlashSymmetry()) {
+				list.add(point.forwardSlashMirror());
+			}
+			if (symmetryResult.isBackwardSlashSymmetry()) {
+				list.add(point.backwardSlashMirror());
+			}
+
+			/**
+			 * get the combination of conversion; second conversion is done. now
+			 * first // conversion.
+			 */
+			// if (list.size() < 2) {
+			// log.debug(list);
+			// } else {
+			Point pointA = list.get(1);
+			if (symmetryResult.isHorizontalSymmetry()) {
+				list.add(pointA.horizontalMirror());
+			} else if (symmetryResult.isVerticalSymmetry()) {
+				list.add(pointA.verticalMirror());
+			} else if (symmetryResult.isForwardSlashSymmetry()) {
+				list.add(pointA.forwardSlashMirror());
+			} else if (symmetryResult.isBackwardSlashSymmetry()) {
+				list.add(pointA.backwardSlashMirror());
+			}
+			// }
+			list.add(point);
+
+		} else if (numberOfSymmetry == 1) {
+			if (symmetryResult.isHorizontalSymmetry()) {
+				list.add(horizontalMirror);
+			} else if (symmetryResult.isVerticalSymmetry()) {
+				list.add(verticalMirror);
+			} else if (symmetryResult.isForwardSlashSymmetry()) {
+				list.add(point.forwardSlashMirror());
+			} else if (symmetryResult.isBackwardSlashSymmetry()) {
+				list.add(point.backwardSlashMirror());
+			}
+			list.add(point);
+		}
+
+		Collections.sort(list, new SymmetryRowColumnComparator());
+		return list;
 	}
 
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Step;
+import eddie.wu.domain.SymmetryResult;
 
 /**
  * result of search tree; left is child, right is brother.<br/>
@@ -12,9 +13,9 @@ import eddie.wu.domain.Step;
  * 
  */
 public class SearchNode {
-	private SearchNode child;
-	private SearchNode brother;
-	private SearchNode father;
+	SearchNode child;
+	SearchNode brother;
+	SearchNode farther;
 
 	private int score;
 	private boolean max;
@@ -35,6 +36,22 @@ public class SearchNode {
 
 	}
 
+	public SearchNode getCopy(SymmetryResult sym) {
+		Step step2 = null;
+		SearchNode copy = null;
+		if (step == null) {
+			copy = SearchNode.getSpecialRoot();
+		} else {
+			step2 = step.getCopy();
+			step2.convert(sym);
+			copy = new SearchNode(step2);
+		}
+		copy.score = this.score;
+		copy.max = this.max;
+		// System.out.println("Copy " + step2.toNonSGFString());
+		return copy;
+	}
+
 	public SearchNode getChild() {
 		return child;
 	}
@@ -52,11 +69,11 @@ public class SearchNode {
 	}
 
 	public SearchNode getFather() {
-		return father;
+		return farther;
 	}
 
 	public void setFather(SearchNode father) {
-		this.father = father;
+		this.farther = father;
 	}
 
 	public String getJieshuo() {
@@ -75,7 +92,7 @@ public class SearchNode {
 	public void addChild(SearchNode child) {
 		if (this.child == null) {
 			this.child = child;
-			child.father = this;
+			child.farther = this;
 			return;
 		}
 		this.child.addBrother(child);
@@ -87,7 +104,7 @@ public class SearchNode {
 			temp = temp.brother;
 		}
 		temp.brother = brother;
-		brother.father = this.father;
+		brother.farther = this.farther;
 	}
 
 	public void addChildren(List<SearchNode> list) {
@@ -95,10 +112,10 @@ public class SearchNode {
 		assert list.isEmpty() == false;
 		for (int i = 0; i < list.size() - 1; i++) {
 			list.get(i).brother = list.get(i + 1);
-			list.get(i + 1).father = this.father;
+			list.get(i + 1).farther = this.farther;
 		}
 		this.child = list.get(0);
-		list.get(0).father = this.father;
+		list.get(0).farther = this.farther;
 	}
 
 	public int getScore() {
@@ -123,7 +140,10 @@ public class SearchNode {
 
 	@Override
 	public String toString() {
-		return this.step.toString();
+		if (this.step == null) {
+			return "ROOT" + " score = " + score;
+		}
+		return this.step.toString() + " score = " + score;
 	}
 
 	/**
@@ -135,17 +155,18 @@ public class SearchNode {
 	 */
 	int depth = 0;
 
-	public void getSGFBodyString(StringBuilder sb,boolean sgf) {
+	public void getSGFBodyString(StringBuilder sb, boolean sgf) {
 		if (this.brother == null) {
 			// no variant
-			if(sgf){
+			if (sgf) {
 				sb.append(this.getStep().toSGFString());
-			}else{
-				sb.append(this.getStep().toNonSGFString());	
+			} else {
+				sb.append(this.getStep().toNonSGFString() + ", score=" + score
+						+ ", max=" + max);
 			}
 			if (this.child != null) {
 				this.child.setDepth(depth);
-				child.getSGFBodyString(sb,sgf);
+				child.getSGFBodyString(sb, sgf);
 			}
 		} else {
 			// branching
@@ -155,16 +176,17 @@ public class SearchNode {
 			}
 			sb.append("(");
 			depth++;
-			if(sgf){
+			if (sgf) {
 				sb.append(this.getStep().toSGFString());
-			}else{
+			} else {
 				sb.append(this.getStep().toNonSGFString());
-				sb.append(" (variant=" + this.getVariant()+") ");
+				sb.append(" (variant=" + this.getVariant() + ", score=" + score
+						+ ", max=" + max + ") ");
 			}
 
 			if (this.child != null) {
 				this.child.setDepth(depth);
-				this.child.getSGFBodyString(sb,sgf);
+				this.child.getSGFBodyString(sb, sgf);
 			}
 			sb.append(")");
 			depth--;
@@ -180,16 +202,18 @@ public class SearchNode {
 				depth++;
 
 				sb.append("(");
-				if(sgf){
-				sb.append(brother.getStep().toSGFString());
-				}else{
+				if (sgf) {
+					sb.append(brother.getStep().toSGFString());
+				} else {
 					sb.append(brother.getStep().toNonSGFString());
-					sb.append(" (variant=" + brother.getVariant()+") ");
+					sb.append(" (variant=" + brother.getVariant() + ", score="
+							+ brother.getScore() + ", max=" + brother.isMax()
+							+ ") ");
 				}
 				// sb.append("variant=" + brother.getVariant());
 				if (brother.child != null) {
 					brother.child.setDepth(depth);
-					brother.child.getSGFBodyString(sb,sgf);
+					brother.child.getSGFBodyString(sb, sgf);
 				}
 				sb.append(")");
 				depth--;
@@ -216,30 +240,28 @@ public class SearchNode {
 	public int getVariant() {
 		return variant;
 	}
-	
-	
-	public String getSingleManualStringToRoot(boolean sgf) {
-		assert this.child == null;
-		int boardSize = 0;
-		if (step.getPoint() != null)
-			boardSize = step.getPoint().boardSize;
+
+	public List<Step> getPathFromRoot() {
+		assert this.step != null && this.child == null;
 		List<Step> list = new ArrayList<Step>();
 		SearchNode temp = this;
 		while (temp != null && temp.step != null) {
 			list.add(temp.step);
-			if (boardSize == 0 && temp.step.getPoint() != null) {
-				boardSize = temp.step.getPoint().boardSize;
-			}
-			temp = temp.father;
+			temp = temp.farther;
 		}
 		java.util.Collections.reverse(list);
+		return list;
+	}
 
-//		SimpleGoManual simple = new SimpleGoManual(boardSize);
-//		simple.steps = list;
-		if(sgf){
-		return SimpleGoManual.getBodySGFString(list);
-		}else{
-			return SimpleGoManual.getBodyNonSGFString(list);	
+	public String getSingleManualStringToRoot(boolean sgf) {
+		if (step == null) {
+			return "INIT";
+		}
+		List<Step> list = getPathFromRoot();
+		if (sgf) {
+			return SimpleGoManual.getBodySGFString(list);
+		} else {
+			return SimpleGoManual.getBodyNonSGFString(list);
 		}
 	}
 
@@ -248,12 +270,42 @@ public class SearchNode {
 		return step.toSGFString();
 	}
 
+	private static int countPasses;
+	private static SearchNode longestBreath;
+
+	public List<Step> getLongestBreathPath() {
+		assert step == null;
+		countPasses = 0;
+		longestBreath = null;
+		getLongestBreathPath_internal();
+		System.out.println("longest path passes = " + countPasses);
+		return longestBreath.getPathFromRoot();
+	}
+
+	private void getLongestBreathPath_internal() {
+		if (this.child == null) {
+			List<Step> list = this.getPathFromRoot();
+			int temp = Step.getPasses(list);
+			if (temp > countPasses) {
+				countPasses = temp;
+				longestBreath = this;
+			}
+			return;
+		}
+
+		SearchNode temp = child;
+		while (temp != null) {
+			temp.getLongestBreathPath_internal();
+			temp = temp.brother;
+		}
+	}
+
 	/**
 	 * the variant after this move.
 	 * 
 	 * @return
 	 */
-	int getExpandedString(StringBuilder sb,boolean sgf) {
+	int getExpandedString(StringBuilder sb, boolean sgf) {
 		if (this.child == null) {
 			this.variant = 1;
 			sb.append(this.getSingleManualStringToRoot(sgf));
@@ -263,14 +315,14 @@ public class SearchNode {
 		}
 
 		if (this.child.brother == null) {
-			this.variant = this.child.getExpandedString(sb,sgf);
+			this.variant = this.child.getExpandedString(sb, sgf);
 			return variant;
 		}
 
 		SearchNode temp = child;
 		int count = 0;
 		while (temp != null) {
-			count += temp.getExpandedString(sb,sgf);
+			count += temp.getExpandedString(sb, sgf);
 			// temp.variant = count;
 			temp = temp.brother;
 		}
@@ -311,4 +363,221 @@ public class SearchNode {
 		}
 		return null;
 	}
+
+	/**
+	 * initialize the score assuming only terminator has score assigned.
+	 */
+	public int initScore() {
+		if (this.child == null)
+			return this.score;
+		SearchNode temp = this.child.brother;
+		if (this.isMax()) {
+			int max = child.initScore();
+			while (temp != null) {
+				if (temp.initScore() > max) {
+					max = temp.getScore();
+				}
+				temp = temp.brother;
+			}
+			this.score = max;
+			return max;
+		} else {
+			int min = child.initScore();
+			while (temp != null) {
+				if (temp.initScore() < min) {
+					min = temp.getScore();
+				}
+				temp = temp.brother;
+			}
+			this.score = min;
+			return min;
+		}
+	}
+
+	public int countSteps() {
+		int count = 0;
+		SearchNode temp = this;
+		while (temp != null) {
+			count++;
+			temp = temp.farther;
+		}
+		return count - 1;
+	}
+
+	public void cleanupBadMove_firstWin(int initTurn, int expectedScore) {
+
+		SearchNode child = getChild();
+		if (child == null) {
+			return;
+		}
+
+		SearchNode brother = child;// .getBrother();
+		while (brother != null) {
+			if ((initTurn == Constant.BLACK && brother.getScore() >= expectedScore)
+					|| (initTurn == Constant.WHITE && brother.getScore() <= expectedScore)) {
+				brother.farther.child = brother;
+				brother.brother = null;
+				break;
+			} else {
+				brother = brother.brother;
+			}
+		}
+		if (brother == null) {
+			System.out.println("fail to reach score " + expectedScore
+					+ " from root at " + getStep());
+			brother = child;
+			System.out.println(this);
+			while (brother != null) {
+				System.out.println(brother);
+				brother = brother.brother;
+			}
+			return;
+		}
+		if (brother.getChild() != null) {
+			brother = brother.getChild();
+			while (brother != null) {
+				brother.cleanupBadMove_firstWin(initTurn, expectedScore);
+				brother = brother.brother;
+			}
+		}
+		// }
+
+		// }else if(whoseTurn== Constant.WHITE){//min
+		//
+		// }
+
+	}
+
+	/**
+	 * 
+	 * @param initTurn
+	 * @param expectedScore
+	 *            score for initTurn
+	 */
+	public void cleanupBadMove_firstLose(int initTurn, int expectedScore) {
+
+		SearchNode child = getChild();
+		if (child == null) {
+			return;
+		}
+
+		SearchNode brother = child;// .getBrother();
+		while (brother != null) {
+			if ((initTurn == Constant.BLACK && brother.getScore() < expectedScore)
+					|| (initTurn == Constant.WHITE && brother.getScore() > expectedScore)) {
+				brother.farther.child = brother;
+				brother.brother = null;
+				break;
+			} else {
+				brother = brother.brother;
+			}
+		}
+		if (brother == null) {
+			System.out.println("fail to reach score " + expectedScore
+					+ " from root at " + getStep());
+			brother = child;
+			System.out.println(this);
+			while (brother != null) {
+				System.out.println(brother);
+				brother = brother.brother;
+			}
+			return;
+		}
+		if (brother.getChild() != null) {
+			brother = brother.getChild();
+			while (brother != null) {
+				brother.cleanupBadMove_firstLose(initTurn, expectedScore);
+				brother = brother.brother;
+			}
+		}
+		// }
+
+		// }else if(whoseTurn== Constant.WHITE){//min
+		//
+		// }
+
+	}
+
+	public void blackWhiteSwitch() {
+		if (step != null) {
+			this.getStep().switchColor();
+		}
+		if (child != null) {
+			child.blackWhiteSwitch();
+		}
+
+		SearchNode temp = brother;
+		while (temp != null) {
+			temp.blackWhiteSwitch();
+			temp = temp.brother;
+		}
+	}
+
+	/**
+	 * in case of symmetric state, original manual only store one sub-tree, in
+	 * UI we'd better to have its mirror at hand. <br/>
+	 * current node is not mirrored.<br/>
+	 * actually we mirror child!
+	 */
+	public void mirrorSubTree(SymmetryResult sym) {
+		if (child == null) {
+			return;
+		}
+		List<SearchNode> mirrors = new ArrayList<SearchNode>();
+		SearchNode temp = child;
+		while (temp != null) {
+			SearchNode tempChild = temp.mirrorSubTree_internal(sym);
+			mirrors.add(tempChild);
+
+			temp = temp.brother;
+		}
+		// add child later to avoid conflict.
+		for (SearchNode tempChild : mirrors) {
+			this.addChild(tempChild);
+		}
+	}
+
+	/**
+	 * will not copy current node!
+	 * 
+	 * @return
+	 */
+	public SearchNode copySubTree() {
+		// fake one
+		SymmetryResult sym = new SymmetryResult();
+		SearchNode node = mirrorSubTree_internal(sym);
+		node.step = null;
+		return node;
+	}
+
+	/**
+	 * this node is copied and form sub tree.
+	 * 
+	 * @param sym
+	 * @return
+	 */
+	private SearchNode mirrorSubTree_internal(SymmetryResult sym) {
+		SearchNode farther = this.getCopy(sym);
+		List<SearchNode> mirrors = new ArrayList<SearchNode>();
+		if (child != null) {
+			SearchNode temp2 = child.mirrorSubTree_internal(sym);
+			mirrors.add(temp2);
+			// farther.addChild(temp2);
+		} else {
+			return farther;
+		}
+		SearchNode temp = child.brother;
+		while (temp != null) {
+			SearchNode temp2 = temp.mirrorSubTree_internal(sym);
+			mirrors.add(temp2);
+			temp = temp.brother;
+			// farther.addChild(temp2);
+		}
+		// add child later to avoid conflict.
+		for (SearchNode tempChild : mirrors) {
+			farther.addChild(tempChild);
+		}
+		return farther;
+	}
+
 }

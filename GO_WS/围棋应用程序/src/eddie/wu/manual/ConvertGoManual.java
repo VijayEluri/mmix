@@ -372,19 +372,7 @@ public class ConvertGoManual {
 						.getNormalizeOperation(point, symmetryResult);
 				for (int index = i; index < steps.size(); index++) {
 					Step step = steps.get(index);
-					if (operation.isBackwardSlashSymmetry()) {
-						step.backwardSlashMirror();
-					}
-					if (operation.isForwardSlashSymmetry()) {
-						step.forwardSlashMirror();
-
-					}
-					if (operation.isHorizontalSymmetry()) {
-						step.horizontalMirror();
-					}
-					if (operation.isVerticalSymmetry()) {
-						step.verticalMirror();
-					}
+					step.convert(operation);
 				}
 
 			}

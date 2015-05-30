@@ -54,6 +54,10 @@ public class TestFiveFive extends TestCase {
 
 	}
 
+	
+	/**
+	 * 万年劫的型!
+	 */
 	public void test3() {
 
 		String[] text = new String[6];
@@ -171,7 +175,7 @@ public class TestFiveFive extends TestCase {
 		Point point2 = Point.getPoint(6, 6, 2);
 		BlankBlock eyeBlock = ta.getBlankBlock(point2);
 		boolean live = ta.isBigEyeLive_dynamic(target, eyeBlock, true);
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 	}
 
@@ -192,7 +196,7 @@ public class TestFiveFive extends TestCase {
 		Point point2 = Point.getPoint(6, 6, 1);
 		BlankBlock eyeBlock = ta.getBlankBlock(point2);
 		boolean live = ta.isBigEyeLive_dynamic(target, eyeBlock, false);
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 	}
 
@@ -234,14 +238,14 @@ public class TestFiveFive extends TestCase {
 		BlankBlock eyeBlock = ta.getBlankBlock(point2);
 		boolean live;
 		live = ta.isBigEyeLive_dynamic(target, eyeBlock, false);
-		Assert.assertFalse(live);
+		assertFalse(live);
 
 		/**
 		 * if big eye is not live yet, we check further if it can survive if
 		 * target play first.
 		 */
 		live = ta.isBigEyeLive_dynamic(target, eyeBlock, true);
-		Assert.assertFalse(live);
+		assertFalse(live);
 
 		/**
 		 * it is dead and only 7 breath.
@@ -298,7 +302,8 @@ public class TestFiveFive extends TestCase {
 		Block target = ta.getBlock(point);
 		Point point2 = Point.getPoint(6, 5, 2);
 		BlankBlock eyeBlock = ta.getBlankBlock(point2);
-		ta.isBigEyeLive_dynamic(target, eyeBlock, false);
+		boolean live_dynamic = ta.isBigEyeLive_dynamic(target, eyeBlock, false);
+		assertFalse(live_dynamic);
 
 	}
 
@@ -328,7 +333,7 @@ public class TestFiveFive extends TestCase {
 		BlankBlock eyeBlock = ta.getBlankBlock(point2);
 		boolean live = ta.isBigEyeLive_dynamic(target, eyeBlock, false);
 		if(log.isEnabledFor(Level.WARN)) log.warn(ta.getBoardColorState().getStateString());
-		Assert.assertFalse(live);
+		assertFalse(live);
 
 	}
 
@@ -376,11 +381,11 @@ public class TestFiveFive extends TestCase {
 		points.addAll(eyeBlock.getPoints());
 		Result res = ta.isBigEyeLive_dynamic_internal(target, points, false);
 		boolean live = res.isLive();
-		Assert.assertFalse(live);
+		assertFalse(live);
 
 		res = ta.isBigEyeLive_dynamic_internal(target, points, true);
 		live = res.isLive();
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 		points = ta.getEyePoints_singleTargetBlock(target, eyeBlock);
 		if(log.isEnabledFor(Level.WARN)) log.warn(points);

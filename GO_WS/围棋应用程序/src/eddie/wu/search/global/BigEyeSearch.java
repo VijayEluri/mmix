@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import junit.framework.TestCase;
+
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import eddie.wu.domain.BlankBlock;
@@ -31,32 +34,71 @@ import eddie.wu.domain.survive.RelativeResult;
  * 
  */
 public class BigEyeSearch extends GoBoardSearch {
+	/**
+	 * by default, we search for live death. we must cover the potential best
+	 * move including PASS.
+	 */
+	private boolean liveSearch = true;
+	/**
+	 * when searching for breath, we may need to PASS to ensure longest breath.
+	 * 
+	 */
+	private boolean breathSearch = false;
 
 	private static final Logger log = Logger.getLogger(BigEyeSearch.class);
 	TerritoryAnalysis goBoard;
 	Set<Point> candidates = new HashSet<Point>();
 	Set<Point> enemyCandidates = new HashSet<Point>();
-	Point target;
+
+	private Point target;
+	private int targetColor;
+	private boolean targetFirst;
+
 	Shape targetShape;
-	int targetColor;
 	private boolean targetLoopSuperior;
 
-	public BigEyeSearch(byte[][] state, Point target, boolean targetFirst,
-			boolean targetLoopSuperior) {
-		goBoard = new TerritoryAnalysis(state);
+	/**
+	 * Single Block Eye<br/>
+	 * 处理独立大眼的情况.
+	 * 
+	 * @param state
+	 * @param target
+	 * @param targetFirst
+	 * @param targetLoopSuperior
+	 */
+	public BigEyeSearch(byte[][] state, Point target, int targetColor,
+			boolean targetFirst, boolean targetLoopSuperior) {
+		super(RelativeResult.DUAL_LIVE, RelativeResult.ALREADY_DEAD);
+		initGoBoard(state, target, targetColor, targetFirst);
 		Block targetBlock = goBoard.getBlock(target);
+
 		if (targetBlock.getBreathBlocks().size() != 1) {
-			log.warn("targetBlock has more than one eye blocks"
-					+ targetBlock.getBehalfPoint());
-			log.warn(goBoard.getStateString());
+			int count = 0;
+			for (BlankBlock bb : targetBlock.getBreathBlocks()) {
+				if (bb.isEyeBlock()) {
+					count++;
+				}
+			}
+			if (count > 1) {
+
+				if (log.isEnabledFor(Level.WARN)) {
+					log.warn("targetBlock has more than one eye blocks"
+							+ targetBlock.getBehalfPoint());
+					log.warn(goBoard.getStateString());
+				}
+				throw new RuntimeException(
+						"targetBlock has more than one eye blocks");
+			}
 		}
 
 		Set<Point> eyePoints = targetBlock.getAllPointsInSingleEye();
-		init(state, target, eyePoints, targetFirst, targetLoopSuperior);
+		init(state, target, targetColor, eyePoints, targetFirst,
+				targetLoopSuperior);
 	}
 
 	/**
-	 * suppose only one eye block
+	 * suppose only one eye block<br/>
+	 * 处理独立大眼的情况.
 	 * 
 	 * @param state
 	 * @param target
@@ -64,12 +106,12 @@ public class BigEyeSearch extends GoBoardSearch {
 	 * @param targetFirst
 	 * @param targetLoopSuperior
 	 */
-	public BigEyeSearch(byte[][] state, Point target, BlankBlock eyeBlock,
-			boolean targetFirst, boolean targetLoopSuperior) {
-		goBoard = new TerritoryAnalysis(state);
+	public BigEyeSearch(byte[][] state, Point target, int targetColor,
+			BlankBlock eyeBlock, boolean targetFirst, boolean targetLoopSuperior) {
+		super(RelativeResult.DUAL_LIVE, RelativeResult.ALREADY_DEAD);
 		// bug here. shared Set cause tricky bug!
 		// Set<Point> eyePoints = eyeBlock.getPoints();
-
+		initGoBoard(state, target, targetColor, targetFirst);
 		Set<Point> eyePoints = new HashSet<Point>();
 		eyePoints.addAll(eyeBlock.getPoints());
 		if (eyeBlock.getNeighborBlocks().size() > 1) {
@@ -89,47 +131,120 @@ public class BigEyeSearch extends GoBoardSearch {
 			}
 		}
 
-		init(state, target, eyePoints, targetFirst, targetLoopSuperior);
-	}
-
-	/**
-	 * for big eyes with enemy filled in.
-	 * 
-	 * @param state
-	 * @param target
-	 * @param eyePoints
-	 * @param targetFirst
-	 * @param targetLoopSuperior
-	 */
-	public BigEyeSearch(byte[][] state, Point target, Set<Point> eyePoints,
-			boolean targetFirst, boolean targetLoopSuperior) {
-		goBoard = new TerritoryAnalysis(state);
-		init(state, target, eyePoints, targetFirst, targetLoopSuperior);
-	}
-
-	/**
-	 * 
-	 * @param state
-	 * @param target
-	 * @param eyePoints
-	 * @param targetFirst
-	 * @param targetLoopSuperior
-	 */
-	public BigEyeSearch(byte[][] state, Point target, Set<Point> multiTarget,
-			Set<Point> eyePoints, boolean targetFirst,
-			boolean targetLoopSuperior) {
-		goBoard = new TerritoryAnalysis(state);
-		init(state, target, multiTarget, eyePoints, targetFirst,
+		init(state, target, targetColor, eyePoints, targetFirst,
 				targetLoopSuperior);
 	}
 
-	Set<Point> multiTarget;
-
-	public void init(byte[][] state, Point target, Set<Point> multiTarget,
+	/**
+	 * for big eyes with enemy filled in.<br/>
+	 * 处理大眼中已经有敌子的情况.
+	 * 
+	 * @param state
+	 * @param target
+	 * @param eyePoints
+	 * @param targetFirst
+	 * @param targetLoopSuperior
+	 */
+	public BigEyeSearch(byte[][] state, Point target, int targetColor,
 			Set<Point> eyePoints, boolean targetFirst,
 			boolean targetLoopSuperior) {
-		init(state, target, eyePoints, targetFirst, targetLoopSuperior);
+		super(RelativeResult.DUAL_LIVE, RelativeResult.ALREADY_DEAD);
+		initGoBoard(state, target, targetColor, targetFirst);
+		init(state, target, targetColor, eyePoints, targetFirst,
+				targetLoopSuperior);
+	}
+
+	/**
+	 * latest idea: 2014-03-04 <br/>
+	 * No Pass in usual search unless there is no valid candidate. <br/>
+	 * if it looks like dual live, we come here. and divide it into two search
+	 * with different color play first. <br/>
+	 * when there is something looks like a loop. we should also try different
+	 * loop parameter to see whether it is really a loop.<br/>
+	 * //each
+	 * 
+	 * @param state
+	 * @param target
+	 * @param targetColor
+	 * @param eyePoints
+	 * @return
+	 */
+	public static int checkDualLive(byte[][] state, Point target,
+			int targetColor, Set<Point> eyePoints) {
+		BigEyeSearch targetFirst = new BigEyeSearch(state, target, targetColor,
+				eyePoints, true, false);
+		int first1 = targetFirst.globalSearch();
+		BigEyeSearch targetFirst2 = new BigEyeSearch(state, target,
+				targetColor, eyePoints, true, true);
+		int first2 = targetFirst2.globalSearch();
+		BigEyeSearch targetSecond = new BigEyeSearch(state, target,
+				targetColor, eyePoints, false, false);
+		int second1 = targetSecond.globalSearch();
+		BigEyeSearch targetSecond2 = new BigEyeSearch(state, target,
+				targetColor, eyePoints, false, true);
+		int second2 = targetSecond2.globalSearch();
+		if (first1 == RelativeResult.ALREADY_DEAD
+				&& first2 == RelativeResult.ALREADY_DEAD) {
+
+			if (second1 == RelativeResult.ALREADY_LIVE
+					&& second2 == RelativeResult.ALREADY_LIVE) {
+				return RelativeResult.DUAL_LIVE;
+			} else if (second1 == RelativeResult.ALREADY_DEAD
+					&& second2 == RelativeResult.ALREADY_LIVE) {
+				if (true) {
+					// only takes 0 times loop back.
+					return RelativeResult.ALREADY_DEAD;
+				} else {
+					// maybe consider 万年劫.
+				}
+			}
+		}
+		return Constant.UNKOWN;
+	}
+
+	/**
+	 * 处理多个目标棋块围出一个大眼的情况.
+	 * 
+	 * @param state
+	 * @param target
+	 *            核心target.
+	 * @param eyePoints
+	 * @param targetFirst
+	 * @param targetLoopSuperior
+	 */
+	public BigEyeSearch(byte[][] state, Point target, int targetColor,
+			Set<Point> multiTarget, Set<Point> eyePoints, boolean targetFirst,
+			boolean targetLoopSuperior) {
+		super(RelativeResult.DUAL_LIVE, RelativeResult.ALREADY_DEAD);
+		initGoBoard(state, target, targetColor, targetFirst);
+		init(state, target, targetColor, multiTarget, eyePoints, targetFirst,
+				targetLoopSuperior);
+	}
+
+	private Set<Point> multiTarget;
+
+	private void init(byte[][] state, Point target, int targetColor,
+			Set<Point> multiTarget, Set<Point> eyePoints, boolean targetFirst,
+			boolean targetLoopSuperior) {
+		initGoBoard(state, target, targetColor, targetFirst);
+		init(state, target, targetColor, eyePoints, targetFirst,
+				targetLoopSuperior);
 		this.multiTarget = multiTarget;
+	}
+
+	public void initGoBoard(byte[][] state, Point target, int targetColor,
+			boolean targetFirst) {
+		this.target = target;
+		this.targetColor = targetColor;
+		int whoseTurn = 0;
+		if (targetFirst) {
+			whoseTurn = targetColor;
+		} else {
+			whoseTurn = ColorUtil.enemyColor(targetColor);
+		}
+		goBoard = new TerritoryAnalysis(state, whoseTurn);
+		TestCase.assertEquals(targetColor, goBoard.getColor(target));
+
 	}
 
 	/**
@@ -142,9 +257,18 @@ public class BigEyeSearch extends GoBoardSearch {
 	 * @param targetFirst
 	 *            是否目标方先下（己方做眼）？ 还是目标方后下（对方破眼）？
 	 */
-	public void init(byte[][] state, Point target, Set<Point> eyePoints,
-			boolean targetFirst, boolean targetLoopSuperior) {
+	public void init(byte[][] state, Point target, int targetColor,
+			Set<Point> eyePoints, boolean targetFirst,
+			boolean targetLoopSuperior) {
 		this.targetLoopSuperior = targetLoopSuperior;
+		// this.targetColor = targetColor;
+		// if (targetFirst) {
+		// goBoard = new TerritoryAnalysis(state, targetColor);
+		// } else {
+		// goBoard = new TerritoryAnalysis(state,
+		// ColorUtil.enemyColor(targetColor));
+		//
+		// }
 
 		Block targetBlock = goBoard.getBlock(target);
 
@@ -154,37 +278,35 @@ public class BigEyeSearch extends GoBoardSearch {
 		// enemyCandidates.addAll(eyePoints);
 		enemyCandidates.addAll(targetBlock.getExternalOrSharedBreath());
 		enemyCandidates.removeAll(eyePoints);
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+			log.warn("init big eye search for state: ");
+			log.warn(goBoard.getInitColorState().getStateString());
 			log.warn("enemyCandidates = " + enemyCandidates);
+		}
 
 		this.target = target;
 		this.targetShape = targetBlock.getShape();
 		int color = goBoard.getColor(target);// 有眼块的颜色
 		targetColor = color;
-		int enemyColor = ColorUtil.enemyColor(color);
 
-		// level 0: all candidates of original state.
+	}
+
+	@Override
+	public SearchLevel getInitLevel() {
 		SearchLevel level;
-		List<Candidate> candidates;
 		if (targetFirst == true) {
-			level = new SearchLevel(0, color);// 做眼方先下
-			level.setWhoseTurn(Constant.MAX);// 做眼方取最大值。
-			candidates = getCandidate(color);
-			level.setCandidates(candidates, color);
-			level.setHighestExp(RelativeResult.ALREADY_LIVE);
-			level.setTempBestScore(Integer.MIN_VALUE);
+			level = new SearchLevel(0, targetColor);// 做眼方先下
+			level.setMax(true);// 做眼方取最大值。
+			level.setMaxExp(RelativeResult.DUAL_LIVE);
+			level.setTempBestScore(RelativeResult.ALREADY_DEAD - 1);
 		} else {
+			int enemyColor = ColorUtil.enemyColor(targetColor);
 			level = new SearchLevel(0, enemyColor);// 破眼方先下
-			level.setWhoseTurn(Constant.MIN);
-			candidates = getCandidate(enemyColor);
-			level.setCandidates(candidates, enemyColor);
-			// level.setHighestExp(LIVE);
-			level.setLowestExp(RelativeResult.ALREADY_DEAD);
-			level.setTempBestScore(Integer.MAX_VALUE);
+			level.setMax(false);
+			level.setMinExp(RelativeResult.ALREADY_DEAD);
+			level.setTempBestScore(RelativeResult.ALREADY_LIVE + 1);
 		}
-
-		levels.add(level);
-
+		return level;
 	}
 
 	@Override
@@ -245,7 +367,10 @@ public class BigEyeSearch extends GoBoardSearch {
 		// when one side give up, we can terminate and count the eyes.
 
 		if (goBoard.isDoubleGiveup()) {
-			return RelativeResult.ALREADY_LIVE;// only means without two eyes.
+			/**
+			 * only means live without two eyes.
+			 */
+			return RelativeResult.DUAL_LIVE;
 		}
 
 		if (goBoard.noStep() == false && goBoard.getLastStep().isGiveup()) {
@@ -267,8 +392,11 @@ public class BigEyeSearch extends GoBoardSearch {
 			}
 			if (goBoard.isStaticLive(target) == true) {
 				return RelativeResult.ALREADY_LIVE;
-			} else if (goBoard.potentialEyeLive(target) == false) {
+			} else if (goBoard.isRemovable_static(target) == true) {
 				return RelativeResult.ALREADY_DEAD;
+			} else if (goBoard.potentialEyeLive(target) == false) {
+				// potentialEyeLive is not accurate!!
+				// return RelativeResult.ALREADY_DEAD;
 			}
 		} else {
 			Set<Point> multiCopy = new HashSet<Point>();
@@ -318,8 +446,12 @@ public class BigEyeSearch extends GoBoardSearch {
 					// can it live after capturing.
 					BlankBlock eyeBlock = goBoard.getBlankBlock(eatenBlock
 							.getBehalfPoint());
-					boolean live = goBoard.isBigEyeLive_dynamic(targetBlock,
-							eyeBlock, false);
+					// cause stack overflow.
+					// boolean live = goBoard.isBigEyeLive_dynamic(targetBlock,
+					// eyeBlock, false);
+					// in case of bigEyeSearch.
+					boolean live = goBoard.isStaticLive(target);
+
 					if (live) {
 						return RelativeResult.ALREADY_LIVE;
 					}
@@ -359,30 +491,32 @@ public class BigEyeSearch extends GoBoardSearch {
 		// 目标方劫财有利。
 		if (this.targetLoopSuperior) {
 			if (forTarget)
-				return goBoard.getCandidate(multiCopy, targetCopy, candidates,
-						color, forTarget, forTarget);
+				return goBoard.getCandidate_forTarget(multiCopy, targetCopy,
+						candidates, color, forTarget, forTarget);
 			else
-				return goBoard.getCandidate(multiCopy, targetCopy, candidates,
-						enemyCandidates, color, forTarget, forTarget);
+				return goBoard.getCandidate_forAttacker(multiCopy, targetCopy,
+						candidates, enemyCandidates, color, forTarget,
+						forTarget);
 		} else {
 			if (forTarget)
-				return goBoard.getCandidate(multiCopy, targetCopy, candidates,
-						color, forTarget, !forTarget);
+				return goBoard.getCandidate_forTarget(multiCopy, targetCopy,
+						candidates, color, forTarget, !forTarget);
 			else
-				return goBoard.getCandidate(multiCopy, targetCopy, candidates,
-						enemyCandidates, color, forTarget, !forTarget);
+				return goBoard.getCandidate_forAttacker(multiCopy, targetCopy,
+						candidates, enemyCandidates, color, forTarget,
+						!forTarget);
 		}
 	}
 
-	@Override
-	protected int getLowestExp() {
-		return RelativeResult.ALREADY_DEAD;
-	}
-
-	@Override
-	protected int getHighestExp() {
-		return RelativeResult.ALREADY_LIVE;
-	}
+	// @Override
+	// protected int getMinExp() {
+	// return RelativeResult.ALREADY_DEAD;
+	// }
+	//
+	// @Override
+	// protected int getMaxExp() {
+	// return RelativeResult.DUAL_LIVE;
+	// }
 
 	@Override
 	public GoBoard getGoBoard() {
@@ -397,10 +531,6 @@ public class BigEyeSearch extends GoBoardSearch {
 	// goBoard.printState();
 	// }
 	// }
-	@Override
-	protected boolean isDoubleGiveup() {
-		return goBoard.isDoubleGiveup();
-	}
 
 	@Override
 	void stateDecided(BoardColorState boardColorState, int score) {
@@ -427,9 +557,19 @@ public class BigEyeSearch extends GoBoardSearch {
 		return 0;
 	}
 
-	@Override
-	protected void printKnownResult() {
-		// TODO Auto-generated method stub
+	public int getTargetColor() {
+		return targetColor;
+	}
 
+	public int getEnemyColor() {
+		return ColorUtil.enemyColor(targetColor);
+	}
+
+	public Point getTarget() {
+		return target;
+	}
+
+	public boolean isTargetFirst() {
+		return targetFirst;
 	}
 }

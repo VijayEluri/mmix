@@ -98,8 +98,8 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 
 	}
 
-	public SurviveAnalysis(byte[][] state, int color) {
-		super(state, color);
+	public SurviveAnalysis(byte[][] state, int whoseTurn) {
+		super(state, whoseTurn);
 
 	}
 
@@ -198,25 +198,31 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 	}
 
 	public boolean canIncreaseBreath_netly(Block block) {
-		// Assert.assertTrue("target block should only have one or two breath",
+
+		return this.getMaxNewBreath(block) - block.getBreaths() >= 2;
+		// assertTrue("target block should only have one or two breath",
 		// block.getBreaths() <= 2);
-		int oldBreath = block.getBreaths();
-		for (Point breath : block.getBreathPoints()) {
-			for (Delta delta : Constant.ADJACENTS) {
-				Point neighborP = breath.getNeighbour(delta);
-				if (neighborP == null)
-					continue;
-				int newBreath = this.breathAfterPlay(breath, block.getColor())
-						.size();
-				// System.out.print("oldBreath = " + oldBreath);
-				// System.out.println("newBreath = " + newBreath);
-				if (newBreath >= oldBreath + 2) {
-					return true;
-				}
-				// TODO: if breath are same.
-			}
-		}
-		return false;
+		// int oldBreath = block.getBreaths();
+		// for (Point breath : block.getBreathPoints()) {
+		// for (Delta delta : Constant.ADJACENTS) {
+		// Point neighborP = breath.getNeighbour(delta);
+		// if (neighborP == null)
+		// continue;
+		// int newBreath = this.breathAfterPlay(breath, block.getColor())
+		// .size();
+		// // System.out.print("oldBreath = " + oldBreath);
+		// // System.out.println("newBreath = " + newBreath);
+		// if (newBreath >= oldBreath + 2) {
+		// return true;
+		// }
+		// // TODO: if breath are same.
+		// }
+		// }
+		// return false;
+	}
+
+	public boolean canIncreaseBreath_temporarily(Block block) {
+		return this.getMaxNewBreath(block) - block.getBreaths() >= 1;
 	}
 
 	/**
@@ -225,67 +231,65 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 	 * 还有扑的情况.<br>
 	 * 简化处理.要求该块的气点除了不入气点,就是送吃点. <br/>
 	 * whether the block can increase its breath. <br/>
-	 * 要求原块是二气，计算是否能增加到三气，然后可以入气
+	 * 要求原块是二气，计算是否能增加到三气，然后可以入气<br/>
+	 * 两扳长一气.
 	 * 
 	 * @param block
 	 *            该块能否长气。
 	 * @return
 	 */
-	public boolean canIncreaseBreath_temporarily(Block block) {
+	public int getMaxNewBreath(Block block) {
 		/**
 		 * 01[_, B, W]01<br/>
 		 * 02[B, B, _]02<br/>
 		 * 03[B, _, _]03<br/>
 		 */
-		// Assert.assertTrue("target block should only have one or two breath",
+		// assertTrue("target block should only have one or two breath",
 		// block.getBreaths() <= 2);
 
-		// bug: not consider the way to capture enemies
-		Set<Point> candidate = new HashSet<Point>();
+		/**
+		 * Important: to consider the way to capture enemies!
+		 */
+		Set<Point> expandPoints = new HashSet<Point>();
 		for (Block blockEnemy : block.getEnemyBlocks()) {
 			// the point to eat the enemy
 			if (blockEnemy.getBreaths() == 1) {
-				candidate.add(blockEnemy.getUniqueBreath());
-			}
-		}
-		for (Point breath : candidate) {
-			for (Delta delta : Constant.ADJACENTS) {
-				Point neighborP = breath.getNeighbour(delta);
-				if (neighborP == null)
-					continue;
-				if (block.getBreathPoints().contains(breath)) {
-					// may not increase breath because it decrease one breath by
-					// filling own breath.
+				/**
+				 * text[0] = new String("[B, B, W, _]");<br/>
+				 * text[1] = new String("[B, B, B, W]");<br/>
+				 * text[2] = new String("[B, B, B, _]");<br/>
+				 * text[3] = new String("[B, B, B, B]");<br/>
+				 */
+				Point eatingPoint = blockEnemy.getUniqueBreath();
 
+				if (block.getBreathPoints().contains(eatingPoint)) {
+					expandPoints.add(eatingPoint);
 				} else {
 					// eating increase at lease one breath without fill own
-					// breath.
-					return true;
-
+					// breath.NOT accurate, but enough currently.
+					return block.getBreaths() + 1;
 				}
-				// TODO: if breath are same.
 			}
 		}
 
-		// increase breath by extending in current breath
-		candidate.clear();
-		candidate.addAll(block.getBreathPoints());
+		// increase breath by extending in current breath (eating included)
+		expandPoints.addAll(block.getBreathPoints());
 
-		// for (Point breath : block.getBreathPoints()) {
-		for (Point breath : candidate) {
+		int maxBreath = block.getBreaths() - 1;
+		for (Point breath : expandPoints) {
 			for (Delta delta : Constant.ADJACENTS) {
 				Point neighborP = breath.getNeighbour(delta);
 				if (neighborP == null)
 					continue;
 				int breaths = this.breathAfterPlay(breath, block.getColor())
 						.size();
-				if (breaths > block.getBreaths())
-					return true;
-				// TODO: if breath are same.
+				if (breaths > maxBreath) {
+					maxBreath = breaths;
+				}
 			}
 		}
 
-		return false;
+		return maxBreath;
 	}
 
 	/**
@@ -481,7 +485,7 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 					if (listAll.contains(point))
 						continue;
 
-					List<Point> listVar = deNormalize(point, symmetryResult);
+					List<Point> listVar = point.deNormalize(symmetryResult);
 					listAll.addAll(listVar);
 					// only keep one of all the symmetric candidates.
 					points2.add(listVar.get(0));
@@ -506,7 +510,7 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 			candidate.setStep(new Step(point, color, getShoushu() + 1));
 			NeighborState state = null;
 			try {
-				state = this.getNeighborState(point, color);
+				state = this.getNeighborState_forCandidate(point, color);
 			} catch (RuntimeException e) {
 				if (log.isEnabledFor(Level.WARN)) {
 					log.warn(this.getBoardColorState().getStateString());
@@ -535,7 +539,7 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 			candidate.setEating(state.isEating());
 			candidate.setGifting(state.isGifting());
 			candidate.setCapturing(state.isCapturing());
-			candidate.setRemoveCapturing(state.isRemoveCapturing());
+			candidate.setRemoveCapturing(state.getRemoveCapturing());
 			candidate.setBreaths(breathMap.get(point));
 			candidate.setIncreasedBreath(state.getIncreasedBreath());
 			candidate.setIncreasedBreath(state.getIncreasedBreath());
@@ -1540,7 +1544,7 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 			Set<Point> multiTarget, Set<Point> eyePoints, boolean targetFirst) {
 
 		// if (Constant.INTERNAL_CHECK == true) {
-		// Assert.assertTrue(eyeBlock.isCompleteBlockEye());
+		// assertTrue(eyeBlock.isCompleteBlockEye());
 		// }
 
 		// bug here. shared Set cause tricky bug!
@@ -1550,10 +1554,11 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 		BigEyeSearch search;
 		if (multiTarget == null) {
 			search = new BigEyeSearch(state, target.getBehalfPoint(),
-					eyePoints, targetFirst, false);
+					target.getColor(), eyePoints, targetFirst, false);
 		} else {
 			search = new BigEyeSearch(state, target.getBehalfPoint(),
-					multiTarget, eyePoints, targetFirst, false);
+					target.getColor(), multiTarget, eyePoints, targetFirst,
+					false);
 		}
 		int score = search.globalSearch();
 
@@ -1775,13 +1780,13 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 		}
 		byte[][] state = this.getMatrixState();
 		BigEyeSearch search = new BigEyeSearch(state, target.getBehalfPoint(),
-				eyeBlock, false, false);
+				target.getColor(), eyeBlock, false, false);
 		int score = search.globalSearch();
 		if (score == RelativeResult.ALREADY_LIVE)
 			return score;
 		else if (score == RelativeResult.ALREADY_DEAD) {
-			search = new BigEyeSearch(state, target.getBehalfPoint(), false,
-					true);
+			search = new BigEyeSearch(state, target.getBehalfPoint(),
+					target.getColor(), false, true);
 			score = search.globalSearch();
 		}
 
@@ -2416,6 +2421,11 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 		return false;
 	}
 
+	public boolean isRemovable_static(Point target) {
+		Block block = this.getBlock(target);
+		return isRemovable_static(block);
+	}
+
 	/**
 	 * whether the block is cleaned up from board anyway. we do not care whether
 	 * the enemy block will become live after capture.
@@ -2426,7 +2436,9 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 	 * @return
 	 */
 	public boolean isRemovable_static(Block block) {
-
+		if (block.getUniqueEyeBlock() != null
+				&& block.getUniqueEyeBlock().getPoints().size() >= 3)
+			return false;
 		if (this.canIncreaseBreath_netly(block) == true)
 			return false;
 		if (block.noEnemy()) {
@@ -2546,6 +2558,11 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 		return false;
 	}
 
+	/**
+	 * @deprecated
+	 * @param target
+	 * @return
+	 */
 	public boolean potentialEyeLive(Point target) {
 		EyeResult eyeRes = this.getRealEyes(target, false);
 		int virtualEyes = eyeRes.getRealEyes().size();
@@ -2554,7 +2571,9 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 			return true;
 		}
 		Block block = this.getBlock(target);
-		if (this.bigEyeFilledWithEnemy(block, false).getEyes() > 1)
+
+		// temp work around! inlcude == 1
+		if (this.bigEyeFilledWithEnemy(block, false).getEyes() >= 1)
 			return true;
 
 		if (virtualEyes >= 2) {

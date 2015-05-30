@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -61,18 +61,36 @@ public class GoBoardForward extends GoBoardSymmetry {
 		this.stepHistory = stepHistory;
 	}
 
-	public boolean oneStepForward(final Point point) {
+	/**
+	 * natural color decision. each side make one move in turn.
+	 * 
+	 * @return
+	 */
+	public int decideColor() {
 		if (initColorState != null
 				&& initColorState.getWhoseTurn() == Constant.WHITE) {
-			return oneStepForward(point,
-					ColorUtil.getNextStepColor(shoushu + 1));
+			return ColorUtil.getNextStepColor(shoushu + 1);
 		} else {
-			return oneStepForward(point, ColorUtil.getNextStepColor(shoushu));
+			return ColorUtil.getNextStepColor(shoushu);
 		}
 	}
 
+	public boolean oneStepForward(final Point point) {
+		int color = this.decideColor();
+		return oneStepForward(point, color);
+	}
+
+	/**
+	 * BUG fix: not depend on lastPoint, which is not set properly when one step
+	 * backward.
+	 * 
+	 * @return
+	 */
 	public Point getLastPoint() {
-		return lastPoint;
+		if (noStep())
+			return null;
+		return this.getLastStep().getStep().getPoint();
+		// return lastPoint;
 	}
 
 	public boolean oneStepForward(Point original, int selfColor) {
@@ -105,30 +123,6 @@ public class GoBoardForward extends GoBoardSymmetry {
 	public boolean oneStepForward(final Step step) {
 		// maintain all the variants.
 
-		String prefix = "Forward: ";
-		if (current.getStep() == null) {
-			prefix += "INIT";
-		} else {
-			prefix += current.getStep().toSGFString();
-		}
-		if (log.isEnabledFor(Level.WARN))
-			log.warn(prefix + "-->" + step.toSGFString());
-
-		SearchNode child = current.getChild(step);
-		if (child == null) {
-
-			SearchNode temp = new SearchNode(step);
-			current.addChild(temp);
-			current = temp;
-
-		} else {
-			current = child;
-		}
-
-		if (step.isGiveUp()) {
-			this.giveUp(step.getColor());
-			return true;
-		}
 		Point original = step.getPoint();
 		int selfColor = step.getColor();
 
@@ -147,6 +141,33 @@ public class GoBoardForward extends GoBoardSymmetry {
 			}
 		}
 
+		String prefix = "Forward: ";
+		if (current.getStep() == null) {
+			prefix += "INIT";
+		} else {
+			prefix += current.getStep().toNonSGFString();
+		}
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(prefix + "-->" + step.toNonSGFString());
+
+		SearchNode child = current.getChild(step);
+		if (child == null) {
+
+			SearchNode temp = new SearchNode(step);
+			current.addChild(temp);
+			current = temp;
+
+		} else {
+			current = child;
+		}
+
+		if (step.isGiveUp()) {
+			this.giveUp(step.getColor());
+			return true;
+		}
+		// record oldState for duplicates
+		BoardColorState oldState = this.getBoardColorState();
+
 		byte jubutizishu = 0; // 局部提子数(每一步的提子数)
 		shoushu++;
 		step.setIndex(shoushu);
@@ -154,10 +175,13 @@ public class GoBoardForward extends GoBoardSymmetry {
 		lastPoint = original;
 		stepHistory.setStep(shoushu, original, selfColor);
 
+		// get state first before change color for "original"
+		SimpleNeighborState neighborState = getNeighborState(original,
+				selfColor);
+
 		// 先改变该点的颜色,但是Block仍旧没有改变.
 		this.setColor(original, selfColor);
 
-		NeighborState neighborState = getNeighborState(original, selfColor);
 		BlankBlock blankBlock = neighborState.getOriginalBlankBlock();
 		this.isConnectedWithoutPoint(neighborState, blankBlock, original);
 
@@ -286,6 +310,8 @@ public class GoBoardForward extends GoBoardSymmetry {
 			// prevent duplicate state.
 			boolean valid = stepHistory.setColorState(getBoardColorState());
 			if (valid == false) {
+				// ensure previous state is identified as loop relevant.
+				stepHistory.setColorState(oldState);
 				if (log.isEnabledFor(Level.WARN)) {
 					log.warn("落子点无效:全局同型再现!" + this.getLastStep().getStep());
 					log.warn(this.getStateString());
@@ -295,47 +321,68 @@ public class GoBoardForward extends GoBoardSymmetry {
 				}
 				// external code to roll back one step.
 				// stepHistory.removeStep(shoushu--);
-
+				// this.on
 				return false;
 			}
 		}
 
 		/**
-		 * 对称性的改变
+		 * 对称性的改变<br/>
+		 * I believe it is only necessary for 2*2 board. but I cannot prove it.
+		 * let's see.
 		 */
-		if (this.initSymmetryResult.getNumberOfSymmetry() != 0) {
-			int steps = this.getStepHistory().getAllSteps().size();
-			if (steps == 1) {
-				// first move
-				this.getLastStep().setSymmetry(this.getSymmetryResult());
-				this.getLastStep().getSymmetry().and(initSymmetryResult);
-			} else if (steps == 0) {
-				if (log.isEnabledFor(Level.WARN))
-					log.warn("steps=" + steps);
-				throw new RuntimeException("steps =0  after one step!");
-			} else {
-
-				StepMemo secondLastStep = this.getSecondLastStep();
-				if (secondLastStep.getSymmetry() == null) {
+		if (this.boardSize == 2) {
+			if (this.initSymmetryResult.getNumberOfSymmetry() != 0) {
+				int steps = this.getStepHistory().getAllSteps().size();
+				if (steps == 1) {
+					// first move
+					this.getLastStep().setSymmetry(
+							this.getSymmetryResult().getCopy());
+					this.getLastStep().getSymmetry().and(initSymmetryResult);
+				} else if (steps == 0) {
 					if (log.isEnabledFor(Level.WARN))
 						log.warn("steps=" + steps);
-					for (StepMemo memo : this.getStepHistory().getAllSteps()) {
+					throw new RuntimeException("steps =0  after one step!");
+				} else {
+
+					StepMemo secondLastStep = this.getSecondLastStep();
+
+					if (secondLastStep.getSymmetry() == null) {
 						if (log.isEnabledFor(Level.WARN))
-							log.warn(memo.getStep());
+							log.warn("steps=" + steps);
+						for (StepMemo memo : this.getStepHistory()
+								.getAllSteps()) {
+							if (log.isEnabledFor(Level.WARN)) {
+								if (memo.getSymmetry() != null)
+									log.warn(memo.getStep()
+											+ memo.getSymmetry().toString());
+								else {
+									log.warn(memo.getStep() + "null");
+								}
+							}
+						}
+						throw new RuntimeException(
+								"(secondLastStep.getSymmetry()==null)");
+					} else if (secondLastStep.getSymmetry()
+							.getNumberOfSymmetry() != 0) {
+						this.getLastStep()
+								.setSymmetry(this.getSymmetryResult());
+						this.getLastStep().getSymmetry()
+								.and(secondLastStep.getSymmetry().getCopy());
+					} else {// already no symmetry!
+						// safe copy is necessary to prevent shared change.
+						this.getLastStep().setSymmetry(
+								secondLastStep.getSymmetry().getCopy());
 					}
-					throw new RuntimeException(
-							"(secondLastStep.getSymmetry()==null)");
-				} else if (secondLastStep.getSymmetry().getNumberOfSymmetry() != 0) {
-					this.getLastStep().setSymmetry(this.getSymmetryResult());
-					this.getLastStep().getSymmetry()
-							.and(secondLastStep.getSymmetry());
-				} else {// already no symmetry!
-					this.getLastStep()
-							.setSymmetry(secondLastStep.getSymmetry());
+					log.warn(getSecondLastStep().getStep()
+							+ getSecondLastStep().getSymmetry().toString());
+					log.warn(getLastStep().getStep()
+							+ getLastStep().getSymmetry().toString());
 				}
+			} else {
+				this.getLastStep().setSymmetry(initSymmetryResult.getCopy());
 			}
 		}
-
 		// 新的棋块和原先气块的相邻程度改变
 		if (log.isInfoEnabled()) {
 			log.info("退出方法oneStepForward().");
@@ -379,7 +426,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 	int[] blankStoneCaseCount = new int[3];
 	int[] enemyStoneCaseCount = new int[2];
 
-	private void neighborStateStatistic(NeighborState neighborState) {
+	private void neighborStateStatistic(SimpleNeighborState neighborState) {
 		selfStoneCaseCount[neighborState.getSelfSonteCaseNumber()] += 1;
 		blankStoneCaseCount[neighborState.getBlankStoneCaseNumber()] += 1;
 		enemyStoneCaseCount[neighborState.getEnemyStoneCaseNumber()] += 1;
@@ -413,7 +460,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 			if (basicBlock.isActive() == false) {
 				if (log.isEnabledFor(Level.WARN))
 					log.warn(basicBlock);
-				Assert.assertTrue(
+				TestCase.assertTrue(
 						"all block should be active: "
 								+ basicBlock.getBehalfPoint(),
 						basicBlock.active);
@@ -422,7 +469,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 			 * 块中的点确实指向该块
 			 */
 			for (Point point : basicBlock.allPoints) {
-				Assert.assertEquals("check point" + point,
+				TestCase.assertEquals("check point" + point,
 						this.getBasicBlock(point), basicBlock);
 			}
 
@@ -448,7 +495,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 										log.warn("correct one"
 												+ this.getBasicBlock(point));
 								}
-								Assert.assertEquals(
+								TestCase.assertEquals(
 										"check "
 												+ basicBlock.getBehalfPoint()
 												+ " neighborBlock: wrong at point"
@@ -458,7 +505,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 							}
 
 						}
-						Assert.assertTrue(
+						TestCase.assertTrue(
 								"all neighbor block should be active: ",
 								neighborBlock.active);
 					}
@@ -501,7 +548,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 									log.warn("its enemyBlock" + enemyBlock
 											+ " is wrong for point" + point);
 							}
-							Assert.assertEquals("check enemyBlock's point"
+							TestCase.assertEquals("check enemyBlock's point"
 									+ point, enemyBlock, getBasicBlock(point));
 							break;
 						}
@@ -529,7 +576,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 				log.error(this.getBasicBlock(point));
 
 			}
-			Assert.assertTrue(equals);
+			TestCase.assertTrue(equals);
 		}
 	}
 
@@ -579,14 +626,14 @@ public class GoBoardForward extends GoBoardSymmetry {
 	 * @param origianl
 	 *            原落子点
 	 */
-	private void dealBlankPoint(NeighborState state) {
+	private void dealBlankPoint(SimpleNeighborState state) {
 		Point original = state.getOriginal();
 		BlankBlock blankBlock = state.getOriginalBlankBlock();
 		if (state.isOriginalBlankBlockDivided() == false) {
 			this.getLastStep().setOriginalBlankBlock(blankBlock);
 
 			if (state.isOriginalBlankBlockDisappear()) {
-				Assert.assertTrue(blankBlock.getPoints().size() == 1);
+				TestCase.assertTrue(blankBlock.getPoints().size() == 1);
 				if (log.isInfoEnabled())
 					log.info("原气块仅有一点,落子后气块消失. ");
 				// state.isOriginalBlankBlockDisappear();
@@ -641,7 +688,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 	 * @param sameColorBlock
 	 * @return
 	 */
-	private byte dealEnemyPoint(NeighborState state, Block sameColorBlock) {
+	private byte dealEnemyPoint(SimpleNeighborState state, Block sameColorBlock) {
 		if (log.isInfoEnabled()) {
 			log.info("三、处理异色邻子");
 		}
@@ -751,7 +798,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 	 * @param selfColor
 	 * @return
 	 */
-	private Block dealSelfPoint(NeighborState neighborState) {
+	private Block dealSelfPoint(SimpleNeighborState neighborState) {
 		if (log.isInfoEnabled()) {
 			log.info("一、处理同色邻子");
 		}
@@ -893,14 +940,32 @@ public class GoBoardForward extends GoBoardSymmetry {
 		statistic.increaseGiveUpSteps();
 		StepMemo step = new StepMemo(null, color, shoushu);
 		step.getStep().setIndex(shoushu);
-		if (noStep()) {// first move
-			step.setSymmetry(this.initSymmetryResult);
-		} else {
-			step.setSymmetry(this.getLastStep().getSymmetry());
+		if (this.boardSize == 2) {
+			if (noStep()) {// first move
+				step.setSymmetry(this.initSymmetryResult.getCopy());
+			} else {
+				if (this.getLastStep().getSymmetry() == null) {
+
+					for (StepMemo memo : this.getStepHistory().getAllSteps()) {
+						if (log.isEnabledFor(Level.WARN)) {
+							if (memo.getSymmetry() != null)
+								log.warn(memo.getStep()
+										+ memo.getSymmetry().toString());
+							else {
+								log.warn(memo.getStep() + "null");
+							}
+						}
+					}
+					throw new RuntimeException("(LastStep.getSymmetry()==null)");
+				} else {
+					step.setSymmetry(this.getLastStep().getSymmetry().getCopy());
+				}
+			}
 		}
 		// step.setStep(step2);
 		this.stepHistory.addStep(step);
 		// prevent other way to the current state..
+		// TODO:
 		boolean valid = stepHistory.setColorState(getBoardColorState());
 		if (valid == false) {
 			if (log.isEnabledFor(Level.WARN)) {
@@ -912,6 +977,17 @@ public class GoBoardForward extends GoBoardSymmetry {
 			}
 
 		}
+		//
+		// SearchNode child = current.getChild(step);
+		// if (child == null) {
+		//
+		// SearchNode temp = new SearchNode(step);
+		// current.addChild(temp);
+		// current = temp;
+		//
+		// } else {
+		// current = child;
+		// }
 	}
 
 	/**
@@ -1217,7 +1293,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 	 * @param blankPoints
 	 *            at most four point.
 	 */
-	private void realDivideBlankPointBlock(NeighborState state) {
+	private void realDivideBlankPointBlock(SimpleNeighborState state) {
 		this.verifyFlag();
 		int countPoint = 0;
 		Point original = state.getOriginal();
@@ -1297,7 +1373,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 	 * @param point
 	 * @return
 	 */
-	public boolean isConnectedWithoutPoint(NeighborState state,
+	public boolean isConnectedWithoutPoint(SimpleNeighborState state,
 			BlankBlock blankBlock, Point point) {
 		if (state.getBlankPoints().isEmpty()) {
 			if (log.isDebugEnabled()) {
@@ -1368,7 +1444,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 	 * @return
 	 */
 	private void removeBreathPointFromEnemyBlock(Block block,
-			NeighborState state) {
+			SimpleNeighborState state) {
 		// 落子点原来所在的气块.
 		Point original = state.getOriginal();
 		BlankBlock blankBlock = state.getOriginalBlankBlock();
@@ -1377,7 +1453,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 		if (state.isOriginalBlankBlockDivided()) {
 			return;
 		} else if (state.isOriginalBlankBlockDisappear()) {
-			Assert.assertTrue(blankBlock.getNumberOfPoint() == 1);
+			TestCase.assertTrue(blankBlock.getNumberOfPoint() == 1);
 			return; // neighbor relationship is already handled in blank point
 		}
 
@@ -1412,7 +1488,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 	 * @return whether new block is created true if connected, false is not sure
 	 *         / unknown
 	 */
-	private boolean isBlankBlockConnected(NeighborState state) {
+	private boolean isBlankBlockConnected(SimpleNeighborState state) {
 
 		Point original = state.getOriginal();
 		List<Point> blankPoint = new ArrayList<Point>(4);
@@ -1688,7 +1764,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 			if (log.isEnabledFor(Level.WARN))
 				log.warn("curernt state");
 			this.printState();
-			Assert.assertTrue("state should equal internally!", result);
+			TestCase.assertTrue("state should equal internally!", result);
 		}
 
 		for (BasicBlock basicBlock : goBoard.getAllBlocks()) {
@@ -1720,7 +1796,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 
 				outputManualWithIssue();
 			}
-			Assert.assertTrue(
+			TestCase.assertTrue(
 					"all block should be equal internally shoushu = ", equals);
 		}
 
@@ -1771,6 +1847,9 @@ public class GoBoardForward extends GoBoardSymmetry {
 	}
 
 	public boolean validate(Step step) {
+		if (step.isGiveUp())
+			return true;
+
 		Point original = step.getPoint();
 		int color = step.getColor();
 
@@ -1796,6 +1875,18 @@ public class GoBoardForward extends GoBoardSymmetry {
 					if (log.isEnabledFor(Level.WARN))
 						log.warn("落点为：a=" + original + " shoushu="
 								+ (shoushu + 1));
+					BoardColorState oldState = this.getBoardColorState();
+					// ensure it is recorded as duplicate state.
+					stepHistory.setColorState(oldState);
+					// in this case, last step should always exist! but seond
+					// last may not exist
+					if (stepHistory.getSecondLastStep() != null) {
+						BoardColorState preState = stepHistory
+								.getSecondLastStep().getColorState();
+						stepHistory.setColorState(preState);
+					} else {
+						stepHistory.setColorState(this.getInitColorState());
+					}
 					return false;
 				}
 			} else {
@@ -1816,8 +1907,9 @@ public class GoBoardForward extends GoBoardSymmetry {
 
 	}
 
-	public boolean validate(final byte row, final byte column) {
-		return validate(Point.getPoint(boardSize, row, column), 0);
+	public boolean validate(final int row, final int column) {
+		return validate(Point.getPoint(boardSize, row, column),
+				this.decideColor());
 
 	}
 

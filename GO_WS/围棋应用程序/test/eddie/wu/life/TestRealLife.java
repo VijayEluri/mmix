@@ -47,7 +47,7 @@ public class TestRealLife extends TestCase {
 		if(log.isEnabledFor(Level.WARN)) log.warn(set);
 		point = Point.getPoint(7, 5, 2);
 		boolean dead = ta.isAlreadyDead_dynamic(point);
-		Assert.assertFalse(dead);
+		assertFalse(dead);
 	}
 
 	public void test40_p91() {
@@ -67,7 +67,7 @@ public class TestRealLife extends TestCase {
 
 		point = Point.getPoint(7, 5, 5);
 		dead = ta.isAlreadyDead_dynamic(point);
-		Assert.assertFalse(dead);
+		assertFalse(dead);
 		ta.isCanLive_dynamic(point);
 
 		point = Point.getPoint(7, 4, 4);
@@ -75,7 +75,7 @@ public class TestRealLife extends TestCase {
 
 		if(log.isEnabledFor(Level.WARN)) log.warn(set);
 		dead = ta.isAlreadyDead_dynamic(point);
-		Assert.assertFalse(dead);
+		assertFalse(dead);
 		ta.isCanLive_dynamic(point);
 
 		SurviveAnalysis survive = new SurviveAnalysis(state);
@@ -99,7 +99,7 @@ public class TestRealLife extends TestCase {
 			if (live)
 				break;
 		}
-		Assert.assertTrue(live);
+		assertTrue(live);
 
 	}
 

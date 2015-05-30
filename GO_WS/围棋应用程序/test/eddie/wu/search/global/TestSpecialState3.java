@@ -27,12 +27,12 @@ public class TestSpecialState3 extends TestCase {
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
 
 		Point point = Point.getPoint(3, 2, 3);
-		Assert.assertFalse(sa.isAlreadyLive_dynamic(point));
+		assertFalse(sa.isAlreadyLive_dynamic(point));
 
 		point = Point.getPoint(3, 1, 2);
-		Assert.assertFalse(sa.isAlreadyLive_dynamic(point));
+		assertFalse(sa.isAlreadyLive_dynamic(point));
 
-		Assert.assertFalse(sa.isFinalState_deadExist());
+		assertFalse(sa.isFinalState_deadExist());
 		// FinalResult finalResult = sa.finalResult();
 		// if(log.isEnabledFor(Level.WARN)) log.warn(finalResult);
 		// int score = finalResult.getScore();
@@ -52,9 +52,9 @@ public class TestSpecialState3 extends TestCase {
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
 
 		Point point = Point.getPoint(3, 3, 1);
-		Assert.assertFalse(sa.isAlreadyLive_dynamic(point));
+		assertFalse(sa.isAlreadyLive_dynamic(point));
 
-		Assert.assertFalse(sa.isFinalState_deadExist());
+		assertFalse(sa.isFinalState_deadExist());
 	}
 
 }

@@ -115,6 +115,33 @@ public class SGFGoManual {
 		}
 	}
 
+	public static void storeGoManual(String fileName, List<TreeGoManual> manuals) {
+
+		DataOutputStream out = null;
+		byte[] manB = null;
+		try {
+			File file = new File(fileName);
+			out = new DataOutputStream(new BufferedOutputStream(
+					new FileOutputStream(file)));
+			manB = new byte[(int) file.length()];
+
+			writeGoManual(out, manuals);
+		} catch (IOException ex) {
+			if (log.isEnabledFor(Level.WARN))
+				log.warn("file name=" + fileName);
+			log.debug("the input meet some trouble!");
+			log.debug("Exception" + ex.toString());
+			throw new RuntimeException(ex);
+		} finally {
+			try {
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			log.debug("finally");
+		}
+	}
+
 	public static void writeGoManualHeader(DataOutputStream out,
 			AbsGoManual manual) throws IOException {
 		out.writeByte((byte) '(');
@@ -131,6 +158,13 @@ public class SGFGoManual {
 		} else {
 			out.write("W".getBytes());
 		}
+		out.writeByte((byte) ']');
+
+		out.write("RE".getBytes());
+		out.writeByte((byte) '[');
+
+		out.write(String.valueOf(manual.getResult()).getBytes());
+
 		out.writeByte((byte) ']');
 
 		if (manual.getBlackName() == null || manual.getBlackName().isEmpty()) {
@@ -169,6 +203,13 @@ public class SGFGoManual {
 			}
 		}
 
+	}
+
+	public static void writeGoManual(DataOutputStream out,
+			List<TreeGoManual> manuals) throws IOException {
+		for (TreeGoManual manual : manuals) {
+			writeGoManual(out, manual);
+		}
 	}
 
 	public static void writeGoManual(DataOutputStream out, SimpleGoManual manual)
@@ -391,6 +432,7 @@ public class SGFGoManual {
 					stack.add(root);
 					current = root;
 					man = new TreeGoManual(root, boardSize, Constant.BLACK);
+					shoushu = 0;
 				} else {
 					// if(stack.pop()==current){
 					//
@@ -400,6 +442,7 @@ public class SGFGoManual {
 				}
 			} else if (manual[i] == ')') {
 				current = stack.pop();
+				shoushu = current.countSteps();
 				if (stack.isEmpty()) {
 					// TreeGoManual tgm = new TreeGoManual(root.getChild());
 					// man.setRoot(root.getChild());

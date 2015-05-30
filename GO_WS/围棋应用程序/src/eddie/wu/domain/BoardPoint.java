@@ -8,7 +8,7 @@ package eddie.wu.domain;
 
 import java.io.Serializable;
 
-import junit.framework.Assert;
+import junit.framework.TestCase;
 
 /**
  * @author eddie
@@ -113,7 +113,7 @@ public class BoardPoint implements Cloneable, Serializable {
 	 * @return Returns the block.
 	 */
 	public Block getBlock() {
-		Assert.assertNotNull(block);// not happen in goboard.
+		TestCase.assertNotNull(block);// not happen in goboard.
 		if (block.isBlank()) {
 			return null;
 			// throw new RuntimeException(
@@ -252,17 +252,17 @@ public class BoardPoint implements Cloneable, Serializable {
 		}
 	}
 
-	public Object clone() {
-		BoardPoint temp = null;
-		try {
-			temp = (BoardPoint) super.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		temp.setBlock((Block) getBlock().clone());
-
-		return temp;
-	}
+//	public Object clone() {
+//		BoardPoint temp = null;
+//		try {
+//			temp = (BoardPoint) super.clone();
+//		} catch (CloneNotSupportedException e) {
+//			e.printStackTrace();
+//		}
+//		temp.setBlock((Block) getBlock().clone());
+//
+//		return temp;
+//	}
 
 	public boolean isLeftTop() {
 		return point.isLeftTop();

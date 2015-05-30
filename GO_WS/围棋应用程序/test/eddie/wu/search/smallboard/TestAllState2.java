@@ -129,7 +129,19 @@ public class TestAllState2 extends TestCase {
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn(goS.getSearchProcess().size());
 
-		Assert.assertEquals(1, score);
+		assertEquals(1, score);
+
+		String name = goS.getGoBoard().getInitColorState()
+				.getStateAsOneLineString()
+				+ ".sgf";
+		String fileName = Constant.rootDir + "smallboard/twotwo/" + name;
+		TreeGoManual manual = goS.getTreeGoManual();
+		int initScore = manual.initScore();
+		log.warn("Init score = " + initScore);
+		manual.cleanupBadMove_firstWin(goS.initTurn, goS.getMaxExp());
+		log.debug(manual.getExpandedString(false));// init variant
+		log.warn(manual.getSGFBodyString(false));
+		SGFGoManual.storeGoManual(fileName, manual);
 		// SearchNode root = goS.getGoBoard().getRoot();
 		// if(log.isEnabledFor(Level.WARN)) log.warn(root.getSGFBodyString());
 		TreeGoManual tree = goS.getGoBoard().getTreeGoManual();
@@ -138,7 +150,21 @@ public class TestAllState2 extends TestCase {
 
 		goS = new TwoTwoBoardSearch(state, Constant.BLACK, 2, 1);
 		score = goS.globalSearch();
-		Assert.assertEquals(1, score);
+		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+			log.warn("Score=" + score);
+
+		count = 0;
+		for (String list : goS.getSearchProcess()) {
+			count++;
+			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+				log.warn(list);
+			if (count % 100 == 0)
+				if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+					log.warn("count=" + count);
+		}
+		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+			log.warn(goS.getSearchProcess().size());
+		assertEquals(1, score);
 
 	}
 
@@ -154,7 +180,7 @@ public class TestAllState2 extends TestCase {
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
-		Assert.assertEquals(-1, score);
+		assertEquals(-1, score);
 
 	}
 
@@ -184,7 +210,7 @@ public class TestAllState2 extends TestCase {
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
-		Assert.assertEquals(1, score);
+		assertEquals(1, score);
 	}
 
 	public void testState1A_whiteFirst() {
@@ -197,7 +223,7 @@ public class TestAllState2 extends TestCase {
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
-		Assert.assertEquals(-1, score);
+		assertEquals(-1, score);
 	}
 
 	/**
@@ -230,7 +256,7 @@ public class TestAllState2 extends TestCase {
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
-		Assert.assertEquals(1, score);
+		assertEquals(1, score);
 	}
 
 	public void testState2_black() {
@@ -245,7 +271,7 @@ public class TestAllState2 extends TestCase {
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
-		Assert.assertEquals(1, score);
+		assertEquals(1, score);
 	}
 
 	public void testState2_A() {
@@ -253,14 +279,16 @@ public class TestAllState2 extends TestCase {
 		text[0] = new String("[B, _]");
 		text[1] = new String("[_, W]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-			log.warn(Arrays.deepToString(state));
 
-		GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.WHITE, 0, -1);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.WHITE, 0,
+				-1);
 		int score = goS.globalSearch();
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+			log.warn(goS.getGoBoard().getInitColorState().getStateString());
 			log.warn("Score=" + score);
-		Assert.assertEquals(-1, score);
+		}
+
+		assertEquals(-1, score);
 	}
 
 	public void testState3_A() {
@@ -284,10 +312,14 @@ public class TestAllState2 extends TestCase {
 		}
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn(goS.getSearchProcess().size());
-		Assert.assertEquals(1, score);
+		assertEquals(1, score);
 	}
 
-	// [INIT]W-->[PAS]B-->[2,1]W-->[2,2]B-->[2,1]W-->[1,2]B-->[2,2]W-->[1,1]
+	/**
+	 * the state reached firstly by passing is still not allowed for
+	 * duplication. <br/>
+	 * [INIT]W-->[PAS]B-->[2,1]W-->[2,2]B-->[2,1]W-->[1,2]B-->[2,2]W-->[1,1]
+	 */
 	public void testDuplicateA() {
 		List<Step> steps = new ArrayList<Step>();
 		Step step;
@@ -320,17 +352,17 @@ public class TestAllState2 extends TestCase {
 		for (Step stepT : steps) {
 			valid = go.oneStepForward(stepT);
 			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-				log.warn(stepT + ">>>>" + valid);
+				log.warn(stepT + "reach state as blow: valid >>>> " + valid);
+			log.warn(go.getBoardColorState().getStateString());
+			log.warn("KNown history state "
+					+ go.getStepHistory().getColorStates().size());
 			for (BoardColorState stateC : go.getStepHistory().getColorStates()) {
 				if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 					log.warn(stateC.getStateString());
 			}
 		}
-		Assert.assertFalse(valid);
-		// for (BoardColorState stateC : go.getStepHistory().getColorStates()) {
-		// if(log.isEnabledFor(org.apache.log4j.Level.WARN))
-		// log.warn(stateC.getStateString());
-		// }
+
+		assertFalse(valid);
 	}
 
 	public void testAAA() {
@@ -367,7 +399,7 @@ public class TestAllState2 extends TestCase {
 			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 				log.warn(stepT + ">>>>" + valid);
 		}
-		Assert.assertFalse(valid);
+		assertFalse(valid);
 		for (BoardColorState stateC : go.getStepHistory().getColorStates()) {
 			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 				log.warn(stateC.getStateString());
@@ -391,7 +423,7 @@ public class TestAllState2 extends TestCase {
 			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 				log.warn(list);
 		}
-		Assert.assertEquals(1, score);
+		assertEquals(1, score);
 
 	}
 
@@ -412,7 +444,7 @@ public class TestAllState2 extends TestCase {
 			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 				log.warn(list);
 		}
-		Assert.assertEquals(1, score);
+		assertEquals(1, score);
 
 	}
 
@@ -440,7 +472,7 @@ public class TestAllState2 extends TestCase {
 		}
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn(goS.getSearchProcess().size());
-		Assert.assertEquals(-1, score);
+		assertEquals(-1, score);
 
 	}
 
@@ -456,7 +488,7 @@ public class TestAllState2 extends TestCase {
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
-		Assert.assertEquals(1, score);
+		assertEquals(1, score);
 
 		for (String list : goS.getSearchProcess()) {
 			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
@@ -481,13 +513,13 @@ public class TestAllState2 extends TestCase {
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
-		Assert.assertEquals(1, score);
+		assertEquals(1, score);
 
 		goS = new TwoTwoBoardSearch(state, Constant.WHITE, -3, -4);
 		score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
-		Assert.assertEquals(-1, score);
+		assertEquals(-1, score);
 	}
 
 	/**
@@ -536,7 +568,7 @@ public class TestAllState2 extends TestCase {
 			log.warn(manual.getExpandedString());
 			log.warn(manual.getVariant());
 		}
-		Assert.assertEquals(1, score);
+		assertEquals(1, score);
 
 		manual = goS.getGoBoard().getTreeGoManual();
 
@@ -559,15 +591,15 @@ public class TestAllState2 extends TestCase {
 
 		TerritoryAnalysis analysis = new TerritoryAnalysis(state);
 		boolean state2 = analysis.isFinalState_deadExist();
-		Assert.assertTrue(state2);
+		assertTrue(state2);
 
 		state2 = analysis.isFinalState_deadCleanedUp();
-		Assert.assertTrue(state2);
+		assertTrue(state2);
 
 		int finalState = analysis.finalStateType();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn(finalState);
-		Assert.assertEquals(2, finalState);
+		assertEquals(2, finalState);
 		FinalResult result = analysis.finalResult_deadExist();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn(result);

@@ -52,7 +52,7 @@ public class GoBoardLadder extends GoBoard implements ZhengZiInterface {
 
 	/**
 	 * 
-	 * 计算征子，但是不能用于含有劫争的情况。 为MAXMIN过程。 <br/>
+	 * 计算征子，但是不能用于含有劫争的情况。 为MAX-MIN过程。 <br/>
 	 * 征子方先走。a,b是被征子方棋块中的一个点。因为块号可能改变。 该方法真正用到了搜索算法。
 	 * 
 	 * @param row

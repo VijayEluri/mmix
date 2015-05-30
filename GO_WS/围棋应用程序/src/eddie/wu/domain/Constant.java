@@ -38,6 +38,10 @@ public class Constant {
 	public static final int MAX = 1; // 代表征子方
 
 	public static final int MIN = 2; // 代表被征子方
+	
+	public static final int CONNECTED = 10;
+	public static final int CAN_CONNECT = 5;
+	public static final int NOT_CONNECTED = 0;
 
 	// derived constant
 	public static final byte BOARD_MATRIX_SIZE = BOARD_SIZE + 2;
@@ -132,23 +136,3 @@ public class Constant {
 	public static final String GIVE_UP = "[PAS]";
 
 }
-//
-// public static final byte ZTXB = 0; // 下标0存储状态值（无子、黑子、白子）;
-// public static final byte SQBZXB = 1; // 下标1存储算气标志;
-// public static final byte QSXB = 2; // 下标2存储气数（单子或者棋块的气数）;
-// public static final byte QKSYXB = 3; // 下标3存储气块索引（空白点而言）
-
-// 眼位相关的参数
-// 1.眼的位置。
-// public static final byte BIANYAN = 2;
-// public static final byte JIAOYAN = 1;
-// public static final byte ZHONGFUYAN = 3;
-// // 2.眼的性质。
-// public static final byte JIAYAN = 1;
-// public static final byte WEIDINGYAN = 2;
-// public static final byte ZHENYAN = 3;
-// // 3.连接性。
-// public static final byte WEILIANJIE = 1;
-// public static final byte KELIANJIE = 2;
-// public static final byte YILIANJIE = 3;
-// public static final byte WEIDINGLIANJIE = 4;

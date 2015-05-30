@@ -344,7 +344,7 @@ public class RecordManual extends Frame {
 					.intValue(); i--) {
 				go.oneStepBackward();
 			}
-			if (go.noStep() == false) {
+			if (go.hasStep()) {
 				step.setText((go.getLastStep().getStep().getIndex() - 1) + "");
 			}
 			if (go.getShoushu() == 0) {

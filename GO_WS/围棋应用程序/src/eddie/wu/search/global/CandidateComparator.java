@@ -28,27 +28,45 @@ public class CandidateComparator implements Comparator<Candidate> {
 		 * ##01,02,03 <br/>
 		 * whoseTurn=White
 		 */
-		if (o1.isGifting()) {
-			o1.setEating(false);
-			o1.setCapturing(false);
-		}
 
-		if (o2.isGifting()) {
-			o2.setEating(false);
-			o2.setCapturing(false);
-		}
+		/***
+		 * some time gigting and eating at the same time (loop), need to check
+		 * the size of blocks<br/>
+		 * some time gifting and capturing at the same time, need to check
+		 * whether it is daopu(倒扑) <br/>
+		 * solve it outside.
+		 */
+//		if (o1.isGifting()) {
+//			o1.setEating(false);
+//			o1.setCapturing(false);
+//		}
+//
+//		if (o2.isGifting()) {
+//			o2.setEating(false);
+//			o2.setCapturing(false);
+//		}
 
-		if (o1.isEating() != o2.isEating()) {
-			if (o1.isEating())
-				return -1;
-			else
-				return 1;
-		} else if (o1.isEating() && o2.isEating()) {
+		if (o1.isEating() && o2.isEating()) {
 			// same eating, then the one remove the capturing win
-			if (o1.isRemoveCapturing() != o2.isRemoveCapturing()) {
-				if (o1.isRemoveCapturing()) {
+			if (o1.getRemoveCapturing() != o2.getRemoveCapturing()) {
+				return o2.getRemoveCapturing() - o1.getRemoveCapturing();
+			}
+		} else if (!o1.isEating() && !o2.isEating()) {
+			if (o1.getRemoveCapturing() != o2.getRemoveCapturing()) {
+				return o2.getRemoveCapturing() - o1.getRemoveCapturing();
+			}
+		} else {
+			// if (o1.isEating() != o2.isEating()) {
+			// }
+			if (o1.isEating()) {
+				if (o2.getRemoveCapturing() > 1)
+					return 1;
+				else if (o2.getRemoveCapturing() <= 1)
 					return -1;
-				} else
+			} else {
+				if (o1.getRemoveCapturing() > 1)
+					return -1;
+				else
 					return 1;
 			}
 		}
@@ -78,15 +96,24 @@ public class CandidateComparator implements Comparator<Candidate> {
 		if (temp != 0)
 			return temp;
 
-//		if (o1.isIncreaseBreath() != o2.isIncreaseBreath()) {
-//			if (o1.isIncreaseBreath())
-//				return -1;
-//			else
-//				return 1;
-//		}
+		// if (o1.isIncreaseBreath() != o2.isIncreaseBreath()) {
+		// if (o1.isIncreaseBreath())
+		// return -1;
+		// else
+		// return 1;
+		// }
+
+		if (o1.getEyes() != o2.getEyes()) {
+			return o2.getEyes() - o1.getEyes();
+		}
 
 		if (o1.getIncreasedBreath() != o2.getIncreasedBreath()) {
 			return o2.getIncreasedBreath() - o1.getIncreasedBreath();
+		}else if (o1.isAttacking() != o2.isAttacking()){
+			if(o1.isAttacking()) return -1;//紧气优先 
+			else return 1;
+		}else if(o1.getConnection()!=o2.getConnection()){
+			return o2.getConnection()-o1.getConnection();
 		}
 
 		// o1.isEating() == o2.isEating() 气长的优先
