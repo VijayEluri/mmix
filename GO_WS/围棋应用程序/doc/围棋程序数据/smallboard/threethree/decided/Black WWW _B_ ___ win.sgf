@@ -1,0 +1,10 @@
+(;SZ[3]PL[B]RE[9]AB[bb]AW[aa][ba][ca]
+(;B[])
+(;B[ab]
+	(;W[bc])
+	(;W[cc])
+	(;W[cb])
+	(;W[ac];B[cb])
+	(;W[]
+		(;B[])
+		(;B[cb]))))

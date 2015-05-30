@@ -1,0 +1,19 @@
+(;SZ[3]PL[W]RE[-4]AB[cb][ac][bc][cc]AW[aa][ba][ab][bb];W[ca]
+(;B[bc];W[cb]
+	(;B[];W[])
+	(;B[ac];W[]
+		(;B[])
+		(;B[cc]))
+	(;B[cc];W[]
+		(;B[])
+		(;B[ac])))
+(;B[cc];W[bc];B[];W[])
+(;B[cb];W[cc]
+	(;B[bc];W[ac])
+	(;B[ac];W[bc])
+	(;B[];W[]))
+(;B[ac];W[bc]
+	(;B[cb];W[];B[])
+	(;B[cc];W[];B[])
+	(;B[];W[]))
+(;B[];W[]))
