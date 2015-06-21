@@ -21,7 +21,7 @@ import eddie.wu.manual.SimpleGoManual;
 import eddie.wu.manual.TreeGoManual;
 
 /**
- * 1. only for small board (3<=size<=?).<br/>
+ * 
  * 2. no copy of board, use backward/forward feature.
  * 
  * @author Eddie Wu
@@ -32,39 +32,32 @@ public abstract class GoBoardSearch {
 	private int minExpScore;
 	private int maxExpScore;
 
-	GoBoardSearch(int maxExp, int minExp) {
-		maxExpScore = maxExp;
-		minExpScore = minExp;
-	}
+	// set it big to deal with ladder calculation
+	public static int deepth = 81;
+	/**
+	 * 1. set it small to ensure we have efficient algorithm <br/>
+	 * 2. could be controlled outside.
+	 * 3. it counts the number of final state we reached.
+	 */
 
 	private int NUMBER_OF_VARIANT = 5000 * 3;
 
-	public int dupCount;
+	transient public int dupCount;
 
 	private static final Logger log = Logger.getLogger(GoBoardSearch.class);
-	public static int deepth = 81;
+
 	private List<SearchLevel> levels = new ArrayList<SearchLevel>(deepth);
+
 	/**
 	 * initial state is in level 0
 	 */
 	private int levelIndex = 0;
-
-	/**
-	 * reuse same structure to do life-death search. first we try big eye.
-	 * target is whether the complete block with big eye can survive.
-	 * 
-	 * @param state
-	 * @param boardSize
-	 */
-	// public GoBoardSearch(byte[][] state) {
-	// goBoard = new TerritoryAnalysis(state);
-	// }
-
 	/**
 	 * during search, how many steps we forwarded.
 	 */
 	protected int countSteps;
 
+	
 	/**
 	 * 将每个搜索到终点的过程记录下来.便于排错.
 	 */
@@ -82,21 +75,51 @@ public abstract class GoBoardSearch {
 	 */
 	private SearchNode root = SearchNode.getSpecialRoot();
 
+	protected GoBoardSearch(int maxExp, int minExp) {
+		maxExpScore = maxExp;
+		minExpScore = minExp;
+	}
+
+	protected SearchLevel buildNewLevel(SearchLevel preLevel) {
+		int enemyColor = ColorUtil.enemyColor(preLevel.getColor());
+		SearchLevel newLevel = new SearchLevel(++levelIndex, enemyColor);
+		if (preLevel.isMax()) {
+			newLevel.setMax(false);
+			newLevel.setMinExp(this.getMinExp());
+			newLevel.setTempBestScore(Integer.MAX_VALUE);
+		} else {
+			newLevel.setMax(true);
+			newLevel.setMaxExp(this.getMaxExp());
+			newLevel.setTempBestScore(Integer.MIN_VALUE);
+		}
+		return newLevel;
+	}
+
 	public List<Step> getBestResult() {
 		return bestResult;
 	}
 
+	abstract protected List<Candidate> getCandidate(int color);
+
 	abstract public GoBoard getGoBoard();
+
+	abstract protected SearchLevel getInitLevel();
+
+	public int getMaxExp() {
+		return this.maxExpScore;
+	}
+
+	public int getMinExp() {
+		return this.minExpScore;
+	}
 
 	public SearchNode getRoot() {
 		return root;
 	}
 
-	public abstract int getScore(BoardColorState boardColorState);
+	abstract protected int getScore(BoardColorState boardColorState);
 
-	public List<String> getSearchProcess() {
-		return searchProcess;
-	}
+	abstract protected TerminalState getTerminalState();
 
 	/**
 	 * get the tree according to the search process, it is similar to the tree
@@ -111,7 +134,48 @@ public abstract class GoBoardSearch {
 				.getInitColorState());
 		manual.setRoot(root);
 		return manual;
-		
+
+	}
+
+	abstract protected boolean isKnownState(BoardColorState boardColorState);
+
+	abstract protected void stateDecided(BoardColorState boardColorState,
+			int score);
+
+	abstract protected void stateFinalizeed(BoardColorState boardColorStateN,
+			int scoreTerminator);
+
+	public boolean tree() {
+		return this.NUMBER_OF_VARIANT <= 15000;
+	}
+
+	public void setVariant(int variant) {
+		NUMBER_OF_VARIANT = variant;
+	}
+
+	public List<String> getSearchProcess() {
+		return searchProcess;
+	}
+
+	private void updateTreeWhenTerminate(SearchLevel oldLevel, Step step,
+			int scoreTerminator) {
+		if (tree()) {
+			SearchNode node = new SearchNode(step);
+			node.setScore(scoreTerminator);
+			oldLevel.getNode().addChild(node);
+			node.setMax(!oldLevel.isMax());
+		}
+	}
+
+	private void updateTreeWithNewLevel(SearchLevel newLevel,
+			SearchLevel level, Step step) {
+		if (tree()) {
+			SearchNode node = new SearchNode(step);
+			level.getNode().addChild(node);
+			newLevel.setNode(node);
+			node.setMax(newLevel.isMax());
+
+		}
 	}
 
 	/**
@@ -160,9 +224,9 @@ public abstract class GoBoardSearch {
 				 * 此时配合处理。
 				 */
 				if (level.alreadyWin()) {
-					if(level.isMax()){
+					if (level.isMax()) {
 						log.warn("Max Already Win:");
-					}else{
+					} else {
 						log.warn("Max Already lose:");
 					}
 					int score = level.getTempBestScore();
@@ -226,9 +290,9 @@ public abstract class GoBoardSearch {
 					 * 是否当前层的所有的候选点都处理完了。这也意味着该层对应的状态结果已知。<br/>
 					 * all candidates are handled
 					 */
-					if(level.isMax()){
+					if (level.isMax()) {
 						log.warn("Max Already Lose: ");
-					}else{
+					} else {
 						log.warn("Max Already Win: ");
 					}
 					if (levelIndex == 0) {
@@ -434,8 +498,8 @@ public abstract class GoBoardSearch {
 				if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 					log.warn("new state after step " + step);
 					log.warn(" is final state with score = " + scoreTerminator);
-//					log.warn(getGoBoard().getCurrent()
-//							.getSingleManualStringToRoot(false));
+					// log.warn(getGoBoard().getCurrent()
+					// .getSingleManualStringToRoot(false));
 
 					GoBoard goOld = this.getGoBoard();
 					goOld.printState(log);
@@ -449,7 +513,7 @@ public abstract class GoBoardSearch {
 
 					for (StepMemo memo : this.getGoBoard().getStepHistory()
 							.getAllSteps()) {
-//						log.warn(memo.getStep());
+						// log.warn(memo.getStep());
 						boolean validStep = go.oneStepForward(memo.getStep());
 						if (validStep == false) {
 							System.out
@@ -466,7 +530,7 @@ public abstract class GoBoardSearch {
 					for (StepMemo memo : this.getGoBoard().getStepHistory()
 							.getAllSteps()) {
 						boolean validStep = go.oneStepForward(memo.getStep());
-						//go.printState(log);
+						// go.printState(log);
 					}
 					List<BoardColorState> colorStates = new ArrayList<BoardColorState>();
 					colorStates.addAll(go.getStepHistory().getColorStates());
@@ -571,77 +635,12 @@ public abstract class GoBoardSearch {
 			}
 			log.error("Final State");
 			log.error(this.getGoBoard().getBoardColorState().getStateString());
-			 GoBoardForward forward = new GoBoardForward(this.getGoBoard().boardSize);
-			 
+			GoBoardForward forward = new GoBoardForward(
+					this.getGoBoard().boardSize);
+
 			return Constant.UNKOWN;
 		}
 
 	}
 
-	public void setVariant(int variant) {
-		NUMBER_OF_VARIANT = variant;
-	}
-
-	public abstract void stateFinalizeed(BoardColorState boardColorStateN,
-			int scoreTerminator);
-
-	public boolean tree() {
-		return this.NUMBER_OF_VARIANT <= 15000;
-	}
-
-	private void updateTreeWhenTerminate(SearchLevel oldLevel, Step step,
-			int scoreTerminator) {
-		if (tree()) {
-			SearchNode node = new SearchNode(step);
-			node.setScore(scoreTerminator);
-			oldLevel.getNode().addChild(node);
-			node.setMax(!oldLevel.isMax());
-		}
-	}
-
-	private void updateTreeWithNewLevel(SearchLevel newLevel,
-			SearchLevel level, Step step) {
-		if (tree()) {
-			SearchNode node = new SearchNode(step);
-			level.getNode().addChild(node);
-			newLevel.setNode(node);
-			node.setMax(newLevel.isMax());
-
-		}
-	}
-
-	protected SearchLevel buildNewLevel(SearchLevel preLevel) {
-		int enemyColor = ColorUtil.enemyColor(preLevel.getColor());
-		SearchLevel newLevel = new SearchLevel(++levelIndex, enemyColor);
-		if (preLevel.isMax()) {
-			newLevel.setMax(false);
-			newLevel.setMinExp(this.getMinExp());
-			newLevel.setTempBestScore(Integer.MAX_VALUE);
-		} else {
-			newLevel.setMax(true);
-			newLevel.setMaxExp(this.getMaxExp());
-			newLevel.setTempBestScore(Integer.MIN_VALUE);
-		}
-		return newLevel;
-	}
-
-	public int getMinExp() {
-		return this.minExpScore;
-	}
-
-	public int getMaxExp() {
-		return this.maxExpScore;
-	}
-
-	abstract protected List<Candidate> getCandidate(int color);
-
-	abstract protected TerminalState getTerminalState();
-
-	// abstract protected void printKnownResult();
-
-	abstract SearchLevel getInitLevel();
-
-	abstract boolean isKnownState(BoardColorState boardColorState);
-
-	abstract void stateDecided(BoardColorState boardColorState, int score);
 }

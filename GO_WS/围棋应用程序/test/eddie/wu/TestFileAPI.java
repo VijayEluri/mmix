@@ -2,15 +2,16 @@ package eddie.wu;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+
+import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 
 import util.GBKToUTF8;
-
 import eddie.wu.domain.Constant;
-
-import junit.framework.TestCase;
 
 /**
  * finding: the current working directory is different between running test case
@@ -39,6 +40,14 @@ public class TestFileAPI extends TestCase {
 				goManualLibFileName)));
 		int count = in.read(manual);
 		System.out.print("read " + count + " byte. " + manual[0]);
+	}
+	
+	public void test2(){
+		Properties properties = System.getProperties();
+		Set<Entry<Object, Object>> entrySet = properties.entrySet();
+		for(Entry<Object, Object> property: entrySet){
+			System.out.println(property.getKey() + "-"+property.getValue());
+		}
 	}
 
 }

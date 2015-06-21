@@ -864,105 +864,105 @@ public class Block extends BasicBlock implements Cloneable,
 	 * possible <br/>
 	 * static means there is no more valid candidate step for its opponent. even
 	 * the step which has no impact but change board state.
-	 * 
+	 * @deprecated use the one in surviveAnalysis
 	 * @return false if not live or its live but there is possible candidate
 	 *         step for its opponent even it makes no sense.
 	 */
-	public boolean isAlreadyLive_Static() {
-		if (this.getBreaths() < 2)
-			return false;
-
-		int eyes = 0;
-		Set<Block> friendBlock = new HashSet<Block>();
-
-		for (BlankBlock blankBlock : this.getBreathBlocks()) {
-			if (blankBlock.isEyeBlock() == true) {// 眼位
-
-				if (blankBlock.getNumberOfPoint() != 1) {
-					// 单块所成的眼必为真眼。
-					if (blankBlock.getNeighborBlocks().size() == 1) {
-						// 大眼没有最终定型。但是可以保证有一眼,暂时记为一眼.
-						eyes += 1;
-					} else {
-						continue;
-					}
-				} else {
-					// 单块所成的眼必为真眼。
-					if (blankBlock.getNeighborBlocks().size() == 1) {
-						eyes += 1;
-					} else if (blankBlock.getNeighborBlocks().size() == 2) {
-						fakeEyes.add(blankBlock.getUniquePoint());
-						friendBlock.addAll(blankBlock.getNeighborBlocks());
-					}
-				}
-			} else {// 公气
-				if (blankBlock.getNumberOfPoint() != 1) {
-					// 可能双活，但是没有最终定型。
-					continue;
-				} else {
-					// 是否是对方的自提不入气点。？
-					/**
-					 * BBBBBBB<br/>
-					 * B_W_W_B<br/>
-					 * BBBBBBB<br/>
-					 * or<br/>
-					 * BBBBBBB<br/>
-					 * B_WWW_B<br/>
-					 * BBBBBBB<br/>
-					 * or<br/>
-					 * BBBBWWW<br/>
-					 * B_WWB_B<br/>
-					 * 
-					 */
-
-					boolean singleExternalBlock = true;
-					for (Block tempBlock : blankBlock.getNeighborBlocks()) {
-						if (tempBlock.color == color) {
-							Block myBlock = tempBlock;
-							if (this != myBlock) {// 多个己方块围住气点.
-								singleExternalBlock = false;
-							}
-						} else {
-							Block enemyBlock = tempBlock;
-							if (enemyBlock.getBreaths() > 1) {
-								singleExternalBlock = false;
-							}
-							for (Block block : enemyBlock.getEnemyBlocks()) {
-								if (this != block) {// 多个己方块围住气点旁边的敌块..
-									singleExternalBlock = false;
-								}
-							}
-						}
-					}
-					if (singleExternalBlock == true)
-						eyes++;
-				}
-
-			}
-		}
-
-		return eyes >= 2;
-		// if (fakeEyes.isEmpty()) {
-		// return eyes >= 2;
-		// } else if (fakeEyes.size() == 1) {
-		// return false;
-		// } else if (fakeEyes.size() == 2) {
-		// if (friendBlock.size() == 2) {
-		// return true;
-		// } else {// TODO: 两头蛇之类，或者多块的情况。
-		// return false;
-		// }
-		//
-		// // if (fakeEyes.get(0).getDelta(fakeEyes.get(1))
-		// // .equals(Delta.DELTA_SHOULDER)) {
-		// // return true;
-		// // } else {// 两头蛇之类，或者多块的情况。
-		// // return false;
-		// // }
-		// } else {// 可能尚未定型
-		// return false;
-		// }
-	}
+//	public boolean isAlreadyLive_Static() {
+//		if (this.getBreaths() < 2)
+//			return false;
+//
+//		int eyes = 0;
+//		Set<Block> friendBlock = new HashSet<Block>();
+//
+//		for (BlankBlock blankBlock : this.getBreathBlocks()) {
+//			if (blankBlock.isEyeBlock() == true) {// 眼位
+//
+//				if (blankBlock.getNumberOfPoint() != 1) {
+//					// 单块所成的眼必为真眼。
+//					if (blankBlock.getNeighborBlocks().size() == 1) {
+//						// 大眼没有最终定型。但是可以保证有一眼,暂时记为一眼.
+//						eyes += 1;
+//					} else {
+//						continue;
+//					}
+//				} else {
+//					// 单块所成的眼必为真眼。
+//					if (blankBlock.getNeighborBlocks().size() == 1) {
+//						eyes += 1;
+//					} else if (blankBlock.getNeighborBlocks().size() == 2) {
+//						fakeEyes.add(blankBlock.getUniquePoint());
+//						friendBlock.addAll(blankBlock.getNeighborBlocks());
+//					}
+//				}
+//			} else {// 公气
+//				if (blankBlock.getNumberOfPoint() != 1) {
+//					// 可能双活，但是没有最终定型。
+//					continue;
+//				} else {
+//					// 是否是对方的自提不入气点。？
+//					/**
+//					 * BBBBBBB<br/>
+//					 * B_W_W_B<br/>
+//					 * BBBBBBB<br/>
+//					 * or<br/>
+//					 * BBBBBBB<br/>
+//					 * B_WWW_B<br/>
+//					 * BBBBBBB<br/>
+//					 * or<br/>
+//					 * BBBBWWW<br/>
+//					 * B_WWB_B<br/>
+//					 * 
+//					 */
+//
+//					boolean singleExternalBlock = true;
+//					for (Block tempBlock : blankBlock.getNeighborBlocks()) {
+//						if (tempBlock.color == color) {
+//							Block myBlock = tempBlock;
+//							if (this != myBlock) {// 多个己方块围住气点.
+//								singleExternalBlock = false;
+//							}
+//						} else {
+//							Block enemyBlock = tempBlock;
+//							if (enemyBlock.getBreaths() > 1) {
+//								singleExternalBlock = false;
+//							}
+//							for (Block block : enemyBlock.getEnemyBlocks()) {
+//								if (this != block) {// 多个己方块围住气点旁边的敌块..
+//									singleExternalBlock = false;
+//								}
+//							}
+//						}
+//					}
+//					if (singleExternalBlock == true)
+//						eyes++;
+//				}
+//
+//			}
+//		}
+//
+//		return eyes >= 2;
+//		// if (fakeEyes.isEmpty()) {
+//		// return eyes >= 2;
+//		// } else if (fakeEyes.size() == 1) {
+//		// return false;
+//		// } else if (fakeEyes.size() == 2) {
+//		// if (friendBlock.size() == 2) {
+//		// return true;
+//		// } else {// TODO: 两头蛇之类，或者多块的情况。
+//		// return false;
+//		// }
+//		//
+//		// // if (fakeEyes.get(0).getDelta(fakeEyes.get(1))
+//		// // .equals(Delta.DELTA_SHOULDER)) {
+//		// // return true;
+//		// // } else {// 两头蛇之类，或者多块的情况。
+//		// // return false;
+//		// // }
+//		// } else {// 可能尚未定型
+//		// return false;
+//		// }
+//	}
 
 	public int getPriority() {
 		return priority;

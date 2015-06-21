@@ -183,7 +183,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		if (goBoard.isDoubleGiveup()) {
 			ts.setTerminalState(true);
 			ts.setFinalResult(goBoard
-					.finalResult(TerritoryAnalysis.DEAD_CLEANED_UP));
+					.finalResult_doublePass());
 		} else if (results.containsKey(this.getGoBoard().getBoardColorState())) {
 			knownState = true;
 			ts.setTerminalState(true);

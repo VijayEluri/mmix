@@ -102,7 +102,7 @@ public class CaptureSearch extends GoBoardSearch {
 	}
 
 	@Override
-	void stateDecided(BoardColorState boardColorState, int score) {
+	protected void stateDecided(BoardColorState boardColorState, int score) {
 		// TODO Auto-generated method stub
 
 	}

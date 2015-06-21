@@ -629,6 +629,15 @@ abstract public class BasicGoBoard extends AbsGoBoard {
 	public SymmetryResult getInitSymmetryResult() {
 		return initSymmetryResult;
 	}
+	
+	/**
+	 * double pass means all the block in the board is live. that means
+	 * dead block is cleaned up already.
+	 * @return
+	 */
+	public FinalResult finalResult_doublePass() {
+		return finalResult_deadCleanedUp();
+	}
 
 	/**
 	 * The standard rule to calculate the result. suppose all the result are

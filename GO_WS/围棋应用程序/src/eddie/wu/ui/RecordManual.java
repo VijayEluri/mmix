@@ -46,6 +46,13 @@ import eddie.wu.ui.canvas.ReviewManualCanvas;
  * Run configurations: -Dfile.encoding=UTF-8(default value in my setting.)<br/>
  * cannot display Chinese in button.<br/>
  * -Dfile.encoding=GBK works; do not understand why?<br/>
+ * ensure it(JVM) supports GBK. 
+ * text file of source code is in UTF-8, the character set is still GBK. 
+ * Javac compilation works well, the class file again is UTF-16, which is platform 
+ * independent.
+ * when we run the application, the JVM starts, we need to specify GBK Character Set.
+ * otherwise, default one maybe something else. UTF-8 doesn't work here. I　guess due to
+ * that UTF-8 is only concerning coding, we cannot know its character set.
  * baby
  * 
  * <br/>

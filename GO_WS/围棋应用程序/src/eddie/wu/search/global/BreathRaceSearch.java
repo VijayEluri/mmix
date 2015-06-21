@@ -115,13 +115,13 @@ public class BreathRaceSearch extends GoBoardSearch {
 	}
 
 	@Override
-	void stateDecided(BoardColorState boardColorState, int score) {
+	protected void stateDecided(BoardColorState boardColorState, int score) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void stateFinalizeed(BoardColorState boardColorStateN,
+	protected void stateFinalizeed(BoardColorState boardColorStateN,
 			int scoreTerminator) {
 		// TODO Auto-generated method stub
 
@@ -140,7 +140,7 @@ public class BreathRaceSearch extends GoBoardSearch {
 	}
 
 	@Override
-	SearchLevel getInitLevel() {
+	protected SearchLevel getInitLevel() {
 		// TODO Auto-generated method stub
 		return null;
 	}

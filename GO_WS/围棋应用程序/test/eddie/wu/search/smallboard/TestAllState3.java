@@ -1,13 +1,11 @@
 package eddie.wu.search.smallboard;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import eddie.wu.domain.Block;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoardForward;
 import eddie.wu.domain.Point;
@@ -31,9 +29,9 @@ public class TestAllState3 extends TestCase {
 		Logger.getLogger(GoBoardForward.class).setLevel(Level.ERROR);
 		Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.ERROR);
 		Logger.getLogger(TestAllState3.class).setLevel(Level.WARN);
-//		Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.WARN);
-//		Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
-//		Logger.getLogger(GoBoardForward.class).setLevel(Level.WARN);
+		// Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.WARN);
+		// Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
+		// Logger.getLogger(GoBoardForward.class).setLevel(Level.WARN);
 	}
 
 	/**
@@ -194,6 +192,14 @@ public class TestAllState3 extends TestCase {
 		text[1] = new String("[B, B, W]");
 		text[2] = new String("[_, W, _]");
 		testState_internal(text, Constant.WHITE, -3);
+	}
+
+	public void testState_3174() {
+		String[] text = new String[3];
+		text[0] = new String("[W, _, _]");
+		text[1] = new String("[_, W, _]");
+		text[2] = new String("[_, B, _]");
+		testState_internal(text, Constant.BLACK, 1);
 	}
 
 	/**
@@ -491,6 +497,15 @@ public class TestAllState3 extends TestCase {
 		testState_internal(text, Constant.WHITE, 4);
 	}
 
+	public void testState_Colinve_0() {
+		String[] text = new String[3];
+		text[0] = new String("[W, W, _]");
+		text[1] = new String("[W, _, B]");
+		text[2] = new String("[B, B, B]");
+		testState_internal(text, Constant.BLACK, -3);
+		testState_internal(text, Constant.WHITE, -3);
+	}
+
 	/**
 	 * we calculate steps = 2491 <br/>
 	 * we know the result = 1575<br/>
@@ -549,11 +564,11 @@ public class TestAllState3 extends TestCase {
 		int score = this.testState_internal(goS);
 
 		if (exetrem) {
-			assertTrue(score == expectedScore);
+			assertEquals(expectedScore, score);
 			return;
 		} else {
 			assertTrue(score != Constant.UNKOWN);
-			assertTrue(score == expectedScore);
+			assertEquals(expectedScore, score);
 		}
 
 		if (whoseTurn == Constant.BLACK) {

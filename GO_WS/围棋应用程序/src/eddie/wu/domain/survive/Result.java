@@ -10,7 +10,7 @@ import eddie.wu.manual.SearchNode;
  * 每一步都是针对目前的实际局面的.<br/>
  * Together with current state, we can calculate all the isomorphism.
  * 
- * and eath could be map to relative result, with known delta
+ * and each could be map to relative result, with known delta
  * 
  * @author Eddie
  * 

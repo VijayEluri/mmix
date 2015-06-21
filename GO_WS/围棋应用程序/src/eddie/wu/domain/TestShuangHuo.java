@@ -26,14 +26,23 @@ public class TestShuangHuo extends TestCase {
 	public void test1() {
 		byte[][] state = StateAnalysis.LoadState(root + name1);
 		BothLiveAnalysis bl = new BothLiveAnalysis(state);
+		bl.printState(log);
 		assertTrue(bl.isBothLive(Point.getPoint(Constant.BOARD_SIZE, 3, 14)) > 0);
 		assertTrue(bl.isBothLive(Point.getPoint(Constant.BOARD_SIZE, 3, 15)) > 0);
 
 	}
 
 	public void test2() {
+		String[] text = new String[5];
+		text[0] = new String("[W, B, _, W, B]");
+		text[1] = new String("[W, B, _, W, B]");
+		text[2] = new String("[W, B, B, W, B]");
+		text[3] = new String("[W, W, W, B, B]");
+		text[4] = new String("[_, W, W, B, _]");
+		
 		byte[][] state = StateAnalysis.LoadState(root + name);
 		BothLiveAnalysis bl = new BothLiveAnalysis(state);
+		bl.printState(log);
 		assertTrue(bl.isBothLive(Point.getPoint(Constant.BOARD_SIZE, 18, 1)) > 0);
 		// assertTrue(bl.isBothLive(Point.getPoint(Constant.BOARD_SIZE,18, 2)) >
 		// 0);
@@ -45,7 +54,7 @@ public class TestShuangHuo extends TestCase {
 	public void test3() {
 		byte[][] state = StateAnalysis.LoadState(root + name);
 		BothLiveAnalysis bl = new BothLiveAnalysis(state);
-
+		bl.printState(log);
 		assertTrue(bl.isBothLive(Point.getPoint(Constant.BOARD_SIZE, 18, 16)) > 0);
 		assertTrue(bl.isBothLive(Point.getPoint(Constant.BOARD_SIZE, 18, 17)) > 0);
 

@@ -73,7 +73,7 @@ public class TestZhengZiCalculate extends TestCase {
 		BoardColorState state = StateLoader.load(fileName);
 		ZhengZiCalculate d = new ZhengZiCalculate();
 		Point[] points = d.jisuanzhengziWithClone(state, point);// (16,13)
-		this.assertEquals(firstMove, points[0]);
+		assertEquals(firstMove, points[0]);
 		for (int j = 0; j < points.length; j++) {
 			if (points[j] == null)
 				break;

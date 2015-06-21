@@ -172,8 +172,8 @@ public class TerritoryAnalysis extends SurviveAnalysis {
 	}
 
 	/**
-	 * Still bugy, because the already knows state is reused without cosidering
-	 * the history.
+	 * Still buggy, because the already knows state is reused without
+	 * considering the history.
 	 * 
 	 * @param state
 	 * @return
@@ -545,7 +545,7 @@ public class TerritoryAnalysis extends SurviveAnalysis {
 				}
 			}
 
-//			if (boardSize < 5) {
+			// if (boardSize < 5) {
 			if (boardSize <= 3) {
 				block.setLive(this.isStaticLive(block.getBehalfPoint()));
 			} else {
@@ -703,21 +703,6 @@ public class TerritoryAnalysis extends SurviveAnalysis {
 		}
 
 		// return false;
-	}
-
-	public FinalResult finalResult(int finalType) {
-		switch (finalType) {
-		case DOUBLE_PASS: {
-			return this.finalResult_deadCleanedUp();
-		}
-		case DEAD_CLEANED_UP: {
-			return this.finalResult_deadCleanedUp();
-		}
-		case DEAD_EXIST: {
-			return this.finalResult_deadExist();
-		}
-		}
-		return null;
 	}
 
 	/**

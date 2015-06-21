@@ -1564,45 +1564,38 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 
 		int count = 0;
 		// List<String> process = search.getSearchProcess();
-		if (log.isEnabledFor(Level.WARN))
+		if (log.isEnabledFor(Level.WARN)){
 			log.warn("BigEyeSearch: " + (++searchCount));
-		if (log.isEnabledFor(Level.WARN))
 			log.warn(this.getBoardColorState().getStateString());
-		if (log.isEnabledFor(Level.WARN))
 			log.warn("target = " + target.getBehalfPoint());
-		if (log.isEnabledFor(Level.WARN))
 			log.warn("eyePoints = " + eyePoints);
-		if (log.isEnabledFor(Level.WARN))
 			log.warn("targetFirst = " + targetFirst);
-		if (log.isEnabledFor(Level.WARN))
 			log.warn("score=" + score);
-		if (log.isEnabledFor(Level.WARN))
 			log.warn("count=" + search.getSearchProcess());
+		}
 		for (String list : search.getSearchProcess()) {
 			count++;
-			if (log.isEnabledFor(Level.WARN))
+			if (log.isEnabledFor(Level.WARN)){
 				log.warn("count=" + count);
-			if (log.isEnabledFor(Level.WARN))
 				log.warn(list);
+			}
 		}
 
 		SearchNode root = search.getRoot();
 		if (root != null) {
 			TreeGoManual tm = this.getTreeGoManual();
+			int countVar = tm.getVariant();
 			if (log.isEnabledFor(Level.WARN)) {
-				log.warn(tm.getSGFBodyString());
-				int countVar = tm.getVariant();
+				log.warn(tm.getSGFBodyString());				
 				log.warn("variant=" + countVar);
 			}
 
 		} else if (root == null) {
-			if (log.isEnabledFor(Level.WARN))
+			if (log.isEnabledFor(Level.WARN)){
 				log.warn(this.getBoardColorState().getStateString());
-			if (log.isEnabledFor(Level.WARN))
 				log.warn("target=" + target.getBehalfPoint());
-			if (log.isEnabledFor(Level.WARN))
 				log.warn("eyePoints=" + eyePoints);
-
+			}
 		}
 
 		Result res = new Result();

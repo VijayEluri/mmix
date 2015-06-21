@@ -191,6 +191,8 @@ public class InteractiveGo extends Frame {
 
 		shoushu.setBounds(600, 450, 40, 20);
 		shoushuV.setBounds(645, 450, 100, 20);
+		
+		this.setTitle("交互演示死活题");
 
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent event) {

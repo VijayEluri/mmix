@@ -1300,7 +1300,7 @@
 													(;B[ac];W[bc])
 													(;B[];W[])))
 											(;B[ac];W[ab]
-												(;B[cc];W[cb];B[];W[])
+												(;B[cc];W[bc];B[];W[])
 												(;B[cb];W[bc];B[];W[])
 												(;B[bc];W[cc]
 													(;B[bc];W[ac])
@@ -1411,7 +1411,7 @@
 													(;B[ac];W[];B[])
 													(;B[];W[])))
 											(;B[cc];W[cb]
-												(;B[ac];W[ab];B[];W[])
+												(;B[ac];W[bc];B[];W[])
 												(;B[ab];W[bc];B[];W[])
 												(;B[bc];W[ac]
 													(;B[bc];W[cc])
@@ -1572,7 +1572,7 @@
 													(;B[ac];W[bc])
 													(;B[];W[])))
 											(;B[ac];W[ab]
-												(;B[cc];W[cb];B[];W[])
+												(;B[cc];W[bc];B[];W[])
 												(;B[cb];W[bc];B[];W[])
 												(;B[bc];W[cc]
 													(;B[bc];W[ac])
@@ -1683,7 +1683,7 @@
 													(;B[ac];W[];B[])
 													(;B[];W[])))
 											(;B[cc];W[cb]
-												(;B[ac];W[ab];B[];W[])
+												(;B[ac];W[bc];B[];W[])
 												(;B[ab];W[bc];B[];W[])
 												(;B[bc];W[ac]
 													(;B[bc];W[cc])
@@ -2104,14 +2104,14 @@
 													(;B[];W[])))
 											(;B[ac];W[cb]
 												(;B[bc];W[ab];B[];W[])
-												(;B[cc];W[ab];B[];W[])
+												(;B[cc];W[bc];B[];W[])
 												(;B[];W[])
 												(;B[ab];W[bc]
 													(;B[ab];W[];B[])
 													(;B[ac];W[];B[])
 													(;B[];W[])))
 											(;B[cc];W[cb]
-												(;B[ac];W[ab];B[];W[])
+												(;B[ac];W[bc];B[];W[])
 												(;B[ab];W[bc];B[];W[])
 												(;B[bc];W[ac]
 													(;B[bc];W[cc])
@@ -2272,7 +2272,7 @@
 													(;B[ac];W[bc])
 													(;B[];W[])))
 											(;B[ac];W[ab]
-												(;B[cc];W[bc];B[];W[])
+												(;B[cc];W[cb];B[];W[])
 												(;B[cb];W[bc];B[];W[])
 												(;B[bc];W[cc]
 													(;B[bc];W[ac])
@@ -2376,7 +2376,7 @@
 													(;B[];W[])))
 											(;B[ac];W[cb]
 												(;B[bc];W[ab];B[];W[])
-												(;B[cc];W[bc];B[];W[])
+												(;B[cc];W[ab];B[];W[])
 												(;B[];W[])
 												(;B[ab];W[bc]
 													(;B[ab];W[];B[])

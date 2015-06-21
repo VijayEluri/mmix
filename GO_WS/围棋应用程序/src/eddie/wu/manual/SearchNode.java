@@ -9,7 +9,9 @@ import eddie.wu.domain.SymmetryResult;
 
 /**
  * result of search tree; left is child, right is brother.<br/>
- * Design Change, there is an dummy root node (without step) * @author Eddie
+ * Design Change, there is an dummy root node (without step) 
+ * 
+ * @author Eddie Wu
  * 
  */
 public class SearchNode {

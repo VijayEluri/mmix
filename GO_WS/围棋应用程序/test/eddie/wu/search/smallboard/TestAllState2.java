@@ -88,7 +88,7 @@ public class TestAllState2 extends TestCase {
 	 * Step [point=null, color=Black, index=3, loopSuperior= false, name=null]<br/>
 	 * Step [point=null, color=White, index=4, loopSuperior= false, name=null]<br/>
 	 * Score=0<br/>
-	 * New result after allow symmetric differrent candidate:<br/>
+	 * New result after allow symmetric different candidate:<br/>
 	 * Step [point=[1,1], color=Black, index=1, loopSuperior= false, name=null]<br/>
 	 * Step [point=[2,2], color=White, index=2, loopSuperior= false, name=null]<br/>
 	 * Step [point=[1,2], color=Black, index=3, loopSuperior= false, name=null]<br/>
