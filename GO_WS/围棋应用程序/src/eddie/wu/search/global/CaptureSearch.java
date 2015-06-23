@@ -7,13 +7,9 @@ import org.apache.log4j.Logger;
 import eddie.wu.domain.Block;
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.ColorUtil;
-import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.GoBoardLadder;
 import eddie.wu.domain.Point;
-import eddie.wu.domain.StepHistory;
-import eddie.wu.domain.analy.TerritoryAnalysis;
-import eddie.wu.domain.survive.RelativeResult;
 
 /**
  * 新写的的征子计算，准确的说是一气吃的计算。

@@ -2,11 +2,9 @@ package eddie.wu.domain.analy;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Level;
@@ -23,7 +21,11 @@ import eddie.wu.domain.Step;
 import eddie.wu.domain.SymmetryResult;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.CandidateComparator;
-
+/**
+ * 小棋盘 得到候选点
+ * @author think
+ *
+ */
 public class SmallGoBoard extends TerritoryAnalysis {
 	private static final Logger log = Logger.getLogger(SmallGoBoard.class);
 

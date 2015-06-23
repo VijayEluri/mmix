@@ -22,7 +22,13 @@ import eddie.wu.domain.analy.TerritoryAnalysis;
 import eddie.wu.domain.survive.RelativeResult;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.manual.TreeGoManual;
-
+import eddie.wu.search.eye.BigEyeLiveSearch;
+import eddie.wu.search.small.ThreeThreeBoardSearch;
+/**
+ * verified on 2015-06-22
+ * @author think
+ *
+ */
 public class TestBigEyeSearch_simple extends TestCase {
 	private static Logger log = Logger.getLogger(TestBigEyeSearch_simple.class);
 
@@ -31,8 +37,9 @@ public class TestBigEyeSearch_simple extends TestCase {
 		String key = LogManager.DEFAULT_CONFIGURATION_KEY;
 		String value = "log4j_error.xml";
 		System.setProperty(key, value);
-		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.ERROR);
+		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
 		Logger.getLogger(GoBoardSearch.class).setLevel(Level.ERROR);
+		Logger.getLogger(GoBoard.class).setLevel(Level.WARN);
 		Logger.getLogger(GoBoardForward.class).setLevel(Level.ERROR);
 		Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.ERROR);
 		Logger.getLogger(TestBigEyeSearch_simple.class).setLevel(Level.WARN);
@@ -97,22 +104,22 @@ public class TestBigEyeSearch_simple extends TestCase {
 		assertEquals(RelativeResult.ALREADY_LIVE, score);
 
 	}
-
-	public void test6_eb23() {
-		Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
-		String[] text = new String[5];
-		text[0] = new String("[_, _, B, B, _]");
-		text[1] = new String("[W, W, B, W, B]");
-		text[2] = new String("[_, W, B, W, _]");
-		text[3] = new String("[W, W, B, B, B]");
-		text[4] = new String("[_, W, W, W, _]");
-		byte[][] state = StateLoader.LoadStateFromText(text);
-		BigEyeLiveSearch goS;
-		int score;
-		goS = new BigEyeLiveSearch(state, Point.getPoint(5, 2, 3), false, false);
-		score = search_internal(goS);
-		assertEquals(RelativeResult.ALREADY_LIVE, score);
-	}
+	//不适合大眼搜索。
+//	public void test6_eb23() {
+//		Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
+//		String[] text = new String[5];
+//		text[0] = new String("[_, _, B, B, _]");
+//		text[1] = new String("[W, W, B, W, B]");
+//		text[2] = new String("[_, W, B, W, _]");
+//		text[3] = new String("[W, W, B, B, B]");
+//		text[4] = new String("[_, W, W, W, _]");
+//		byte[][] state = StateLoader.LoadStateFromText(text);
+//		BigEyeLiveSearch goS;
+//		int score;
+//		goS = new BigEyeLiveSearch(state, Point.getPoint(5, 2, 3), false, false);
+//		score = search_internal(goS);
+//		assertEquals(RelativeResult.ALREADY_LIVE, score);
+//	}
 
 	public void test6_eb2() {
 		Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
@@ -291,7 +298,7 @@ public class TestBigEyeSearch_simple extends TestCase {
 		// search.globalSearch();
 		goS = new BigEyeLiveSearch(state, Point.getPoint(7, 2, 7), false, false);
 		int score = search_internal(goS);
-		assertEquals(RelativeResult.ALREADY_LIVE, score);
+		assertEquals(RelativeResult.DUAL_LIVE, score);
 	}
 
 	public int search_internal(BigEyeLiveSearch goS) {
@@ -378,13 +385,14 @@ public class TestBigEyeSearch_simple extends TestCase {
 	 * [W, B, B]<br/>
 	 */
 	public void testBent4InCorner() {
-		String inname = "doc/围棋程序数据/大眼基本死活/曲四无外气.wjm";
-		byte[][] state = StateAnalysis.LoadState(inname);
-
-		inname = "doc/围棋程序数据/大眼基本死活/角上曲四打劫状态.txt";
-		state = StateLoader.LoadStateFromTextFile(inname);
+		String[] text = new String[4];
+		text[0] = new String("[B, B, _, B]");
+		text[1] = new String("[B, B, B, W]");
+		text[2] = new String("[B, B, B, _]");
+		text[3] = new String("[B, B, B, B]");
+		byte[][] state = StateLoader.LoadStateFromText(text);
 		SurviveAnalysis survive = new SurviveAnalysis(state);
-		survive.printState();
+		survive.printState(log);
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(survive.getStateString());
 		// survive.generateBlockInfo();
@@ -605,6 +613,10 @@ public class TestBigEyeSearch_simple extends TestCase {
 
 	}
 
+	/**
+	 * 盘角曲四，劫尽棋亡。
+	 * 
+	 */
 	public void testDualLive_2() {
 
 		String[] text = new String[4];
@@ -622,21 +634,25 @@ public class TestBigEyeSearch_simple extends TestCase {
 		point = Point.getPoint(4, 2, 4);
 		eyePoint.add(point);
 		point = Point.getPoint(4, 2, 1);
+		
+		//目标方劫材不利,被杀.
 		goS = new BigEyeLiveSearch(state, point, eyePoint, false, false);
 		score = search_internal(goS);
 		assertEquals(RelativeResult.ALREADY_DEAD, score);
 
+		//目标方劫材有利，也仅仅是双活。完全可待终局前后再提净.
 		goS = new BigEyeLiveSearch(state, point, eyePoint, false, true);
 		score = search_internal(goS);
-		assertEquals(RelativeResult.ALREADY_LIVE, score);
+		assertEquals(RelativeResult.DUAL_LIVE, score);
 		// that means it depends on the loop threat.
 
+		//目标方只能弃权,先走没有意义.
 		goS = new BigEyeLiveSearch(state, point, eyePoint, true, false);
 		score = search_internal(goS);
 		assertEquals(RelativeResult.ALREADY_DEAD, score);
 		goS = new BigEyeLiveSearch(state, point, eyePoint, true, true);
 		score = search_internal(goS);
-		assertEquals(RelativeResult.ALREADY_LIVE, score);
+		assertEquals(RelativeResult.DUAL_LIVE, score);
 
 		// so the result depends on the loop threat! it is whoseTurn
 		// independent.

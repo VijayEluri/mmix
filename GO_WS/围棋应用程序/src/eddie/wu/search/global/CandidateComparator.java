@@ -30,7 +30,7 @@ public class CandidateComparator implements Comparator<Candidate> {
 		 */
 
 		/***
-		 * some time gigting and eating at the same time (loop), need to check
+		 * some time gifting and eating at the same time (loop), need to check
 		 * the size of blocks<br/>
 		 * some time gifting and capturing at the same time, need to check
 		 * whether it is daopu(倒扑) <br/>

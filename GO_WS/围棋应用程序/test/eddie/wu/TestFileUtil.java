@@ -4,8 +4,8 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 
-import util.GBKToUTF8;
 import eddie.wu.util.FileUtil;
+import eddie.wu.util.GBKToUTF8;
 
 public class TestFileUtil extends TestCase {
 	private static final Logger log = Logger.getLogger(GBKToUTF8.class);

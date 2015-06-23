@@ -5,8 +5,6 @@ import java.util.Set;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import util.GBKToUTF8;
-
 import eddie.wu.domain.Block;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Group;
@@ -16,6 +14,7 @@ import eddie.wu.domain.analy.TerritoryAnalysis;
 import eddie.wu.domain.survive.RelativeResult;
 import eddie.wu.domain.survive.Result;
 import eddie.wu.manual.StateLoader;
+import eddie.wu.util.GBKToUTF8;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 

@@ -17,7 +17,7 @@ import eddie.wu.domain.survive.BreathPattern;
 import eddie.wu.domain.survive.EyePattern;
 import eddie.wu.search.BlankPoint;
 import eddie.wu.search.BlankPointBreathComparator;
-import eddie.wu.search.global.BreakEyeComparator;
+import eddie.wu.search.eye.BreakEyeComparator;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.MakeEyeComparator;
 import eddie.wu.ui.UIPoint;

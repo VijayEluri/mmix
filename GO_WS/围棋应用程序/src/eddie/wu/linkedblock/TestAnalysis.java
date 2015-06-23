@@ -6,11 +6,11 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 
-import util.GBKToUTF8;
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.analy.StateAnalysis;
+import eddie.wu.util.GBKToUTF8;
 
 public class TestAnalysis extends TestCase {
 	private static final Logger log = Logger.getLogger(GBKToUTF8.class);

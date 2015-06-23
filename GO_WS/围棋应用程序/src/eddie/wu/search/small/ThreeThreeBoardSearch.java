@@ -1,4 +1,4 @@
-package eddie.wu.search.global;
+package eddie.wu.search.small;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,9 @@ import eddie.wu.domain.analy.TerritoryAnalysis;
 import eddie.wu.manual.SearchNode;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.manual.TreeGoManual;
+import eddie.wu.search.global.Candidate;
+import eddie.wu.search.global.GoBoardSearch;
+import eddie.wu.search.global.TerminalState;
 
 /**
  * 将2*2的小棋盘的特殊处理应用于3*3的小棋盘。<br/>

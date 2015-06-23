@@ -6,10 +6,10 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 
-import util.GBKToUTF8;
 import eddie.wu.domain.analy.ActionAnalysis;
 import eddie.wu.manual.SimpleGoManual;
 import eddie.wu.manual.SGFGoManual;
+import eddie.wu.util.GBKToUTF8;
 
 public class TestActionAnalysis extends TestCase {
 	private static final Logger log = Logger.getLogger(GBKToUTF8.class);

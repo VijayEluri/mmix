@@ -28,7 +28,7 @@ import eddie.wu.manual.TreeGoManual;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.GoBoardSearch;
 import eddie.wu.search.global.ListAllState;
-import eddie.wu.search.global.TwoTwoBoardSearch;
+import eddie.wu.search.small.TwoTwoBoardSearch;
 
 /**
  * 1 second 5/4/2013<br/>
@@ -49,8 +49,10 @@ public class TestAllState2 extends TestCase {
 		Logger.getLogger(TestAllState2.class).setLevel(Level.WARN);
 	}
 
+	/**
+	 * B-->[1,1]W-->[2,2]B-->[1,2]W-->[2,1
+	 */
 	public void testGetCandiate() {
-		// B-->[1,1]W-->[2,2]B-->[1,2]W-->[2,1
 
 		String[] text = new String[2];
 		text[0] = new String("[_, _]");
@@ -59,25 +61,39 @@ public class TestAllState2 extends TestCase {
 
 		SmallGoBoard sa = new SmallGoBoard(BoardColorState.getInstance(state,
 				Constant.BLACK));
+		log.warn("symmetry=" + sa.getInitSymmetryResult().getNumberOfSymmetry());
 		sa.oneStepForward(new Step(Point.getPoint(2, 1, 1), Constant.BLACK));
-
+		log.warn("symmetry="
+				+ sa.getLastStep().getSymmetry().getNumberOfSymmetry());
 		sa.oneStepForward(new Step(Point.getPoint(2, 2, 2), Constant.WHITE));
-
+		log.warn("symmetry="
+				+ sa.getLastStep().getSymmetry().getNumberOfSymmetry());
 		sa.oneStepForward(new Step(Point.getPoint(2, 1, 2), Constant.BLACK));
-
+		log.warn("symmetry="
+				+ sa.getLastStep().getSymmetry().getNumberOfSymmetry());
 		sa.oneStepForward(new Step(Point.getPoint(2, 2, 1), Constant.WHITE));
+
+		log.warn("symmetry="
+				+ sa.getLastStep().getSymmetry().getNumberOfSymmetry());
+
 		List<Candidate> candidate = sa.getCandidate(Constant.BLACK, false);
-		for (Candidate can : candidate) {
-			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+			sa.printState(log);
+			log.warn("Without filtering symmetryic candidate:");
+			for (Candidate can : candidate) {
 				log.warn(can);
+			}
 		}
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-			log.warn("without filter:");
+
 		candidate = sa.getCandidate(Constant.BLACK, true);
-		for (Candidate can : candidate) {
-			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+			log.warn("With filtering symmetryic candidate:");
+			for (Candidate can : candidate) {
 				log.warn(can);
+			}
 		}
+		// we will not filter by symmetry in this context.
+		assertEquals(0, sa.getLastStep().getSymmetry().getNumberOfSymmetry());
 
 	}
 
@@ -321,6 +337,16 @@ public class TestAllState2 extends TestCase {
 	 * [INIT]W-->[PAS]B-->[2,1]W-->[2,2]B-->[2,1]W-->[1,2]B-->[2,2]W-->[1,1]
 	 */
 	public void testDuplicateA() {
+		String[] text = new String[2];
+		text[0] = new String("[W, W]");
+		text[1] = new String("[_, _]");
+		byte[][] state = StateLoader.LoadStateFromText(text);
+		GoBoard go = new GoBoard(state, Constant.WHITE);
+		for (BoardColorState stateC : go.getStepHistory().getColorStates()) {
+			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+				log.warn(stateC.getStateString());
+		}
+
 		List<Step> steps = new ArrayList<Step>();
 		Step step;
 		step = new Step(null, Constant.WHITE);
@@ -338,28 +364,20 @@ public class TestAllState2 extends TestCase {
 		step = new Step(Point.getPoint(2, 1, 1), Constant.WHITE);
 		steps.add(step);
 
-		String[] text = new String[2];
-		text[0] = new String("[W, W]");
-		text[1] = new String("[_, _]");
-		byte[][] state = StateLoader.LoadStateFromText(text);
-		GoBoard go = new GoBoard(state, Constant.WHITE);
-		for (BoardColorState stateC : go.getStepHistory().getColorStates()) {
-			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-				log.warn(stateC.getStateString());
-		}
-
 		boolean valid = false;
 		for (Step stepT : steps) {
 			valid = go.oneStepForward(stepT);
-			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+			if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 				log.warn(stepT + "reach state as blow: valid >>>> " + valid);
-			log.warn(go.getBoardColorState().getStateString());
-			log.warn("KNown history state "
-					+ go.getStepHistory().getColorStates().size());
-			for (BoardColorState stateC : go.getStepHistory().getColorStates()) {
-				if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+				log.warn(go.getBoardColorState().getStateString());
+				log.warn("KNown history state "
+						+ go.getStepHistory().getColorStates().size());
+				for (BoardColorState stateC : go.getStepHistory()
+						.getColorStates()) {
 					log.warn(stateC.getStateString());
+				}
 			}
+
 		}
 
 		assertFalse(valid);
@@ -613,25 +631,22 @@ public class TestAllState2 extends TestCase {
 	public void testAllState() {
 		int count = 0;
 		Set<BoardColorState> validState = new ListAllState().getValidState(2);
+		log.warn("Real valid states = " + validState.size());
 		for (BoardColorState state : validState) {
 			int score = 0;
-			if (state.isBlackTurn()) {
-				score = TwoTwoBoardSearch.getAccurateScore_blackTurn(state);
-			} else {
-				score = TwoTwoBoardSearch.getAccurateScore_whiteTurn(state);
-			}
+			score = TwoTwoBoardSearch.getAccurateScore(state);
 			state.setScore(score);
-			// if (count++ >= 5)
-			// break;
 		}
 
 		for (BoardColorState state : validState) {
 			count++;
-			System.out.print("count=" + count);
-			System.out.print(" State=" + state.getStateString());
-			System.out.print("Score=" + state.getScore());
-			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+			if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+				log.warn("==========================");
+				log.warn("count=" + count);
+				log.warn("State=" + state.getStateString());
+				log.warn("Score=" + state.getScore());
 				log.warn("variant=" + state.getVariant());
+			}
 		}
 	}
 

@@ -2,7 +2,6 @@ package eddie.wu.search.candidate;
 
 import java.util.List;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Level;
@@ -78,9 +77,11 @@ public class TestCandidate3 extends TestCase {
 		text[1] = new String("[W, W, B]");
 		text[2] = new String("[_, B, _]");
 		List<Candidate> candidate = testCandidate(text, Constant.BLACK);
-		assertEquals(Point.getPoint(3, 3, 3), candidate.get(0).getStep()
-				.getPoint());
-
+//		assertEquals(Point.getPoint(3, 3, 3), candidate.get(0).getStep()
+//				.getPoint());
+		//pass is also perfect candidate!
+		assertEquals(Point.giveUp, candidate.get(0).getStep()
+		.getPoint());
 	}
 
 	public void testCandidate303() {
@@ -164,8 +165,11 @@ public class TestCandidate3 extends TestCase {
 		text[2] = new String("[_, B, W]");
 		List<Candidate> candidate = null;
 		candidate = testCandidate(text, Constant.WHITE);
-		assertEquals(Point.getPoint(3, 2, 3), candidate.get(0).getStep()
+		//eating is also good candidate!
+		assertEquals(Point.getPoint(3, 1, 1), candidate.get(0).getStep()
 				.getPoint());
+//		assertEquals(Point.getPoint(3, 2, 3), candidate.get(0).getStep()
+//				.getPoint());
 		candidate = testCandidate(text, Constant.BLACK);
 
 		assertEquals(Point.getPoint(3, 2, 3), candidate.get(0).getStep()

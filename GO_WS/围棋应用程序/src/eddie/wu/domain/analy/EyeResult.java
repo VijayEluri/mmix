@@ -6,7 +6,7 @@ import java.util.Set;
 import eddie.wu.domain.Point;
 
 /**
- * 针对一个group（棋块组）的眼位静态评估结果
+ * 针对一个block group（棋块组）的眼位静态评估结果
  * 
  * @author Eddie
  * 

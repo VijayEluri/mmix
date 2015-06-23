@@ -21,7 +21,7 @@ import eddie.wu.domain.GoBoardForward;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.comp.BlockBreathComparatorDesc;
 import eddie.wu.search.global.GoBoardSearch;
-import eddie.wu.search.global.SmallBoardGlobalSearch;
+import eddie.wu.search.small.SmallBoardGlobalSearch;
 
 /**
  * 

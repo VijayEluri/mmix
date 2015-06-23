@@ -16,7 +16,7 @@ import eddie.wu.domain.analy.TerritoryAnalysis;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.search.global.GoBoardSearch;
 import eddie.wu.search.global.ListAllState;
-import eddie.wu.search.global.ThreeThreeBoardSearch;
+import eddie.wu.search.small.ThreeThreeBoardSearch;
 
 public class TestFinalState3 extends TestCase {
 	private static Logger log = Logger.getLogger(TestFinalState3.class);

@@ -9,6 +9,7 @@ import eddie.wu.domain.Point;
 import eddie.wu.domain.survive.RelativeResult;
 
 /**
+ * Ongoing<br/>
  * live and live calculation is interdependent with race breath search.<br/>
  * race breath should not simply target at eating the enemy. it should be
  * combined with live/dead judgment. That is only if eating can reach liveness

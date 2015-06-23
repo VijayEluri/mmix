@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import eddie.wu.domain.Block;
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
+import eddie.wu.search.small.SmallBoardGlobalSearch;
 
 public class TestSmallBoardGlobalSearch extends TestCase {
 	private static Logger log = Logger.getLogger(Block.class);

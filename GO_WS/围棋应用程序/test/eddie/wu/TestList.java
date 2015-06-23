@@ -5,8 +5,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import util.GBKToUTF8;
-
+import eddie.wu.util.GBKToUTF8;
 import junit.framework.TestCase;
 
 public class TestList extends TestCase {

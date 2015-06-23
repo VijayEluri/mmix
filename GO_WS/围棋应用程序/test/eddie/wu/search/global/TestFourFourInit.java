@@ -15,6 +15,7 @@ import eddie.wu.domain.Step;
 import eddie.wu.domain.analy.SmallGoBoard;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.manual.TreeGoManual;
+import eddie.wu.search.small.ThreeThreeBoardSearch;
 
 public class TestFourFourInit extends TestCase {
 	private static Logger log = Logger.getLogger(Block.class);

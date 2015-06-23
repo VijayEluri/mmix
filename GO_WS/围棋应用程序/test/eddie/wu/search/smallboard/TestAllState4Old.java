@@ -18,10 +18,10 @@ import eddie.wu.domain.analy.SmallGoBoard;
 import eddie.wu.domain.state.StateUtil;
 import eddie.wu.domain.survive.RelativeResult;
 import eddie.wu.manual.StateLoader;
-import eddie.wu.search.global.BigEyeSearch;
+import eddie.wu.search.eye.BigEyeSearch;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.GoBoardSearch;
-import eddie.wu.search.global.ThreeThreeBoardSearch;
+import eddie.wu.search.small.ThreeThreeBoardSearch;
 
 public class TestAllState4Old extends TestCase {
 

@@ -19,6 +19,8 @@ import eddie.wu.domain.analy.TerritoryAnalysis;
 import eddie.wu.domain.survive.RelativeResult;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.manual.TreeGoManual;
+import eddie.wu.search.eye.BigEyeSearch;
+import eddie.wu.search.small.ThreeThreeBoardSearch;
 import eddie.wu.search.smallboard.TestAllState3;
 
 public class TestBigEyeSearch_old extends TestCase {

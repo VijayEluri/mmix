@@ -28,6 +28,7 @@ import eddie.wu.manual.TreeGoManual;
  * 
  */
 public abstract class GoBoardSearch {
+	private int id;// for log information to distinguish instances
 
 	private int minExpScore;
 	private int maxExpScore;
@@ -36,8 +37,8 @@ public abstract class GoBoardSearch {
 	public static int deepth = 81;
 	/**
 	 * 1. set it small to ensure we have efficient algorithm <br/>
-	 * 2. could be controlled outside.
-	 * 3. it counts the number of final state we reached.
+	 * 2. could be controlled outside. 3. it counts the number of final state we
+	 * reached.
 	 */
 
 	private int NUMBER_OF_VARIANT = 5000 * 3;
@@ -57,14 +58,13 @@ public abstract class GoBoardSearch {
 	 */
 	protected int countSteps;
 
-	
 	/**
 	 * 将每个搜索到终点的过程记录下来.便于排错.
 	 */
 	private List<String> searchProcess = new ArrayList<String>();
 
 	/**
-	 * 禁止全局同型再现
+	 * 禁止全局同型再现, done in board class
 	 */
 	// Set<BoardColorState> knownState = new HashSet<BoardColorState>();
 
@@ -78,6 +78,8 @@ public abstract class GoBoardSearch {
 	protected GoBoardSearch(int maxExp, int minExp) {
 		maxExpScore = maxExp;
 		minExpScore = minExp;
+		id++;
+		log.warn("id=" + id);
 	}
 
 	protected SearchLevel buildNewLevel(SearchLevel preLevel) {
@@ -111,10 +113,6 @@ public abstract class GoBoardSearch {
 
 	public int getMinExp() {
 		return this.minExpScore;
-	}
-
-	public SearchNode getRoot() {
-		return root;
 	}
 
 	abstract protected int getScore(BoardColorState boardColorState);
@@ -208,7 +206,7 @@ public abstract class GoBoardSearch {
 			BoardColorState boardColorState = this.getGoBoard()
 					.getBoardColorState();
 
-			log.warn("level=" + level);
+			log.warn("id=" + id + "; level=" + level);
 			log.warn("new Round started in search" + " at previous state: ");
 			this.getGoBoard().printState(log);
 			if (levelIndex != 0) {
@@ -225,9 +223,9 @@ public abstract class GoBoardSearch {
 				 */
 				if (level.alreadyWin()) {
 					if (level.isMax()) {
-						log.warn("Max Already Win:");
+						log.warn(level.getWhoseTurnString() + " Already Win:");
 					} else {
-						log.warn("Max Already lose:");
+						log.warn(level.getWhoseTurnString() + " Already Win:");
 					}
 					int score = level.getTempBestScore();
 
@@ -291,10 +289,13 @@ public abstract class GoBoardSearch {
 					 * all candidates are handled
 					 */
 					if (level.isMax()) {
-						log.warn("Max Already Lose: ");
+						log.warn(level.getWhoseTurnString()
+								+ " Already Lose after trying all candidates: ");
 					} else {
-						log.warn("Max Already Win: ");
+						log.warn(level.getWhoseTurnString()
+								+ " Already Lose after trying all candidates: ");
 					}
+					log.warn(level.getAllCanPoint());
 					if (levelIndex == 0) {
 						if (log.isDebugEnabled()) {
 							log.debug("final score at level 0: "

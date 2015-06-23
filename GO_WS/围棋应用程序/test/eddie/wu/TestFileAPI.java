@@ -10,8 +10,8 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 
-import util.GBKToUTF8;
 import eddie.wu.domain.Constant;
+import eddie.wu.util.GBKToUTF8;
 
 /**
  * finding: the current working directory is different between running test case

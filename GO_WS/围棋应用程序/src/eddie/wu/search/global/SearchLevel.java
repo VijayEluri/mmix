@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import eddie.wu.domain.ColorUtil;
-import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
 import eddie.wu.manual.SearchNode;
 
@@ -85,7 +84,6 @@ public class SearchLevel {
 		return max;
 	}
 
-
 	/**
 	 * 下一层的结果已知，反馈给上一层。
 	 * 
@@ -110,7 +108,6 @@ public class SearchLevel {
 	public int getLowestExp() {
 		return lowExp;
 	}
-
 
 	/**
 	 * 在展开中的level的某个候选点的分数已知。
@@ -210,18 +207,17 @@ public class SearchLevel {
 					+ this.getWhoseTurnString() + ",  highestExp=" + highExp
 					+ ", tempBestScore=" + tempBestScore + "]";
 		else
-			return "Level [level=" + levelIndex + ", color="
-					+ ColorUtil.getColorText(color) + ", whoseTurn="
+			return "Level [level=" + levelIndex + ", whoseTurn="
 					+ this.getWhoseTurnString() + ", lowestExp=" + lowExp
 					+ ", tempBestScore=" + tempBestScore + "]";
 
 	}
 
-	private String getWhoseTurnString() {
+	public String getWhoseTurnString() {
 		if (max)
-			return "MAX";
+			return "MAX" + "[" + ColorUtil.getColorText(color) + "]";
 		else
-			return "MIN";
+			return "MIN" + "[" + ColorUtil.getColorText(color) + "]";
 
 	}
 

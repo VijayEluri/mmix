@@ -12,7 +12,6 @@ import junit.framework.TestCase;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import util.GBKToUTF8;
 import eddie.wu.domain.analy.EyeResult;
 import eddie.wu.domain.analy.FinalResult;
 import eddie.wu.domain.analy.SurviveAnalysis;
@@ -26,6 +25,7 @@ import eddie.wu.manual.SGFGoManual;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.GoBoardSearch;
+import eddie.wu.util.GBKToUTF8;
 
 /**
  * RE : 共235手 黑胜3目<br/>

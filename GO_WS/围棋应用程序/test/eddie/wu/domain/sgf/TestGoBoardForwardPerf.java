@@ -78,15 +78,15 @@ public class TestGoBoardForwardPerf extends TestCase {
 		}
 		endOverall = System.nanoTime();
 		if (log.isEnabledFor(Level.WARN)) {
-			log.warn("It takes " + (endOverall - startOverall)
-					+ " nanoseconds " + "for manual " + i + " with "
+			log.warn("It takes " + (endOverall - startOverall)/1000000
+					+ " seconds " + "for manual " + i + " with "
 					+ manual.getShouShu() + " steps");
 
 		}
 		int aver = Step.outputStatistic(manual.getSteps(), 1, log);
 		assertTrue(
-				"average time should be less than 0.5 ms for one step.",
-				aver < 500000);
+				"average time should be less than 1 ms for one step.",
+				aver < 1000);
 
 	}
 }

@@ -5,12 +5,12 @@ import junit.framework.TestCase;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import util.GBKToUTF8;
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.GoBoardLadder;
 import eddie.wu.domain.Point;
 import eddie.wu.manual.StateLoader;
+import eddie.wu.util.GBKToUTF8;
 
 /**
  * case failed bacause of issue in Cloning a Complex instance.

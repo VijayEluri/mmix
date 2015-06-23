@@ -8,7 +8,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import eddie.wu.domain.BoardColorState;
-import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.analy.FinalResult;
 import eddie.wu.domain.analy.TerritoryAnalysis;

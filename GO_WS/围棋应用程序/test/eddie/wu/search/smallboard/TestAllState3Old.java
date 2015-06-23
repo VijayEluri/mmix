@@ -20,7 +20,7 @@ import eddie.wu.domain.analy.SmallGoBoard;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.GoBoardSearch;
-import eddie.wu.search.global.ThreeThreeBoardSearch;
+import eddie.wu.search.small.ThreeThreeBoardSearch;
 
 public class TestAllState3Old extends TestCase {
 	private static Logger log = Logger.getLogger(Block.class);

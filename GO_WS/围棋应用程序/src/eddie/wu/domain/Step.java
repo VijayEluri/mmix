@@ -39,8 +39,9 @@ public class Step {// implements Step{
 			if (count == times.length)
 				break;
 		}
-		log.warn("average time " + (total / count) + " ns per manual");
-		return (int) (total / count);
+		log.warn("average time " + (total / count / 1000)
+				+ " milli-second per manual");
+		return (int) (total / count / 1000);
 	}
 
 	static public int outputStatistic(List<Step> steps, int ms, Logger log) {
@@ -144,6 +145,7 @@ public class Step {// implements Step{
 
 	/**
 	 * this field is not necessary during searching
+	 * 
 	 * @return
 	 */
 	public int getIndex() {

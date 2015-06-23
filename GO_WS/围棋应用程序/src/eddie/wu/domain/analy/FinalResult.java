@@ -8,18 +8,20 @@ import eddie.wu.domain.Point;
 
 /**
  * 应该将胜负最终计算的表示和棋局进行中的形势判断的表示区别开来.<br/>
- * 最明显的一点是前者有贴目.而后者没有.
+ * 最明显的一点是前者有贴目.而后者没有.<br/>
+ * 终局的结果计算<br/>
+ * 贴目放到外面去考虑。
  * 
  * @author Eddie
  * 
  */
 public class FinalResult {
-	private int black;
-	private int white;
-	private int shared;
-//	private int tiemu = 8;// 贴目
+	private int black;	//黑子數目
+	private int white;	//白子數目
+	private int shared;	// 与两方同时相邻
+
 	private int whoWin = -1;
-	private int net;
+	private int net;//净勝多少
 
 	// accessory information for debugging.
 	private Set<Point> blackPoints = new HashSet<Point>();// include its eyes.
@@ -73,15 +75,8 @@ public class FinalResult {
 		this.shared = shared;
 	}
 
-//	public int getTiemu() {
-//		return tiemu;
-//	}
-//
-//	public void setTiemu(int tiemu) {
-//		this.tiemu = tiemu;
-//	}
-
 	public int getWhoWin() {
+		initWhoWin();
 		return whoWin;
 	}
 
@@ -106,7 +101,7 @@ public class FinalResult {
 			whoWinString = "Tie";
 		return "FinalResult [black=" + black + ", white=" + white + ", shared="
 				+ shared + ", score=" + this.getScore() + " whoWin="
-				+ whoWinString + ", net=" + net  + "]";
+				+ whoWinString + ", net=" + net + "]";
 	}
 
 	public Set<Point> getBlackPoints() {

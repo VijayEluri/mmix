@@ -1,4 +1,4 @@
-package eddie.wu.search.global;
+package eddie.wu.search.small;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +15,10 @@ import eddie.wu.domain.analy.SmallGoBoard;
 import eddie.wu.domain.analy.TerritoryAnalysis;
 import eddie.wu.manual.SGFGoManual;
 import eddie.wu.manual.TreeGoManual;
+import eddie.wu.search.global.Candidate;
+import eddie.wu.search.global.GoBoardSearch;
+import eddie.wu.search.global.SearchLevel;
+import eddie.wu.search.global.TerminalState;
 
 /**
  * 1. only for small board (3<=size<=?).<br/>

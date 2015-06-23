@@ -36,7 +36,7 @@ import eddie.wu.domain.survive.RelativeResult;
 import eddie.wu.domain.survive.Result;
 import eddie.wu.manual.SearchNode;
 import eddie.wu.manual.TreeGoManual;
-import eddie.wu.search.global.BigEyeSearch;
+import eddie.wu.search.eye.BigEyeSearch;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.CandidateComparator;
 
@@ -327,330 +327,331 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 	 * 5. captured last (gift 送吃)<br/>
 	 * 5.1 送吃的子如果已经不活（无眼），优先于弃权；如果有眼位，则在弃权之后考虑<br/>
 	 * 
+	 * @deprecated originally only used by 2*2 board
 	 * @return
 	 */
-	public List<Candidate> getCandidate_smallBoard(int color,
-			boolean filterSymmetricEquivalent, int expectedScore) {
-		assert this.boardSize <= 5;
-		Map<Point, Integer> breathMap = new HashMap<Point, Integer>();
-
-		Set<Point> points = new HashSet<Point>();
-		for (int row = 1; row <= boardSize; row++) {
-			for (int column = 1; column <= boardSize; column++) {
-				BoardPoint boardPoint = getBoardPoint(row, column);
-				if (boardPoint.getColor() == Constant.BLANK) {
-
-					BlankBlock blankBlock = boardPoint.getBlankBlock();
-					if (blankBlock.isEyeBlock()) {
-						/**
-						 * 3. avoid fill eye point. <br/>
-						 * 防止自填眼位,尚未处理大眼位做眼的情况。
-						 */
-						int blocks = blankBlock.getNeighborBlocks().size();
-						if (blankBlock.isSinglePointEye()) {
-							// 己方不填眼，对方是否可下看气数。
-							if ((color == Constant.BLACK && blankBlock
-									.isBlackEye())
-									|| (color == Constant.WHITE && blankBlock
-											.isBlackEye() == false)) {
-
-								/**
-								 * need to handle this exceptional case, the eye
-								 * might be an fake eye<br/>
-								 * ## 01,02,03,04 <br/>
-								 * 01[B, W, _, W]01<br/>
-								 * 02[_, B, W, _]02<br/>
-								 * 03[B, _, B, W]03<br/>
-								 * 04[_, B, W, _]04<br/>
-								 * ## 01,02,03,04 <br/>
-								 */
-								if (blocks == 1) {
-									continue;// do not fill real eyes.
-								} else {
-									// may connect blocks
-									boolean realSingleEye = this
-											.isRealSingleEye(
-													blankBlock
-															.getMinBreathNeighborBlock(),
-													blankBlock.getUniquePoint());
-									if (realSingleEye) {
-										continue;
-									}
-								}
-								//
-								// int minBreath = blankBlock
-								// .getMinBreathNeighborBlock()
-								// .getBreaths();
-								// if (minBreath == 1) {
-								// // consider connect together.
-								// } else if (minBreath == 2) {
-								//
-								// } else {
-								// // connect is not gifting
-								// }
-
-								/**
-								 * $$$01,02,03,04 <br/>
-								 * 01[_, B, _, B]01<br/>
-								 * 02[B, B, B, _]02<br/>
-								 * 03[W, W, W, B]03<br/>
-								 * 04[W, _, W, _]04<br/>
-								 * $$$01,02,03,04 <br/>
-								 * whoseTurn=Black <br/>
-								 * TODO:
-								 */
-
-							}
-						} else {
-							/**
-							 * if big blank eye belongs to live block, then no
-							 * sense for each side to play here.
-							 */
-							// if ((color == Constant.BLACK && blankBlock
-							// .isBlackEye())
-							// || (color == Constant.WHITE && blankBlock
-							// .isBlackEye() == false)) {
-							if (blocks == 1) {
-								if (this.isAlreadyLive_dynamic(blankBlock
-										.getUniqueNeighborBlock()
-										.getBehalfPoint())) {
-									continue;
-								}
-							}
-							// }
-
-						}
-					} else if (blankBlock.isInitBlankBlock()) {
-
-					} else { // not eye block
-						Block liveBlock = blankBlock.getBiggestNeighborBlock();
-						if (liveBlock == null) {
-							if (log.isEnabledFor(Level.WARN))
-								log.warn(this.getBoardColorState()
-										.getStateString());
-							if (log.isEnabledFor(Level.WARN))
-								log.warn("blnakblock="
-										+ blankBlock.getBehalfPoint());
-						}
-
-						/**
-						 * make no sense to break/make live block's eye.
-						 * 
-						 * ##01,02,03,04 <br/>
-						 * 01[W, _, W, _]01<br/>
-						 * 02[_, B, _, W]02<br/>
-						 * 03[W, W, W, _]03<br/>
-						 * 04[_, B, B, W]04<br/>
-						 * ##01,02,03,04 <br/>
-						 */
-						// if(live&&liveBlock.getColor()!=color){
-						// if (liveBlock.isAlreadyLive() == false
-						// && liveBlock.getNumberOfPoint() >= 4) {
-						// Point target = liveBlock.getBehalfPoint();
-						// boolean live = this.isAlreadyLive_dynamic(target);
-						// liveBlock.setLive(live);
-						// }
-						// if (liveBlock.isAlreadyLive()
-						// && liveBlock.getLiveWith() != null
-						// && liveBlock.getLiveWith().contains(
-						// boardPoint.getBlankBlock())) {
-						// continue;
-						// }
-
-					}
-
-					int breaths = breathAfterPlay(boardPoint.getPoint(), color)
-							.size();
-					if (breaths > 0) {
-						points.add(boardPoint.getPoint());
-						breathMap.put(boardPoint.getPoint(), breaths);
-					}
-				}
-			}
-		}
-
-		/**
-		 * 处理本质上等价的候选棋步.
-		 */
-		List<Point> can = new ArrayList<Point>();
-
-		if (filterSymmetricEquivalent == true) {
-			SymmetryResult symmetryResult = this.getSymmetryResult();
-			if (symmetryResult.getNumberOfSymmetry() != 0) {
-
-				Set<Point> points2 = new HashSet<Point>();
-				Set<Point> listAll = new HashSet<Point>();
-				for (Iterator<Point> iter = points.iterator(); iter.hasNext();) {
-					Point point = iter.next();
-					if (listAll.contains(point))
-						continue;
-
-					List<Point> listVar = point.deNormalize(symmetryResult);
-					listAll.addAll(listVar);
-					// only keep one of all the symmetric candidates.
-					points2.add(listVar.get(0));
-
-				}
-				can.addAll(points2);
-			} else {
-				can.addAll(points);
-			}
-		} else {
-			can.addAll(points);
-		}
-
-		List<Candidate> gifts = new ArrayList<Candidate>();
-		/**
-		 * decide sequence by priority.<br/>
-		 * capture sequence. <br/>
-		 */
-		List<Candidate> candidates = new ArrayList<Candidate>();
-		for (Point point : can) {
-			Candidate candidate = new Candidate();
-			candidate.setStep(new Step(point, color, getShoushu() + 1));
-			NeighborState state = null;
-			try {
-				state = this.getNeighborState_forCandidate(point, color);
-			} catch (RuntimeException e) {
-				if (log.isEnabledFor(Level.WARN)) {
-					log.warn(this.getBoardColorState().getStateString());
-					log.warn("point" + point);
-					// this.printState();
-					throw e;
-				}
-			}
-
-			/**
-			 * avoid eaten dead enemy to enhance live target.
-			 */
-			if (state.isEating()) {
-				if (state.getFriendBlockNumber() == 1) {
-					Block friendBlock = state.getFriendBlocks().iterator()
-							.next();
-					Point pointT = friendBlock.getBehalfPoint();
-					if (friendBlock.getNumberOfPoint() >= 4) {
-						boolean live = this.isAlreadyLive_dynamic(pointT);
-						if (live) {
-							continue;
-						}
-					}
-				}
-			}
-			candidate.setEating(state.isEating());
-			candidate.setGifting(state.isGifting());
-			candidate.setCapturing(state.isCapturing());
-			candidate.setRemoveCapturing(state.getRemoveCapturing());
-			candidate.setBreaths(breathMap.get(point));
-			candidate.setIncreasedBreath(state.getIncreasedBreath());
-			candidate.setIncreasedBreath(state.getIncreasedBreath());
-
-			/**
-			 * 缩小眼位的紧气看成类似送礼，送吃。<br/>
-			 * TODO: further refinement.
-			 */
-			if (state.isGifting() == false) {
-
-				this.initEyesAfterPlay_dynamic(candidate);
-
-			}
-			// not sure of the intention
-			// if (state.isEating() == false && candidate.getEyes() == 0
-			// && state.isCapturing()
-			// && state.getCapturingBlocks().size() == 1
-			// && state.getFriend() > 0) {
-			// Block capturingB = state.getCapturingBlocks().iterator().next();
-			// if (capturingB.getEnemyBlocks().isEmpty()) {
-			// boolean pointedEye = true;
-			// for (BlankBlock blankB : capturingB.getBreathBlocks()) {
-			// for (Block tB : blankB.getNeighborBlocks()) {
-			// if (state.getFriendBlocks().contains(tB) == false) {
-			// pointedEye = false;
-			// }
-			// }
-			// }
-			// if (pointedEye) {
-			// state.setGifting(true);
-			// // gifts.add(candidate);
-			// state.setCapturing(false);
-			// }
-			// } else {
-			// if (capturingB.getEnemyBlocks().size() == 1) {
-			// state.setGifting(true);
-			// // gifts.add(candidate);
-			// state.setCapturing(false);
-			// }
-			// }
-			// } else {
-			// // 同样的紧气,如果多一眼于己更有利.
-			// // candidate.setEyes(this.EyesAfterPlay(point, color).size());
-			//
-			// }
-			if (state.isGifting()) {
-				if (state.getGift() == null) {
-					// 单子扑入.
-					gifts.add(candidate);
-				} else if (state.getGift().getOriginalStones() == 0) {
-					candidates.add(candidate);// gift one point usually good.
-				} else if (state.getGift().getOriginalBreath() >= 2) {
-
-					if (state.getGift().getOriginalStones() >= 6) {
-						// should not gift so much.
-					} else {
-						gifts.add(candidate);
-					}
-				} else {
-					candidates.add(candidate);
-				}
-				// } else if (state.isIncreaseBreath() == false) {
-				// not favor the move cannot increase breath.
-				// gifts.add(candidate);
-			} else {
-				candidates.add(candidate);
-			}
-		}
-
-		// Collections.sort(can, new LowLineComparator());
-		Collections.sort(candidates, new CandidateComparator());
-
-		// consider give up step: comment out because it may cause no
-		// candidates.
-		// int score = this.finalResult_simplest().getScore();
-		// if (color == Constant.MAX) {
-		// if (score < 0)
-		// return candidates;
-		// } else {
-		// if (score > 0)
-		// return candidates;
-		// }
-
-		Candidate candidateP = new Candidate();
-		candidateP.setStep(new Step(null, color, getShoushu() + 1));
-		if (this.getStepHistory().getAllSteps().isEmpty() == false
-				&& this.getLastStep().isGiveup() == true) {
-			// 前一步对方弃权,下一步有限考虑弃权,有望及早到达终点状态.
-			// this logic is only good for 2*2 board.
-			if (boardSize == 2 || boardSize == 3) {
-				candidates.add(0, candidateP);
-			}
-			// } else if (this.boardSize <= 3
-			// && ((this.finalResult_deadCleanedUp().getScore() >= expectedScore
-			// && color == Constant.BLACK) || (finalResult_deadCleanedUp()
-			// .getScore() <= expectedScore && color == Constant.WHITE))) {
-			// // this logic is only good for 2*2 board.
-			// candidates.add(0, candidateP);
-		} else {
-			candidates.add(candidateP);
-		}
-		// 送礼点也可能是正解，但可能性较小，排在弃权后面。
-		Collections.sort(gifts, new CandidateComparator());
-		candidates.addAll(gifts);
-		return candidates;
-		// can.clear();
-		// for (Candidate candidate : candidates) {
-		// can.add(candidate.getStep().getPoint());
-		// }
-		// return can;
-	}
+	// public List<Candidate> getCandidate_smallBoard(int color,
+	// boolean filterSymmetricEquivalent, int expectedScore) {
+	// assert this.boardSize <= 5;
+	// Map<Point, Integer> breathMap = new HashMap<Point, Integer>();
+	//
+	// Set<Point> points = new HashSet<Point>();
+	// for (int row = 1; row <= boardSize; row++) {
+	// for (int column = 1; column <= boardSize; column++) {
+	// BoardPoint boardPoint = getBoardPoint(row, column);
+	// if (boardPoint.getColor() == Constant.BLANK) {
+	//
+	// BlankBlock blankBlock = boardPoint.getBlankBlock();
+	// if (blankBlock.isEyeBlock()) {
+	// /**
+	// * 3. avoid fill eye point. <br/>
+	// * 防止自填眼位,尚未处理大眼位做眼的情况。
+	// */
+	// int blocks = blankBlock.getNeighborBlocks().size();
+	// if (blankBlock.isSinglePointEye()) {
+	// // 己方不填眼，对方是否可下看气数。
+	// if ((color == Constant.BLACK && blankBlock
+	// .isBlackEye())
+	// || (color == Constant.WHITE && blankBlock
+	// .isBlackEye() == false)) {
+	//
+	// /**
+	// * need to handle this exceptional case, the eye
+	// * might be an fake eye<br/>
+	// * ## 01,02,03,04 <br/>
+	// * 01[B, W, _, W]01<br/>
+	// * 02[_, B, W, _]02<br/>
+	// * 03[B, _, B, W]03<br/>
+	// * 04[_, B, W, _]04<br/>
+	// * ## 01,02,03,04 <br/>
+	// */
+	// if (blocks == 1) {
+	// continue;// do not fill real eyes.
+	// } else {
+	// // may connect blocks
+	// boolean realSingleEye = this
+	// .isRealSingleEye(
+	// blankBlock
+	// .getMinBreathNeighborBlock(),
+	// blankBlock.getUniquePoint());
+	// if (realSingleEye) {
+	// continue;
+	// }
+	// }
+	// //
+	// // int minBreath = blankBlock
+	// // .getMinBreathNeighborBlock()
+	// // .getBreaths();
+	// // if (minBreath == 1) {
+	// // // consider connect together.
+	// // } else if (minBreath == 2) {
+	// //
+	// // } else {
+	// // // connect is not gifting
+	// // }
+	//
+	// /**
+	// * $$$01,02,03,04 <br/>
+	// * 01[_, B, _, B]01<br/>
+	// * 02[B, B, B, _]02<br/>
+	// * 03[W, W, W, B]03<br/>
+	// * 04[W, _, W, _]04<br/>
+	// * $$$01,02,03,04 <br/>
+	// * whoseTurn=Black <br/>
+	// * TODO:
+	// */
+	//
+	// }
+	// } else {
+	// /**
+	// * if big blank eye belongs to live block, then no
+	// * sense for each side to play here.
+	// */
+	// // if ((color == Constant.BLACK && blankBlock
+	// // .isBlackEye())
+	// // || (color == Constant.WHITE && blankBlock
+	// // .isBlackEye() == false)) {
+	// if (blocks == 1) {
+	// if (this.isAlreadyLive_dynamic(blankBlock
+	// .getUniqueNeighborBlock()
+	// .getBehalfPoint())) {
+	// continue;
+	// }
+	// }
+	// // }
+	//
+	// }
+	// } else if (blankBlock.isInitBlankBlock()) {
+	//
+	// } else { // not eye block
+	// Block liveBlock = blankBlock.getBiggestNeighborBlock();
+	// if (liveBlock == null) {
+	// if (log.isEnabledFor(Level.WARN))
+	// log.warn(this.getBoardColorState()
+	// .getStateString());
+	// if (log.isEnabledFor(Level.WARN))
+	// log.warn("blnakblock="
+	// + blankBlock.getBehalfPoint());
+	// }
+	//
+	// /**
+	// * make no sense to break/make live block's eye.
+	// *
+	// * ##01,02,03,04 <br/>
+	// * 01[W, _, W, _]01<br/>
+	// * 02[_, B, _, W]02<br/>
+	// * 03[W, W, W, _]03<br/>
+	// * 04[_, B, B, W]04<br/>
+	// * ##01,02,03,04 <br/>
+	// */
+	// // if(live&&liveBlock.getColor()!=color){
+	// // if (liveBlock.isAlreadyLive() == false
+	// // && liveBlock.getNumberOfPoint() >= 4) {
+	// // Point target = liveBlock.getBehalfPoint();
+	// // boolean live = this.isAlreadyLive_dynamic(target);
+	// // liveBlock.setLive(live);
+	// // }
+	// // if (liveBlock.isAlreadyLive()
+	// // && liveBlock.getLiveWith() != null
+	// // && liveBlock.getLiveWith().contains(
+	// // boardPoint.getBlankBlock())) {
+	// // continue;
+	// // }
+	//
+	// }
+	//
+	// int breaths = breathAfterPlay(boardPoint.getPoint(), color)
+	// .size();
+	// if (breaths > 0) {
+	// points.add(boardPoint.getPoint());
+	// breathMap.put(boardPoint.getPoint(), breaths);
+	// }
+	// }
+	// }
+	// }
+	//
+	// /**
+	// * 处理本质上等价的候选棋步.
+	// */
+	// List<Point> can = new ArrayList<Point>();
+	//
+	// if (filterSymmetricEquivalent == true) {
+	// SymmetryResult symmetryResult = this.getSymmetryResult();
+	// if (symmetryResult.getNumberOfSymmetry() != 0) {
+	//
+	// Set<Point> points2 = new HashSet<Point>();
+	// Set<Point> listAll = new HashSet<Point>();
+	// for (Iterator<Point> iter = points.iterator(); iter.hasNext();) {
+	// Point point = iter.next();
+	// if (listAll.contains(point))
+	// continue;
+	//
+	// List<Point> listVar = point.deNormalize(symmetryResult);
+	// listAll.addAll(listVar);
+	// // only keep one of all the symmetric candidates.
+	// points2.add(listVar.get(0));
+	//
+	// }
+	// can.addAll(points2);
+	// } else {
+	// can.addAll(points);
+	// }
+	// } else {
+	// can.addAll(points);
+	// }
+	//
+	// List<Candidate> gifts = new ArrayList<Candidate>();
+	// /**
+	// * decide sequence by priority.<br/>
+	// * capture sequence. <br/>
+	// */
+	// List<Candidate> candidates = new ArrayList<Candidate>();
+	// for (Point point : can) {
+	// Candidate candidate = new Candidate();
+	// candidate.setStep(new Step(point, color, getShoushu() + 1));
+	// NeighborState state = null;
+	// try {
+	// state = this.getNeighborState_forCandidate(point, color);
+	// } catch (RuntimeException e) {
+	// if (log.isEnabledFor(Level.WARN)) {
+	// log.warn(this.getBoardColorState().getStateString());
+	// log.warn("point" + point);
+	// // this.printState();
+	// throw e;
+	// }
+	// }
+	//
+	// /**
+	// * avoid eaten dead enemy to enhance live target.
+	// */
+	// if (state.isEating()) {
+	// if (state.getFriendBlockNumber() == 1) {
+	// Block friendBlock = state.getFriendBlocks().iterator()
+	// .next();
+	// Point pointT = friendBlock.getBehalfPoint();
+	// if (friendBlock.getNumberOfPoint() >= 4) {
+	// boolean live = this.isAlreadyLive_dynamic(pointT);
+	// if (live) {
+	// continue;
+	// }
+	// }
+	// }
+	// }
+	// candidate.setEating(state.isEating());
+	// candidate.setGifting(state.isGifting());
+	// candidate.setCapturing(state.isCapturing());
+	// candidate.setRemoveCapturing(state.getRemoveCapturing());
+	// candidate.setBreaths(breathMap.get(point));
+	// candidate.setIncreasedBreath(state.getIncreasedBreath());
+	// candidate.setIncreasedBreath(state.getIncreasedBreath());
+	//
+	// /**
+	// * 缩小眼位的紧气看成类似送礼，送吃。<br/>
+	// * TODO: further refinement.
+	// */
+	// if (state.isGifting() == false) {
+	//
+	// this.initEyesAfterPlay_dynamic(candidate);
+	//
+	// }
+	// // not sure of the intention
+	// // if (state.isEating() == false && candidate.getEyes() == 0
+	// // && state.isCapturing()
+	// // && state.getCapturingBlocks().size() == 1
+	// // && state.getFriend() > 0) {
+	// // Block capturingB = state.getCapturingBlocks().iterator().next();
+	// // if (capturingB.getEnemyBlocks().isEmpty()) {
+	// // boolean pointedEye = true;
+	// // for (BlankBlock blankB : capturingB.getBreathBlocks()) {
+	// // for (Block tB : blankB.getNeighborBlocks()) {
+	// // if (state.getFriendBlocks().contains(tB) == false) {
+	// // pointedEye = false;
+	// // }
+	// // }
+	// // }
+	// // if (pointedEye) {
+	// // state.setGifting(true);
+	// // // gifts.add(candidate);
+	// // state.setCapturing(false);
+	// // }
+	// // } else {
+	// // if (capturingB.getEnemyBlocks().size() == 1) {
+	// // state.setGifting(true);
+	// // // gifts.add(candidate);
+	// // state.setCapturing(false);
+	// // }
+	// // }
+	// // } else {
+	// // // 同样的紧气,如果多一眼于己更有利.
+	// // // candidate.setEyes(this.EyesAfterPlay(point, color).size());
+	// //
+	// // }
+	// if (state.isGifting()) {
+	// if (state.getGift() == null) {
+	// // 单子扑入.
+	// gifts.add(candidate);
+	// } else if (state.getGift().getOriginalStones() == 0) {
+	// candidates.add(candidate);// gift one point usually good.
+	// } else if (state.getGift().getOriginalBreath() >= 2) {
+	//
+	// if (state.getGift().getOriginalStones() >= 6) {
+	// // should not gift so much.
+	// } else {
+	// gifts.add(candidate);
+	// }
+	// } else {
+	// candidates.add(candidate);
+	// }
+	// // } else if (state.isIncreaseBreath() == false) {
+	// // not favor the move cannot increase breath.
+	// // gifts.add(candidate);
+	// } else {
+	// candidates.add(candidate);
+	// }
+	// }
+	//
+	// // Collections.sort(can, new LowLineComparator());
+	// Collections.sort(candidates, new CandidateComparator());
+	//
+	// // consider give up step: comment out because it may cause no
+	// // candidates.
+	// // int score = this.finalResult_simplest().getScore();
+	// // if (color == Constant.MAX) {
+	// // if (score < 0)
+	// // return candidates;
+	// // } else {
+	// // if (score > 0)
+	// // return candidates;
+	// // }
+	//
+	// Candidate candidateP = new Candidate();
+	// candidateP.setStep(new Step(null, color, getShoushu() + 1));
+	// if (this.getStepHistory().getAllSteps().isEmpty() == false
+	// && this.getLastStep().isGiveup() == true) {
+	// // 前一步对方弃权,下一步有限考虑弃权,有望及早到达终点状态.
+	// // this logic is only good for 2*2 board.
+	// if (boardSize == 2 || boardSize == 3) {
+	// candidates.add(0, candidateP);
+	// }
+	// // } else if (this.boardSize <= 3
+	// // && ((this.finalResult_deadCleanedUp().getScore() >= expectedScore
+	// // && color == Constant.BLACK) || (finalResult_deadCleanedUp()
+	// // .getScore() <= expectedScore && color == Constant.WHITE))) {
+	// // // this logic is only good for 2*2 board.
+	// // candidates.add(0, candidateP);
+	// } else {
+	// candidates.add(candidateP);
+	// }
+	// // 送礼点也可能是正解，但可能性较小，排在弃权后面。
+	// Collections.sort(gifts, new CandidateComparator());
+	// candidates.addAll(gifts);
+	// return candidates;
+	// // can.clear();
+	// // for (Candidate candidate : candidates) {
+	// // can.add(candidate.getStep().getPoint());
+	// // }
+	// // return can;
+	// }
 
 	/**
 	 * 一块棋的潜在眼位大小，估算。不是死活计算。<br/>
@@ -1316,17 +1317,17 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 						false);
 				return live.isLive();
 			} else {
-				Set<Point> targets = new HashSet<Point>();
-				for (Set<Point> temp : eyeSet) {
-					targets.clear();
-					targets.addAll(temp);
-					Result live = this.isBigEyeLive_dynamic_internal(
-							getBlock(target), targets, false);
-					if (live.isLive()) {
-						return true;
-					}
-				}
-
+//				Set<Point> targets = new HashSet<Point>();
+//				for (Set<Point> temp : eyeSet) {
+//					log.warn("try target " + temp);
+//					targets.clear();
+//					targets.addAll(temp);
+//					Result live = this.isBigEyeLive_dynamic_internal(
+//							getBlock(target), targets, false);
+//					if (live.isLive()) {
+//						return true;
+//					}
+//				}
 			}
 
 			// TODO:
@@ -1564,7 +1565,7 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 
 		int count = 0;
 		// List<String> process = search.getSearchProcess();
-		if (log.isEnabledFor(Level.WARN)){
+		if (log.isEnabledFor(Level.WARN)) {
 			log.warn("BigEyeSearch: " + (++searchCount));
 			log.warn(this.getBoardColorState().getStateString());
 			log.warn("target = " + target.getBehalfPoint());
@@ -1575,23 +1576,24 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 		}
 		for (String list : search.getSearchProcess()) {
 			count++;
-			if (log.isEnabledFor(Level.WARN)){
+			if (log.isEnabledFor(Level.WARN)) {
 				log.warn("count=" + count);
 				log.warn(list);
 			}
 		}
 
-		SearchNode root = search.getRoot();
-		if (root != null) {
-			TreeGoManual tm = this.getTreeGoManual();
-			int countVar = tm.getVariant();
+		//
+		TreeGoManual treeGoManual = this.getTreeGoManual();
+
+		if (treeGoManual != null) {
+			int countVar = treeGoManual.getVariant();
 			if (log.isEnabledFor(Level.WARN)) {
-				log.warn(tm.getSGFBodyString());				
+				log.warn(treeGoManual.getSGFBodyString());
 				log.warn("variant=" + countVar);
 			}
 
-		} else if (root == null) {
-			if (log.isEnabledFor(Level.WARN)){
+		} else {
+			if (log.isEnabledFor(Level.WARN)) {
 				log.warn(this.getBoardColorState().getStateString());
 				log.warn("target=" + target.getBehalfPoint());
 				log.warn("eyePoints=" + eyePoints);
@@ -1600,6 +1602,7 @@ public class SurviveAnalysis extends ConnectivityAnalysis {
 
 		Result res = new Result();
 		res.setSurvive(score);
+		SearchNode root = treeGoManual.getRoot();
 		res.setTree(root);
 		if (root != null) {
 			res.setPoint(root.getStep());

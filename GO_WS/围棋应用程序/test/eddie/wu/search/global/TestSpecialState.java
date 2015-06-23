@@ -17,6 +17,7 @@ import eddie.wu.domain.analy.StateAnalysis;
 import eddie.wu.domain.analy.SurviveAnalysis;
 import eddie.wu.domain.analy.TerritoryAnalysis;
 import eddie.wu.manual.StateLoader;
+import eddie.wu.search.eye.BigEyeSearch;
 
 public class TestSpecialState extends TestCase {
 	private static Logger log = Logger.getLogger(Block.class);

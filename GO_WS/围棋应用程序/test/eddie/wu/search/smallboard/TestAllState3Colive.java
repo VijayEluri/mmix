@@ -11,7 +11,7 @@ import eddie.wu.domain.Point;
 import eddie.wu.domain.analy.SurviveAnalysis;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.search.global.GoBoardSearch;
-import eddie.wu.search.global.SmallBoardGlobalSearch;
+import eddie.wu.search.small.SmallBoardGlobalSearch;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 /**

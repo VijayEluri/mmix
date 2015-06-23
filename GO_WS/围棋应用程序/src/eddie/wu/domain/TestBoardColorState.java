@@ -5,8 +5,8 @@ import junit.framework.TestCase;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import util.GBKToUTF8;
 import eddie.wu.manual.StateLoader;
+import eddie.wu.util.GBKToUTF8;
 
 public class TestBoardColorState extends TestCase {
 	private static final Logger log = Logger.getLogger(GBKToUTF8.class);

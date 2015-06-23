@@ -11,6 +11,7 @@ import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.analy.StateAnalysis;
 import eddie.wu.domain.survive.RelativeResult;
+import eddie.wu.search.eye.BigEyeSearch;
 
 public class TestSmallEye extends TestCase {
 	private static Logger log = Logger.getLogger(Block.class);

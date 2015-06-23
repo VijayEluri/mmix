@@ -400,23 +400,23 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 			 * 做活方可能需要考虑弃权，至少在形式双活时。正常情况下，加入也无害，因为别的着手已经可以做活。<br/>
 			 * 另一方面攻击一方可以弃权.
 			 */
-			if (isDualLivePotential(target, scope)||cans.isEmpty()) {
+			if (isDualLivePotential(target, scope) || cans.isEmpty()) {
 				Candidate candidateP = new Candidate();
 				candidateP.setStep(new Step(null, color, getShoushu() + 1));
-				cans.add(0,candidateP);
+				cans.add(0, candidateP);
 			}
 		} else if (this.noStep() == false
 				&& this.getLastStep().isGiveup() == true) {
-			//only consider pass as last option in case of potential dual live.
+			// only consider pass as last option in case of potential dual live.
 			if (isDualLivePotential(target, scope)) {
 				Candidate candidateP = new Candidate();
 				candidateP.setStep(new Step(null, color, getShoushu() + 1));
 				cans.add(candidateP);
 			}
-//			Candidate candidateP = new Candidate();
-//			candidateP.setStep(new Step(null, color, getShoushu() + 1));
-//			cans.add(candidateP);//
-//			cans.add(0, candidateP);// put at the beginning.
+			// Candidate candidateP = new Candidate();
+			// candidateP.setStep(new Step(null, color, getShoushu() + 1));
+			// cans.add(candidateP);//
+			// cans.add(0, candidateP);// put at the beginning.
 		}
 		return cans;
 	}
@@ -492,10 +492,10 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 									+ point);
 						// 找劫材，局部就是弃权。
 						if (forTarget == false) { // avoid duplicate give up.???
-						// Candidate candidate = new Candidate();
-						// candidate.setStep(new Step(null, color,
-						// this.shoushu + 1));
-						// cans.add(candidate);
+							// Candidate candidate = new Candidate();
+							// candidate.setStep(new Step(null, color,
+							// this.shoushu + 1));
+							// cans.add(candidate);
 						}// target give up is done later.
 						continue;
 					}
@@ -647,10 +647,13 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 		// can.add(candidate2.getStep().getPoint());
 		// }
 
-		Candidate candidateP = new Candidate();
-		candidateP.setStep(new Step(null, color, getShoushu() + 1));
+		Candidate candidatePass = new Candidate();
+		candidatePass.setStep(new Step(null, color, getShoushu() + 1));
 		if (liveSearch) {
 			boolean dualLivePotential = isDualLivePotential(target, scope);
+			log.warn("dualLivePotential=" + dualLivePotential);
+			log.warn("target=" + target);
+			log.warn("scope=" + scope);
 			if (dualLivePotential) {
 
 				if (forTarget) {
@@ -659,15 +662,15 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 					 * 但是正常情况下，不得弃权,即使攻击方弃权也不得弃权.<br/>
 					 * 这是为了让攻击方在计算中不需要紧外气
 					 */
-					cans.add(candidateP);
+					cans.add(candidatePass);
 				} else {
 					if (this.noStep() == false
 							&& this.getLastStep().isGiveup() == true) {
 						// put at the beginning.若目标方已经弃权,可以弃权.得到双活结论.
-						cans.add(0, candidateP);
+						cans.add(0, candidatePass);
 					} else {
 						// 攻击方主动弃权则放在最后.
-						cans.add(candidateP);
+						cans.add(candidatePass);
 					}
 				}
 			}
@@ -677,7 +680,7 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 		}
 
 		if (cans.isEmpty()) {
-			cans.add(candidateP);
+			cans.add(candidatePass);
 		}
 		return cans;
 	}
@@ -686,7 +689,7 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 	 * 两口内气作为双活的潜在条件.
 	 * 
 	 * @param target
-	 * @param scope
+	 * @param scope may contains more points than necessary during search.
 	 * @return
 	 */
 	public boolean isDualLivePotential(Point target, Set<Point> scope) {
@@ -698,9 +701,10 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 		if (breaths.size() != 2)
 			return false;
 		/**
-		 * 这两口内气都是对方的送吃不入气点.
+		 * 这两口内气都是对方的送吃不入气点.<br/>
+		 * scope may contains more points than necessary during search.
 		 */
-		for (Point point : scope) {
+		for (Point point : breaths) {
 			if (breathAfterPlay(point, targetBlock.getEnemyColor()).size() != 1)
 				return false;
 		}

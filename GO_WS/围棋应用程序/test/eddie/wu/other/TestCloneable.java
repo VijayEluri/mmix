@@ -10,11 +10,11 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 
-import util.GBKToUTF8;
 import eddie.wu.domain.Block;
 import eddie.wu.domain.BoardPoint;
 import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Point;
+import eddie.wu.util.GBKToUTF8;
 
 /**
  * @author eddie

@@ -1,8 +1,5 @@
 package eddie.wu.domain.sgf;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import junit.framework.TestCase;
 
 import org.apache.log4j.Level;
@@ -15,8 +12,8 @@ import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.GoBoardForward;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
-import eddie.wu.manual.SimpleGoManual;
 import eddie.wu.manual.SGFGoManual;
+import eddie.wu.manual.SimpleGoManual;
 import eddie.wu.manual.StateLoader;
 
 public class TestGoBoardForwardSpecialStep extends TestCase {

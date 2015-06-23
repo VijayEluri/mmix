@@ -10,8 +10,8 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 
-import util.GBKToUTF8;
 import eddie.wu.domain.Point;
+import eddie.wu.util.GBKToUTF8;
 
 /**
  * @author eddie

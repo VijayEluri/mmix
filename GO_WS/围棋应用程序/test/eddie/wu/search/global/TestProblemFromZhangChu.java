@@ -18,6 +18,7 @@ import eddie.wu.domain.analy.SurviveAnalysis;
 import eddie.wu.manual.SearchNode;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.manual.TreeGoManual;
+import eddie.wu.search.small.ThreeThreeBoardSearch;
 
 public class TestProblemFromZhangChu extends TestCase {
 	private static Logger log = Logger.getLogger(TestProblemFromZhangChu.class);

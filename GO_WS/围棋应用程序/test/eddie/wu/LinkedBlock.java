@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 
-import util.GBKToUTF8;
+import eddie.wu.util.GBKToUTF8;
 
 class LinkedBlock {
 	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
