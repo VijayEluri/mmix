@@ -15,7 +15,7 @@ public class SymmetryResult {
 		return res;
 	}
 
-	public void and(SymmetryResult other) {
+	public SymmetryResult and(SymmetryResult other) {
 		if (other.backwardSlashSymmetry == false)
 			this.backwardSlashSymmetry = false;
 		if (other.forwardSlashSymmetry == false)
@@ -24,10 +24,19 @@ public class SymmetryResult {
 			this.horizontalSymmetry = false;
 		if (other.verticalSymmetry == false)
 			this.verticalSymmetry = false;
-
+		return this;
 	}
 
-	// private int numberOfSymmetry;
+	/**
+	 * 两个相同的对称映射操作互相取消。
+	 */
+	public SymmetryResult cascaseOperation(SymmetryResult other) {
+		this.backwardSlashSymmetry = other.backwardSlashSymmetry != this.backwardSlashSymmetry;
+		this.forwardSlashSymmetry = other.forwardSlashSymmetry != this.forwardSlashSymmetry;
+		this.horizontalSymmetry = other.horizontalSymmetry != this.horizontalSymmetry;
+		this.verticalSymmetry = other.verticalSymmetry != this.verticalSymmetry;
+		return this;
+	}
 
 	public boolean isHorizontalSymmetry() {
 		return horizontalSymmetry;

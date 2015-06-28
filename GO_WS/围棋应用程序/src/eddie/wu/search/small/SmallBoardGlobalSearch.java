@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import junit.framework.TestCase;
+
 import org.apache.log4j.Logger;
 
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.analy.SmallGoBoard;
-import eddie.wu.domain.analy.TerritoryAnalysis;
 import eddie.wu.manual.SGFGoManual;
 import eddie.wu.manual.TreeGoManual;
 import eddie.wu.search.global.Candidate;
@@ -46,9 +47,28 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		this.initLevel(state.getWhoseTurn());
 	}
 
-	public SmallBoardGlobalSearch(byte[][] boards, int highestScore,
-			int lowestScore) {
-		this(boards, Constant.BLACK, highestScore, lowestScore);
+	/**
+	 * caller provide state and estimated score, search will decide the score.
+	 * if it's Black's turn, expScore vs expScore - 1<br/>
+	 * otherwise, expScore + 1 vs. expScore <br.>
+	 * expScore is for the current player<br/>
+	 * if the score returned in search = expScore, the current turn's player
+	 * win.
+	 * 
+	 * @param state
+	 * @param expScore
+	 */
+	public SmallBoardGlobalSearch(BoardColorState state, int expScore) {
+		super(state.isBlackTurn() ? expScore : expScore + 1, state
+				.isBlackTurn() ? expScore - 1 : expScore);
+		int maxScore = state.boardSize * state.boardSize;
+		if (state.isBlackTurn() && expScore == -maxScore) {
+			throw new RuntimeException("Black: expScore == -maxScore");
+		} else if (state.isWhiteTurn() && expScore == maxScore) {
+			throw new RuntimeException("White: expScore == maxScore");
+		}
+		goBoard = new SmallGoBoard(state);
+		this.initLevel(state.getWhoseTurn());
 	}
 
 	/**
@@ -138,15 +158,14 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		TerminalState ts = new TerminalState();
 		if (goBoard.isDoubleGiveup()) {
 			ts.setTerminalState(true);
-			ts.setFinalResult(goBoard
-					.finalResult_doublePass());
+			ts.setFinalResult(goBoard.finalResult_doublePass());
 
 		} else if (results.containsKey(this.getGoBoard().getBoardColorState())) {
 			ts.setTerminalState(true);
-			//???
-			ts.setScore(results.get(
-					this.getGoBoard().getBoardColorState()).intValue());
-			
+			// ???
+			ts.setScore(results.get(this.getGoBoard().getBoardColorState())
+					.intValue());
+
 		}
 
 		return ts;
@@ -281,4 +300,116 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		}
 	}
 
+	public static int getAccurateScore(BoardColorState state) {
+		int expScore = state.getScore_assumeAllLive();
+		return getAccurateScore(state, expScore);
+	}
+
+	/**
+	 * utility method for better external use.
+	 * 
+	 * @param state
+	 * @return
+	 */
+
+	public static int getAccurateScore(BoardColorState state, int expScore) {
+
+		int high = 1;
+		int low = 0;
+		int score = 0;
+		int dir = 0;// direction to check further
+		int maxScore = state.boardSize * state.boardSize;
+		int bestScore = 0;
+		GoBoardSearch goS;
+
+		assert (expScore <= maxScore);
+		assert (expScore >= 0 - maxScore);
+		if (expScore > maxScore)
+			throw new RuntimeException("expScore > maxScore");
+		if (expScore < -maxScore) {
+			throw new RuntimeException("expScore < -maxScore");
+		}
+
+		// check whether current player can reach the expScore.
+		if (state.isBlackTurn()) {
+			if (expScore == -maxScore) {
+				// Black must win, simulate the result with searching
+				dir = 1;
+				bestScore = expScore;
+				high = expScore + 1;
+			} else {
+				high = expScore;
+			}
+			low = high - 1;
+		} else { // white's turn
+			if (expScore == maxScore) {
+				// White must win, simulate the result with searching
+				dir = -1;
+				bestScore = expScore;
+				low = expScore - 1;
+			} else {
+				low = expScore;
+			}
+			high = low + 1;
+		}
+
+		do {
+			if (state.boardSize == 2) {
+				goS = new TwoTwoBoardSearch(state, state.isBlackTurn() ? high
+						: low);
+			} else if (state.boardSize == 3) {
+				goS = new ThreeThreeBoardSearch(state,
+						state.isBlackTurn() ? high : low);
+			} else {
+				throw new RuntimeException("boardSize=" + state.boardSize);
+			}
+			score = goS.globalSearch();
+			state.setVariant(goS.getSearchProcess().size());
+
+			if (score >= high) {
+				if (state.isBlackTurn()) {
+					log.error("search with high = " + high
+							+ " succeed with score = " + score);
+				} else {
+					log.error("search with low = " + low
+							+ " fail with score = " + score);
+				}
+				high = score + 1;
+				low = high - 1;
+				if (dir == 0) {
+					dir = 1;
+					bestScore = score;
+				} else if (dir == -1) {
+					assert (score == bestScore);
+					TestCase.assertEquals(score, bestScore);
+					return score;
+				} else {
+					bestScore = score;
+					continue;
+				}
+			} else {
+				if (state.isBlackTurn()) {
+					log.error("search with high = " + high
+							+ " fail with score = " + score);
+				} else {
+					log.error("search with low = " + low
+							+ " succeed with score = " + score);
+				}
+				low = score - 1;
+				high = low + 1;
+				if (dir == 0) {
+					dir = -1;
+					bestScore = score;
+				} else if (dir == 1) {
+					assert (score == bestScore);
+					TestCase.assertEquals(score, bestScore);
+					return score;
+				} else {
+					bestScore = score;
+					continue;
+				}
+			}
+		} while (high <= maxScore && low > -maxScore);
+		return score;
+	}
 }

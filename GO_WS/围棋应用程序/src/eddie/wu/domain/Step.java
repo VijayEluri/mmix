@@ -103,6 +103,14 @@ public class Step {// implements Step{
 	public void convert(SymmetryResult operation) {
 		if (point == null)
 			return;
+		System.out.println(operation.getNumberOfSymmetry());
+		if (operation.getNumberOfSymmetry() == 0)
+			return;
+		if (operation.getNumberOfSymmetry() == 4) {
+			throw new RuntimeException("operation.getNumberOfSymmetry() = "
+					+ operation.getNumberOfSymmetry());
+		}
+
 		if (operation.isBackwardSlashSymmetry()) {
 			backwardSlashMirror();
 		}
@@ -130,8 +138,12 @@ public class Step {// implements Step{
 	// this.point = point;
 	// }
 
-	public byte getColor() {
+	public int getColor() {
 		return color;
+	}
+
+	public int getEnemyColor() {
+		return ColorUtil.enemyColor(color);
 	}
 
 	public String getColorString() {

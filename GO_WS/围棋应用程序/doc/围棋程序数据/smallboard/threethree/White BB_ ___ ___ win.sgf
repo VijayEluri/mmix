@@ -449,7 +449,7 @@
 							(;B[];W[]))
 						(;B[cc];W[ba]
 							(;B[cb];W[bc];B[];W[])
-							(;B[ca];W[cb];B[];W[])
+							(;B[ca];W[bc];B[];W[])
 							(;B[];W[])
 							(;B[bc];W[cb]
 								(;B[bc];W[];B[])
@@ -890,7 +890,7 @@
 										(;B[ca];W[cb])
 										(;B[];W[])))
 								(;B[ca];W[ba]
-									(;B[cc];W[bc];B[];W[])
+									(;B[cc];W[cb];B[];W[])
 									(;B[cb];W[cc]
 										(;B[cb];W[ca])
 										(;B[ca];W[cb])
@@ -899,7 +899,7 @@
 									(;B[];W[]))
 								(;B[cc];W[ba]
 									(;B[cb];W[bc];B[];W[])
-									(;B[ca];W[bc];B[];W[])
+									(;B[ca];W[cb];B[];W[])
 									(;B[];W[])
 									(;B[bc];W[cb]
 										(;B[bc];W[];B[])
@@ -1001,7 +1001,7 @@
 										(;B[ca];W[];B[])
 										(;B[];W[])))
 								(;B[cc];W[bc]
-									(;B[ca];W[cb];B[];W[])
+									(;B[ca];W[ba];B[];W[])
 									(;B[ba];W[cb];B[];W[])
 									(;B[cb];W[ca]
 										(;B[cb];W[cc])
@@ -1162,7 +1162,7 @@
 										(;B[ca];W[cb])
 										(;B[];W[])))
 								(;B[ca];W[ba]
-									(;B[cc];W[cb];B[];W[])
+									(;B[cc];W[bc];B[];W[])
 									(;B[cb];W[cc]
 										(;B[cb];W[ca])
 										(;B[ca];W[cb])
@@ -1171,7 +1171,7 @@
 									(;B[];W[]))
 								(;B[cc];W[ba]
 									(;B[cb];W[bc];B[];W[])
-									(;B[ca];W[cb];B[];W[])
+									(;B[ca];W[bc];B[];W[])
 									(;B[];W[])
 									(;B[bc];W[cb]
 										(;B[bc];W[];B[])
@@ -1683,7 +1683,7 @@
 							(;B[];W[]))
 						(;B[cc];W[ba]
 							(;B[cb];W[bc];B[];W[])
-							(;B[ca];W[bc];B[];W[])
+							(;B[ca];W[cb];B[];W[])
 							(;B[];W[])
 							(;B[bc];W[cb]
 								(;B[bc];W[];B[])
@@ -1778,14 +1778,14 @@
 							(;B[];W[]))
 						(;B[ca];W[bc]
 							(;B[cb];W[ba];B[];W[])
-							(;B[cc];W[cb];B[];W[])
+							(;B[cc];W[ba];B[];W[])
 							(;B[];W[])
 							(;B[ba];W[cb]
 								(;B[ba];W[];B[])
 								(;B[ca];W[];B[])
 								(;B[];W[])))
 						(;B[cc];W[bc]
-							(;B[ca];W[ba];B[];W[])
+							(;B[ca];W[cb];B[];W[])
 							(;B[ba];W[cb];B[];W[])
 							(;B[cb];W[ca]
 								(;B[cb];W[cc])
@@ -2571,14 +2571,14 @@
 					(;B[];W[]))
 				(;B[aa];W[bc]
 					(;B[ab];W[ba];B[];W[])
-					(;B[ac];W[ab];B[];W[])
+					(;B[ac];W[ba];B[];W[])
 					(;B[];W[])
 					(;B[ba];W[ab]
 						(;B[ba];W[];B[])
 						(;B[aa];W[];B[])
 						(;B[];W[])))
 				(;B[ac];W[bc]
-					(;B[aa];W[ba];B[];W[])
+					(;B[aa];W[ab];B[];W[])
 					(;B[ba];W[ab];B[];W[])
 					(;B[ab];W[aa]
 						(;B[ab];W[ac])
@@ -2841,7 +2841,7 @@
 								(;B[aa];W[];B[])
 								(;B[];W[])))
 						(;B[ac];W[bc]
-							(;B[aa];W[ba];B[];W[])
+							(;B[aa];W[ab];B[];W[])
 							(;B[ba];W[ab];B[];W[])
 							(;B[ab];W[aa]
 								(;B[ab];W[ac])
@@ -3416,7 +3416,7 @@
 										(;B[ca];W[cb])
 										(;B[];W[])))
 								(;B[ca];W[ba]
-									(;B[cc];W[cb];B[];W[])
+									(;B[cc];W[bc];B[];W[])
 									(;B[cb];W[cc]
 										(;B[cb];W[ca])
 										(;B[ca];W[cb])
@@ -3527,7 +3527,7 @@
 										(;B[ca];W[];B[])
 										(;B[];W[])))
 								(;B[cc];W[bc]
-									(;B[ca];W[cb];B[];W[])
+									(;B[ca];W[ba];B[];W[])
 									(;B[ba];W[cb];B[];W[])
 									(;B[cb];W[ca]
 										(;B[cb];W[cc])
@@ -3688,7 +3688,7 @@
 										(;B[ca];W[cb])
 										(;B[];W[])))
 								(;B[ca];W[ba]
-									(;B[cc];W[bc];B[];W[])
+									(;B[cc];W[cb];B[];W[])
 									(;B[cb];W[cc]
 										(;B[cb];W[ca])
 										(;B[ca];W[cb])
@@ -3697,7 +3697,7 @@
 									(;B[];W[]))
 								(;B[cc];W[ba]
 									(;B[cb];W[bc];B[];W[])
-									(;B[ca];W[bc];B[];W[])
+									(;B[ca];W[cb];B[];W[])
 									(;B[];W[])
 									(;B[bc];W[cb]
 										(;B[bc];W[];B[])
@@ -3792,14 +3792,14 @@
 									(;B[];W[]))
 								(;B[ca];W[bc]
 									(;B[cb];W[ba];B[];W[])
-									(;B[cc];W[ba];B[];W[])
+									(;B[cc];W[cb];B[];W[])
 									(;B[];W[])
 									(;B[ba];W[cb]
 										(;B[ba];W[];B[])
 										(;B[ca];W[];B[])
 										(;B[];W[])))
 								(;B[cc];W[bc]
-									(;B[ca];W[ba];B[];W[])
+									(;B[ca];W[cb];B[];W[])
 									(;B[ba];W[cb];B[];W[])
 									(;B[cb];W[ca]
 										(;B[cb];W[cc])

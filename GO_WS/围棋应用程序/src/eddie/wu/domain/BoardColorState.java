@@ -531,7 +531,7 @@ public class BoardColorState {
 		}
 		result.append(footer);
 		result.append("whoseTurn=" + this.getWhoseTurnString());
-//		result.append(Constant.lineSeparator);//
+		// result.append(Constant.lineSeparator);//
 		return result;
 	}
 
@@ -546,8 +546,7 @@ public class BoardColorState {
 			}
 			result.append(" ");
 		}
-		
-		
+
 		return result.toString();
 	}
 
@@ -678,6 +677,10 @@ public class BoardColorState {
 
 	public boolean isBlackTurn() {
 		return this.whoseTurn == Constant.BLACK;
+	}
+
+	public boolean isWhiteTurn() {
+		return this.whoseTurn == Constant.WHITE;
 	}
 
 	/**
@@ -928,6 +931,16 @@ public class BoardColorState {
 			log.debug("verticalSymmetry");
 		return true;
 
+	}
+
+	/**
+	 * counting the score by assuming all the stones are live. used as the basis
+	 * of best guess for expected number.
+	 * 
+	 * @return
+	 */
+	public int getScore_assumeAllLive() {
+		return this.blackStones - this.whiteStones;
 	}
 
 }

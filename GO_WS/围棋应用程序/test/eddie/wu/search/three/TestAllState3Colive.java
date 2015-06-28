@@ -1,4 +1,4 @@
-package eddie.wu.search.smallboard;
+package eddie.wu.search.three;
 
 import java.util.Arrays;
 

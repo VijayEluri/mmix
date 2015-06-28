@@ -1,4 +1,4 @@
-package eddie.wu.search.smallboard;
+package eddie.wu.search.four;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package eddie.wu.search.smallboard;
+package eddie.wu.search.three;
 
 import junit.framework.TestCase;
 
@@ -6,6 +6,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoardForward;
 import eddie.wu.domain.Point;
@@ -32,6 +33,16 @@ public class TestAllState3 extends TestCase {
 		// Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.WARN);
 		// Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
 		// Logger.getLogger(GoBoardForward.class).setLevel(Level.WARN);
+	}
+	
+	public void testState_init() {
+		String[] text = new String[3];
+		text[0] = new String("[_, _, _]");
+		text[1] = new String("[_, _, _]");
+		text[2] = new String("[_, _, _]");
+
+		testState_internal(text, Constant.BLACK, +9);
+
 	}
 
 	/**
@@ -117,6 +128,9 @@ public class TestAllState3 extends TestCase {
 		assertFalse(finalState);
 
 		testState_internal(text, Constant.WHITE, 9);
+
+		// finalState = new TerritoryAnalysis(state).isFinalState_deadExist();
+		// assertTrue(finalState);
 	}
 
 	public void testState_3141() {
@@ -527,71 +541,60 @@ public class TestAllState3 extends TestCase {
 		testState_internal(text, Constant.WHITE, -9);
 	}
 
-	public void testState_init() {
-		String[] text = new String[3];
-		text[0] = new String("[_, _, _]");
-		text[1] = new String("[_, _, _]");
-		text[2] = new String("[_, _, _]");
-
-		testState_internal(text, Constant.BLACK, +9);
-
-	}
+	
 
 	public void testState_internal(String[] text, int whoseTurn,
 			int expectedScore) {
 		boolean exetrem = false;
-		byte[][] state = StateLoader.LoadStateFromText(text);
-		int high, low;
+		boolean noCheck = false;
+
 		int boardSize = text.length;
-		if (expectedScore + boardSize * boardSize == 0) {
-			low = expectedScore;
-			high = low + 1;
+		int maxScore = boardSize * boardSize;
+
+		if (expectedScore == -maxScore) {
 			exetrem = true;
-		} else if (expectedScore == boardSize * boardSize) {
-			high = expectedScore;
-			low = high - 1;
+			if (whoseTurn == Constant.BLACK) {
+				noCheck = true;
+			}
+
+		} else if (expectedScore == maxScore) {
 			exetrem = true;
-		} else if (whoseTurn == Constant.BLACK) {
-			high = expectedScore;
-			low = high - 1;
-		} else {
-			low = expectedScore;
-			high = low + 1;
+			if (whoseTurn == Constant.WHITE) {
+				noCheck = true;
+			}
 		}
 
-		ThreeThreeBoardSearch goS = new ThreeThreeBoardSearch(state, whoseTurn,
-				high, low);
-		int score = this.testState_internal(goS);
+		byte[][] state = StateLoader.LoadStateFromText(text);
+		BoardColorState boardState = new BoardColorState(state, whoseTurn);
+
+		// 1. check we can reach the expected score.
+		ThreeThreeBoardSearch goS = null;
+		int score = 0;
+		if (noCheck != true) {
+			goS = new ThreeThreeBoardSearch(boardState, expectedScore);
+			score = this.testSearch_internal(goS);
+			assertEquals(expectedScore, score);
+		}
 
 		if (exetrem) {
-			assertEquals(expectedScore, score);
 			return;
-		} else {
-			assertTrue(score != Constant.UNKOWN);
-			assertEquals(expectedScore, score);
 		}
-
+		// check that we cannot get better result
 		if (whoseTurn == Constant.BLACK) {
-			low = expectedScore;
-			high = low + 1;
+			expectedScore++;
 		} else {
-			high = expectedScore;
-			low = high - 1;
+			expectedScore--;
 		}
-
-		goS = new ThreeThreeBoardSearch(state, whoseTurn, high, low);
-
-		score = this.testState_internal(goS);
-
+		goS = new ThreeThreeBoardSearch(boardState, expectedScore);
+		score = this.testSearch_internal(goS);
 		assertTrue(score != Constant.UNKOWN);
-
-		assertTrue(score == expectedScore);
+		assertEquals(expectedScore, score);
 
 	}
 
-	public int testState_internal(ThreeThreeBoardSearch goS) {
+	public int testSearch_internal(ThreeThreeBoardSearch goS) {
 		int score = goS.globalSearch();
-		// C:\Users\Eddie\scm\mmix\GO_WS\围棋应用程序\doc\围棋程序数据\smallboard\threethree
+		// doc/围棋程序数据/smallboard/threethree
 		String name = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString();
 		String fileName1 = Constant.rootDir + "smallboard/threethree/" + name

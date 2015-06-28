@@ -183,7 +183,7 @@
 			(;B[];W[])))
 	(;B[aa];W[ba]
 		(;B[bc])
-		(;B[ac];W[bc];B[];W[cb])
+		(;B[ac];W[cb];B[];W[bc])
 		(;B[];W[bc];B[];W[cb])
 		(;B[cb];W[bc]
 			(;B[cb];W[cc])

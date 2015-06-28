@@ -98,7 +98,6 @@ public class InteractiveGo extends Frame {
 	TextField whitePlayerV = new TextField();
 	TextField resultV = new TextField();
 	TextField shoushuV = new TextField();
-	private SymmetryResult normalizeOperation;
 
 	public static void main(String[] args) {
 		// if (args.length > 1) {
@@ -191,7 +190,7 @@ public class InteractiveGo extends Frame {
 
 		shoushu.setBounds(600, 450, 40, 20);
 		shoushuV.setBounds(645, 450, 100, 20);
-		
+
 		this.setTitle("交互演示死活题");
 
 		addWindowListener(new WindowAdapter() {
@@ -203,109 +202,6 @@ public class InteractiveGo extends Frame {
 		});
 		// thread.start();
 	}
-
-	// public boolean mouseDown(Event e, int x, int y) { // 接受鼠标输入
-	// if (manTurn == false) {
-	// return true;
-	// }
-	// if (log.isDebugEnabled()) {
-	// log.debug("chuan bo dao rong qi - forward one step.");
-	// }
-	// x -= 30;
-	// y -= 30;
-	// int a = (x - 4) / 28 + 1;
-	// int b = (y - 4) / 28 + 1;
-	//
-	// // coordinate difference between matrix and plane..
-	// int row = b;
-	// int column = a;
-	// if (Point.isValid(go.boardSize, row, column) == false) {
-	// return true;
-	// }
-	//
-	// // record symmetry before forwarding
-	// SymmetryResult symmetryResult = go.getSymmetryResult();
-	// Point point = Point.getPoint(go.boardSize, row, column);
-	// boolean valid = go.oneStepForward(point);
-	// if (valid == false) {
-	// System.out.print("Invalid step:" + point);
-	// if (point.equals(go.getLastPoint())) {
-	// go.oneStepBackward();
-	// System.out.print("step back at " + point);
-	// }
-	// return true;
-	// }
-	//
-	// // valid move, response mode.
-	// this.setManTurn(false);
-	// go.initUIPoint(points);
-	// repaint();
-	// embedCanvas.repaint();
-	//
-	// // copy since we will convert by symmetry.
-	// Step childMove = go.getLastStep().getStep().getCopy();
-	// if (manual.getCurrent().containsChildMove(childMove)) {
-	// manual.navigateToChild(childMove);
-	// log.warn("Manual contains move" + childMove);
-	// } else {
-	// if (symmetryResult.getNumberOfSymmetry() > 0) {
-	// childMove.normalize(symmetryResult);
-	// if (manual.getCurrent().containsChildMove(childMove)) {
-	// manual.navigateToChild(childMove);
-	// normalizeOperation = GoBoardSymmetry.getNormalizeOperation(
-	// point, symmetryResult);
-	// log.warn("Move at " + point
-	// + " is equivalent to " + childMove);
-	// } else {
-	// log.warn("Manual does not contain move "
-	// + childMove);
-	// }
-	// } else {
-	// log.warn("Need to calculate response of :"
-	// + childMove + " on the fly.");
-	// // TODO:
-	// }
-	// }
-	// synchronized (immutable) {
-	// immutable.notify();
-	// }
-	// return true;
-	// // TODO: dynamic code here.
-	//
-	// }
-	//
-	// Thread thread = new Thread() {
-	// public void run() {
-	// while (true) {
-	// try {
-	// synchronized (immutable) {
-	// immutable.wait();
-	// }
-	// // computer responds one move in a 2 seconds.
-	// Thread.sleep(2000);
-	// } catch (InterruptedException e1) {
-	// e1.printStackTrace();
-	// }
-	// SearchNode child = manual.getCurrent().getChild();
-	// if (child == null) {
-	// System.out.print("Computer has no choice; pass");
-	// return;
-	// }
-	// Step response = child.getStep();
-	// manual.navigateToChild(response);
-	// log.warn("response at " + response);
-	// if (normalizeOperation != null) {
-	// response.convert(normalizeOperation);
-	// System.out.print("is converted to " + response);
-	// }
-	// go.oneStepForward(response);
-	// go.initUIPoint(points);
-	// repaint();
-	// embedCanvas.repaint();
-	// setManTurn(true);
-	// }
-	// }
-	// };
 
 	/**
 	 * it seems not easy to get multiple thread right, even just to wait 2
@@ -355,7 +251,7 @@ public class InteractiveGo extends Frame {
 			}
 		}
 
-		log.warn("Man Play at " + point);
+		log.warn("Man Play " + oldState.getWhoseTurnString() + " at " + point);
 		// valid move, response mode.
 		this.setManTurn(false);
 
@@ -408,39 +304,25 @@ public class InteractiveGo extends Frame {
 						return true;
 					}
 				}
-				// normalizeOperation = null; // start all over again.
-				// manual.navigateToChild(childMove);
-				// log.warn("Manual contains move " + childMove);
 			}
 		}
-
-		// if (normalizeOperation != null
-		// && symmetryResult.getNumberOfSymmetry() > 0) {
-		// normalizeOperation.and(symmetryResult);
-		// childMove.convert(normalizeOperation);
-		// log.warn("Move at " + point + " is equivalent to "
-		// + childMove.getPoint());
-		// }
 
 		if (manual.getCurrent().containsChildMove(childMove)) {
 			// short cut path
 			manual.navigateToChild(childMove);
 			log.warn("Manual contains move " + childMove.toNonSGFString());
 		} else {
+			log.warn("Manual doesn't contains move "
+					+ childMove.toNonSGFString());
+			log.warn("Manual contains move "
+					+ manual.getCurrent().getChild().getStep().toNonSGFString());
 			if (symmetryResult.getNumberOfSymmetry() > 0) {
-				manual.getCurrent().mirrorSubTree(symmetryResult);
-				// childMove.normalize(symmetryResult);
-				if (manual.getCurrent().containsChildMove(childMove)) {
+
+				if (manual.getCurrent().containsChildMove_mirrorSubTree(
+						symmetryResult, childMove.getPoint())) {
+					log.warn("After mirroring, Manual contains move "
+							+ childMove.toNonSGFString());
 					manual.navigateToChild(childMove);
-					// if (normalizeOperation == null) {
-					// normalizeOperation = GoBoardSymmetry
-					// .getNormalizeOperation(point, symmetryResult);
-					// } else {
-					// normalizeOperation.and(GoBoardSymmetry
-					// .getNormalizeOperation(point, symmetryResult));
-					// }
-					// log.warn("Move at " + point + " is equivalent to "
-					// + childMove);
 				} else {
 					log.warn("Manual does not contain move " + childMove
 							+ " Strange!");
@@ -452,18 +334,14 @@ public class InteractiveGo extends Frame {
 
 		SearchNode child = manual.getCurrent().getChild();
 		if (child == null) {
-			log.warn("Computer has no choice; pass");
-			return true;
+			log.error("Computer has no choice; Strange! pass");
+			go.giveUp(manual.getCurrent().getStep().getEnemyColor());
+		} else {
+			Step response = child.getStep();
+			manual.navigateToChild(response);
+			log.warn("response at " + response.toNonSGFString());
+			go.oneStepForward(response);
 		}
-		Step response = child.getStep();
-		manual.navigateToChild(response);
-		log.warn("response at " + response.toNonSGFString());
-		if (normalizeOperation != null) {
-			response.convert(normalizeOperation);
-			log.warn("is converted to " + response);
-		}
-		go.oneStepForward(response);
-
 		go.initUIPoint(points);
 		repaint();
 		embedCanvas.repaint();
@@ -520,7 +398,7 @@ public class InteractiveGo extends Frame {
 			if (log.isEnabledFor(Level.WARN)) {
 				log.info("载入局面");
 				log.warn(go.getBoardColorState().getStateString());
-				log.warn(manual.getSGFBodyString());
+				log.warn(manual.getSGFBodyString(false));
 			}
 			blackPlayerV.setText(manual.getBlackName());
 			whitePlayerV.setText(manual.getWhiteName());
@@ -539,11 +417,11 @@ public class InteractiveGo extends Frame {
 				manual.navigateToChild(firstStep);
 				if (log.isEnabledFor(Level.WARN))
 					log.warn("computer played the first step " + firstStep);
+				log.warn("");
 				manTurn = true;
 			}
 
 			repaint_complete();
-			normalizeOperation = null;
 
 		}
 	}

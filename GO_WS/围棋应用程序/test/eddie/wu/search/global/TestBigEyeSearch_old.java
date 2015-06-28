@@ -21,7 +21,7 @@ import eddie.wu.manual.StateLoader;
 import eddie.wu.manual.TreeGoManual;
 import eddie.wu.search.eye.BigEyeSearch;
 import eddie.wu.search.small.ThreeThreeBoardSearch;
-import eddie.wu.search.smallboard.TestAllState3;
+import eddie.wu.search.three.TestAllState3;
 
 public class TestBigEyeSearch_old extends TestCase {
 	private static Logger log = Logger.getLogger(TestBigEyeSearch_old.class);

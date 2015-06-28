@@ -1,4 +1,4 @@
-package eddie.wu.search.candidate;
+package eddie.wu.search.three;
 
 import java.util.List;
 

@@ -38,11 +38,9 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		initKnownState();
 	}
 
-	public ThreeThreeBoardSearch(BoardColorState state, int highestScore,
-			int lowestScore) {
-		super(state.getMatrixState(), state.getWhoseTurn(), highestScore,
-				lowestScore);
-		initKnownState();
+	public ThreeThreeBoardSearch(BoardColorState state, int expScore) {
+		super(state,expScore);
+		//initKnownState();
 	}
 
 	/**
@@ -62,6 +60,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		text[1] = new String("[_, B, _]");
 		text[2] = new String("[_, _, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
+		
 		results.put(BoardColorState.getInstance(state, Constant.BLACK)
 				.normalize(), 9);
 		results.put(BoardColorState.getInstance(state, Constant.WHITE)
@@ -237,115 +236,29 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 				expectedScore = 0 - boardSize * boardSize;
 			}
 		}
-		// not necessary
-		// if(this.boardSize>=4){
-		// return goBoard.getCandidate(color, true, expectedScore);
-		// }
+		
+		return goBoard.getCandidate(color, true, expectedScore);
 
-		if (goBoard.getInitSymmetryResult().getNumberOfSymmetry() == 0) {
-			return goBoard.getCandidate(color, false, expectedScore);
-		} else if (goBoard.getStepHistory().getAllSteps().isEmpty()) {
-			// first move
-			return goBoard.getCandidate(color, true, expectedScore);
-		} else if (goBoard.getStepHistory().noRealStep()) {
-			// first real move
-			return goBoard.getCandidate(color, true, expectedScore);
-		} else {
-			SymmetryResult symmetry = goBoard.getLastStep().getSymmetry();
-			//will let symmetry = null for 3*3 board.
-			if (symmetry != null && symmetry.getNumberOfSymmetry() != 0) {
-				return goBoard.getCandidate(color, true, expectedScore);
-			} else {
-				return goBoard.getCandidate(color, false, expectedScore);
-			}
-		}
-		// if (goBoard.getStepHistory().getAllSteps().isEmpty()) {
-		// return goBoard.getCandidate(color, true);
-		// } else if (goBoard.getStepHistory().noRealStep()) {
-		// return goBoard.getCandidate(color, true);
-		// } else {
-		// return goBoard.getCandidate(color, false);
-		// }
+//		if (goBoard.getInitSymmetryResult().getNumberOfSymmetry() == 0) {
+//			return goBoard.getCandidate(color, false, expectedScore);
+//		} else if (goBoard.getStepHistory().getAllSteps().isEmpty()) {
+//			// first move
+//			return goBoard.getCandidate(color, true, expectedScore);
+//		} else if (goBoard.getStepHistory().noRealStep()) {
+//			// first real move
+//			return goBoard.getCandidate(color, true, expectedScore);
+//		} else {
+//			SymmetryResult symmetry = goBoard.getLastStep().getSymmetry();
+//			//will let symmetry = null for 3*3 board.
+//			if (symmetry != null && symmetry.getNumberOfSymmetry() != 0) {
+//				return goBoard.getCandidate(color, true, expectedScore);
+//			} else {
+//				return goBoard.getCandidate(color, false, expectedScore);
+//			}
+//		}
 	}
 
-	public static int getAccurateScore_blackTurn(BoardColorState state) {
-		int high = 1;
-		int low = 0;
-		int score = 0;
-		int dir = 0;// direction to check further
-		do {
-			GoBoardSearch goS = new ThreeThreeBoardSearch(
-					state.getMatrixState(), state.getWhoseTurn(), high, low);
-			score = goS.globalSearch();
-			state.setVariant(goS.getSearchProcess().size());
-			if (score >= 4) {
-				return score;
-			}
-			if (score > high) {
-				high = score + 1;
-				high = score;
-				if (dir == 0)
-					dir = 1;
-				else if (dir == -1)
-					return score;
-			} else if (score == high) {
-				high++;
-				low++;
-				if (dir == 0)
-					dir = 1;
-				else if (dir == -1)
-					return score;
-				// else break;
-			} else {
-				high--;
-				low--;
-				if (dir == 0)
-					dir = -1;
-				else if (dir == 1)
-					return score;
-			}
-		} while (high <= 4 && high > -4);
-		return score;
-	}
-
-	public static int getAccurateScore_whiteTurn(BoardColorState state) {
-		int high = 0;
-		int low = -1;
-		int score = 0;
-		int dir = 0;
-		do {
-			GoBoardSearch goS = new ThreeThreeBoardSearch(
-					state.getMatrixState(), state.getWhoseTurn(), high, low);
-			score = goS.globalSearch();
-			state.setVariant(goS.getSearchProcess().size());
-			if (score <= -4) {
-				return score;
-			}
-			if (score < low) {
-				low = score - 1;
-				high = score;
-				if (dir == 0)
-					dir = -1;
-				else if (dir == 1)
-					return score;
-			} else if (score == low) {
-				high--;
-				low--;
-				if (dir == 0)
-					dir = -1;
-				else if (dir == 1)
-					return score;
-			} else {
-				high++;
-				low++;
-				if (dir == 0)
-					dir = 1;
-				else if (dir == -1)
-					return score;
-			}
-		} while (high <= 4 && high > -4);
-		return score;
-	}
+	
 
 	/**
 	 * 1. ensure the state is not history dependent; if it has ever been reached

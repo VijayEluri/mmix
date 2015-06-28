@@ -32,9 +32,13 @@ public class TestBigEyeLiveBreath extends TestCase {
 		boolean dead = ta.isAlreadyDead_dynamic(point);
 		assertTrue(dead);
 
-		//we use static judgment in method _deadExist 
+		// we use static judgment in method _deadExist
 		boolean finalState_deadExist = ta.isFinalState_deadExist();
 		assertFalse(finalState_deadExist);
+
+		point = Point.getPoint(4, 2, 4);
+		live = ta.isAlreadyLive_dynamic(point);
+		assertTrue(live);
 
 	}
 

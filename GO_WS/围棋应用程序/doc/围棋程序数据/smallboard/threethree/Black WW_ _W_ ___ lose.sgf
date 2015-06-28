@@ -48,7 +48,7 @@
 		(;W[];B[])))
 (;W[ac];B[cb]
 	(;W[bc])
-	(;W[cc];B[ab];W[];B[bc])
+	(;W[cc];B[bc];W[];B[ab])
 	(;W[];B[bc];W[];B[ab])
 	(;W[ab];B[bc]
 		(;W[ab];B[ac])

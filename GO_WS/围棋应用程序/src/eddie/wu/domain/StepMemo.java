@@ -96,7 +96,7 @@ public class StepMemo implements Serializable {
 	/**
 	 * @return Returns the color.
 	 */
-	public byte getColor() {
+	public int getColor() {
 		return step.getColor();
 	}
 

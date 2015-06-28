@@ -2,6 +2,8 @@ package eddie.wu.search.small;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.analy.TerritoryAnalysis;
@@ -23,15 +25,10 @@ import eddie.wu.search.global.GoBoardSearch;
  * 
  */
 public class TwoTwoBoardSearch extends SmallBoardGlobalSearch {
+	private static final Logger log = Logger.getLogger(TwoTwoBoardSearch.class);
 
-	// public TwoTwoBoardSearch(byte[][] boards, int whoseTurn) {
-	// super(boards, whoseTurn);
-	// initKnownState();
-	// }
-
-	public TwoTwoBoardSearch(byte[][] boards, int whoseTurn, int highestScore,
-			int lowestScore) {
-		super(boards, whoseTurn, highestScore, lowestScore);
+	public TwoTwoBoardSearch(BoardColorState state, int expScore) {
+		super(state, expScore);
 		initKnownState();
 	}
 
@@ -83,99 +80,6 @@ public class TwoTwoBoardSearch extends SmallBoardGlobalSearch {
 		} else {
 			return goBoard.getCandidate(color, false, expectedScore);
 		}
-	}
-
-	/**
-	 * utility method for better external use.
-	 * 
-	 * @param state
-	 * @return
-	 */
-	public static int getAccurateScore(BoardColorState state) {
-		if (state.isBlackTurn()) {
-			return TwoTwoBoardSearch.getAccurateScore_blackTurn(state);
-		} else {
-			return TwoTwoBoardSearch.getAccurateScore_whiteTurn(state);
-		}
-	}
-
-	private static int getAccurateScore_blackTurn(BoardColorState state) {
-		int high = 1;
-		int low = 0;
-		int score = 0;
-		int dir = 0;// direction to check further
-		do {
-			GoBoardSearch goS = new TwoTwoBoardSearch(state.getMatrixState(),
-					state.getWhoseTurn(), high, low);
-			score = goS.globalSearch();
-			state.setVariant(goS.getSearchProcess().size());
-			if (score >= 4) {
-				return score;
-			}
-			if (score > high) {
-				high = score + 1;
-				high = score;
-				if (dir == 0)
-					dir = 1;
-				else if (dir == -1)
-					return score;
-			} else if (score == high) {
-				high++;
-				low++;
-				if (dir == 0)
-					dir = 1;
-				else if (dir == -1)
-					return score;
-				// else break;
-			} else {
-				high--;
-				low--;
-				if (dir == 0)
-					dir = -1;
-				else if (dir == 1)
-					return score;
-			}
-		} while (high <= 4 && high > -4);
-		return score;
-	}
-
-	private static int getAccurateScore_whiteTurn(BoardColorState state) {
-		int high = 0;
-		int low = -1;
-		int score = 0;
-		int dir = 0;
-		do {
-			GoBoardSearch goS = new TwoTwoBoardSearch(state.getMatrixState(),
-					state.getWhoseTurn(), high, low);
-			score = goS.globalSearch();
-			state.setVariant(goS.getSearchProcess().size());
-			if (score <= -4) {
-				return score;
-			}
-			if (score < low) {
-				low = score - 1;
-				high = score;
-				if (dir == 0)
-					dir = -1;
-				else if (dir == 1)
-					return score;
-			} else if (score == low) {
-				high--;
-				low--;
-				if (dir == 0)
-					dir = -1;
-				else if (dir == 1)
-					return score;
-			} else {
-				high++;
-				low++;
-				if (dir == 0)
-					dir = 1;
-				else if (dir == -1)
-					return score;
-			}
-		} while (high <= 4 && high > -4);
-		return score;
 	}
 
 }

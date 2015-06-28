@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eddie.wu.domain.Constant;
+import eddie.wu.domain.GoBoardSymmetry;
+import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
 import eddie.wu.domain.SymmetryResult;
 
 /**
  * result of search tree; left is child, right is brother.<br/>
- * Design Change, there is an dummy root node (without step) 
+ * Design Change, there is an dummy root node (without step)
  * 
  * @author Eddie Wu
  * 
@@ -50,7 +52,8 @@ public class SearchNode {
 		}
 		copy.score = this.score;
 		copy.max = this.max;
-		// System.out.println("Copy " + step2.toNonSGFString());
+//		System.out.println("before Copy " + step.toNonSGFString());
+//		System.out.println("after Copy " + step2.toNonSGFString());
 		return copy;
 	}
 
@@ -516,10 +519,56 @@ public class SearchNode {
 	}
 
 	/**
+	 * mirror subtree on the fly when checking whether man's move is covered by
+	 * manual
+	 * 
+	 * @param sym
+	 *            before the move is taken!
+	 * @param move
+	 */
+	public boolean containsChildMove_mirrorSubTree(SymmetryResult sym,
+			Point move) {
+		SymmetryResult normalizeOperation = GoBoardSymmetry
+				.getNormalizeOperation(move, sym);
+		Point moveNorm = move.normalize();
+		SymmetryResult normalizeManual = null;
+
+		boolean found = false;
+		SearchNode temp = child;
+		while (temp != null) {
+			if(temp.getStep().isGiveUp()) continue;
+			if (temp.getStep().getPoint().normalize().equals(moveNorm)) {
+				System.out.println(temp.getStep().getPoint());
+				normalizeManual = GoBoardSymmetry.getNormalizeOperation(temp
+						.getStep().getPoint(), sym);
+				System.out.println(normalizeManual);
+				found = true;
+				break;
+			}
+			temp = temp.brother;
+		}
+		if (found == false)
+			return false;
+
+		// mirror the child inclusive.
+		System.out.println(normalizeOperation);
+		
+		normalizeOperation.cascaseOperation(normalizeManual);
+		
+		System.out.println(normalizeOperation);
+		SearchNode copy = temp.mirrorSubTree_internal(normalizeOperation);
+		this.addChild(copy);
+		return true;
+		// log.warn(normalizeOperation);
+		// manual.getCurrent().
+	}
+
+	/**
 	 * in case of symmetric state, original manual only store one sub-tree, in
 	 * UI we'd better to have its mirror at hand. <br/>
 	 * current node is not mirrored.<br/>
-	 * actually we mirror child!
+	 * actually we mirror only current node's children!
+	 * @deprecated may copy wrong child. only one is matched.
 	 */
 	public void mirrorSubTree(SymmetryResult sym) {
 		if (child == null) {
@@ -553,33 +602,32 @@ public class SearchNode {
 	}
 
 	/**
-	 * this node is copied and form sub tree.
+	 * this node itself is copied and form sub tree.
 	 * 
 	 * @param sym
 	 * @return
 	 */
 	private SearchNode mirrorSubTree_internal(SymmetryResult sym) {
-		SearchNode farther = this.getCopy(sym);
-		List<SearchNode> mirrors = new ArrayList<SearchNode>();
-		if (child != null) {
-			SearchNode temp2 = child.mirrorSubTree_internal(sym);
-			mirrors.add(temp2);
-			// farther.addChild(temp2);
-		} else {
-			return farther;
+		SearchNode copy = this.getCopy(sym);
+		if (child == null) {
+			return copy;
 		}
-		SearchNode temp = child.brother;
-		while (temp != null) {
-			SearchNode temp2 = temp.mirrorSubTree_internal(sym);
+
+		List<SearchNode> mirrors = new ArrayList<SearchNode>();
+		SearchNode temp2 = child.mirrorSubTree_internal(sym);
+		mirrors.add(temp2);
+
+		SearchNode brother = child.brother;
+		while (brother != null) {
+			temp2 = brother.mirrorSubTree_internal(sym);
 			mirrors.add(temp2);
-			temp = temp.brother;
-			// farther.addChild(temp2);
+			brother = brother.brother;
 		}
 		// add child later to avoid conflict.
 		for (SearchNode tempChild : mirrors) {
-			farther.addChild(tempChild);
+			copy.addChild(tempChild);
 		}
-		return farther;
+		return copy;
 	}
 
 }
