@@ -186,7 +186,7 @@ public class Step {// implements Step{
 		return color == Constant.BLACK;
 	}
 
-	public boolean isGiveUp() {
+	public boolean isPass() {
 		return point == null;
 	}
 
@@ -339,7 +339,7 @@ public class Step {// implements Step{
 	public static int getPasses(List<Step> list) {
 		int count = 0;
 		for (Step step : list) {
-			if (step.isGiveUp()) {
+			if (step.isPass()) {
 				count++;
 			}
 		}

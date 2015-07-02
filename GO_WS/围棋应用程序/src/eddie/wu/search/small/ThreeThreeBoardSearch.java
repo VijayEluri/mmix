@@ -35,7 +35,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 	public ThreeThreeBoardSearch(byte[][] boards, int whoseTurn,
 			int highestScore, int lowestScore) {
 		super(boards, whoseTurn, highestScore, lowestScore);
-		initKnownState();
+		//initKnownState();
 	}
 
 	public ThreeThreeBoardSearch(BoardColorState state, int expScore) {
@@ -169,7 +169,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 
 	public void shownInitKnownState() {
 		for (Entry<BoardColorState, Integer> result : results.entrySet()) {
-			System.out.print(result);
+			System.out.print(result.getKey().getStateAsOneLineString());			
 			System.out.println("Score = " + result.getValue());
 		}
 	}

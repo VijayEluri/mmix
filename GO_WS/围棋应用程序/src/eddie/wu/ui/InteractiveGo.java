@@ -27,6 +27,7 @@ import eddie.wu.domain.SymmetryResult;
 import eddie.wu.manual.SGFGoManual;
 import eddie.wu.manual.SearchNode;
 import eddie.wu.manual.TreeGoManual;
+import eddie.wu.search.small.ThreeThreeBoardSearch;
 import eddie.wu.ui.canvas.ReviewManualCanvas;
 
 /**
@@ -77,7 +78,7 @@ public class InteractiveGo extends Frame {
 	private ReviewManualCanvas embedCanvas = new ReviewManualCanvas(
 			Constant.BOARD_SIZE);
 	private Button load = new Button("载入棋谱");
-	private Button forward = new Button("下一步");
+	private Button forward = new Button("弃权");
 	private Button backward = new Button("后退");
 	/**
 	 * 更加人性化的显示方式，自动以提子为分割，一次显示若干手数。<br/>
@@ -148,6 +149,7 @@ public class InteractiveGo extends Frame {
 		add(resultV);
 		add(shoushuV);
 		load.addActionListener(new LoadActionListener());
+		forward.addActionListener(new PassActionListener());
 		backward.addActionListener(new BackwardActionListener());
 		load.setVisible(true);
 		forward.setVisible(true);
@@ -214,20 +216,26 @@ public class InteractiveGo extends Frame {
 		if (manTurn == false) {
 			return true;
 		}
-		x -= 30;
-		y -= 30;
-		int a = (x - 4) / 28 + 1;
-		int b = (y - 4) / 28 + 1;
+		Point point = null;
+		if (x == -1 && y == -1) {
+			// OK. pass.
+		} else {
+			x -= 30;
+			y -= 30;
+			int a = (x - 4) / 28 + 1;
+			int b = (y - 4) / 28 + 1;
 
-		// coordinate difference between matrix and plane..
-		int row = b;
-		int column = a;
-		if (Point.isValid(go.boardSize, row, column) == false) {
-			return true;
+			// coordinate difference between matrix and plane..
+			int row = b;
+			int column = a;
+			if (Point.isValid(go.boardSize, row, column) == false) {
+				return true;
+			}
+
+			point = Point.getPoint(go.boardSize, row, column);
+
 		}
-
-		Point point = Point.getPoint(go.boardSize, row, column);
-		boolean validate = go.validate(row, column);
+		boolean validate = go.validate(point);
 		if (validate == false) {
 			log.warn("Invalid step:" + point);
 			return true;
@@ -235,20 +243,24 @@ public class InteractiveGo extends Frame {
 
 		// record symmetry before forwarding
 		SymmetryResult symmetryResult = go.getSymmetryResult();
+		log.warn(symmetryResult);
 
 		// for further calculation on the fly.
 		BoardColorState oldState = go.getBoardColorState();
 
 		validate = go.oneStepForward(point);
 		if (validate == false) {
-			log.warn("Invalid step:" + point);
-			// should step back internally! we did not do that because we do not
-			// want forward class to depend on backward class!
-			if (point.equals(go.getLastPoint())) {
-				go.oneStepBackward();
-				log.warn("One step back at " + point);
-				return true;
-			}
+			throw new RuntimeException(
+					"impossible - we already check the state loop");
+			// log.warn("Invalid step:" + point);
+			// // should step back internally! we did not do that because we do
+			// not
+			// // want forward class to depend on backward class!
+			// if (point.equals(go.getLastPoint())) {
+			// go.oneStepBackward();
+			// log.warn("One step back at " + point);
+			// return true;
+			// }
 		}
 
 		log.warn("Man Play " + oldState.getWhoseTurnString() + " at " + point);
@@ -265,6 +277,7 @@ public class InteractiveGo extends Frame {
 
 			// try another solution: load another file
 			if (go.boardSize != 3) {
+				go.oneStepBackward();
 				return true;// no way to response.
 			} else {
 
@@ -284,6 +297,12 @@ public class InteractiveGo extends Frame {
 						log.warn("Loading known WIN result: " + fileName1);
 					} else {
 						System.err.println("File not exist " + fileName1);
+
+						int lScore = ThreeThreeBoardSearch.getAccurateScore(
+								go.getBoardColorState(),
+								manual.getResultAsScore());
+
+						go.oneStepBackward();
 						return true;
 					}
 				} else {
@@ -315,11 +334,11 @@ public class InteractiveGo extends Frame {
 			log.warn("Manual doesn't contains move "
 					+ childMove.toNonSGFString());
 			log.warn("Manual contains move "
-					+ manual.getCurrent().getChild().getStep().toNonSGFString());
+					+ manual.getCurrent().getChildren());
 			if (symmetryResult.getNumberOfSymmetry() > 0) {
 
 				if (manual.getCurrent().containsChildMove_mirrorSubTree(
-						symmetryResult, childMove.getPoint())) {
+						symmetryResult, childMove)) {
 					log.warn("After mirroring, Manual contains move "
 							+ childMove.toNonSGFString());
 					manual.navigateToChild(childMove);
@@ -335,7 +354,13 @@ public class InteractiveGo extends Frame {
 		SearchNode child = manual.getCurrent().getChild();
 		if (child == null) {
 			log.error("Computer has no choice; Strange! pass");
-			go.giveUp(manual.getCurrent().getStep().getEnemyColor());
+			// go.giveUp(manual.getCurrent().getStep().getEnemyColor());
+
+			// possible due to that the previous state is an KNOWN state,
+			// we need to load its SGF on calculate on the fly.
+			int rScore = ThreeThreeBoardSearch.getAccurateScore(
+					go.getBoardColorState(), manual.getResultAsScore());
+
 		} else {
 			Step response = child.getStep();
 			manual.navigateToChild(response);
@@ -362,6 +387,13 @@ public class InteractiveGo extends Frame {
 			}
 			repaint_complete();
 			// embedCanvas.repaint();
+
+		}
+	}
+
+	class PassActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			mouseDown(null, -1, -1);
 
 		}
 	}

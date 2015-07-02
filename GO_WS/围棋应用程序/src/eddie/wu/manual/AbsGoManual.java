@@ -101,6 +101,9 @@ public abstract class AbsGoManual {
 	public String getResult() {
 		return result;
 	}
+	public int getResultAsScore() {
+		return Integer.valueOf(result).intValue();
+	}
 
 	public void setResult(String reulst) {
 		this.result = reulst;

@@ -153,6 +153,15 @@ public class StepHistory implements java.io.Serializable {
 		return reachedDupStates.contains(colorState);
 	}
 
+	public boolean containState(BoardColorState colorState) {
+		if (colorStates.contains(colorState)) {
+			reachedDupStates.add(colorState);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	/**
 	 * 为了适应打劫的计算?????????<br/>
 	 * 有让弃权一方有同型再现的权利<br/>
@@ -222,11 +231,11 @@ public class StepHistory implements java.io.Serializable {
 	}
 
 	public void printDupState() {
-		//System.out.println("reached duplicate states:"+reachedDupStates.size());
-//		for (BoardColorState state : this.reachedDupStates) {
-//			System.out.println("duplicate states:");
-//			System.out.println(state.getStateString());
-//		}
+		// System.out.println("reached duplicate states:"+reachedDupStates.size());
+		// for (BoardColorState state : this.reachedDupStates) {
+		// System.out.println("duplicate states:");
+		// System.out.println(state.getStateString());
+		// }
 
 	}
 }

@@ -451,7 +451,7 @@ public abstract class GoBoardSearch {
 				}
 			}
 
-			if (step.isGiveUp() == false
+			if (step.isPass() == false
 					&& goBoard.getColor(step.getPoint()) != step.getColor()) {
 				String message = "step " + step + " does not take effect";
 				log.error(message);

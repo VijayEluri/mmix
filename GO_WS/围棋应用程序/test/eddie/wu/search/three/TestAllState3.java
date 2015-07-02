@@ -672,6 +672,7 @@ public class TestAllState3 extends TestCase {
 
 			}
 		}
+		goS.shownInitKnownState();
 		return score;
 
 	}

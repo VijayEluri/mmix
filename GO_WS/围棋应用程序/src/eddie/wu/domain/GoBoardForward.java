@@ -161,8 +161,8 @@ public class GoBoardForward extends GoBoardSymmetry {
 			current = child;
 		}
 
-		if (step.isGiveUp()) {
-			this.giveUp(step.getColor());
+		if (step.isPass()) {
+			this.pass(step.getColor());
 			return true;
 		}
 		// record oldState for duplicates
@@ -919,12 +919,12 @@ public class GoBoardForward extends GoBoardSymmetry {
 	public void giveUp() {
 		if (this.noStep()) {
 			if (this.getInitColorState().getWhoseTurn() == Constant.BLACK)
-				giveUp(Constant.BLACK);
+				pass(Constant.BLACK);
 			else {
-				giveUp(Constant.WHITE);
+				pass(Constant.WHITE);
 			}
 		} else {
-			giveUp(ColorUtil.enemyColor(this.getLastStep().getColor()));
+			pass(ColorUtil.enemyColor(this.getLastStep().getColor()));
 		}
 	}
 
@@ -934,8 +934,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 	 * 
 	 * @param color
 	 */
-	public void giveUp(int color) {
-		// color=ColorUtil.getCurrentStepColor(shoushu)
+	public void pass(int color) {
 		shoushu++;
 		statistic.increaseGiveUpSteps();
 		StepMemo step = new StepMemo(null, color, shoushu);
@@ -1847,14 +1846,19 @@ public class GoBoardForward extends GoBoardSymmetry {
 	}
 
 	public boolean validate(Step step) {
-		if (step.isGiveUp())
+		if (step.isPass())
 			return true;
 
 		Point original = step.getPoint();
 		int color = step.getColor();
 
 		// 下标合法,该点空白
-		if (this.getColor(original) == ColorUtil.BLANK) {
+		if (this.getColor(original) != ColorUtil.BLANK) { // 第一类不合法点.
+			if (log.isDebugEnabled()) {
+				log.debug("该点不合法,在棋盘之外或者该点已经有子：");
+			}
+			return false;
+		} else {
 			if (this.noStep() != true
 					&& this.getLastStep().getProhibittedPoint() == step
 							.getPoint()
@@ -1895,22 +1899,54 @@ public class GoBoardForward extends GoBoardSymmetry {
 					selfColor = (byte) color;
 				}
 
-				return this.getNeighborState(original, selfColor).isValid();
-
+				if (this.getNeighborState(original, selfColor).isValid() == false)
+					return false;
+				if (globalDuplicate(step) == true)
+					return false;
+				return true;
 			}
-		} else { // 第一类不合法点.
-			if (log.isDebugEnabled()) {
-				log.debug("该点不合法,在棋盘之外或者该点已经有子：");
-			}
-			return false;
 		}
 
 	}
 
-	public boolean validate(final int row, final int column) {
-		return validate(Point.getPoint(boardSize, row, column),
-				this.decideColor());
+	public boolean globalDuplicate(Step step) {
+		SimpleNeighborState neighborState = getNeighborState(step);
+		// make safe copy!
+		byte[][] state = this.getColorArray();
+		int row, column;
+		// clear dead/eaten point
+		for (Block block : neighborState.getEatenBlocks()) {
+			for (Point point : block.getPoints()) {
+				row = point.getRow();
+				column = point.getColumn();
+				state[row][column] = 0;
+			}
+		}
+		// play the step in state copy.
+		row = step.getPoint().getRow();
+		column = step.getPoint().getColumn();
+		state[row][column] = (byte) step.getColor();
 
+		// step is not played yet.
+
+		int whoseTurn = ColorUtil.enemyColor(step.getColor());
+		BoardColorState boardState = BoardColorState.getInstance(state,
+				whoseTurn);
+		if (stepHistory.containState(boardState)) {
+			if (log.isEnabledFor(Level.WARN)) {
+				log.warn("落子点无效:全局同型再现!候选点排除。" + step);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public boolean validate(final int row, final int column) {
+		return validate(Point.getPoint(boardSize, row, column));
+	}
+
+	public boolean validate(Point point) {
+		return validate(point, this.decideColor());
 	}
 
 	/**

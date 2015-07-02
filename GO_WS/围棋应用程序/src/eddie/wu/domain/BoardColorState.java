@@ -426,7 +426,9 @@ public class BoardColorState {
 	}
 
 	/**
-	 * get a copy with reverse value of whoseturn <br/>
+	 * get a copy with reverse value of whoseturn, board color is NOT switched,
+	 * so that the score is same only if the state is finalized (not dependent
+	 * on whose Turn) <br/>
 	 * 改变轮走方。
 	 * 
 	 * @return
@@ -436,12 +438,12 @@ public class BoardColorState {
 				ColorUtil.enemyColor(this.whoseTurn));
 		state.black = (BitSet) this.black.clone();// ?
 		state.white = (BitSet) this.white.clone();
-		state.blackStones = this.whiteStones;
-		state.whiteStones = this.blackStones;
+		state.blackStones = this.blackStones;
+		state.whiteStones = this.whiteStones;
 		state.rowColumnSum = this.rowColumnSum;
 		state.rowSum = this.rowSum;
-		state.blackRowColumnSum = this.rowColumnSum - this.blackRowColumnSum;
-		state.blackRowSum = this.rowSum - this.blackRowSum;
+		state.blackRowColumnSum = this.blackRowColumnSum;
+		state.blackRowSum = this.blackRowSum;
 		return state;
 	}
 

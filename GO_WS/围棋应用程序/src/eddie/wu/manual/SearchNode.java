@@ -49,16 +49,29 @@ public class SearchNode {
 			step2 = step.getCopy();
 			step2.convert(sym);
 			copy = new SearchNode(step2);
+			System.out.println("before Copy " + step.toNonSGFString());
+			System.out.println("after Copy " + step2.toNonSGFString());
 		}
 		copy.score = this.score;
 		copy.max = this.max;
-//		System.out.println("before Copy " + step.toNonSGFString());
-//		System.out.println("after Copy " + step2.toNonSGFString());
+
 		return copy;
 	}
 
 	public SearchNode getChild() {
 		return child;
+	}
+
+	public List<Point> getChildren() {
+		if (child == null)
+			return null;
+		List<Point> list = new ArrayList<Point>();
+		SearchNode temp = child;
+		while (temp != null) {
+			list.add(temp.getStep().getPoint());
+			temp = temp.brother;
+		}
+		return list;
 	}
 
 	public void setChild(SearchNode child) {
@@ -347,27 +360,41 @@ public class SearchNode {
 	}
 
 	public SearchNode getChild(Step move) {
-		if (child == null)
-			return null;
-		if (child.getStep().getPoint() == null) {
-			if (move.getPoint() == null)
-				return child;
-		} else if (child.getStep().equals(move))
-			return child;
-		if (child.brother == null)
-			return null;
-		SearchNode temp = child.brother;
+		SearchNode temp = child;
 		while (temp != null) {
-			if (temp.getStep().getPoint() == null) {
-				if (move.getPoint() == null)
-					return child;
-			} else if (temp.getStep().equals(move)) {
+			if (temp.getStep().equals(move))
 				return temp;
-			}
 			temp = temp.brother;
 		}
 		return null;
 	}
+
+	// public SearchNode getChild(Step move) {
+	// // if (child == null)
+	// // return null;
+	// // if (child.getStep().equals(move))
+	// // return child;
+	// // if (child.getStep().getPoint() == null) {
+	// // if (move.getPoint() == null)
+	// // return child;
+	// // } else if (child.getStep().equals(move))
+	// // return child;
+	// // if (child.brother == null)
+	// // return null;
+	// SearchNode temp = child;//.brother;
+	// while (temp != null) {
+	// // if (temp.getStep().getPoint() == null) {
+	// // if (move.getPoint() == null)
+	// // return child;
+	// // } else if (temp.getStep().equals(move)) {
+	// // return temp;
+	// // }
+	// if (temp.getStep().equals(move))
+	// return temp;
+	// temp = temp.brother;
+	// }
+	// return null;
+	// }
 
 	/**
 	 * initialize the score assuming only terminator has score assigned.
@@ -526,41 +553,47 @@ public class SearchNode {
 	 *            before the move is taken!
 	 * @param move
 	 */
-	public boolean containsChildMove_mirrorSubTree(SymmetryResult sym,
-			Point move) {
+	public boolean containsChildMove_mirrorSubTree(SymmetryResult sym, Step step) {
+		Point move = step.getPoint();
 		SymmetryResult normalizeOperation = GoBoardSymmetry
 				.getNormalizeOperation(move, sym);
-		Point moveNorm = move.normalize();
+		Point moveNorm = move.normalize(sym);
 		SymmetryResult normalizeManual = null;
 
 		boolean found = false;
 		SearchNode temp = child;
 		while (temp != null) {
-			if(temp.getStep().isGiveUp()) continue;
-			if (temp.getStep().getPoint().normalize().equals(moveNorm)) {
+			if (temp.getStep().isPass()) {
+				temp = temp.brother;
+				continue;
+			}
+			if (temp.getStep().getPoint().normalize(sym).equals(moveNorm)) {
 				System.out.println(temp.getStep().getPoint());
 				normalizeManual = GoBoardSymmetry.getNormalizeOperation(temp
 						.getStep().getPoint(), sym);
 				System.out.println(normalizeManual);
 				found = true;
 				break;
+			} else {
+				temp = temp.brother;
 			}
-			temp = temp.brother;
+
 		}
 		if (found == false)
 			return false;
 
 		// mirror the child inclusive.
 		System.out.println(normalizeOperation);
-		
+
 		normalizeOperation.cascaseOperation(normalizeManual);
-		
+
 		System.out.println(normalizeOperation);
 		SearchNode copy = temp.mirrorSubTree_internal(normalizeOperation);
 		this.addChild(copy);
+		if (this.containsChildMove(step) == false) {
+			throw new RuntimeException("not contains child: " + move);
+		}
 		return true;
-		// log.warn(normalizeOperation);
-		// manual.getCurrent().
 	}
 
 	/**
@@ -568,6 +601,7 @@ public class SearchNode {
 	 * UI we'd better to have its mirror at hand. <br/>
 	 * current node is not mirrored.<br/>
 	 * actually we mirror only current node's children!
+	 * 
 	 * @deprecated may copy wrong child. only one is matched.
 	 */
 	public void mirrorSubTree(SymmetryResult sym) {

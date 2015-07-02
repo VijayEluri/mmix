@@ -368,6 +368,10 @@ public abstract class AbsGoBoard {
 		return a;
 	}
 
+	/**
+	 * make a safe copy
+	 * @return
+	 */
 	public byte[][] getColorArray() {
 		int matrixSize = this.boardSize + 2;
 		byte[][] a = new byte[matrixSize][matrixSize];
@@ -475,9 +479,13 @@ public abstract class AbsGoBoard {
 
 		return state;
 	}
+	
+	public SimpleNeighborState getNeighborState(Step step) {
+		return getNeighborState(step.getPoint(),step.getColor());
+	}
 
 	/**
-	 * 不仅计算落子点周围的空白点数.还计算气的增加情况. 可以提供Candidate需要的信息.
+	 * 不仅计算落子点周围的空白点数.还计算气的增加情况. 可以提供计算Candidate需要的信息.
 	 * 
 	 * @param original
 	 * @param color

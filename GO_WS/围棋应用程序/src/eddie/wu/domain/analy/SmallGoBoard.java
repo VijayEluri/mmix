@@ -21,8 +21,10 @@ import eddie.wu.domain.Step;
 import eddie.wu.domain.SymmetryResult;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.CandidateComparator;
+
 /**
  * 小棋盘 得到候选点
+ * 
  * @author think
  *
  */
@@ -41,10 +43,15 @@ public class SmallGoBoard extends TerritoryAnalysis {
 		super(BoardColorState.getInstance(state, whoseTurn));
 	}
 
-	// @Override
-	public List<Candidate> getCandidate(int color,
+	/**
+	 * 
+	 * @param whoseTurn
+	 * @param filterSymmetricEquivalent
+	 * @return
+	 */
+	public List<Candidate> getCandidate(int whoseTurn,
 			boolean filterSymmetricEquivalent) {
-		return getCandidate(color, filterSymmetricEquivalent, 0);
+		return getCandidate(whoseTurn, filterSymmetricEquivalent, 0);
 	}
 
 	/**
@@ -144,7 +151,18 @@ public class SmallGoBoard extends TerritoryAnalysis {
 		}
 
 		/**
-		 * 处理本质上等价的候选棋步.
+		 * 提前识别出可能导致全局再现的候选点。
+		 * 
+		 */
+		for (Iterator<Point> iter = points.iterator(); iter.hasNext();) {
+			boolean duplicate = this.globalDuplicate(new Step(iter.next(),
+					color));
+			if (duplicate)
+				iter.remove();
+		}
+
+		/**
+		 * 处理本质上等价的候选棋步.在棋盘上的子有对称性时减少候选点的个数。
 		 */
 		List<Point> can = new ArrayList<Point>();
 

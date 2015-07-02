@@ -182,7 +182,7 @@ public class StepMemo implements Serializable {
 	}
 
 	public boolean isGiveup() {
-		return step.isGiveUp();
+		return step.isPass();
 	}
 
 	public Step getStep() {
@@ -195,7 +195,7 @@ public class StepMemo implements Serializable {
 
 	@Override
 	public String toString() {
-		if (step.isGiveUp())
+		if (step.isPass())
 			return step.toString();
 		StringBuilder sb = new StringBuilder(step.toString());
 
