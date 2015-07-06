@@ -5,13 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import eddie.wu.domain.Block;
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
@@ -29,6 +25,7 @@ import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.GoBoardSearch;
 import eddie.wu.search.global.ListAllState;
 import eddie.wu.search.small.TwoTwoBoardSearch;
+import junit.framework.TestCase;
 
 /**
  * 1 second 5/4/2013<br/>
@@ -47,6 +44,7 @@ public class TestAllState2 extends TestCase {
 		// Logger.getLogger(GoBoardSearch.class).setLevel(Level.ERROR);
 		Logger.getLogger(GoBoardForward.class).setLevel(Level.ERROR);
 		Logger.getLogger(TestAllState2.class).setLevel(Level.WARN);
+		Logger.getLogger(SGFGoManual.class).setLevel(Level.INFO);;
 	}
 
 	/**

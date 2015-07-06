@@ -20,6 +20,7 @@ import eddie.wu.domain.Constant;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
 import eddie.wu.util.FileUtil;
+import eddie.wu.util.SystemUtil;
 
 /**
  * (;FF[4]GM[1]SZ[19]AP[SGFC:1.13b]
@@ -67,8 +68,7 @@ public class SGFGoManual {
 		byte[] manB = null;
 		try {
 			File file = new File(fileName);
-			out = new DataOutputStream(new BufferedOutputStream(
-					new FileOutputStream(file)));
+			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 			manB = new byte[(int) file.length()];
 
 			writeGoManual(out, manual);
@@ -94,16 +94,18 @@ public class SGFGoManual {
 		byte[] manB = null;
 		try {
 			File file = new File(fileName);
-			out = new DataOutputStream(new BufferedOutputStream(
-					new FileOutputStream(file)));
+			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 			manB = new byte[(int) file.length()];
 
 			writeGoManual(out, manual);
 		} catch (IOException ex) {
-			if (log.isEnabledFor(Level.WARN))
-				log.warn("file name=" + fileName);
-			log.debug("the input meet some trouble!");
-			log.debug("Exception" + ex.toString());
+			if (log.isEnabledFor(Level.WARN)) {
+				log.error("file name=" + fileName);
+				log.error("current working directory = " + SystemUtil.getCurrentWorkingDirectory());
+				log.debug("the input meet some trouble!");
+				log.debug("Exception" + ex.toString());
+			}
+
 			throw new RuntimeException(ex);
 		} finally {
 			try {
@@ -121,8 +123,7 @@ public class SGFGoManual {
 		byte[] manB = null;
 		try {
 			File file = new File(fileName);
-			out = new DataOutputStream(new BufferedOutputStream(
-					new FileOutputStream(file)));
+			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 			manB = new byte[(int) file.length()];
 
 			writeGoManual(out, manuals);
@@ -142,8 +143,7 @@ public class SGFGoManual {
 		}
 	}
 
-	public static void writeGoManualHeader(DataOutputStream out,
-			AbsGoManual manual) throws IOException {
+	public static void writeGoManualHeader(DataOutputStream out, AbsGoManual manual) throws IOException {
 		out.writeByte((byte) '(');
 		out.writeByte((byte) ';');
 		out.write("SZ".getBytes());
@@ -205,15 +205,13 @@ public class SGFGoManual {
 
 	}
 
-	public static void writeGoManual(DataOutputStream out,
-			List<TreeGoManual> manuals) throws IOException {
+	public static void writeGoManual(DataOutputStream out, List<TreeGoManual> manuals) throws IOException {
 		for (TreeGoManual manual : manuals) {
 			writeGoManual(out, manual);
 		}
 	}
 
-	public static void writeGoManual(DataOutputStream out, SimpleGoManual manual)
-			throws IOException {
+	public static void writeGoManual(DataOutputStream out, SimpleGoManual manual) throws IOException {
 		// byte[] temps = new byte[];
 
 		writeGoManualHeader(out, manual);
@@ -249,8 +247,7 @@ public class SGFGoManual {
 	 * @param point
 	 * @throws IOException
 	 */
-	private static void writePoint(DataOutputStream out, Point point)
-			throws IOException {
+	private static void writePoint(DataOutputStream out, Point point) throws IOException {
 		byte t;
 		t = (byte) ('a' + point.getColumn() - 1);
 		out.writeByte(t);
@@ -298,8 +295,8 @@ public class SGFGoManual {
 				propValueS = i + 1;
 			} else if (manual[i] == ']') {
 
-				iden = new String(Arrays.copyOfRange(manual, propIdenS,
-						propIdenE));// , Charset.forName("GBK")
+				iden = new String(Arrays.copyOfRange(manual, propIdenS, propIdenE));// ,
+																					// Charset.forName("GBK")
 				iden = iden.trim();
 
 				if (iden.equals(Black) || iden.equals(White)) {
@@ -347,8 +344,7 @@ public class SGFGoManual {
 					}
 
 				} else if (iden.equals("SZ")) {
-					value = new String(
-							Arrays.copyOfRange(manual, propValueS, i));
+					value = new String(Arrays.copyOfRange(manual, propValueS, i));
 					boardSize = Integer.valueOf(value).intValue();
 					if (boardSize <= 1) {
 						boardSize = Constant.BOARD_SIZE;
@@ -356,17 +352,14 @@ public class SGFGoManual {
 					man.setBoardSize(boardSize);
 
 				} else if (iden.equals("PL")) {
-					value = new String(
-							Arrays.copyOfRange(manual, propValueS, i));
+					value = new String(Arrays.copyOfRange(manual, propValueS, i));
 					if (value.equals("B"))
 						man.setInitTurn(Constant.BLACK);
 					else if (value.equals("W"))
 						man.setInitTurn(Constant.WHITE);
 
 				} else {
-					value = new String(
-							Arrays.copyOfRange(manual, propValueS, i),
-							Charset.forName("GBK"));
+					value = new String(Arrays.copyOfRange(manual, propValueS, i), Charset.forName("GBK"));
 					props.put(iden, value);
 					if (log.isDebugEnabled()) {
 						log.debug(value);
@@ -394,8 +387,7 @@ public class SGFGoManual {
 		return man;
 	}
 
-	public static void writeGoManual(DataOutputStream out, TreeGoManual manual)
-			throws IOException {
+	public static void writeGoManual(DataOutputStream out, TreeGoManual manual) throws IOException {
 		writeGoManualHeader(out, manual);
 		out.writeBytes(manual.getSGFBodyString());
 		out.writeByte((byte) ')');
@@ -457,8 +449,8 @@ public class SGFGoManual {
 				propValueS = i + 1;
 			} else if (manual[i] == ']') {
 
-				iden = new String(Arrays.copyOfRange(manual, propIdenS,
-						propIdenE));// , Charset.forName("GBK")
+				iden = new String(Arrays.copyOfRange(manual, propIdenS, propIdenE));// ,
+																					// Charset.forName("GBK")
 				iden = iden.trim();
 
 				if (iden.equals(Black) || iden.equals(White)) {
@@ -516,25 +508,21 @@ public class SGFGoManual {
 					}
 
 				} else if (iden.equals("SZ")) {
-					value = new String(
-							Arrays.copyOfRange(manual, propValueS, i));
+					value = new String(Arrays.copyOfRange(manual, propValueS, i));
 					boardSize = Integer.valueOf(value).intValue();
 					if (boardSize <= 1)
 						boardSize = Constant.BOARD_SIZE;
 					man.setBoardSize(boardSize);
 
 				} else if (iden.equals("PL")) {
-					value = new String(
-							Arrays.copyOfRange(manual, propValueS, i));
+					value = new String(Arrays.copyOfRange(manual, propValueS, i));
 					if (value.equals("B"))
 						man.setInitTurn(Constant.BLACK);
 					else if (value.equals("W"))
 						man.setInitTurn(Constant.WHITE);
 
 				} else {
-					value = new String(
-							Arrays.copyOfRange(manual, propValueS, i),
-							Charset.forName("GBK"));
+					value = new String(Arrays.copyOfRange(manual, propValueS, i), Charset.forName("GBK"));
 					props.put(iden, value);
 					if (log.isDebugEnabled()) {
 						log.debug(value);
