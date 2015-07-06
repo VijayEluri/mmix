@@ -325,8 +325,9 @@ public class TestBigEyeSearch_simple extends TestCase {
 			if (goS.isTargetFirst()) {
 				if (score == RelativeResult.ALREADY_LIVE) {// success
 					log.warn("after clean up fail node:");
-					manual.cleanupBadMove_firstWin(goS.getTargetColor(),
-							RelativeResult.ALREADY_LIVE);
+//					manual.cleanupBadMove_firstWin(goS.getTargetColor(),
+//							RelativeResult.ALREADY_LIVE);
+					manual.cleanupBadMoveForWinner(true);
 					log.debug(manual.getExpandedString(false));// init variant
 					log.warn(manual.getSGFBodyString(false));
 					// SGFGoManual.storeGoManual(fileName1, manual);
@@ -334,8 +335,10 @@ public class TestBigEyeSearch_simple extends TestCase {
 					// SGFGoManual.storeGoManual(fileName3, manual);
 				} else if (score < RelativeResult.ALREADY_LIVE) {// fail
 					log.warn("after clean up fail node:");
-					manual.cleanupBadMove_firstLose(goS.getTargetColor(),
-							RelativeResult.ALREADY_LIVE);
+//					manual.cleanupBadMove_firstLose(goS.getTargetColor(),
+//							RelativeResult.ALREADY_LIVE);
+					//TODO: check again! for colive
+					manual.cleanupBadMoveForWinner(false);
 					log.debug(manual.getExpandedString(false));// init variant
 					log.warn(manual.getSGFBodyString(false));
 					// SGFGoManual.storeGoManual(fileName2, manual);
@@ -346,8 +349,9 @@ public class TestBigEyeSearch_simple extends TestCase {
 			} else if (goS.isTargetFirst() == false) {
 				if (score == RelativeResult.ALREADY_DEAD) {
 					log.warn("after clean up fail node:");
-					manual.cleanupBadMove_firstWin(goS.getEnemyColor(),
-							RelativeResult.ALREADY_DEAD);
+//					manual.cleanupBadMove_firstWin(goS.getEnemyColor(),
+//							RelativeResult.ALREADY_DEAD);
+					manual.cleanupBadMoveForWinner(false);
 					log.debug(manual.getExpandedString(false));// init variant
 					log.warn(manual.getSGFBodyString(false));
 					// SGFGoManual.storeGoManual(fileName1, manual);
@@ -363,8 +367,9 @@ public class TestBigEyeSearch_simple extends TestCase {
 					}
 				} else {
 					log.warn("after clean up fail node:");
-					manual.cleanupBadMove_firstLose(goS.getEnemyColor(),
-							RelativeResult.ALREADY_DEAD);
+//					manual.cleanupBadMove_firstLose(goS.getEnemyColor(),
+//							RelativeResult.ALREADY_DEAD);
+					manual.cleanupBadMoveForWinner(true);
 					log.debug(manual.getExpandedString(false));// init variant
 					log.warn(manual.getSGFBodyString(false));
 					// SGFGoManual.storeGoManual(fileName2, manual);

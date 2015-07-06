@@ -59,6 +59,7 @@ public class InteractiveGo extends Frame {
 	 */
 	private GoBoard go;// for showing current state
 	private TreeGoManual manual;// all variant
+	private boolean endWithManPlay;
 
 	private Object immutable = new Object();
 
@@ -78,7 +79,7 @@ public class InteractiveGo extends Frame {
 	private ReviewManualCanvas embedCanvas = new ReviewManualCanvas(
 			Constant.BOARD_SIZE);
 	private Button load = new Button("载入棋谱");
-	private Button forward = new Button("弃权");
+	private Button pass = new Button("弃权");
 	private Button backward = new Button("后退");
 	/**
 	 * 更加人性化的显示方式，自动以提子为分割，一次显示若干手数。<br/>
@@ -136,7 +137,7 @@ public class InteractiveGo extends Frame {
 
 		add(embedCanvas);
 		add(load);
-		add(forward);
+		add(pass);
 		add(backward);
 		add(forwardManual);
 		add(backwardManual);
@@ -149,13 +150,13 @@ public class InteractiveGo extends Frame {
 		add(resultV);
 		add(shoushuV);
 		load.addActionListener(new LoadActionListener());
-		forward.addActionListener(new PassActionListener());
+		pass.addActionListener(new PassActionListener());
 		backward.addActionListener(new BackwardActionListener());
 		load.setVisible(true);
-		forward.setVisible(true);
+		pass.setVisible(true);
 		backward.setVisible(true);
-		forwardManual.setVisible(true);
-		backwardManual.setVisible(true);
+		// forwardManual.setVisible(true);
+		// backwardManual.setVisible(true);
 		blackPlayer.setVisible(true);
 		whitePlayer.setVisible(true);
 		result.setVisible(true);
@@ -176,7 +177,7 @@ public class InteractiveGo extends Frame {
 
 		embedCanvas.setBounds(30, 30, 560, 560);
 		load.setBounds(600, 40, 100, 30);
-		forward.setBounds(600, 100, 100, 30);
+		pass.setBounds(600, 100, 100, 30);
 		backward.setBounds(600, 160, 100, 30);
 		forwardManual.setBounds(600, 220, 100, 30);
 		backwardManual.setBounds(600, 280, 100, 30);
@@ -216,6 +217,10 @@ public class InteractiveGo extends Frame {
 		if (manTurn == false) {
 			return true;
 		}
+		if (go.isDoubleGiveup()) {
+			System.out.println("Terminated by double pass! cannot move on!");
+			return true;
+		}
 		Point point = null;
 		if (x == -1 && y == -1) {
 			// OK. pass.
@@ -252,15 +257,6 @@ public class InteractiveGo extends Frame {
 		if (validate == false) {
 			throw new RuntimeException(
 					"impossible - we already check the state loop");
-			// log.warn("Invalid step:" + point);
-			// // should step back internally! we did not do that because we do
-			// not
-			// // want forward class to depend on backward class!
-			// if (point.equals(go.getLastPoint())) {
-			// go.oneStepBackward();
-			// log.warn("One step back at " + point);
-			// return true;
-			// }
 		}
 
 		log.warn("Man Play " + oldState.getWhoseTurnString() + " at " + point);
@@ -351,6 +347,11 @@ public class InteractiveGo extends Frame {
 			}
 		}
 
+		if (go.isDoubleGiveup()) {
+			pass.setEnabled(false);
+			endWithManPlay = true;
+		}
+
 		SearchNode child = manual.getCurrent().getChild();
 		if (child == null) {
 			log.error("Computer has no choice; Strange! pass");
@@ -367,6 +368,9 @@ public class InteractiveGo extends Frame {
 			log.warn("response at " + response.toNonSGFString());
 			go.oneStepForward(response);
 		}
+		if (go.isDoubleGiveup()) {
+			pass.setEnabled(false);
+		}
 		go.initUIPoint(points);
 		repaint();
 		embedCanvas.repaint();
@@ -381,20 +385,27 @@ public class InteractiveGo extends Frame {
 				return;// keep computer's first auto play.
 			} else {
 				go.oneStepBackward();
-				go.oneStepBackward();
 				manual.up();
-				manual.up();
-			}
-			repaint_complete();
-			// embedCanvas.repaint();
+				if (endWithManPlay == true) {
+					endWithManPlay = false;
+				} else {
+					go.oneStepBackward();
+					manual.up();
+				}
 
+			}
+			pass.setEnabled(true);
+			repaint_complete();
 		}
 	}
 
 	class PassActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			mouseDown(null, -1, -1);
-
+			if (go.isDoubleGiveup()) {
+				System.out.println("Teminated by double pass!");
+			} else {
+				mouseDown(null, -1, -1);
+			}
 		}
 	}
 
@@ -423,12 +434,12 @@ public class InteractiveGo extends Frame {
 			} else {
 				computerFirst = true;
 			}
-
-			manual = SGFGoManual.loadTreeGoManual(dir + inname).get(0);
+			inname = dir + inname;
+			manual = SGFGoManual.loadTreeGoManual(inname).get(0);
 			go = new GoBoard(manual.getInitState());
 
 			if (log.isEnabledFor(Level.WARN)) {
-				log.info("载入局面");
+				log.info("载入局面" + inname);
 				log.warn(go.getBoardColorState().getStateString());
 				log.warn(manual.getSGFBodyString(false));
 			}

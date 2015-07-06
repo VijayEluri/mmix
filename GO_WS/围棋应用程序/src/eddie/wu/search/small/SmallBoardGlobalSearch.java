@@ -44,7 +44,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			int lowestScore) {
 		super(highestScore, lowestScore);
 		goBoard = new SmallGoBoard(state);
-		this.initLevel(state.getWhoseTurn());
+		this.initTurn = state.getWhoseTurn(); // (brother)
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			throw new RuntimeException("White: expScore == maxScore");
 		}
 		goBoard = new SmallGoBoard(state);
-		this.initLevel(state.getWhoseTurn());
+		this.initTurn = state.getWhoseTurn(); // (brother)
 	}
 
 	/**
@@ -93,7 +93,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		super(highestScore, lowestScore);
 		goBoard = new SmallGoBoard(BoardColorState.getInstance(boards,
 				whoseTurn));
-		this.initLevel(whoseTurn);
+		this.initTurn = whoseTurn; // (brother)
 	}
 
 	public SmallBoardGlobalSearch(int boardSize, int highestScore,
@@ -104,7 +104,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		goBoard = new SmallGoBoard(
 				BoardColorState.getInstance(board, whoseTurn));
 
-		this.initLevel(whoseTurn);
+		this.initTurn = whoseTurn; // (brother)
 	}
 
 	protected List<Candidate> getCandidate(int color) {
@@ -169,10 +169,6 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		}
 
 		return ts;
-	}
-
-	private void initLevel(int whoseTurn) {
-		initTurn = whoseTurn; // (brother)
 	}
 
 	/**

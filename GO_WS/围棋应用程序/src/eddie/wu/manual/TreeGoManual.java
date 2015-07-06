@@ -30,19 +30,21 @@ public class TreeGoManual extends AbsGoManual {
 	}
 
 	public String getSGFBodyString() {
-		return getSGFBodyString(true);
+		return getSGFBodyString(true, true);
 	}
 
 	public String getSGFBodyString(boolean sgf) {
+		return getSGFBodyString(sgf, true);
+	}
+
+	public String getSGFBodyString(boolean sgf, boolean inMemoryFormat) {
 		StringBuilder sb = new StringBuilder();
 		if (sgf == false) {
-			sb.append("INIT variant=" + root.getVariant() + ", score="
-					+ root.getScore() + ", max=" + root.isMax()
-					+ Constant.lineSeparator);
+			sb.append(root.toString() + Constant.lineSeparator);
 		}
 		SearchNode temp = root.getChild();
 		if (temp != null) {
-			temp.getSGFBodyString(sb, sgf);
+			temp.getSGFBodyString(sb, sgf, inMemoryFormat);
 		}
 		return sb.toString();
 	}
@@ -76,29 +78,31 @@ public class TreeGoManual extends AbsGoManual {
 	 * initialize the score assuming only terminator has score assigned.
 	 */
 	public int initScore() {
-		return this.root.initScore();
+		int score = this.root.initScore();
+		if (result == null)
+			result = String.valueOf(score);
+		return score;
 	}
 
 	public String getMostExpPath() {
 		return getMostExpPath(false, new SimpleGoManual(this.getInitState()));
 	}
-	
+
 	/**
 	 * for killed target, we check the longest breath path.
+	 * 
 	 * @return
 	 */
-	public SimpleGoManual getLongestBreathPath(){
-		SimpleGoManual manual =  new SimpleGoManual(this.getInitState());
+	public SimpleGoManual getLongestBreathPath() {
+		SimpleGoManual manual = new SimpleGoManual(this.getInitState());
 		SearchNode temp = root;
-		while(temp!=null){
-			
+		while (temp != null) {
+
 		}
-		
+
 		return manual;
-		
+
 	}
-	
-	
 
 	public String getMostExpPath(boolean sgf, SimpleGoManual manual) {
 		GoBoard goB = null;
@@ -110,7 +114,7 @@ public class TreeGoManual extends AbsGoManual {
 			goB = new SmallGoBoard(manual.getInitState());
 			sb.append(goB.getBoardColorState().getStateString());
 			sb.append(" (variant=" + root.getVariant() + ")");
-			sb.append(Constant.lineSeparator );
+			sb.append(Constant.lineSeparator);
 
 		}
 		List<Point> candidate = new ArrayList<Point>();
@@ -135,7 +139,7 @@ public class TreeGoManual extends AbsGoManual {
 				goB.oneStepForward(max.getStep());
 				sb.append(goB.getBoardColorState().getStateString());
 				sb.append(" (variant=" + max.getVariant() + ")");
-				sb.append(Constant.lineSeparator );
+				sb.append(Constant.lineSeparator);
 			}
 			if (manual != null) {
 				manual.addStep(max.getStep());
@@ -158,13 +162,13 @@ public class TreeGoManual extends AbsGoManual {
 
 	public TreeGoManual(int boardSize, int initTurn) {
 		super(boardSize, initTurn);
-		this.root = SearchNode.getSpecialRoot();
+		this.root = SearchNode.createSpecialRoot();
 		current = root;
 	}
 
 	public TreeGoManual(BoardColorState state) {
 		super(state.getMatrixState(), state.getWhoseTurn());
-		this.root = SearchNode.getSpecialRoot();
+		this.root = SearchNode.createSpecialRoot();
 		current = root;
 	}
 
@@ -172,7 +176,7 @@ public class TreeGoManual extends AbsGoManual {
 		super(boardSize, initTurn);
 		assert lists.isEmpty() == false;
 		assert lists.get(0).isEmpty() == false;
-		root = SearchNode.getSpecialRoot();
+		root = SearchNode.createSpecialRoot();
 		current = root;
 		SearchNode current = root;
 		SearchNode child;
@@ -223,20 +227,20 @@ public class TreeGoManual extends AbsGoManual {
 		return manual;
 	}
 
-	public void cleanupBadMove_firstWin(int whoseTurn, int expectedScore) {
-		root.initScore();
-		this.setResult(String.valueOf(root.getScore()));
-		root.cleanupBadMove_firstWin(whoseTurn, expectedScore);
-	}
-
-	public void cleanupBadMove_firstLose(int whoseTurn, int expectedScore) {
-		root.initScore();
-		SearchNode brother = root.getChild();
-		while (brother != null) {
-			brother.cleanupBadMove_firstLose(whoseTurn, expectedScore);
-			brother = brother.brother;
-		}
-	}
+	// public void cleanupBadMove_firstWin(int whoseTurn, int expectedScore) {
+	// root.initScore();
+	// this.setResult(String.valueOf(root.getScore()));
+	// root.cleanupBadMove_firstWin(whoseTurn, expectedScore);
+	// }
+	//
+	// public void cleanupBadMove_firstLose(int whoseTurn, int expectedScore) {
+	// root.initScore();
+	// SearchNode brother = root.getChild();
+	// while (brother != null) {
+	// brother.cleanupBadMove_firstLose(whoseTurn, expectedScore);
+	// brother = brother.brother;
+	// }
+	// }
 
 	public void up() {
 		if (current != root)
@@ -262,6 +266,25 @@ public class TreeGoManual extends AbsGoManual {
 			// log.warn("Add child "+temp.getStep().toNonSGFString());
 			temp = temp.getBrother();
 		}
+	}
+
+	public void cleanupBadMoveForWinner(boolean maxWin) {
+		getRoot().cleanupBadMoveForWinner(maxWin);
+
+	}
+
+	public void chooseBestMoveForWinner(boolean maxWin) {
+		getRoot().chooseBestMoveForWinner(maxWin);
+
+	}
+
+	public int initVariant() {
+		return getRoot().initVariant();
+	}
+
+	public TreeGoManual copy() {
+		return new TreeGoManual(this.getRoot().copySubTree(), boardSize,
+				initTurn);
 	}
 
 }

@@ -11,7 +11,9 @@ import eddie.wu.domain.SymmetryResult;
 
 /**
  * result of search tree; left is child, right is brother.<br/>
- * Design Change, there is an dummy root node (without step)
+ * Design Change, there is an dummy root node (without step)<br/>
+ * reason is map to the initial state. each note stands for the state it reach
+ * after the move is taken.
  * 
  * @author Eddie Wu
  * 
@@ -31,26 +33,20 @@ public class SearchNode {
 		this.step = step;
 	}
 
-	public static SearchNode getSpecialRoot() {
+	public static SearchNode createSpecialRoot() {
 		// root has no step (to it)
-		return new SearchNode();
-	}
-
-	private SearchNode() {
-
+		return new SearchNode(null);
 	}
 
 	public SearchNode getCopy(SymmetryResult sym) {
 		Step step2 = null;
 		SearchNode copy = null;
 		if (step == null) {
-			copy = SearchNode.getSpecialRoot();
+			copy = SearchNode.createSpecialRoot();
 		} else {
 			step2 = step.getCopy();
 			step2.convert(sym);
 			copy = new SearchNode(step2);
-			System.out.println("before Copy " + step.toNonSGFString());
-			System.out.println("after Copy " + step2.toNonSGFString());
 		}
 		copy.score = this.score;
 		copy.max = this.max;
@@ -74,24 +70,12 @@ public class SearchNode {
 		return list;
 	}
 
-	public void setChild(SearchNode child) {
-		this.child = child;
-	}
-
 	public SearchNode getBrother() {
 		return brother;
 	}
 
-	public void setBrother(SearchNode brother) {
-		this.brother = brother;
-	}
-
 	public SearchNode getFather() {
 		return farther;
-	}
-
-	public void setFather(SearchNode father) {
-		this.farther = father;
 	}
 
 	public String getJieshuo() {
@@ -108,6 +92,8 @@ public class SearchNode {
 	 * @param child
 	 */
 	public void addChild(SearchNode child) {
+		assert child != null;
+		child.brother = null;// safer
 		if (this.child == null) {
 			this.child = child;
 			child.farther = this;
@@ -116,15 +102,21 @@ public class SearchNode {
 		this.child.addBrother(child);
 	}
 
-	public void addBrother(SearchNode brother) {
+	private void addBrother(SearchNode brother) {
+		brother.brother = null;// safer
 		SearchNode temp = this;
 		while (temp.brother != null) {
 			temp = temp.brother;
 		}
 		temp.brother = brother;
 		brother.farther = this.farther;
+
 	}
 
+	/**
+	 * @deprecated
+	 * @param list
+	 */
 	public void addChildren(List<SearchNode> list) {
 		assert this.child == null;
 		assert list.isEmpty() == false;
@@ -148,6 +140,10 @@ public class SearchNode {
 		return max;
 	}
 
+	public boolean isMin() {
+		return !max;
+	}
+
 	public void setMax(boolean max) {
 		this.max = max;
 	}
@@ -158,10 +154,19 @@ public class SearchNode {
 
 	@Override
 	public String toString() {
+		StringBuilder sb = new StringBuilder();
 		if (this.step == null) {
-			return "ROOT" + " score = " + score;
+			sb.append("INIT");
+		} else {
+			sb.append(step.toNonSGFString());
 		}
-		return this.step.toString() + " score = " + score;
+		sb.append(" (variant=" + getVariant() + ", score = " + score);
+		if (isMax()) {
+			sb.append(", Max) ");
+		} else {
+			sb.append(", Min) ");
+		}
+		return sb.toString();
 	}
 
 	/**
@@ -173,18 +178,22 @@ public class SearchNode {
 	 */
 	int depth = 0;
 
-	public void getSGFBodyString(StringBuilder sb, boolean sgf) {
+	public void getSGFBodyString(StringBuilder sb, boolean sgf,
+			boolean inMemoryFormat) {
 		if (this.brother == null) {
 			// no variant
 			if (sgf) {
 				sb.append(this.getStep().toSGFString());
 			} else {
-				sb.append(this.getStep().toNonSGFString() + ", score=" + score
-						+ ", max=" + max);
+				if (inMemoryFormat) {
+					sb.append(this.toString());
+				} else {
+					sb.append(this.getStep().toNonSGFString());
+				}
 			}
 			if (this.child != null) {
 				this.child.setDepth(depth);
-				child.getSGFBodyString(sb, sgf);
+				child.getSGFBodyString(sb, sgf, inMemoryFormat);
 			}
 		} else {
 			// branching
@@ -196,15 +205,17 @@ public class SearchNode {
 			depth++;
 			if (sgf) {
 				sb.append(this.getStep().toSGFString());
-			} else {
-				sb.append(this.getStep().toNonSGFString());
-				sb.append(" (variant=" + this.getVariant() + ", score=" + score
-						+ ", max=" + max + ") ");
+			} else {				
+				if(inMemoryFormat){
+					sb.append(this.toString());
+				}else{
+					sb.append(this.getStep().toNonSGFString());
+				}
 			}
 
 			if (this.child != null) {
 				this.child.setDepth(depth);
-				this.child.getSGFBodyString(sb, sgf);
+				this.child.getSGFBodyString(sb, sgf, inMemoryFormat);
 			}
 			sb.append(")");
 			depth--;
@@ -223,15 +234,20 @@ public class SearchNode {
 				if (sgf) {
 					sb.append(brother.getStep().toSGFString());
 				} else {
-					sb.append(brother.getStep().toNonSGFString());
-					sb.append(" (variant=" + brother.getVariant() + ", score="
-							+ brother.getScore() + ", max=" + brother.isMax()
-							+ ") ");
+					if(inMemoryFormat){
+						sb.append(brother.toString());
+					}else{
+						sb.append(brother.getStep().toNonSGFString());
+					}
+//					sb.append(brother.getStep().toNonSGFString());
+//					sb.append(" (variant=" + brother.getVariant() + ", score="
+//							+ brother.getScore() + ", max=" + brother.isMax()
+//							+ ") ");
 				}
 				// sb.append("variant=" + brother.getVariant());
 				if (brother.child != null) {
 					brother.child.setDepth(depth);
-					brother.child.getSGFBodyString(sb, sgf);
+					brother.child.getSGFBodyString(sb, sgf, inMemoryFormat);
 				}
 				sb.append(")");
 				depth--;
@@ -240,15 +256,6 @@ public class SearchNode {
 			}
 
 		}
-
-		// if (this.child == null) {
-		//
-		// }else if(this.child.brother==null){
-		// sb.append(this.getStep().toSGFString());
-		// sb.append(this.child.toSGFBodyString());
-		// }else{
-		//
-		// }
 	}
 
 	public void setDepth(int depth) {
@@ -369,42 +376,16 @@ public class SearchNode {
 		return null;
 	}
 
-	// public SearchNode getChild(Step move) {
-	// // if (child == null)
-	// // return null;
-	// // if (child.getStep().equals(move))
-	// // return child;
-	// // if (child.getStep().getPoint() == null) {
-	// // if (move.getPoint() == null)
-	// // return child;
-	// // } else if (child.getStep().equals(move))
-	// // return child;
-	// // if (child.brother == null)
-	// // return null;
-	// SearchNode temp = child;//.brother;
-	// while (temp != null) {
-	// // if (temp.getStep().getPoint() == null) {
-	// // if (move.getPoint() == null)
-	// // return child;
-	// // } else if (temp.getStep().equals(move)) {
-	// // return temp;
-	// // }
-	// if (temp.getStep().equals(move))
-	// return temp;
-	// temp = temp.brother;
-	// }
-	// return null;
-	// }
-
 	/**
 	 * initialize the score assuming only terminator has score assigned.
 	 */
 	public int initScore() {
 		if (this.child == null)
 			return this.score;
+
 		SearchNode temp = this.child.brother;
 		if (this.isMax()) {
-			int max = child.initScore();
+			int max = child.initScore();// proper initial value
 			while (temp != null) {
 				if (temp.initScore() > max) {
 					max = temp.getScore();
@@ -414,7 +395,7 @@ public class SearchNode {
 			this.score = max;
 			return max;
 		} else {
-			int min = child.initScore();
+			int min = child.initScore();// proper initial value
 			while (temp != null) {
 				if (temp.initScore() < min) {
 					min = temp.getScore();
@@ -426,6 +407,28 @@ public class SearchNode {
 		}
 	}
 
+	/**
+	 * initialize the score assuming only terminator has score assigned.
+	 */
+	public int initVariant() {
+		if (this.child == null) {
+			this.variant = 1;
+			return this.variant;
+		}
+		SearchNode temp = this.child;
+		this.variant = 0;
+		while (temp != null) {
+			this.variant += temp.initVariant();
+			temp = temp.brother;
+		}
+		return this.variant;
+	}
+
+	/**
+	 * current move is # of steps in the search.
+	 * 
+	 * @return
+	 */
 	public int countSteps() {
 		int count = 0;
 		SearchNode temp = this;
@@ -436,99 +439,161 @@ public class SearchNode {
 		return count - 1;
 	}
 
-	public void cleanupBadMove_firstWin(int initTurn, int expectedScore) {
-
-		SearchNode child = getChild();
-		if (child == null) {
+	/**
+	 * new idea with after thought - simplify the algorithm. <br/>
+	 * should be called from root first. <br/>
+	 * did not do it in initScore because we may need raw search data for
+	 * checking.<br/>
+	 * winner only need one effective move to win.<br/>
+	 * if the search tree is complete, we ensure the best result in each context<br/>
+	 * not only just to win<br/>
+	 */
+	public void cleanupBadMoveForWinner(boolean maxWin) {
+		if (child == null)
 			return;
-		}
-
-		SearchNode brother = child;// .getBrother();
-		while (brother != null) {
-			if ((initTurn == Constant.BLACK && brother.getScore() >= expectedScore)
-					|| (initTurn == Constant.WHITE && brother.getScore() <= expectedScore)) {
-				brother.farther.child = brother;
-				brother.brother = null;
-				break;
+		SearchNode temp = child;
+		SearchNode current = null;
+		child = null; // Detach children
+		boolean minWin = !maxWin;
+		while (temp != null) {
+			if ((maxWin && this.isMax() && temp.getScore() < this.getScore())
+					|| (minWin && this.isMin() && temp.getScore() > this
+							.getScore())) {
+				// ignore not effective move.
+				temp = temp.brother;
 			} else {
-				brother = brother.brother;
+				// rebuild with valid child.
+				current = temp;
+				temp = temp.brother;
+				this.addChild(current);
+				current.cleanupBadMoveForWinner(maxWin);
 			}
 		}
-		if (brother == null) {
-			System.out.println("fail to reach score " + expectedScore
-					+ " from root at " + getStep());
-			brother = child;
-			System.out.println(this);
-			while (brother != null) {
-				System.out.println(brother);
-				brother = brother.brother;
-			}
-			return;
-		}
-		if (brother.getChild() != null) {
-			brother = brother.getChild();
-			while (brother != null) {
-				brother.cleanupBadMove_firstWin(initTurn, expectedScore);
-				brother = brother.brother;
-			}
-		}
-		// }
-
-		// }else if(whoseTurn== Constant.WHITE){//min
-		//
-		// }
-
 	}
 
 	/**
+	 * depends on variant is up to date.
 	 * 
-	 * @param initTurn
-	 * @param expectedScore
-	 *            score for initTurn
+	 * @param maxWin
 	 */
-	public void cleanupBadMove_firstLose(int initTurn, int expectedScore) {
-
-		SearchNode child = getChild();
-		if (child == null) {
+	public void chooseBestMoveForWinner(boolean maxWin) {
+		if (child == null)
 			return;
-		}
-
-		SearchNode brother = child;// .getBrother();
-		while (brother != null) {
-			if ((initTurn == Constant.BLACK && brother.getScore() < expectedScore)
-					|| (initTurn == Constant.WHITE && brother.getScore() > expectedScore)) {
-				brother.farther.child = brother;
-				brother.brother = null;
-				break;
-			} else {
-				brother = brother.brother;
+		boolean minWin = !maxWin;
+		SearchNode temp = child;
+		SearchNode current = null;
+		if (maxWin && this.isMax() || minWin && this.isMin()) {
+			child = null; // Detach children
+			int variant = this.variant + 1;
+			while (temp != null) {
+				// choose the one with less variants
+				if (temp.variant < variant)
+					current = temp;
+				temp = temp.brother;
+			}
+			this.addChild(current);
+			current.chooseBestMoveForWinner(maxWin);
+		} else {
+			while (temp != null) {
+				temp.chooseBestMoveForWinner(maxWin);
+				temp = temp.brother;
 			}
 		}
-		if (brother == null) {
-			System.out.println("fail to reach score " + expectedScore
-					+ " from root at " + getStep());
-			brother = child;
-			System.out.println(this);
-			while (brother != null) {
-				System.out.println(brother);
-				brother = brother.brother;
-			}
-			return;
-		}
-		if (brother.getChild() != null) {
-			brother = brother.getChild();
-			while (brother != null) {
-				brother.cleanupBadMove_firstLose(initTurn, expectedScore);
-				brother = brother.brother;
-			}
-		}
-		// }
-
-		// }else if(whoseTurn== Constant.WHITE){//min
-		//
-		// }
-
 	}
+
+	// public void cleanupBadMove_firstWin(int initTurn, int expectedScore) {
+	//
+	// SearchNode child = getChild();
+	// if (child == null) {
+	// return;
+	// }
+	//
+	// SearchNode brother = child;// .getBrother();
+	// while (brother != null) {
+	// if ((initTurn == Constant.BLACK && brother.getScore() >= expectedScore)
+	// || (initTurn == Constant.WHITE && brother.getScore() <= expectedScore)) {
+	// brother.farther.child = brother;
+	// brother.brother = null;
+	// break;
+	// } else {
+	// brother = brother.brother;
+	// }
+	// }
+	// if (brother == null) {
+	// System.out.println("fail to reach score " + expectedScore
+	// + " from root at " + getStep());
+	// brother = child;
+	// System.out.println(this);
+	// while (brother != null) {
+	// System.out.println(brother);
+	// brother = brother.brother;
+	// }
+	// return;
+	// }
+	// if (brother.getChild() != null) {
+	// brother = brother.getChild();
+	// while (brother != null) {
+	// brother.cleanupBadMove_firstWin(initTurn, expectedScore);
+	// brother = brother.brother;
+	// }
+	// }
+	// // }
+	//
+	// // }else if(whoseTurn== Constant.WHITE){//min
+	// //
+	// // }
+	//
+	// }
+	//
+	// /**
+	// *
+	// * @param initTurn
+	// * @param expectedScore
+	// * score for initTurn
+	// */
+	// public void cleanupBadMove_firstLose(int initTurn, int expectedScore) {
+	//
+	// SearchNode child = getChild();
+	// if (child == null) {
+	// return;
+	// }
+	//
+	// SearchNode brother = child;// .getBrother();
+	// while (brother != null) {
+	// if ((initTurn == Constant.BLACK && brother.getScore() < expectedScore)
+	// || (initTurn == Constant.WHITE && brother.getScore() > expectedScore)) {
+	// brother.farther.child = brother;
+	// brother.brother = null;
+	// break;
+	// } else {
+	// brother = brother.brother;
+	// }
+	// }
+	// if (brother == null) {
+	// System.out.println("fail to reach score " + expectedScore
+	// + " from root at " + getStep());
+	// brother = child;
+	// System.out.println(this);
+	// while (brother != null) {
+	// System.out.println(brother);
+	// brother = brother.brother;
+	// }
+	// return;
+	// }
+	// if (brother.getChild() != null) {
+	// brother = brother.getChild();
+	// while (brother != null) {
+	// brother.cleanupBadMove_firstLose(initTurn, expectedScore);
+	// brother = brother.brother;
+	// }
+	// }
+	// // }
+	//
+	// // }else if(whoseTurn== Constant.WHITE){//min
+	// //
+	// // }
+	//
+	// }
 
 	public void blackWhiteSwitch() {
 		if (step != null) {
@@ -584,10 +649,9 @@ public class SearchNode {
 
 		// mirror the child inclusive.
 		System.out.println(normalizeOperation);
-
 		normalizeOperation.cascaseOperation(normalizeManual);
-
 		System.out.println(normalizeOperation);
+
 		SearchNode copy = temp.mirrorSubTree_internal(normalizeOperation);
 		this.addChild(copy);
 		if (this.containsChildMove(step) == false) {
