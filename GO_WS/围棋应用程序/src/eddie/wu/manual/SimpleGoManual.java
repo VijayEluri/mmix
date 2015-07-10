@@ -2,17 +2,15 @@ package eddie.wu.manual;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import org.apache.log4j.Logger;
 
 import eddie.wu.domain.BoardColorState;
-import eddie.wu.domain.BoardPoint;
-import eddie.wu.domain.ColorUtil;
-import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
+import eddie.wu.domain.StepMemo;
 import eddie.wu.domain.SymmetryResult;
 
 /**
@@ -79,6 +77,14 @@ public class SimpleGoManual extends AbsGoManual {
 	public String toString() {
 		return "GoManual [" + " id=" + id + ", moves=" + steps.size()
 				+ ", blackName=" + blackName + ", whiteName=" + whiteName + "]";
+	}
+	
+	public void print(Logger log){
+		log.warn(this.toString());
+		log.warn("steps = "+steps.size());
+		for (Step step : steps) {
+			log.warn(step);
+		}
 	}
 
 	public Step getStep(int index) {

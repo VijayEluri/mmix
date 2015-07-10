@@ -29,7 +29,12 @@ public class TwoTwoBoardSearch extends SmallBoardGlobalSearch {
 
 	public TwoTwoBoardSearch(BoardColorState state, int expScore) {
 		super(state, expScore);
-		initKnownState();
+//		initKnownState();
+	}
+	
+	public TwoTwoBoardSearch(BoardColorState state, int maxExp, int minExp) {
+		super(state, maxExp, minExp);
+//		initKnownState();
 	}
 
 	/**

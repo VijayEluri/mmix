@@ -41,7 +41,7 @@ public abstract class GoBoardSearch {
 	 * reached.
 	 */
 
-	private int NUMBER_OF_VARIANT = 5000 * 3;
+	private int NUMBER_OF_VARIANT = 50000 * 3;
 
 	transient public int dupCount;
 
@@ -73,7 +73,7 @@ public abstract class GoBoardSearch {
 	/**
 	 * keep the search tree internally and help output result tree.
 	 */
-	private SearchNode root = SearchNode.getSpecialRoot();
+	private SearchNode root = SearchNode.createSpecialRoot();
 
 	protected GoBoardSearch(int maxExp, int minExp) {
 		maxExpScore = maxExp;
@@ -144,7 +144,8 @@ public abstract class GoBoardSearch {
 			int scoreTerminator);
 
 	public boolean tree() {
-		return this.NUMBER_OF_VARIANT <= 15000;
+		return true;
+		//return this.NUMBER_OF_VARIANT <= 150000;
 	}
 
 	public void setVariant(int variant) {

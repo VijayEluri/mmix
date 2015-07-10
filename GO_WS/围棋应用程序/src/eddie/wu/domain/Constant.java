@@ -121,5 +121,4 @@ public class Constant {
 
 	public static final int UNKOWN = Integer.MIN_VALUE;
 	public static final String GIVE_UP = "[PAS]";
-
 }

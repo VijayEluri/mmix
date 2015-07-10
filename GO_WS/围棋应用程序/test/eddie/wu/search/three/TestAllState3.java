@@ -631,8 +631,9 @@ public class TestAllState3 extends TestCase {
 			if (goS.initTurn == Constant.BLACK) {
 				if (score == goS.getMaxExp()) {// success
 					log.warn("after clean up fail node:");
-					manual.cleanupBadMove_firstWin(goS.initTurn,
-							goS.getMaxExp());
+//					manual.cleanupBadMove_firstWin(goS.initTurn,
+//							goS.getMaxExp());
+					manual.cleanupBadMoveForWinner(true);
 					log.debug(manual.getExpandedString(false));// init variant
 					log.warn(manual.getSGFBodyString(false));
 					SGFGoManual.storeGoManual(fileName1, manual);
@@ -640,8 +641,9 @@ public class TestAllState3 extends TestCase {
 					SGFGoManual.storeGoManual(fileName3, manual);
 				} else if (score < goS.getMaxExp()) {// fail
 					log.warn("after clean up fail node:");
-					manual.cleanupBadMove_firstLose(goS.initTurn,
-							goS.getMaxExp());
+//					manual.cleanupBadMove_firstLose(goS.initTurn,
+//							goS.getMaxExp());
+					manual.cleanupBadMoveForWinner(false);
 					log.debug(manual.getExpandedString(false));// init variant
 					log.warn(manual.getSGFBodyString(false));
 					SGFGoManual.storeGoManual(fileName2, manual);
@@ -652,8 +654,9 @@ public class TestAllState3 extends TestCase {
 			} else if (goS.initTurn == Constant.WHITE) {
 				if (score == goS.getMinExp()) {
 					log.warn("after clean up fail node:");
-					manual.cleanupBadMove_firstWin(goS.initTurn,
-							goS.getMinExp());
+//					manual.cleanupBadMove_firstWin(goS.initTurn,
+//							goS.getMinExp());
+					manual.cleanupBadMoveForWinner(false);
 					log.debug(manual.getExpandedString(false));// init variant
 					log.warn(manual.getSGFBodyString(false));
 					SGFGoManual.storeGoManual(fileName1, manual);
@@ -661,8 +664,9 @@ public class TestAllState3 extends TestCase {
 					SGFGoManual.storeGoManual(fileName3, manual);
 				} else {
 					log.warn("after clean up fail node:");
-					manual.cleanupBadMove_firstLose(goS.initTurn,
-							goS.getMinExp());
+//					manual.cleanupBadMove_firstLose(goS.initTurn,
+//							goS.getMinExp());
+					manual.cleanupBadMoveForWinner(true);
 					log.debug(manual.getExpandedString(false));// init variant
 					log.warn(manual.getSGFBodyString(false));
 					SGFGoManual.storeGoManual(fileName2, manual);

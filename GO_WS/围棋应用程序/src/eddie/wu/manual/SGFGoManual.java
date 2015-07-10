@@ -420,7 +420,7 @@ public class SGFGoManual {
 		for (int i = 0; i < manual.length; i++) {
 			if (manual[i] == '(') {
 				if (stack.isEmpty()) {// new manual
-					root = SearchNode.getSpecialRoot();
+					root = SearchNode.createSpecialRoot();
 					stack.add(root);
 					current = root;
 					man = new TreeGoManual(root, boardSize, Constant.BLACK);

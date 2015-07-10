@@ -95,6 +95,93 @@ public class TestAllState2 extends TestCase {
 
 	}
 
+	public void testState1_blackFirst_lose() {
+//		testState1_blackFirst_lose(2, 0);// 5s
+		 testState1_blackFirst_lose(4, -4);//112s
+//		testState1_blackFirst_lose(5, -5);//
+	}
+
+	/**
+	 * both lose with [2,0]<br/>
+	 * Win/Lose with Score=1<br/>
+	 * WARN (TestAllState2.java:112) - searched path = 25615<br/>
+	 * WARN (TestAllState2.java:122) - Before Cleanup <br/>
+	 * WARN (TestAllState2.java:123) - Init score = 1<br/>
+	 * WARN (TestAllState2.java:126) - After Cleanup 1: <br/>
+	 * WARN (TestAllState2.java:128) - INIT variant=255, score=1, max=true<br/>
+	 * After Cleanup 2: <br/>
+	 * WARN (TestAllState2.java:134) - INIT variant=28, score=1, max=true<br/>
+	 * both lose with [2,0]<br/>
+	 * searched path = 844276<br/>
+	 * WARN (TestAllState2.java:137) - Before Cleanup <br/>
+	 * WARN (TestAllState2.java:138) - Init score = 1<br/>
+	 * WARN (TestAllState2.java:141) - After Cleanup 1: <br/>
+	 * WARN (TestAllState2.java:143) - INIT variant=786, s<br/>
+	 * WARN (TestAllState2.java:147) - After Cleanup 2: <br/>
+	 * WARN (TestAllState2.java:149) - INIT variant=28, score=1<br/>
+	 */
+	private void testState1_blackFirst_lose(int high, int low) {
+		String[] text = new String[2];
+		text[0] = new String("[_, _]");
+		text[1] = new String("[_, _]");
+		byte[][] state = StateLoader.LoadStateFromText(text);
+		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, high, low);
+		goS.setVariant(1500000);
+		int score = goS.globalSearch();
+
+		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+			log.warn("Win/Lose with Score=" + score);
+			log.warn("searched path = " + goS.getSearchProcess().size());
+		}
+		assertEquals(1, score);
+		assertTrue(score!=high);
+		assertTrue(score!=low);
+
+		String name1 = goS.getGoBoard().getInitColorState()
+				.getStateAsOneLineString()
+				+ goS.getMaxExp() + goS.getMinExp() + " win.sgf";
+		String fileName1 = Constant.rootDir + "smallboard/twotwo/" + name1;
+		String name2 = goS.getGoBoard().getInitColorState()
+				.getStateAsOneLineString()
+				+ goS.getMaxExp() + goS.getMinExp() + " lose.sgf";
+		String fileName2 = Constant.rootDir + "smallboard/twotwo/" + name2;
+		
+		TreeGoManual manual = goS.getTreeGoManual();		
+		int initScore = manual.initScore();
+		TreeGoManual manual2 = manual.copy();
+		
+		log.warn("Before Cleanup ");
+		log.warn("Init score = " + initScore);
+		
+		manual.cleanupBadMoveForWinner(false);
+		manual.initVariant();
+		log.warn("After Cleanup 1.1: ");
+		log.warn(manual.getSGFBodyString(false));
+		
+	
+		manual.chooseBestMoveForWinner(false);
+		manual.initVariant();
+		log.warn("After Cleanup 1.2: ");
+		log.warn(manual.getSGFBodyString(false));
+		SGFGoManual.storeGoManual(fileName2, manual);
+		
+
+		manual2.cleanupBadMoveForWinner(true);
+		manual2.initVariant();
+		log.warn("After Cleanup 2.1: ");
+		log.warn(manual.getSGFBodyString(false));
+
+		manual2.chooseBestMoveForWinner(true);
+		manual2.initVariant();
+		log.warn("After Cleanup 2.2: ");
+		log.warn(manual2.getSGFBodyString(false));
+		SGFGoManual.storeGoManual(fileName1, manual2);
+		
+		
+
+	}
+
 	/**
 	 * final path:<br/>
 	 * Step [point=[1,1], color=Black, index=1, loopSuperior= false, name=null]<br/>
@@ -122,62 +209,62 @@ public class TestAllState2 extends TestCase {
 		text[0] = new String("[_, _]");
 		text[1] = new String("[_, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		// if(log.isEnabledFor(org.apache.log4j.Level.WARN))
-		// log.warn(Arrays.deepToString(state));
-		BoardColorState boardState = new BoardColorState (state,Constant.BLACK);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState , 1);
+		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 1);
 		int score = goS.globalSearch();
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+
+		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 			log.warn("Win with Score=" + score);
-
-		int count = 0;
-		for (String list : goS.getSearchProcess()) {
-			count++;
-			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+			log.warn("searched path = " + goS.getSearchProcess().size());
+			int count = 0;
+			for (String list : goS.getSearchProcess()) {
+				count++;
 				log.warn(list);
-			if (count % 100 == 0)
-				if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+				if (count % 100 == 0)
 					log.warn("count=" + count);
-		}
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-			log.warn(goS.getSearchProcess().size());
+			}
 
+		}
 		assertEquals(1, score);
 
 		String name = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
-				+ ".sgf";
+				+ " win.sgf";
 		String fileName = Constant.rootDir + "smallboard/twotwo/" + name;
 		TreeGoManual manual = goS.getTreeGoManual();
 		int initScore = manual.initScore();
+		log.warn("Before Cleanup ");
 		log.warn("Init score = " + initScore);
-		manual.cleanupBadMove_firstWin(goS.initTurn, goS.getMaxExp());
+		log.warn(manual.getSGFBodyString(false));
+		// manual.cleanupBadMove_firstWin(goS.initTurn, goS.getMaxExp());
+		manual.cleanupBadMoveForWinner(true);
+		log.warn("After Cleanup: ");
 		log.debug(manual.getExpandedString(false));// init variant
 		log.warn(manual.getSGFBodyString(false));
 		SGFGoManual.storeGoManual(fileName, manual);
 		// SearchNode root = goS.getGoBoard().getRoot();
 		// if(log.isEnabledFor(Level.WARN)) log.warn(root.getSGFBodyString());
-		TreeGoManual tree = goS.getGoBoard().getTreeGoManual();
-		if (log.isEnabledFor(Level.WARN))
-			log.warn(tree.getSGFBodyString());
-		boardState = new BoardColorState (state,Constant.BLACK);
-		goS = new TwoTwoBoardSearch(boardState , 2);
-		score = goS.globalSearch();
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-			log.warn("Lose with Score=" + score);
-
-		count = 0;
-		for (String list : goS.getSearchProcess()) {
-			count++;
-			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-				log.warn(list);
-			if (count % 100 == 0)
-				if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-					log.warn("count=" + count);
-		}
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-			log.warn(goS.getSearchProcess().size());
-		assertEquals(1, score);
+		// TreeGoManual tree = goS.getGoBoard().getTreeGoManual();
+		// if (log.isEnabledFor(Level.WARN))
+		// log.warn(tree.getSGFBodyString());
+		// boardState = new BoardColorState(state, Constant.BLACK);
+		// goS = new TwoTwoBoardSearch(boardState, 2);
+		// score = goS.globalSearch();
+		// if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+		// log.warn("Lose with Score=" + score);
+		//
+		// count = 0;
+		// for (String list : goS.getSearchProcess()) {
+		// count++;
+		// if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+		// log.warn(list);
+		// if (count % 100 == 0)
+		// if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+		// log.warn("count=" + count);
+		// }
+		// if (log.isEnabledFor(org.apache.log4j.Level.WARN))
+		// log.warn(goS.getSearchProcess().size());
+		// assertEquals(1, score);
 
 	}
 
@@ -188,9 +275,9 @@ public class TestAllState2 extends TestCase {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		// if(log.isEnabledFor(org.apache.log4j.Level.WARN))
 		// log.warn(Arrays.deepToString(state));
-		BoardColorState boardState = new BoardColorState (state,Constant.WHITE);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState , -1);
-		
+		BoardColorState boardState = new BoardColorState(state, Constant.WHITE);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, -1);
+
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
@@ -219,13 +306,41 @@ public class TestAllState2 extends TestCase {
 		text[0] = new String("[_, _]");
 		text[1] = new String("[_, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		BoardColorState boardState = new BoardColorState (state,Constant.BLACK);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState , 2);
-//		GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.BLACK, 2, 1);
+		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 2);
 		int score = goS.globalSearch();
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-			log.warn("Score=" + score);
+		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+			log.warn("Lose with Score=" + score);
+			log.warn("searched path = " + goS.getSearchProcess().size());
+			int count = 0;
+			for (String list : goS.getSearchProcess()) {
+				count++;
+				log.warn(list);
+				if (count % 100 == 0)
+					log.warn("count=" + count);
+			}
+		}
 		assertEquals(1, score);
+
+		String name = goS.getGoBoard().getInitColorState()
+				.getStateAsOneLineString()
+				+ " lose.sgf";
+		String fileName = Constant.rootDir + "smallboard/twotwo/" + name;
+		TreeGoManual manual = goS.getTreeGoManual();
+		int initScore = manual.initScore();
+		manual.getExpandedString(false);// initialize variant as side effect
+		log.warn("Init score = " + initScore);
+		// log.warn("Before Cleanup ");
+		// log.warn(manual.getSGFBodyString(false));
+		// manual.cleanupBadMove_firstLose(goS.initTurn, goS.getMaxExp());
+		manual.cleanupBadMoveForWinner(false);
+		log.warn("After Cleanup ");
+
+		log.warn(manual.getSGFBodyString(false));
+		SGFGoManual.storeGoManual(fileName, manual);
+
+		manual.getMostExpManual().print(log);
+
 	}
 
 	public void testState1A_whiteFirst() {
@@ -233,9 +348,10 @@ public class TestAllState2 extends TestCase {
 		text[0] = new String("[_, _]");
 		text[1] = new String("[_, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		BoardColorState boardState = new BoardColorState (state,Constant.WHITE);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState , -2);
-//		GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.WHITE, -1, -2);
+		BoardColorState boardState = new BoardColorState(state, Constant.WHITE);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, -2);
+		// GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.WHITE, -1,
+		// -2);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
@@ -267,9 +383,10 @@ public class TestAllState2 extends TestCase {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn(Arrays.deepToString(state));
-		BoardColorState boardState = new BoardColorState (state,Constant.BLACK);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState , 1);
-//		GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.BLACK, 1, 0);
+		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 1);
+		// GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.BLACK, 1,
+		// 0);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
@@ -283,9 +400,10 @@ public class TestAllState2 extends TestCase {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn(Arrays.deepToString(state));
-		BoardColorState boardState = new BoardColorState (state,Constant.BLACK);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState , 1);
-//		GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.BLACK, 1, 0);
+		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 1);
+		// GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.BLACK, 1,
+		// 0);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
@@ -297,10 +415,11 @@ public class TestAllState2 extends TestCase {
 		text[0] = new String("[B, _]");
 		text[1] = new String("[_, W]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		BoardColorState boardState = new BoardColorState (state,Constant.WHITE);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState , -1);
-//		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.WHITE, 0,
-//				-1);
+		BoardColorState boardState = new BoardColorState(state, Constant.WHITE);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, -1);
+		// TwoTwoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.WHITE,
+		// 0,
+		// -1);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 			log.warn(goS.getGoBoard().getInitColorState().getStateString());
@@ -315,9 +434,10 @@ public class TestAllState2 extends TestCase {
 		text[0] = new String("[W, W]");
 		text[1] = new String("[_, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		BoardColorState boardState = new BoardColorState (state,Constant.WHITE);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState , 0);
-//		GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.WHITE, 1, 0);
+		BoardColorState boardState = new BoardColorState(state, Constant.WHITE);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 0);
+		// GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.WHITE, 1,
+		// 0);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
@@ -435,9 +555,10 @@ public class TestAllState2 extends TestCase {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn(Arrays.deepToString(state));
-		BoardColorState boardState = new BoardColorState (state,Constant.BLACK);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState , 1);
-//		GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.BLACK, 1, 0);
+		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 1);
+		// GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.BLACK, 1,
+		// 0);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
@@ -457,9 +578,10 @@ public class TestAllState2 extends TestCase {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn(Arrays.deepToString(state));
-		BoardColorState boardState = new BoardColorState (state,Constant.WHITE);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState , 0);
-//		GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.WHITE, 1, 0);
+		BoardColorState boardState = new BoardColorState(state, Constant.WHITE);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 0);
+		// GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.WHITE, 1,
+		// 0);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
@@ -479,9 +601,10 @@ public class TestAllState2 extends TestCase {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn(Arrays.deepToString(state));
-		BoardColorState boardState = new BoardColorState (state,Constant.BLACK);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState , 0);
-//		GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.BLACK, 0, -1);
+		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 0);
+		// GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.BLACK, 0,
+		// -1);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
@@ -508,9 +631,10 @@ public class TestAllState2 extends TestCase {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn(Arrays.deepToString(state));
-		BoardColorState boardState = new BoardColorState (state,Constant.WHITE);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState , 1);
-//		GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.WHITE, 2, 1);
+		BoardColorState boardState = new BoardColorState(state, Constant.WHITE);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 1);
+		// GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.WHITE, 2,
+		// 1);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
@@ -534,15 +658,15 @@ public class TestAllState2 extends TestCase {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn(Arrays.deepToString(state));
-		BoardColorState boardState = new BoardColorState (state,Constant.BLACK);
-		GoBoardSearch goS = new TwoTwoBoardSearch(boardState,  4);
+		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
+		GoBoardSearch goS = new TwoTwoBoardSearch(boardState, 4);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
 		assertEquals(1, score);
-		boardState = new BoardColorState (state,Constant.WHITE);
-		goS = new TwoTwoBoardSearch(boardState , -4);
-//		goS = new TwoTwoBoardSearch(state, Constant.WHITE, -3, -4);
+		boardState = new BoardColorState(state, Constant.WHITE);
+		goS = new TwoTwoBoardSearch(boardState, -4);
+		// goS = new TwoTwoBoardSearch(state, Constant.WHITE, -3, -4);
 		score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
@@ -580,9 +704,10 @@ public class TestAllState2 extends TestCase {
 		text[1] = new String("[W, W]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		TreeGoManual manual = null;
-		BoardColorState boardState = new BoardColorState (state,Constant.BLACK);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState , 1);
-//		GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.BLACK, 1, 0);
+		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 1);
+		// GoBoardSearch goS = new TwoTwoBoardSearch(state, Constant.BLACK, 1,
+		// 0);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 			log.warn("Score=" + score);

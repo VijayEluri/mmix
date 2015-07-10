@@ -1963,7 +1963,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 		return validate(step);
 	}
 
-	protected SearchNode rootParent = SearchNode.getSpecialRoot();
+	protected SearchNode rootParent = SearchNode.createSpecialRoot();
 	protected SearchNode current = rootParent;
 
 	public SearchNode getCurrent() {
