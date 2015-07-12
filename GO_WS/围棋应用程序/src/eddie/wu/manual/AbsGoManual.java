@@ -45,6 +45,11 @@ public abstract class AbsGoManual {
 			}
 		}
 	}
+	
+	public void setInitState(BoardColorState stateIn) {
+		byte[][] state = stateIn.getMatrixState();
+		setInitState(state);
+	}
 
 	public String getBlackName() {
 		return blackName;

@@ -18,7 +18,8 @@ import eddie.wu.ui.UIPoint;
  * 处理后退一步的算法
  */
 public class GoBoardBackward extends GoBoardForward implements GoBoardInterface {
-
+	//count how many moves we have backward.
+	private long backwardMoves = 0;
 	public GoBoardBackward(int boardSize) {
 		super(boardSize);
 	}
@@ -50,8 +51,10 @@ public class GoBoardBackward extends GoBoardForward implements GoBoardInterface 
 
 		// int index = getStepHistory().getAllSteps().size() - 1;
 		StepMemo memo = this.getLastStep();
-		if (memo.isGiveup()) {
+		backwardMoves++;//put it in central entrance.
+		if (memo.isPass()) {
 			this.getStepHistory().removeStep(shoushu--);
+			
 			return true;
 		}
 		return oneStepBackward(memo.getCurrentStepPoint());
@@ -447,6 +450,9 @@ public class GoBoardBackward extends GoBoardForward implements GoBoardInterface 
 		}
 		return true;
 	}
+	public long getBackwardMoves(){
+		return backwardMoves;
+	}
 
 	public void debugIngernalDataStructure(BoardColorState copy,
 			BoardColorState dynamic) {
@@ -579,7 +585,7 @@ public class GoBoardBackward extends GoBoardForward implements GoBoardInterface 
 		List<StepMemo> steps2 = getStepHistory().getAllSteps();
 		for (int i = 0; i < steps2.size(); i++) {
 			step = steps2.get(i);
-			if (step.isGiveup())
+			if (step.isPass())
 				continue;
 			color = matrixState[step.getCurrentStepPoint().getRow()][step
 					.getCurrentStepPoint().getColumn()];

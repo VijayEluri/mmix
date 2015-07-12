@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
-import eddie.wu.domain.GoBoardSymmetry;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
 import eddie.wu.domain.SymmetryResult;
@@ -43,7 +42,13 @@ import eddie.wu.ui.canvas.ReviewManualCanvas;
  * Note current search result does not support feature 2 yet. in case novice
  * make a wrong play, we don't know how to respond yet. we may search
  * dynamically on the fly.<br/>
- * TODO: initialize the score in each step
+ * TODO: initialize the score in each step<br/>
+ * 
+ * <br/>
+ * for record. get all results of 2*2 board search of initoal status. use this
+ * UI to show all results. <br/>
+ * 
+ * 
  * 
  * @author wueddie-wym-wrz
  * 
@@ -57,11 +62,11 @@ public class InteractiveGo extends Frame {
 	/**
 	 * domain object.
 	 */
-	private GoBoard go;// for showing current state
+	private GoBoard goBoard;// for showing current state
 	private TreeGoManual manual;// all variant
 	private boolean endWithManPlay;
 
-	private Object immutable = new Object();
+	// private Object immutable = new Object();
 
 	// share data between UI and back end.
 	private List<UIPoint> points = new ArrayList<UIPoint>();
@@ -74,53 +79,34 @@ public class InteractiveGo extends Frame {
 	}
 
 	/**
-	 * UI elements
+	 * UI elements. by default, man play first. 所谓练习（做题）模式<br/>
+	 * but you can request computer to play first to show the tips. 所谓演示模式
 	 */
 	private ReviewManualCanvas embedCanvas = new ReviewManualCanvas(
 			Constant.BOARD_SIZE);
-	private Button load = new Button("载入棋谱");
+	private Button load = new Button("载入题目");
 	private Button pass = new Button("弃权");
 	private Button backward = new Button("后退");
-	/**
-	 * 更加人性化的显示方式，自动以提子为分割，一次显示若干手数。<br/>
-	 * 每次不超过100手，这样数字不会超过两位。
-	 */
-	Button forwardManual = new Button("下一谱");
-	Button backwardManual = new Button("后退");
 
-	/**
-	 * 显示对局信息
-	 */
-	Label blackPlayer = new Label("黑方");
-	Label whitePlayer = new Label("白方");
-	Label result = new Label("结果");
-	Label shoushu = new Label("手数");
-
-	TextField blackPlayerV = new TextField();
-	TextField whitePlayerV = new TextField();
+	Label resultLabel = new Label("正确结果");
+	Label shoushuLabel = new Label("当前手数");
 	TextField resultV = new TextField();
 	TextField shoushuV = new TextField();
 
 	public static void main(String[] args) {
-		// if (args.length > 1) {
-		// rootDir = args[1];
-		// }
-		// GMDGoManual manual = new
-		// LoadGMDGoManual(rootDir).loadSingleGoManual();
-		String fileName = Constant.rootDir + "吴清源番棋263局/吴清源番棋001.SGF";
-
+		// C:\Users\think\Program\SCM_GIT\mmix\GO_WS\围棋应用程序\doc\围棋程序数据\smallboard\twotwo
+		String fileName = Constant.rootDir + "smallboard/twotwo/"
+				+ "Black __ __  win.sgf";
 		InteractiveGo weiqi = new InteractiveGo();
-		weiqi.setVisible(true);
 		weiqi.setBounds(0, 0, 800, 600);
 		weiqi.manual = SGFGoManual.loadTreeGoManual(fileName).get(0);
-
-		weiqi.blackPlayerV.setText(weiqi.manual.getBlackName());
-		weiqi.whitePlayerV.setText(weiqi.manual.getWhiteName());
 		weiqi.resultV.setText(weiqi.manual.getResult());
 		// weiqi.shoushuV.setText(weiqi.manual.getShouShu() + "");
 
-		weiqi.go = new GoBoard(weiqi.manual.getInitState());
-
+		weiqi.goBoard = new GoBoard(weiqi.manual.getInitState());
+		weiqi.loadManual(fileName);
+		weiqi.repaint_complete();
+		weiqi.setVisible(true);
 	}
 
 	/**
@@ -139,14 +125,8 @@ public class InteractiveGo extends Frame {
 		add(load);
 		add(pass);
 		add(backward);
-		add(forwardManual);
-		add(backwardManual);
-		add(blackPlayer);
-		add(whitePlayer);
-		add(result);
-		add(shoushu);
-		add(blackPlayerV);
-		add(whitePlayerV);
+		add(resultLabel);
+		add(shoushuLabel);
 		add(resultV);
 		add(shoushuV);
 		load.addActionListener(new LoadActionListener());
@@ -155,21 +135,11 @@ public class InteractiveGo extends Frame {
 		load.setVisible(true);
 		pass.setVisible(true);
 		backward.setVisible(true);
-		// forwardManual.setVisible(true);
-		// backwardManual.setVisible(true);
-		blackPlayer.setVisible(true);
-		whitePlayer.setVisible(true);
-		result.setVisible(true);
-		blackPlayerV.setVisible(true);
-		whitePlayerV.setVisible(true);
+		resultLabel.setVisible(true);
 		resultV.setVisible(true);
-		shoushu.setVisible(true);
+		shoushuLabel.setVisible(true);
 		shoushuV.setVisible(true);
-
-		backwardManual.setEnabled(true);
 		backward.setEnabled(true);
-		blackPlayerV.setEditable(false);
-		whitePlayerV.setEditable(false);
 		resultV.setEditable(false);
 		shoushuV.setEditable(false);
 
@@ -179,22 +149,14 @@ public class InteractiveGo extends Frame {
 		load.setBounds(600, 40, 100, 30);
 		pass.setBounds(600, 100, 100, 30);
 		backward.setBounds(600, 160, 100, 30);
-		forwardManual.setBounds(600, 220, 100, 30);
-		backwardManual.setBounds(600, 280, 100, 30);
 
-		blackPlayer.setBounds(600, 360, 40, 20);
-		blackPlayerV.setBounds(645, 360, 100, 20);
-
-		whitePlayer.setBounds(600, 390, 40, 20);
-		whitePlayerV.setBounds(645, 390, 100, 20);
-
-		result.setBounds(600, 420, 40, 20);
+		resultLabel.setBounds(600, 420, 80, 20);
 		resultV.setBounds(645, 420, 100, 20);
 
-		shoushu.setBounds(600, 450, 40, 20);
+		shoushuLabel.setBounds(600, 450, 80, 20);
 		shoushuV.setBounds(645, 450, 100, 20);
 
-		this.setTitle("交互演示死活题");
+		this.setTitle("交互演示围棋题");
 
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent event) {
@@ -217,7 +179,7 @@ public class InteractiveGo extends Frame {
 		if (manTurn == false) {
 			return true;
 		}
-		if (go.isDoubleGiveup()) {
+		if (goBoard.areBothPass()) {
 			System.out.println("Terminated by double pass! cannot move on!");
 			return true;
 		}
@@ -233,38 +195,38 @@ public class InteractiveGo extends Frame {
 			// coordinate difference between matrix and plane..
 			int row = b;
 			int column = a;
-			if (Point.isValid(go.boardSize, row, column) == false) {
+			if (Point.isValid(goBoard.boardSize, row, column) == false) {
 				return true;
 			}
 
-			point = Point.getPoint(go.boardSize, row, column);
+			point = Point.getPoint(goBoard.boardSize, row, column);
 
 		}
-		boolean validate = go.validate(point);
+		boolean validate = goBoard.validate(point);
 		if (validate == false) {
 			log.warn("Invalid step:" + point);
 			return true;
 		}
-
+		backward.setEnabled(true);
 		// record symmetry before forwarding
-		SymmetryResult symmetryResult = go.getSymmetryResult();
+		SymmetryResult symmetryResult = goBoard.getSymmetryResult();
 		log.warn(symmetryResult);
 
 		// for further calculation on the fly.
-		BoardColorState oldState = go.getBoardColorState();
+		BoardColorState oldState = goBoard.getBoardColorState();
 
-		validate = go.oneStepForward(point);
+		validate = goBoard.oneStepForward(point);
 		if (validate == false) {
 			throw new RuntimeException(
 					"impossible - we already check the state loop");
 		}
-
+		log.warn(Constant.lineSeparator);
 		log.warn("Man Play " + oldState.getWhoseTurnString() + " at " + point);
 		// valid move, response mode.
 		this.setManTurn(false);
 
 		// copy since we will convert by symmetry.
-		Step childMove = go.getLastStep().getStep().getCopy();
+		Step childMove = goBoard.getLastStep().getStep().getCopy();
 
 		// reach an final state, need to load its tree
 		if (manual.getCurrent().getChild() == null) {
@@ -272,8 +234,8 @@ public class InteractiveGo extends Frame {
 					+ childMove.toNonSGFString() + " on the fly.");
 
 			// try another solution: load another file
-			if (go.boardSize != 3) {
-				go.oneStepBackward();
+			if (goBoard.boardSize != 3) {
+				goBoard.oneStepBackward();
 				return true;// no way to response.
 			} else {
 
@@ -295,10 +257,10 @@ public class InteractiveGo extends Frame {
 						System.err.println("File not exist " + fileName1);
 
 						int lScore = ThreeThreeBoardSearch.getAccurateScore(
-								go.getBoardColorState(),
+								goBoard.getBoardColorState(),
 								manual.getResultAsScore());
 
-						go.oneStepBackward();
+						goBoard.oneStepBackward();
 						return true;
 					}
 				} else {
@@ -341,68 +303,91 @@ public class InteractiveGo extends Frame {
 				} else {
 					log.warn("Manual does not contain move " + childMove
 							+ " Strange!");
-					go.oneStepBackward();
+					goBoard.oneStepBackward();
 					return true;
 				}
 			}
 		}
 
-		if (go.isDoubleGiveup()) {
+		if (goBoard.areBothPass()) {
 			pass.setEnabled(false);
+			log.warn("Teminated by both pass!");
 			endWithManPlay = true;
-		}
-
-		SearchNode child = manual.getCurrent().getChild();
-		if (child == null) {
-			log.error("Computer has no choice; Strange! pass");
-			// go.giveUp(manual.getCurrent().getStep().getEnemyColor());
-
-			// possible due to that the previous state is an KNOWN state,
-			// we need to load its SGF on calculate on the fly.
-			int rScore = ThreeThreeBoardSearch.getAccurateScore(
-					go.getBoardColorState(), manual.getResultAsScore());
-
 		} else {
-			Step response = child.getStep();
-			manual.navigateToChild(response);
-			log.warn("response at " + response.toNonSGFString());
-			go.oneStepForward(response);
+
+			SearchNode child = manual.getCurrent().getChild();
+			if (child == null) {
+				log.error("Computer has no choice; Strange! pass");
+				// go.giveUp(manual.getCurrent().getStep().getEnemyColor());
+
+				// possible due to that the previous state is an KNOWN state,
+				// we need to load its SGF on calculate on the fly.
+				int rScore = ThreeThreeBoardSearch
+						.getAccurateScore(goBoard.getBoardColorState(),
+								manual.getResultAsScore());
+
+			} else {
+				log.warn("Manual contains moves "
+						+ manual.getCurrent().getChildren());
+				child = manual.getCurrent().getLessVisitChild();
+				child.increaseVisit();
+				Step response = child.getStep();
+				manual.navigateToChild(response);				
+				goBoard.oneStepForward(response);
+				
+				log.warn("Computer response at " + response.toNonSGFString());
+			}
+			if (goBoard.areBothPass()) {
+				log.warn("Teminated by both pass!");
+				pass.setEnabled(false);
+			}
 		}
-		if (go.isDoubleGiveup()) {
-			pass.setEnabled(false);
-		}
-		go.initUIPoint(points);
-		repaint();
-		embedCanvas.repaint();
+		shoushuV.setText(String.valueOf(goBoard.getShoushu()));
+		//goBoard.initUIPoint(points);
+		repaint_complete();
+		//embedCanvas.repaint();
 		this.setManTurn(true);
 		return true;
 
 	}
 
+	/**
+	 * 后退一步
+	 * 
+	 * @author think
+	 *
+	 */
 	class BackwardActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			if (computerFirst && go.getShoushu() == 1) {
-				return;// keep computer's first auto play.
-			} else {
-				go.oneStepBackward();
-				manual.up();
-				if (endWithManPlay == true) {
-					endWithManPlay = false;
-				} else {
-					go.oneStepBackward();
-					manual.up();
-				}
 
+			goBoard.oneStepBackward();
+			manual.up();
+			if (endWithManPlay == true) {
+				endWithManPlay = false;
+			} else {
+				goBoard.oneStepBackward();
+				manual.up();
+			}
+			if ((computerFirst && goBoard.getShoushu() == 1)
+					|| (!computerFirst && goBoard.getShoushu() == 0)) {
+				// return;// keep computer's first auto play.
+				backward.setEnabled(false);
 			}
 			pass.setEnabled(true);
 			repaint_complete();
 		}
 	}
 
+	/**
+	 * 弃权一手
+	 * 
+	 * @author think
+	 *
+	 */
 	class PassActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			if (go.isDoubleGiveup()) {
-				System.out.println("Teminated by double pass!");
+			if (goBoard.areBothPass()) {
+				log.warn("Teminated by both pass!");
 			} else {
 				mouseDown(null, -1, -1);
 			}
@@ -410,90 +395,70 @@ public class InteractiveGo extends Frame {
 	}
 
 	/**
-	 * 载入棋谱
+	 * 载入棋谱（题目及研究好的各种变化）
 	 * 
 	 * @author Eddie
 	 * 
 	 */
 	class LoadActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-
-			// 载入局面
 			FileDialog fd = new FileDialog(parent, "载入局面的位置", FileDialog.LOAD);
 			fd.setFile("*.sgf");
 			fd.setDirectory(Constant.rootDir);
-			fd.show();
+			fd.setVisible(true);
 
-			String inname = fd.getFile();
+			String fileName = fd.getFile();
 			String dir = fd.getDirectory();
-			if (inname == null || inname.isEmpty())
+			if (fileName == null || fileName.isEmpty())
 				return;
-			if (inname.toLowerCase().endsWith("lose.sgf")) {
-				computerFirst = false;
-				manTurn = true;
-			} else {
-				computerFirst = true;
-			}
-			inname = dir + inname;
-			manual = SGFGoManual.loadTreeGoManual(inname).get(0);
-			go = new GoBoard(manual.getInitState());
-
-			if (log.isEnabledFor(Level.WARN)) {
-				log.info("载入局面" + inname);
-				log.warn(go.getBoardColorState().getStateString());
-				log.warn(manual.getSGFBodyString(false));
-			}
-			blackPlayerV.setText(manual.getBlackName());
-			whitePlayerV.setText(manual.getWhiteName());
-			resultV.setText(manual.getResult());
-
-			if (computerFirst == true && manual.isEmpty() == false) {
-				Step firstStep = manual.getRoot().getChild().getStep();
-				boolean valid = go.oneStepForward(firstStep);
-				if (log.isEnabledFor(Level.WARN))
-					log.warn("correct color = " + manual.getInitTurn());
-				if (valid == false) {
-					log.warn("Wrong first step:" + firstStep.toNonSGFString());
-				} else {
-					log.warn("Computer play at:" + firstStep.toNonSGFString());
-				}
-				manual.navigateToChild(firstStep);
-				if (log.isEnabledFor(Level.WARN))
-					log.warn("computer played the first step " + firstStep);
-				log.warn("");
-				manTurn = true;
-			}
-
-			repaint_complete();
-
+			String fullName = dir + fileName;
+			loadManual(fullName);
 		}
+	}
+	
+	public void loadManual(String fullName){
+		if (fullName.toLowerCase().endsWith("lose.sgf")) {
+			computerFirst = false;
+			manTurn = true;
+		} else { // win.sfg
+			computerFirst = true;
+		}
+		
+		manual = SGFGoManual.loadTreeGoManual(fullName).get(0);
+		goBoard = new GoBoard(manual.getInitState());
+
+		if (log.isEnabledFor(Level.WARN)) {
+			log.info("载入围棋题目" + fullName);
+			log.warn(goBoard.getBoardColorState().getStateString());
+			log.warn(manual.getSGFBodyString(false));
+		}
+		resultV.setText(manual.getResult());
+
+		if (computerFirst == true && manual.isEmpty() == false) {
+			Step firstStep = manual.getRoot().getChild().getStep();
+			boolean valid = goBoard.oneStepForward(firstStep);
+			if (log.isEnabledFor(Level.WARN))
+				log.warn("correct color = " + manual.getInitTurn());
+			if (valid == false) {
+				log.warn("Wrong first step:" + firstStep.toNonSGFString());
+			} else {
+				log.warn("Computer play at:" + firstStep.toNonSGFString());
+			}
+			manual.navigateToChild(firstStep);
+			if (log.isEnabledFor(Level.WARN))
+				log.warn("computer played the first step " + firstStep);
+			log.warn("");
+			manTurn = true;
+		}
+		pass.setEnabled(true);
+		backward.setEnabled(false);
+		repaint_complete();
 	}
 
 	public void repaint_complete() {
-		go.initUIPoint(points);
-		embedCanvas.setBoardSize(go.boardSize);
+		goBoard.initUIPoint(points);
+		embedCanvas.setBoardSize(goBoard.boardSize);
 		repaint();
 		embedCanvas.repaint();
-		// TODO Auto-generated method stub
-
 	}
 }
-// TODO:
-// TODO: dynamic code here.
-// if (go.boardSize == 3) {
-// // need to store result score!
-// int score = 4;
-// int high = score;
-// int low = score;
-// if (computerFirst) {
-// if (manual.getInitTurn() == Constant.BLACK) {
-// low = high - 1;
-// }else{
-// high = score+1;
-// }
-// }else{
-//
-// }
-// ThreeThreeBoardSearch goS = new ThreeThreeBoardSearch(
-// oldState, high, low);
-// }

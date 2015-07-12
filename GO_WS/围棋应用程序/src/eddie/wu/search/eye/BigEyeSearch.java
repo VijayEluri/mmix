@@ -370,14 +370,14 @@ public class BigEyeSearch extends GoBoardSearch {
 	protected int getScore() {
 		// when one side give up, we can terminate and count the eyes.
 
-		if (goBoard.isDoubleGiveup()) {
+		if (goBoard.areBothPass()) {
 			/**
 			 * only means live without two eyes.
 			 */
 			return RelativeResult.DUAL_LIVE;
 		}
 
-		if (goBoard.noStep() == false && goBoard.getLastStep().isGiveup()) {
+		if (goBoard.noStep() == false && goBoard.getLastStep().isPass()) {
 			if (this.targetColor == goBoard.getLastStep().getColor()) {
 				return Constant.UNKOWN;// only means without two eyes.
 			}

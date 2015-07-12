@@ -34,7 +34,9 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	/**
 	 * 存储已知的状态的结果，因为不同搜索需要的表示方法不同，放在子类中。<br/>
 	 * we may need to extend the result score from a integer to a scope
-	 * [low,high] like [-6, -9]
+	 * [low,high] like [-6, -9]<br/>
+	 * another idea is to know max or min by whose turn. then the score means
+	 * either >= score or <=score.
 	 */
 	protected Map<BoardColorState, Integer> results = new HashMap<BoardColorState, Integer>();
 
@@ -156,7 +158,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	@Override
 	protected TerminalState getTerminalState() {
 		TerminalState ts = new TerminalState();
-		if (goBoard.isDoubleGiveup()) {
+		if (goBoard.areBothPass()) {
 			ts.setTerminalState(true);
 			ts.setFinalResult(goBoard.finalResult_doublePass());
 
@@ -217,10 +219,16 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 
 	public void outputSearchStatistics(Logger log) {
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-
+			log.warn("searched path = " + getSearchProcess().size());
 			log.warn("Black expect: " + getMaxExp() + ", White expect:"
 					+ getMinExp());
 			log.warn("we calculate steps = " + countSteps);
+			long forwardMoves = goBoard.getForwardMoves();
+			log.warn("forwardMoves = " + forwardMoves);
+			long backwardMoves = goBoard.getBackwardMoves();
+			log.warn("backwardMoves = " + backwardMoves);
+			//because we will go back to initial state in the end of the search!
+			TestCase.assertEquals(forwardMoves,backwardMoves);
 			log.warn("we know the result = " + results.size());
 			for (Entry<BoardColorState, Integer> entry : results.entrySet()) {
 				if (entry.getKey().getWhoseTurn() == Constant.WHITE)
@@ -232,6 +240,23 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			String fileName = Constant.rootDir
 					+ "smallboard/threethree/decided/" + "all_state.sgf";
 			SGFGoManual.storeGoManual(fileName, manuals);
+
+			int count = 0;
+			int bothPass = 0;
+			int exhaust = 0;
+			for (String list : getSearchProcess()) {
+				count++;
+				//log.warn(list);
+//				if (count % 100 == 0)
+//					log.warn("count=" + count);
+				if (list.endsWith(DB_PASS + ")")) {
+					bothPass++;
+				} else if (list.endsWith((EXHAUST + ")"))) {
+					exhaust++;
+				}
+			}
+			log.warn("Pure searched path = "
+					+ (getSearchProcess().size() - exhaust));
 		}
 	}
 

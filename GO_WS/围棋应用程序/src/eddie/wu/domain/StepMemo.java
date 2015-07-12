@@ -181,7 +181,7 @@ public class StepMemo implements Serializable {
 		mergedBlocks.add(block);
 	}
 
-	public boolean isGiveup() {
+	public boolean isPass() {
 		return step.isPass();
 	}
 

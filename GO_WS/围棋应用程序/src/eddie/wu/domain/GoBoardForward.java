@@ -33,7 +33,9 @@ public class GoBoardForward extends GoBoardSymmetry {
 	private StepHistory stepHistory = new StepHistory();
 	private boolean checkForward = false;
 	private BoardStatistic statistic = new BoardStatistic();
-
+	
+	//count how many moved we have forwarded, used in search 
+	private long forwardMoves = 0;
 	public GoBoardForward(int boardSize) {
 		super(boardSize);
 		this.stepHistory.colorStates.add(initColorState);
@@ -160,7 +162,8 @@ public class GoBoardForward extends GoBoardSymmetry {
 		} else {
 			current = child;
 		}
-
+		
+		forwardMoves++;
 		if (step.isPass()) {
 			this.pass(step.getColor());
 			return true;
@@ -417,8 +420,11 @@ public class GoBoardForward extends GoBoardSymmetry {
 
 				check(message);
 			}
-		}
+		}		
 		return true;
+	}
+	public long getForwardMoves(){
+		return forwardMoves;
 	}
 
 	int[] caseCount = new int[18];
@@ -600,7 +606,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 
 	/**
 	 * 打劫时的虚拟劫材应对。 注意悔棋时需要对应处理。
-	 * 
+	 * @deprecated not used yet!
 	 * @return
 	 */
 	public boolean oneVirtualStepInLoop(int color) {
@@ -1832,17 +1838,12 @@ public class GoBoardForward extends GoBoardSymmetry {
 		return this.stepHistory.getAllSteps().isEmpty();
 	}
 
-	public boolean isDoubleGiveup() {
-		// 双虚手终局
-		StepHistory history = this.getStepHistory();
-		if (history.getAllSteps().size() >= 2) {
-			if (history.getLastStep().isGiveup()) {
-				if (history.getSecondLastStep().isGiveup()) {
-					return true;
-				}
-			}
-		}
-		return false;
+	/**
+	 * 双虚手终局
+	 * @return
+	 */
+	public boolean areBothPass() {		
+		return this.getStepHistory().areBothPass();
 	}
 
 	public boolean validate(Step step) {

@@ -116,6 +116,17 @@ public class StepHistory implements java.io.Serializable {
 		return allSteps.get(index);
 	}
 
+	public boolean areBothPass() {
+		if (getAllSteps().size() >= 2) {
+			if (getLastStep().isPass()) {
+				if (getSecondLastStep().isPass()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public StepMemo getLastStep() {
 		if (allSteps.isEmpty())
 			return null;
@@ -143,7 +154,7 @@ public class StepHistory implements java.io.Serializable {
 		int size = allSteps.size();
 		for (int i = size - 1; i >= 0; i--) {
 			StepMemo stepMemo = this.allSteps.get(i);
-			if (stepMemo.isGiveup())
+			if (stepMemo.isPass())
 				return stepMemo.getColor();
 		}
 		return 0;
@@ -209,7 +220,7 @@ public class StepHistory implements java.io.Serializable {
 
 	public boolean noRealStep() {
 		if (this.getAllSteps().size() == 1
-				&& this.getAllSteps().get(0).isGiveup())
+				&& this.getAllSteps().get(0).isPass())
 			return true;
 		else
 			return false;

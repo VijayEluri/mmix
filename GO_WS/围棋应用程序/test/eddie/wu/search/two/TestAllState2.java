@@ -48,7 +48,22 @@ public class TestAllState2 extends TestCase {
 		Logger.getLogger(GoBoardForward.class).setLevel(Level.ERROR);
 		Logger.getLogger(TestAllState2.class).setLevel(Level.WARN);
 	}
+	
+	/**
+	 * B-->[1,1]W-->[2,2]B-->[1,2]W-->[2,1
+	 */
+	public void testGetCandiate_suicide() {
 
+		String[] text = new String[2];
+		text[0] = new String("[B, _]");
+		text[1] = new String("[_, B]");
+		byte[][] state = StateLoader.LoadStateFromText(text);
+
+		SmallGoBoard sa = new SmallGoBoard(BoardColorState.getInstance(state,
+				Constant.BLACK));
+		List<Candidate> candidate = sa.getCandidate(Constant.BLACK, false);
+		log.warn(candidate);
+	}
 	/**
 	 * B-->[1,1]W-->[2,2]B-->[1,2]W-->[2,1
 	 */
@@ -97,10 +112,24 @@ public class TestAllState2 extends TestCase {
 
 	}
 
-	public void testState1_blackFirst_lose() {
-//		testState1_blackFirst_lose(2, 0);// 5s
-		 testState1_blackFirst_lose(4, -4);//112s
-//		testState1_blackFirst_lose(5, -5);//
+	public void testState1_blackFirst_lose_4_4() {
+		testState1_blackFirst_lose(4, -4);// 112s
+	}
+
+	/**
+	 * why it takes more time. it will suicide in case of<br/>
+	 * W_<br/>
+	 * _W<br/>
+	 * by play at W[1,2]. this step is nonsense if you just want to get one
+	 * effective move. but if you want to get all best moves, you need to verify
+	 * that this move is NOT one of them.
+	 */
+	public void testState1_blackFirst_lose_5_5() {
+		testState1_blackFirst_lose(5, -5);//
+	}
+
+	public void testState1_blackFirst_lose_2_0() {
+		testState1_blackFirst_lose(2, 0);// 5s
 	}
 
 	/**
@@ -131,56 +160,78 @@ public class TestAllState2 extends TestCase {
 		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, high, low);
 		goS.setVariant(1500000);
 		int score = goS.globalSearch();
-
+		TreeGoManual manual = goS.getTreeGoManual();
+		int initScore = manual.initScore();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 			log.warn("Win/Lose with Score=" + score);
-			log.warn("searched path = " + goS.getSearchProcess().size());
+			// log.warn("searched path = " + goS.getSearchProcess().size());
+//			log.warn("Most Expensive path: ");
+//			log.warn(Constant.lineSeparator + manual.getMostExpPath());
+			goS.outputSearchStatistics(log);
 		}
 		assertEquals(1, score);
-		assertTrue(score!=high);
-		assertTrue(score!=low);
+		assertTrue(score != high);
+		assertTrue(score != low);
 
 		String name1 = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
 				+ goS.getMaxExp() + goS.getMinExp() + " win.sgf";
+		String name11 = goS.getGoBoard().getInitColorState()
+				.getStateAsOneLineString()
+				+ goS.getMaxExp() + goS.getMinExp() + " multiple win.sgf";
 		String fileName1 = Constant.rootDir + "smallboard/twotwo/" + name1;
+		String fileName11 = Constant.rootDir + "smallboard/twotwo/" + name11;
 		String name2 = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
 				+ goS.getMaxExp() + goS.getMinExp() + " lose.sgf";
+		String name21 = goS.getGoBoard().getInitColorState()
+				.getStateAsOneLineString()
+				+ goS.getMaxExp() + goS.getMinExp() + " multiple lose.sgf";
 		String fileName2 = Constant.rootDir + "smallboard/twotwo/" + name2;
-		
-		TreeGoManual manual = goS.getTreeGoManual();		
-		int initScore = manual.initScore();
-		TreeGoManual manual2 = manual.copy();
-		
+		String fileName21 = Constant.rootDir + "smallboard/twotwo/" + name21;
+
+		int variant = manual.initVariant();
 		log.warn("Before Cleanup ");
-		log.warn("Init score = " + initScore);
-		
-		manual.cleanupBadMoveForWinner(false);
-		manual.initVariant();
-		log.warn("After Cleanup 1.1: ");
-		log.warn(manual.getSGFBodyString(false));
-		
-	
-		manual.chooseBestMoveForWinner(false);
-		manual.initVariant();
-		log.warn("After Cleanup 1.2: ");
-		log.warn(manual.getSGFBodyString(false));
-		SGFGoManual.storeGoManual(fileName2, manual);
-		
+		log.warn("Init score = " + initScore + ", variant=" + variant);
+		TreeGoManual maxWin = manual.getMaxWinResult();
+		TreeGoManual maxWin2 = maxWin.getMaxWinResult();
+		log.warn("Maxwin: ");
+		log.warn(maxWin.getSGFBodyString(false));
+		SGFGoManual.storeGoManual(fileName11, maxWin);
 
-		manual2.cleanupBadMoveForWinner(true);
-		manual2.initVariant();
-		log.warn("After Cleanup 2.1: ");
-		log.warn(manual.getSGFBodyString(false));
+		maxWin.chooseBestMoveForWinner(true);
+		log.warn("after choose Max best move only!");
+		log.warn(maxWin.getSGFBodyString(false));
+		SGFGoManual.storeGoManual(fileName1, maxWin);
 
-		manual2.chooseBestMoveForWinner(true);
-		manual2.initVariant();
-		log.warn("After Cleanup 2.2: ");
-		log.warn(manual2.getSGFBodyString(false));
-		SGFGoManual.storeGoManual(fileName1, manual2);
+		TreeGoManual minWin = manual.getMinWinResult();
+		TreeGoManual minWin2 = minWin.getMinWinResult();//copy
+		log.warn("Minwin: ");
+		log.warn(minWin.getSGFBodyString(false));
+		SGFGoManual.storeGoManual(fileName21, minWin);
+
+		minWin.chooseBestMoveForWinner(false);
+		log.warn("after choose Min best move only!");
+		log.warn(minWin.getSGFBodyString(false));
+		SGFGoManual.storeGoManual(fileName2, minWin);
+
 		
-		
+		log.warn("best moves of both: 1");
+		maxWin2.cleanupBadMoveForBoth();
+		log.warn(maxWin2.getSGFBodyString(false));
+		log.warn("best moves of both: 2");
+		minWin2.cleanupBadMoveForBoth();
+		log.warn(minWin2.getSGFBodyString(false));;
+		// manual2.cleanupBadMoveForWinner(true);cl
+		// manual2.initVariant();
+		// log.warn("After Cleanup 2.1: ");
+		// log.warn(manual.getSGFBodyString(false));
+		//
+		// manual2.chooseBestMoveForWinner(true);
+		// manual2.initVariant();
+		// log.warn("After Cleanup 2.2: ");
+		// log.warn(manual2.getSGFBodyString(false));
+		// SGFGoManual.storeGoManual(fileName1, manual2);
 
 	}
 
@@ -206,7 +257,7 @@ public class TestAllState2 extends TestCase {
 	 * Step [point=Give Up, color=Black, index=11, loopSuperior= false,
 	 * name=null]<br/>
 	 */
-	public void testState1_blackFirst() {
+	public void testState1_blackFirst_win() {
 		String[] text = new String[2];
 		text[0] = new String("[_, _]");
 		text[1] = new String("[_, _]");
@@ -217,15 +268,7 @@ public class TestAllState2 extends TestCase {
 
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 			log.warn("Win with Score=" + score);
-			log.warn("searched path = " + goS.getSearchProcess().size());
-			int count = 0;
-			for (String list : goS.getSearchProcess()) {
-				count++;
-				log.warn(list);
-				if (count % 100 == 0)
-					log.warn("count=" + count);
-			}
-
+			goS.outputSearchStatistics(log);
 		}
 		assertEquals(1, score);
 
@@ -236,7 +279,8 @@ public class TestAllState2 extends TestCase {
 		TreeGoManual manual = goS.getTreeGoManual();
 		int initScore = manual.initScore();
 		log.warn("Before Cleanup ");
-		log.warn("Init score = " + initScore);
+		log.warn("Init score = " + initScore + ", variant= "
+				+ manual.initVariant());
 		log.warn(manual.getSGFBodyString(false));
 		// manual.cleanupBadMove_firstWin(goS.initTurn, goS.getMaxExp());
 		manual.cleanupBadMoveForWinner(true);
@@ -244,30 +288,36 @@ public class TestAllState2 extends TestCase {
 		log.debug(manual.getExpandedString(false));// init variant
 		log.warn(manual.getSGFBodyString(false));
 		SGFGoManual.storeGoManual(fileName, manual);
-		// SearchNode root = goS.getGoBoard().getRoot();
-		// if(log.isEnabledFor(Level.WARN)) log.warn(root.getSGFBodyString());
-		// TreeGoManual tree = goS.getGoBoard().getTreeGoManual();
-		// if (log.isEnabledFor(Level.WARN))
-		// log.warn(tree.getSGFBodyString());
-		// boardState = new BoardColorState(state, Constant.BLACK);
-		// goS = new TwoTwoBoardSearch(boardState, 2);
-		// score = goS.globalSearch();
-		// if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-		// log.warn("Lose with Score=" + score);
-		//
-		// count = 0;
-		// for (String list : goS.getSearchProcess()) {
-		// count++;
-		// if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-		// log.warn(list);
-		// if (count % 100 == 0)
-		// if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-		// log.warn("count=" + count);
-		// }
-		// if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-		// log.warn(goS.getSearchProcess().size());
-		// assertEquals(1, score);
+	}
+	
+	public void testState1_blackFirst_lose() {
+		String[] text = new String[2];
+		text[0] = new String("[_, _]");
+		text[1] = new String("[_, _]");
+		byte[][] state = StateLoader.LoadStateFromText(text);
+		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
+		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 2);
+		int score = goS.globalSearch();
+		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+			log.warn("Lose with Score=" + score);
+			goS.outputSearchStatistics(log);
+		}
+		assertEquals(1, score);
 
+		String name = goS.getGoBoard().getInitColorState()
+				.getStateAsOneLineString()
+				+ " lose.sgf";
+		String fileName = Constant.rootDir + "smallboard/twotwo/" + name;
+		TreeGoManual manual = goS.getTreeGoManual();
+		int initScore = manual.initScore();
+		log.warn("Before Cleanup ");
+		log.warn("Init score = " + initScore + ", variant= "
+				+ manual.initVariant());
+		log.warn(manual.getSGFBodyString(false));
+		manual.cleanupBadMoveForWinner(false);
+		log.warn("After Cleanup: ");
+		log.warn(manual.getSGFBodyString(false));
+		SGFGoManual.storeGoManual(fileName, manual);
 	}
 
 	public void testState1_whiteFirst() {

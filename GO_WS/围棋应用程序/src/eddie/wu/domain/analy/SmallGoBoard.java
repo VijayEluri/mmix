@@ -307,7 +307,7 @@ public class SmallGoBoard extends TerritoryAnalysis {
 		Candidate candidatePass = new Candidate();
 		candidatePass.setStep(new Step(null, color, getShoushu() + 1));
 		if (this.getStepHistory().getAllSteps().isEmpty() == false
-				&& this.getLastStep().isGiveup() == true) {
+				&& this.getLastStep().isPass() == true) {
 			// 前一步对方弃权,下一步有限考虑弃权,有望及早到达终点状态.
 			// this logic is only good for 2*2 board.
 			if (boardSize <= 4) {

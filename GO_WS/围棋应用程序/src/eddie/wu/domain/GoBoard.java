@@ -188,7 +188,7 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 		 * eaten and we can eat back.--hot fix
 		 * 
 		 */
-		if (this.noStep() == false && this.getLastStep().isGiveup() == false) {
+		if (this.noStep() == false && this.getLastStep().isPass() == false) {
 			if (this.getBreaths(this.getLastPoint()) == 1) {
 				scope.add(this.getBlock(this.getLastPoint()).getLastBreath());
 			}
@@ -406,7 +406,7 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 				cans.add(0, candidateP);
 			}
 		} else if (this.noStep() == false
-				&& this.getLastStep().isGiveup() == true) {
+				&& this.getLastStep().isPass() == true) {
 			// only consider pass as last option in case of potential dual live.
 			if (isDualLivePotential(target, scope)) {
 				Candidate candidateP = new Candidate();
@@ -448,7 +448,7 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 		 * eaten and we can eat back.--hot fix
 		 * 
 		 */
-		if (this.noStep() == false && this.getLastStep().isGiveup() == false) {
+		if (this.noStep() == false && this.getLastStep().isPass() == false) {
 			if (this.getBreaths(this.getLastPoint()) == 1) {
 				scope.add(this.getBlock(this.getLastPoint()).getLastBreath());
 			}
@@ -665,7 +665,7 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 					cans.add(candidatePass);
 				} else {
 					if (this.noStep() == false
-							&& this.getLastStep().isGiveup() == true) {
+							&& this.getLastStep().isPass() == true) {
 						// put at the beginning.若目标方已经弃权,可以弃权.得到双活结论.
 						cans.add(0, candidatePass);
 					} else {

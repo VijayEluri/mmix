@@ -667,7 +667,7 @@ public class GoBoardLadder extends GoBoard implements ZhengZiInterface {
 	public boolean isFinalState_capture(Point target, int targetColor) {
 		if (this.noStep()) {
 			return false;
-		} else if (this.getLastStep().isGiveup()) {
+		} else if (this.getLastStep().isPass()) {
 			return true;
 		}
 		//被征子的块走了一步
@@ -679,7 +679,7 @@ public class GoBoardLadder extends GoBoard implements ZhengZiInterface {
 	}
 
 	public int getScore_capture(Point target, int targetColor) {
-		 if (this.getLastStep().isGiveup()) {
+		 if (this.getLastStep().isPass()) {
 			 if (this.getLastStep().getColor() == targetColor) {
 				 //无法达到两气。
 				 return CaptureSearch.CAPTURE_SUCCESS;

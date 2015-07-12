@@ -11,7 +11,7 @@ import eddie.wu.domain.SymmetryResult;
 
 /**
  * result of search tree; left is child, right is brother.<br/>
- * Design Change, there is an dummy root node (without step)<br/>
+ * Design Change, there is an dummy root node (without step/move)<br/>
  * reason is map to the initial state. each note stands for the state it reach
  * after the move is taken.
  * 
@@ -29,6 +29,14 @@ public class SearchNode {
 	private String jieshuo;
 	int variant;// 走完该步所致状态所拥有变化的数目
 
+	/**
+	 * auxiliary field. in case of multiple best move, in order to show all of
+	 * them we check which move is traversed less and choose it in current
+	 * computer's turn. in case of tie, the first one is chosen.
+	 */
+
+	private int visitedTimes = 0;
+
 	public SearchNode(Step step) {
 		this.step = step;
 	}
@@ -36,6 +44,19 @@ public class SearchNode {
 	public static SearchNode createSpecialRoot() {
 		// root has no step (to it)
 		return new SearchNode(null);
+	}
+
+	/**
+	 * make a safe copy
+	 * 
+	 * @return
+	 */
+	public SearchNode getCopy() {
+		Step stepCopy = (step == null ? null : step.getCopy());
+		SearchNode nodeCopy = new SearchNode(stepCopy);
+		nodeCopy.score = this.score;
+		nodeCopy.max = this.max;
+		return nodeCopy;
 	}
 
 	public SearchNode getCopy(SymmetryResult sym) {
@@ -50,12 +71,32 @@ public class SearchNode {
 		}
 		copy.score = this.score;
 		copy.max = this.max;
-
 		return copy;
 	}
 
 	public SearchNode getChild() {
 		return child;
+	}
+	
+	public void increaseVisit(){
+		
+		visitedTimes+=1;
+		System.out.println(step.toNonSGFString()+this.visitedTimes);
+	}
+
+	public SearchNode getLessVisitChild() {
+		SearchNode temp = child;
+		int visit = Integer.MAX_VALUE;
+		SearchNode current = temp;
+		while (temp != null) {
+			System.out.println("visitedTimes"+temp.visitedTimes);
+			if (temp.visitedTimes < visit) {
+				visit = temp.visitedTimes ;
+				current = temp;
+			}
+			temp = temp.brother;
+		}
+		return current;
 	}
 
 	public List<Point> getChildren() {
@@ -205,10 +246,10 @@ public class SearchNode {
 			depth++;
 			if (sgf) {
 				sb.append(this.getStep().toSGFString());
-			} else {				
-				if(inMemoryFormat){
+			} else {
+				if (inMemoryFormat) {
 					sb.append(this.toString());
-				}else{
+				} else {
 					sb.append(this.getStep().toNonSGFString());
 				}
 			}
@@ -234,15 +275,16 @@ public class SearchNode {
 				if (sgf) {
 					sb.append(brother.getStep().toSGFString());
 				} else {
-					if(inMemoryFormat){
+					if (inMemoryFormat) {
 						sb.append(brother.toString());
-					}else{
+					} else {
 						sb.append(brother.getStep().toNonSGFString());
 					}
-//					sb.append(brother.getStep().toNonSGFString());
-//					sb.append(" (variant=" + brother.getVariant() + ", score="
-//							+ brother.getScore() + ", max=" + brother.isMax()
-//							+ ") ");
+					// sb.append(brother.getStep().toNonSGFString());
+					// sb.append(" (variant=" + brother.getVariant() +
+					// ", score="
+					// + brother.getScore() + ", max=" + brother.isMax()
+					// + ") ");
 				}
 				// sb.append("variant=" + brother.getVariant());
 				if (brother.child != null) {
@@ -440,6 +482,48 @@ public class SearchNode {
 	}
 
 	/**
+	 * suppose we have the complete search tree, for example the two*two board.
+	 * we want to get the result which ensure Max will win no matter how Min
+	 * played.<br/>
+	 * since want to get MinWin at the same time, we will get a copy of tree and
+	 * keep the original tree unchanged.
+	 * 
+	 * @return
+	 */
+	public SearchNode getMaxWinResult() {
+		return getWinResult(true);
+	}
+
+	public SearchNode getMinWinResult() {
+		return getWinResult(false);
+	}
+
+	public SearchNode getWinResult(boolean maxWin) {
+		SearchNode copy = this.getCopy();
+		if (child == null) {
+			return copy;
+		}
+		SearchNode temp = child;
+		SearchNode current = null;
+
+		boolean minWin = !maxWin;
+		while (temp != null) {
+			if ((maxWin && this.isMax() && temp.getScore() < this.getScore())
+					|| (minWin && this.isMin() && temp.getScore() > this
+							.getScore())) {
+				// ignore not effective move.
+				temp = temp.brother;
+			} else {
+				// rebuild with valid child.
+				current = temp;
+				temp = temp.brother;
+				copy.addChild(current.getWinResult(maxWin));
+			}
+		}
+		return copy;
+	}
+
+	/**
 	 * new idea with after thought - simplify the algorithm. <br/>
 	 * should be called from root first. <br/>
 	 * did not do it in initScore because we may need raw search data for
@@ -472,13 +556,40 @@ public class SearchNode {
 	}
 
 	/**
+	 * if search with [2,0] get result 1. we can get best results for both side.
+	 * not so good move is filtered.
+	 */
+	public void cleanupBadMoveForBoth() {
+		if (child == null)
+			return;
+		SearchNode temp = child;
+		SearchNode current = null;
+		child = null; // Detach children
+		while (temp != null) {
+			if ((this.isMax() && temp.getScore() < this.getScore())
+					|| (this.isMin() && temp.getScore() > this.getScore())) {
+				// ignore not effective move.
+				temp = temp.brother;
+			} else {
+				// rebuild with valid child.
+				current = temp;
+				temp = temp.brother;
+				this.addChild(current);
+				current.cleanupBadMoveForBoth();
+			}
+		}
+	}
+
+	/**
 	 * depends on variant is up to date.
 	 * 
 	 * @param maxWin
 	 */
 	public void chooseBestMoveForWinner(boolean maxWin) {
-		if (child == null)
+		if (child == null) {
+			this.variant = 1;
 			return;
+		}
 		boolean minWin = !maxWin;
 		SearchNode temp = child;
 		SearchNode current = null;
@@ -486,18 +597,24 @@ public class SearchNode {
 			child = null; // Detach children
 			int variant = this.variant + 1;
 			while (temp != null) {
-				// choose the one with less variants
-				if (temp.variant < variant)
+				// choose the one with less variants - decide sub_tree first
+				temp.chooseBestMoveForWinner(maxWin);
+				if (temp.variant < variant) {
 					current = temp;
+					variant = temp.variant;
+				}
 				temp = temp.brother;
 			}
 			this.addChild(current);
-			current.chooseBestMoveForWinner(maxWin);
+			this.variant = current.variant;
 		} else {
+			int variant = 0;
 			while (temp != null) {
 				temp.chooseBestMoveForWinner(maxWin);
+				variant += temp.variant;
 				temp = temp.brother;
 			}
+			this.variant = variant;
 		}
 	}
 

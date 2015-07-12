@@ -14,6 +14,9 @@ public class TreeGoManual extends AbsGoManual {
 	private SearchNode root;
 	private SearchNode current;
 
+	// public TreeGoManual(SearchNode root){
+	//
+	// }
 	public SearchNode getRoot() {
 		return root;
 	}
@@ -37,6 +40,10 @@ public class TreeGoManual extends AbsGoManual {
 		return getSGFBodyString(sgf, true);
 	}
 
+	public void cleanupBadMoveForBoth() {
+		getRoot().cleanupBadMoveForBoth();
+		getRoot().initVariant();
+	}
 	public String getSGFBodyString(boolean sgf, boolean inMemoryFormat) {
 		StringBuilder sb = new StringBuilder();
 		if (sgf == false) {
@@ -79,12 +86,13 @@ public class TreeGoManual extends AbsGoManual {
 	 */
 	public int initScore() {
 		int score = this.root.initScore();
-		if (result == null)
+		if (result == null || result.isEmpty())
 			result = String.valueOf(score);
 		return score;
 	}
 
 	public String getMostExpPath() {
+		this.initVariant();
 		return getMostExpPath(false, new SimpleGoManual(this.getInitState()));
 	}
 
@@ -211,7 +219,7 @@ public class TreeGoManual extends AbsGoManual {
 	}
 
 	public void navigateToChild(Step childMove) {
-		SearchNode child = current.getChild(childMove);
+		SearchNode child = current.getChild(childMove);		
 		if (child != null) {
 			current = child;
 		} else {
@@ -270,21 +278,41 @@ public class TreeGoManual extends AbsGoManual {
 
 	public void cleanupBadMoveForWinner(boolean maxWin) {
 		getRoot().cleanupBadMoveForWinner(maxWin);
+		getRoot().initVariant();
 
 	}
 
 	public void chooseBestMoveForWinner(boolean maxWin) {
 		getRoot().chooseBestMoveForWinner(maxWin);
-
+		getRoot().initVariant();
 	}
 
 	public int initVariant() {
 		return getRoot().initVariant();
 	}
 
+	/**
+	 * @deprecated copy maybe expensive when tree is large
+	 * @return
+	 */
 	public TreeGoManual copy() {
 		return new TreeGoManual(this.getRoot().copySubTree(), boardSize,
 				initTurn);
 	}
 
+	public TreeGoManual getMaxWinResult() {
+		TreeGoManual maxWin = new TreeGoManual(boardSize, initTurn);
+		maxWin.setRoot(this.getRoot().getMaxWinResult());
+		maxWin.setInitState(this.getInitState());
+		maxWin.initVariant();
+		return maxWin;
+	}
+
+	public TreeGoManual getMinWinResult() {
+		TreeGoManual minWin = new TreeGoManual(boardSize, initTurn);
+		minWin.setRoot(this.getRoot().getMinWinResult());
+		minWin.setInitState(this.getInitState());
+		minWin.initVariant();
+		return minWin;
+	}
 }

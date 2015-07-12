@@ -28,6 +28,10 @@ import eddie.wu.manual.TreeGoManual;
  * 
  */
 public abstract class GoBoardSearch {
+	protected static final String DB_PASS = " DB_PASS";
+
+	protected static final String EXHAUST = " EXHAUST";
+
 	private int id;// for log information to distinguish instances
 
 	private int minExpScore;
@@ -56,18 +60,13 @@ public abstract class GoBoardSearch {
 	/**
 	 * during search, how many steps we forwarded.
 	 */
-	protected int countSteps;
+	protected int countSteps = 0;
 
 	/**
 	 * 将每个搜索到终点的过程记录下来.便于排错.
 	 */
 	private List<String> searchProcess = new ArrayList<String>();
-
-	/**
-	 * 禁止全局同型再现, done in board class
-	 */
-	// Set<BoardColorState> knownState = new HashSet<BoardColorState>();
-
+	
 	List<Step> bestResult;
 
 	/**
@@ -241,7 +240,7 @@ public abstract class GoBoardSearch {
 							if (getGoBoard().getStepHistory().isDupReached(
 									boardColorStateN) == false
 									&& (getGoBoard().noStep() == true || getGoBoard()
-											.getLastStep().isGiveup() == false)) {
+											.getLastStep().isPass() == false)) {
 								log.warn("current state is not a history dependent state");
 								getGoBoard().getStepHistory().printDupState();
 								// this.stateDecided(boardColorStateN,
@@ -260,7 +259,7 @@ public abstract class GoBoardSearch {
 							if (getGoBoard().getStepHistory().isDupReached(
 									boardColorStateN) == false
 									&& (getGoBoard().noStep() == true || getGoBoard()
-											.getLastStep().isGiveup() == false)) {
+											.getLastStep().isPass() == false)) {
 								log.warn("current state is not a history dependent state");
 								getGoBoard().getStepHistory().printDupState();
 								// this.stateDecided(boardColorStateN,
@@ -309,7 +308,7 @@ public abstract class GoBoardSearch {
 						if (getGoBoard().getStepHistory().isDupReached(
 								boardColorState) == false
 								&& (getGoBoard().noStep() == true || getGoBoard()
-										.getLastStep().isGiveup() == false)) {
+										.getLastStep().isPass() == false)) {
 							log.warn("current state is not a history dependent state");
 							getGoBoard().getStepHistory().printDupState();
 							this.stateDecided(boardColorState, score);
@@ -329,7 +328,7 @@ public abstract class GoBoardSearch {
 							process.add(memo.getStep());
 						}
 						searchProcess.add(Step.getString(process, score
-								+ " EXHAUST"));
+								+ EXHAUST));
 
 						getGoBoard().oneStepBackward();
 						continue;
@@ -393,47 +392,15 @@ public abstract class GoBoardSearch {
 			 */
 			boolean valid = getGoBoard().oneStepForward(step);
 			if (valid == false) {
-				/**
-				 * for debugging
-				 * 
-				 */
-				List<Step> process = new ArrayList<Step>();
-				for (StepMemo memo : this.getGoBoard().getStepHistory()
-						.getAllSteps()) {
-					process.add(memo.getStep());
-				}
-
-				if (this.getGoBoard().noStep()) {
-					process.add(step);
-					searchProcess.add(Step.getString(process, "DUPLI "));
-					dupCount++;
-					if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-						log.warn("invalid Step: have Not taken the step."
-								+ step);
-				} else if (step.getColor() == this.getGoBoard().getLastStep()
-						.getColor()
-						&& step.getPoint() == this.getGoBoard().getLastPoint()) {
-					if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-						log.warn("invalid Step: have taken the step." + step);
-					// TODO 如全局再现.已经走了.需要回退.
-					searchProcess.add(Step.getString(process, "DUPLI "));
-					dupCount++;
-					getGoBoard().oneStepBackward();
-				} else {
-					process.add(step);
-					searchProcess.add(Step.getString(process, "DUPLI "));
-					dupCount++;
-					if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-						log.warn("invalid Step: have Not taken the step."
-								+ step);
-						log.warn("last step is " + getGoBoard().getLastStep());
-					}
-				}
-				// ignore invalid candidate.666
-				continue;
+				//we already check before hand when getting candidates.
+				throw new RuntimeException("duplicate state leaked");
 			}
 
 			countSteps++;
+			long forwardMoves = getGoBoard().getForwardMoves();
+			if(countSteps!=forwardMoves){
+				throw new RuntimeException("coundsteps="+countSteps+" moves="+forwardMoves+" "+step);
+			}
 			/**
 			 * get latest state
 			 */
@@ -466,7 +433,7 @@ public abstract class GoBoardSearch {
 					log.info("Teminal State");
 				goBoard.hasLoopInHistory();
 				int scoreTerminator = terminateState.getScore();
-				if (goBoard.isDoubleGiveup() == true) {
+				if (goBoard.areBothPass() == true) {
 					if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 						log.warn("double give up");
 					}
@@ -475,8 +442,8 @@ public abstract class GoBoardSearch {
 							.getAllSteps()) {
 						process.add(memo.getStep());
 					}
-					searchProcess.add(Step.getString(process, "DB_PASS "
-							+ scoreTerminator));
+					searchProcess.add(Step.getString(process,  scoreTerminator+ DB_PASS
+							));
 				} else {
 
 					List<Step> process = new ArrayList<Step>();

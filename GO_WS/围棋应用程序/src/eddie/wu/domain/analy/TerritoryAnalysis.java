@@ -222,7 +222,7 @@ public class TerritoryAnalysis extends SurviveAnalysis {
 	 * 4.
 	 */
 	public int finalStateType() {
-		if (this.isDoubleGiveup()) {
+		if (this.areBothPass()) {
 			return DOUBLE_PASS;
 		} else if (this.isFinalState_deadCleanedUp()) {
 			return DEAD_CLEANED_UP;
@@ -351,7 +351,7 @@ public class TerritoryAnalysis extends SurviveAnalysis {
 			throw e;
 		}
 
-		if (this.isDoubleGiveup() == true)
+		if (this.areBothPass() == true)
 			return true;
 
 		List<Block> blocks = new ArrayList<Block>();
@@ -459,7 +459,7 @@ public class TerritoryAnalysis extends SurviveAnalysis {
 			throw e;
 		}
 
-		if (this.isDoubleGiveup() == true)
+		if (this.areBothPass() == true)
 			return true;
 
 		List<Block> blocks = new ArrayList<Block>();
@@ -723,7 +723,7 @@ public class TerritoryAnalysis extends SurviveAnalysis {
 		// }
 		// }
 		// }
-		if (this.isDoubleGiveup()) {
+		if (this.areBothPass()) {
 			return this.finalResult_deadCleanedUp();
 		}
 

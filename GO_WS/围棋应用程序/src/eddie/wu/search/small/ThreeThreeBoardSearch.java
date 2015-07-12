@@ -182,7 +182,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 	protected TerminalState getTerminalState() {
 		boolean knownState = false;
 		TerminalState ts = new TerminalState();
-		if (goBoard.isDoubleGiveup()) {
+		if (goBoard.areBothPass()) {
 			ts.setTerminalState(true);
 			ts.setFinalResult(goBoard
 					.finalResult_doublePass());
@@ -205,7 +205,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 			ts.setTerminalState(false);
 		}
 
-		if (goBoard.isDoubleGiveup() == false && ts.isTerminalState() == true
+		if (goBoard.areBothPass() == false && ts.isTerminalState() == true
 				&& knownState == false) {
 			BoardColorState boardColorStateN = this.getGoBoard()
 					.getBoardColorState();
