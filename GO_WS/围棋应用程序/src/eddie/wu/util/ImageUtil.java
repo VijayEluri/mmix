@@ -6,8 +6,9 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
+//TODO: find replacement of IMAGE API.
+//import com.sun.image.codec.jpeg.JPEGCodec;
+//import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 import eddie.wu.manual.StateLoader;
 
@@ -65,8 +66,9 @@ public class ImageUtil {
 		try {
 			FileOutputStream fos = new FileOutputStream(fileLocation);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
-			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(bos);
-			encoder.encode(image);
+			
+//			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(bos);
+//			encoder.encode(image);
 			bos.close();
 		} catch (Exception e) {
 			e.printStackTrace();

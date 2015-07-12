@@ -46,11 +46,12 @@ public class TwoTwoBoardSearch extends SmallBoardGlobalSearch {
 	}
 
 	private void initKnownState() {
-		String[] text = new String[2];
-		text[0] = new String("[B, _]");
-		text[1] = new String("[_, B]");
-		byte[][] state = StateLoader.LoadStateFromText(text);
-		this.stateFinalizeed(new BoardColorState(state, Constant.WHITE), 4);
+//		String[] text = new String[2];
+//		text[0] = new String("[B, _]");
+//		text[1] = new String("[_, B]");
+//		byte[][] state = StateLoader.LoadStateFromText(text);
+//		this.stateFinalizeed(new BoardColorState(state, Constant.WHITE), 4);
+		
 		// this.results.put(, 4);
 		// Not necessary, since only normalized one will be stored!
 		// text[0] = new String("[_, B]");
