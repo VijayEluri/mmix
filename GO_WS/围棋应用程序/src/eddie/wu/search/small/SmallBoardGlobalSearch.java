@@ -51,10 +51,10 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 
 	/**
 	 * caller provide state and estimated score, search will decide the score.
-	 * if it's Black's turn, expScore vs expScore - 1<br/>
-	 * otherwise, expScore + 1 vs. expScore <br.>
-	 * expScore is for the current player<br/>
-	 * if the score returned in search = expScore, the current turn's player
+	 * if it's Black's turn, expScore v.s. expScore - 1<br/>
+	 * otherwise, expScore + 1 v.s. expScore <br.>
+	 * expScore is for the current player of the state<br/>
+	 * if the score returned in search equals expScore, the current turn's player
 	 * win.
 	 * 
 	 * @param state
@@ -389,10 +389,10 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 
 			if (score >= high) {
 				if (state.isBlackTurn()) {
-					log.error("search with high = " + high
+					log.error("Black Play First: search with high = " + high
 							+ " succeed with score = " + score);
 				} else {
-					log.error("search with low = " + low
+					log.error("White Play First: search with low = " + low
 							+ " fail with score = " + score);
 				}
 				high = score + 1;
@@ -410,10 +410,10 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 				}
 			} else {
 				if (state.isBlackTurn()) {
-					log.error("search with high = " + high
+					log.error("Black Play First: search with high = " + high
 							+ " fail with score = " + score);
 				} else {
-					log.error("search with low = " + low
+					log.error("White Play First: search with low = " + low
 							+ " succeed with score = " + score);
 				}
 				low = score - 1;

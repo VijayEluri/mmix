@@ -219,7 +219,9 @@ public class TestAllState2 extends TestCase {
 		log.warn(maxWin2.getSGFBodyString(false));
 		log.warn("best moves of both: 2");
 		minWin2.cleanupBadMoveForBoth();
-		log.warn(minWin2.getSGFBodyString(false));;
+		log.warn(minWin2.getSGFBodyString(false));
+		
+		;
 		// manual2.cleanupBadMoveForWinner(true);cl
 		// manual2.initVariant();
 		// log.warn("After Cleanup 2.1: ");

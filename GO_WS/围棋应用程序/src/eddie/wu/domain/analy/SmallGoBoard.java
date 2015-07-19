@@ -190,6 +190,8 @@ public class SmallGoBoard extends TerritoryAnalysis {
 		} else {
 			can.addAll(points);
 		}
+		
+		
 
 		List<Candidate> gifts = new ArrayList<Candidate>();
 		List<Candidate> decreaseBreath = new ArrayList<Candidate>();

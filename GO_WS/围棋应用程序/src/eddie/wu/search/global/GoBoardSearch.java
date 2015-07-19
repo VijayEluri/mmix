@@ -392,8 +392,10 @@ public abstract class GoBoardSearch {
 			 */
 			boolean valid = getGoBoard().oneStepForward(step);
 			if (valid == false) {
+				System.err.println(getGoBoard().getStepHistory().getAllSteps());
+				System.out.println(getGoBoard().getStateString().toString());
 				//we already check before hand when getting candidates.
-				throw new RuntimeException("duplicate state leaked");
+				throw new RuntimeException("duplicate state leaked"+step);
 			}
 
 			countSteps++;
