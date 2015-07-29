@@ -1,4 +1,4 @@
-package eddie.wu.search.two;
+mpackage eddie.wu.search.two;
 
 import junit.framework.TestCase;
 
