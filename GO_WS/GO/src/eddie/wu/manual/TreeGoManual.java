@@ -13,6 +13,11 @@ import eddie.wu.domain.analy.SmallGoBoard;
 public class TreeGoManual extends AbsGoManual {
 	private SearchNode root;
 	private SearchNode current;
+	private ExpectScore expScore;
+
+	public void setExpScore(ExpectScore expScore) {
+		this.expScore = expScore;
+	}
 
 	// public TreeGoManual(SearchNode root){
 	//
@@ -85,7 +90,7 @@ public class TreeGoManual extends AbsGoManual {
 	 * initialize the score assuming only terminator has score assigned.
 	 */
 	public int initScore() {
-		int score = this.root.initScore();
+		int score = this.root.initScore(expScore);
 		if (result == null || result.isEmpty())
 			result = String.valueOf(score);
 		return score;

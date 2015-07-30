@@ -17,6 +17,7 @@ import eddie.wu.manual.StateLoader;
 import eddie.wu.manual.TreeGoManual;
 import eddie.wu.search.global.GoBoardSearch;
 import eddie.wu.search.small.ThreeThreeBoardSearch;
+import eddie.wu.util.FileUtil;
 
 public class TestAllState3 extends TestCase {
 	private static Logger log = Logger.getLogger(TestAllState3.class);
@@ -29,12 +30,12 @@ public class TestAllState3 extends TestCase {
 		Logger.getLogger(GoBoardSearch.class).setLevel(Level.ERROR);
 		Logger.getLogger(GoBoardForward.class).setLevel(Level.ERROR);
 		Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.ERROR);
-		Logger.getLogger(TestAllState3.class).setLevel(Level.WARN);
+		 Logger.getLogger(TestAllState3.class).setLevel(Level.WARN);
 		// Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.WARN);
 		// Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
 		// Logger.getLogger(GoBoardForward.class).setLevel(Level.WARN);
 	}
-	
+
 	public void testState_init() {
 		String[] text = new String[3];
 		text[0] = new String("[_, _, _]");
@@ -90,8 +91,8 @@ public class TestAllState3 extends TestCase {
 		text[2] = new String("[_, W, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 
-		SurviveAnalysis sa = new SurviveAnalysis(state);
-		assertFalse(sa.isAlreadyLive_dynamic(Point.getPoint(3, 2, 1)));
+		// SurviveAnalysis sa = new SurviveAnalysis(state);
+		// assertFalse(sa.isAlreadyLive_dynamic(Point.getPoint(3, 2, 1)));
 
 	}
 
@@ -256,10 +257,10 @@ public class TestAllState3 extends TestCase {
 		point = Point.getPoint(3, 2, 1);
 		live = new SurviveAnalysis(state).isAlreadyLive_dynamic(point);
 		assertFalse(live);
-
-		point = Point.getPoint(3, 2, 3);
-		live = new SurviveAnalysis(state).isAlreadyLive_dynamic(point);
-		assertFalse(live);
+		//
+		// point = Point.getPoint(3, 2, 3);
+		// live = new SurviveAnalysis(state).isAlreadyLive_dynamic(point);
+		// assertFalse(live);
 
 	}
 
@@ -516,8 +517,8 @@ public class TestAllState3 extends TestCase {
 		text[0] = new String("[W, W, _]");
 		text[1] = new String("[W, _, B]");
 		text[2] = new String("[B, B, B]");
-		testState_internal(text, Constant.BLACK, -3);
-		testState_internal(text, Constant.WHITE, -3);
+		testState_internal(text, Constant.BLACK, -4);
+		testState_internal(text, Constant.WHITE, -4);
 	}
 
 	/**
@@ -541,11 +542,10 @@ public class TestAllState3 extends TestCase {
 		testState_internal(text, Constant.WHITE, -9);
 	}
 
-	
-
 	public void testState_internal(String[] text, int whoseTurn,
 			int expectedScore) {
 		boolean exetrem = false;
+		// no need to check whether first player can reach the expected Score.
 		boolean noCheck = false;
 
 		int boardSize = text.length;
@@ -569,34 +569,44 @@ public class TestAllState3 extends TestCase {
 
 		// 1. check we can reach the expected score.
 		ThreeThreeBoardSearch goS = null;
+		int deepth = boardSize * boardSize + 4;
 		int score = 0;
 		if (noCheck != true) {
 			goS = new ThreeThreeBoardSearch(boardState, expectedScore);
+			goS.setDeepth(deepth);
 			score = this.testSearch_internal(goS);
 			assertEquals(expectedScore, score);
+			log.warn("end of positive check");
 		}
 
 		if (exetrem) {
 			return;
 		}
 		// check that we cannot get better result
+		int originalExp = expectedScore;
 		if (whoseTurn == Constant.BLACK) {
 			expectedScore++;
 		} else {
 			expectedScore--;
 		}
 		goS = new ThreeThreeBoardSearch(boardState, expectedScore);
+		goS.setDeepth(deepth);
 		score = this.testSearch_internal(goS);
 		assertTrue(score != Constant.UNKOWN);
-		assertEquals(expectedScore, score);
+		assertEquals(originalExp, score);
 
 	}
 
 	public int testSearch_internal(ThreeThreeBoardSearch goS) {
-		int score = goS.globalSearch();
-		// doc/围棋程序数据/smallboard/threethree
+		int score =0;
+		try{
+				score= goS.globalSearch();
+		}catch(Exception e){
+			
+		}
 		String name = goS.getGoBoard().getInitColorState()
-				.getStateAsOneLineString();
+				.getStateAsOneLineString()
+				+ goS.getMaxExp() + goS.getMinExp();
 		String fileName1 = Constant.rootDir + "smallboard/threethree/" + name
 				+ "win.sgf";
 		String fileName2 = Constant.rootDir + "smallboard/threethree/" + name
@@ -608,7 +618,11 @@ public class TestAllState3 extends TestCase {
 				+ nameReverse + "win.sgf";
 		String fileName4 = Constant.rootDir + "smallboard/threethree/"
 				+ nameReverse + "lose.sgf";
-
+		String filePath_searchProcess = Constant.rootDir
+				+ "smallboard/threethree/" + nameReverse + "searchProcess.txt";
+		String filePath_rawManual = Constant.rootDir + "smallboard/threethree/"
+				+ nameReverse + "rawManual.txt";
+		StringBuilder sb = new StringBuilder();
 		if (log.isEnabledFor(Level.WARN)) {
 			log.warn(goS.getGoBoard().getInitColorState().getStateString());
 			log.warn("Score=" + score);
@@ -616,35 +630,37 @@ public class TestAllState3 extends TestCase {
 					+ (goS.getSearchProcess().size() - goS.dupCount));
 			goS.outputSearchStatistics(log);
 			TreeGoManual manual = goS.getTreeGoManual();
-			// System.out.println(manual.getInitState());
-			log.debug(manual.getExpandedString(false));
 			log.warn("Most Expensive path: ");
 			log.warn(Constant.lineSeparator + manual.getMostExpPath());
-			log.warn(manual.getSGFBodyString(false));
 			for (String list : goS.getSearchProcess()) {
-				log.warn(list);
+				sb.append(list);
 			}
-			log.warn("duplicated state");
+			FileUtil.stringToFile(sb.toString(), filePath_searchProcess);
+			FileUtil.stringToFile(manual.getSGFBodyString(false),
+					filePath_rawManual);
+			log.warn("duplicated state begin:");
 			goS.getGoBoard().getStepHistory().printDupState();
+			log.warn("duplicated state end:");
+
 			int initScore = manual.initScore();
 			log.warn("Init score = " + initScore);
+			log.warn("before clean up");
+			log.warn(manual.getSGFBodyString(false));
 			if (goS.initTurn == Constant.BLACK) {
 				if (score == goS.getMaxExp()) {// success
 					log.warn("after clean up fail node:");
-//					manual.cleanupBadMove_firstWin(goS.initTurn,
-//							goS.getMaxExp());
+					// manual.cleanupBadMove_firstWin(goS.initTurn,
+					// goS.getMaxExp());
 					manual.cleanupBadMoveForWinner(true);
-					log.debug(manual.getExpandedString(false));// init variant
 					log.warn(manual.getSGFBodyString(false));
 					SGFGoManual.storeGoManual(fileName1, manual);
 					manual.blackWhiteSwitch();
 					SGFGoManual.storeGoManual(fileName3, manual);
 				} else if (score < goS.getMaxExp()) {// fail
 					log.warn("after clean up fail node:");
-//					manual.cleanupBadMove_firstLose(goS.initTurn,
-//							goS.getMaxExp());
+					// manual.cleanupBadMove_firstLose(goS.initTurn,
+					// goS.getMaxExp());
 					manual.cleanupBadMoveForWinner(false);
-					log.debug(manual.getExpandedString(false));// init variant
 					log.warn(manual.getSGFBodyString(false));
 					SGFGoManual.storeGoManual(fileName2, manual);
 					manual.blackWhiteSwitch();
@@ -654,21 +670,16 @@ public class TestAllState3 extends TestCase {
 			} else if (goS.initTurn == Constant.WHITE) {
 				if (score == goS.getMinExp()) {
 					log.warn("after clean up fail node:");
-//					manual.cleanupBadMove_firstWin(goS.initTurn,
-//							goS.getMinExp());
+					// manual.cleanupBadMove_firstWin(goS.initTurn,
+					// goS.getMinExp());
 					manual.cleanupBadMoveForWinner(false);
-					log.debug(manual.getExpandedString(false));// init variant
 					log.warn(manual.getSGFBodyString(false));
 					SGFGoManual.storeGoManual(fileName1, manual);
 					manual.blackWhiteSwitch();
 					SGFGoManual.storeGoManual(fileName3, manual);
 				} else {
 					log.warn("after clean up fail node:");
-//					manual.cleanupBadMove_firstLose(goS.initTurn,
-//							goS.getMinExp());
 					manual.cleanupBadMoveForWinner(true);
-					log.debug(manual.getExpandedString(false));// init variant
-					log.warn(manual.getSGFBodyString(false));
 					SGFGoManual.storeGoManual(fileName2, manual);
 					manual.blackWhiteSwitch();
 					SGFGoManual.storeGoManual(fileName4, manual);
@@ -777,15 +788,20 @@ public class TestAllState3 extends TestCase {
 
 	}
 
-	public void testState_V41() {
+	public void testState_V410() {
 		String[] text = new String[3];
 		text[0] = new String("[W, W, _]");
 		text[1] = new String("[W, W, B]");
 		text[2] = new String("[_, B, B]");
-
-		// testState_internal(text, Constant.BLACK, -4);
 		testState_internal(text, Constant.WHITE, -1);
+	}
 
+	public void testState_V411() {
+		String[] text = new String[3];
+		text[0] = new String("[W, W, _]");
+		text[1] = new String("[W, W, B]");
+		text[2] = new String("[_, B, B]");
+		testState_internal(text, Constant.BLACK, -1);
 	}
 
 	public void testState_V5() {

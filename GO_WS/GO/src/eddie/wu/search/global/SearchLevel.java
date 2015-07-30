@@ -71,11 +71,15 @@ public class SearchLevel {
 		if (isInitialized() == false)
 			return false;
 		if (max) {
-			if (this.tempBestScore >= this.highExp)
+			if (this.tempBestScore >= this.highExp){
+				unknownChild = false;//win overwrite unknown child
 				return true;
+			}
 		} else {
-			if (this.tempBestScore <= this.lowExp)
+			if (this.tempBestScore <= this.lowExp){
+				unknownChild = false;
 				return true;
+			}
 		}
 		return false;
 	}
@@ -146,6 +150,13 @@ public class SearchLevel {
 		return candidates.size();
 	}
 
+	private boolean unknownChild;
+	public boolean hasUnknownChild(){
+		return unknownChild;
+	}
+	public void setUnknownChild(){
+		this.unknownChild = true;
+	}
 	// private boolean maxFirst;//做活方先手提劫。
 	// private int firstSuperiorScore;//先手提劫方劫材有利的结果
 	// private int firstInteriorScore;//先手提劫方劫材不利的结果
@@ -154,6 +165,11 @@ public class SearchLevel {
 		// if (skip == true) {
 		// firstSuperiorScore = score;// = score / 2;
 		// }
+		// ignore unknown score and its branch
+		if (score == Integer.MAX_VALUE || score == Integer.MIN_VALUE) {
+			unknownChild = true;
+			return;
+		}
 		if (max) {
 			if (score > this.tempBestScore) {
 				this.tempBestScore = score;
@@ -186,6 +202,21 @@ public class SearchLevel {
 
 	public void setTempBestScore(int tempBestScore) {
 		this.tempBestScore = tempBestScore;
+	}
+
+	/**
+	 * keep Integer.MIN_VALUE to stand for unknown.
+	 */
+	public void initTempBestScore() {
+		if (max) {
+			setTempBestScore(Integer.MIN_VALUE + 1);
+		} else {
+			setTempBestScore(Integer.MAX_VALUE);
+		}
+	}
+
+	public static boolean unknownScore(int score) {
+		return score == Integer.MAX_VALUE || score == Integer.MIN_VALUE + 1;
 	}
 
 	/**

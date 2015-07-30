@@ -9,7 +9,6 @@
 		(;W[cb];B[cc])
 		(;W[cc];B[cb])
 		(;W[];B[])))
-(;W[bc])
 (;W[cc];B[cb]
 	(;W[bc];B[ac]
 		(;W[bc];B[cc])
@@ -22,5 +21,4 @@
 	(;W[ac];B[bc])
 	(;W[cc];B[bc])
 	(;W[];B[]))
-(;W[ac])
 (;W[];B[]))

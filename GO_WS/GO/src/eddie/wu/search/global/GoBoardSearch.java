@@ -15,6 +15,7 @@ import eddie.wu.domain.GoBoardForward;
 import eddie.wu.domain.Step;
 import eddie.wu.domain.StepMemo;
 import eddie.wu.domain.comp.BoardColorComparator;
+import eddie.wu.manual.ExpectScore;
 import eddie.wu.manual.SGFGoManual;
 import eddie.wu.manual.SearchNode;
 import eddie.wu.manual.SimpleGoManual;
@@ -66,7 +67,7 @@ public abstract class GoBoardSearch {
 	 * 将每个搜索到终点的过程记录下来.便于排错.
 	 */
 	private List<String> searchProcess = new ArrayList<String>();
-	
+
 	List<Step> bestResult;
 
 	/**
@@ -87,12 +88,11 @@ public abstract class GoBoardSearch {
 		if (preLevel.isMax()) {
 			newLevel.setMax(false);
 			newLevel.setMinExp(this.getMinExp());
-			newLevel.setTempBestScore(Integer.MAX_VALUE);
 		} else {
 			newLevel.setMax(true);
 			newLevel.setMaxExp(this.getMaxExp());
-			newLevel.setTempBestScore(Integer.MIN_VALUE);
 		}
+		newLevel.initTempBestScore();
 		return newLevel;
 	}
 
@@ -130,6 +130,8 @@ public abstract class GoBoardSearch {
 		TreeGoManual manual = new TreeGoManual(this.getGoBoard()
 				.getInitColorState());
 		manual.setRoot(root);
+		ExpectScore expScore = new ExpectScore(maxExpScore, minExpScore);
+		manual.setExpScore(expScore);
 		return manual;
 
 	}
@@ -144,11 +146,15 @@ public abstract class GoBoardSearch {
 
 	public boolean tree() {
 		return true;
-		//return this.NUMBER_OF_VARIANT <= 150000;
+		// return this.NUMBER_OF_VARIANT <= 150000;
 	}
 
 	public void setVariant(int variant) {
 		NUMBER_OF_VARIANT = variant;
+	}
+
+	public void setDeepth(int deepth) {
+		this.deepth = deepth;
 	}
 
 	public List<String> getSearchProcess() {
@@ -160,6 +166,15 @@ public abstract class GoBoardSearch {
 		if (tree()) {
 			SearchNode node = new SearchNode(step);
 			node.setScore(scoreTerminator);
+			oldLevel.getNode().addChild(node);
+			node.setMax(!oldLevel.isMax());
+		}
+	}
+
+	private void updateTreeWhenUnknown(SearchLevel oldLevel, Step step) {
+		if (tree()) {
+			SearchNode node = new SearchNode(step);
+			node.setUnknownScore(true);
 			oldLevel.getNode().addChild(node);
 			node.setMax(!oldLevel.isMax());
 		}
@@ -180,7 +195,7 @@ public abstract class GoBoardSearch {
 	 * 初始局面在level 0中，所有的候选点尚未初始化。棋盘对应到初始状态<br/>
 	 * 如果该层已经遍历所有候选点,就作出结论-得到score.<br/>
 	 * 每次展开某一层中的一个候选点(如果没有初始化候选点,就马上初始化.如果已经初始化, <br/>
-	 * 就从下一个没有尝试的候选点开始)<br/>
+	 * 就从下一个没有尝试的候选点开始) initialize candidate on the fly<br/>
 	 * 一般形成新的层，同时相应的棋盘状态前进了一步。该层的候选点暂时先不初始化。<br/>
 	 * 这个不变量在每个循环的开始和结束处始终得到保持。<br/>
 	 * 
@@ -201,8 +216,9 @@ public abstract class GoBoardSearch {
 		 * 有未确定状态才需要继续搜索.
 		 */
 
+		SearchLevel searchLevel = levels.get(levelIndex);
 		while (true) {
-			SearchLevel level = levels.get(levelIndex);
+			SearchLevel level = searchLevel;
 			BoardColorState boardColorState = this.getGoBoard()
 					.getBoardColorState();
 
@@ -250,7 +266,7 @@ public abstract class GoBoardSearch {
 										level.getTempBestScore());
 							}
 						}
-					} else {
+					} else { // min level
 						if (level.getLowestExp() + expectS == 0) {
 							BoardColorState boardColorStateN = this
 									.getGoBoard().getBoardColorState();
@@ -279,11 +295,11 @@ public abstract class GoBoardSearch {
 						// return score;
 					}
 					levels.remove(levelIndex--);
-					level = levels.get(levelIndex);
+					level = searchLevel;
 					level.getChildScore(score);
 					getGoBoard().oneStepBackward();
 					continue;
-				} else if (level.hasNext() == false) {
+				} else if (level.hasNext() == false) { // not win yet.
 					/**
 					 * 是否当前层的所有的候选点都处理完了。这也意味着该层对应的状态结果已知。<br/>
 					 * all candidates are handled
@@ -305,6 +321,34 @@ public abstract class GoBoardSearch {
 						break;
 					} else {
 						int score = level.getTempBestScore();
+						/**
+						 * for debugging
+						 * 
+						 */
+						List<Step> process = new ArrayList<Step>();
+						for (StepMemo memo : this.getGoBoard().getStepHistory()
+								.getAllSteps()) {
+							process.add(memo.getStep());
+						}
+
+						String scoreSuffix = Step.getString(process, score
+								+ EXHAUST);
+						// in general after exhausting all candidates, the state
+						// is decided
+						// the exception is that we don't know the score in case
+						// of too deep.
+						if (score == Integer.MIN_VALUE
+								|| score == Integer.MAX_VALUE
+								|| level.hasUnknownChild()) {
+							log.warn("score = " + score);
+							level.getNode().setUnknownScore(true);
+							scoreSuffix = Step.getString(process, "Unknown "
+									+ EXHAUST);
+							// level.getNode().setScore(score); leave score = 0.
+						}
+						searchProcess.add(scoreSuffix);
+						boolean hasUnknownChild = level.hasUnknownChild();
+
 						if (getGoBoard().getStepHistory().isDupReached(
 								boardColorState) == false
 								&& (getGoBoard().noStep() == true || getGoBoard()
@@ -315,20 +359,13 @@ public abstract class GoBoardSearch {
 						}
 
 						levels.remove(levelIndex--);
-						level = levels.get(levelIndex);
-						level.getChildScore(score);
-						// level.getNode()
-						/**
-						 * for debugging
-						 * 
-						 */
-						List<Step> process = new ArrayList<Step>();
-						for (StepMemo memo : this.getGoBoard().getStepHistory()
-								.getAllSteps()) {
-							process.add(memo.getStep());
+						level = searchLevel;
+						if (hasUnknownChild) {
+							level.setUnknownChild();
+						} else {
+							level.getChildScore(score);
 						}
-						searchProcess.add(Step.getString(process, score
-								+ EXHAUST));
+						// level.getNode()
 
 						getGoBoard().oneStepBackward();
 						continue;
@@ -392,14 +429,26 @@ public abstract class GoBoardSearch {
 			 */
 			boolean valid = getGoBoard().oneStepForward(step);
 			if (valid == false) {
-				//we already check before hand when getting candidates.
-				throw new RuntimeException("duplicate state leaked");
+
+				System.out.println(getGoBoard().getStateString().toString());
+				for (StepMemo stepTemp : getGoBoard().getStepHistory()
+						.getAllSteps()) {
+					System.err.println(stepTemp.getStep());
+					System.err.println(stepTemp.getColorState());
+				}
+				for (BoardColorState state : getGoBoard().getStepHistory()
+						.getColorStates()) {
+					System.err.println(state);
+				}
+				// we already check before hand when getting candidates.
+				throw new RuntimeException("duplicate state leaked" + step);
 			}
 
 			countSteps++;
 			long forwardMoves = getGoBoard().getForwardMoves();
-			if(countSteps!=forwardMoves){
-				throw new RuntimeException("coundsteps="+countSteps+" moves="+forwardMoves+" "+step);
+			if (countSteps != forwardMoves) {
+				throw new RuntimeException("coundsteps=" + countSteps
+						+ " moves=" + forwardMoves + " " + step);
 			}
 			/**
 			 * get latest state
@@ -442,8 +491,8 @@ public abstract class GoBoardSearch {
 							.getAllSteps()) {
 						process.add(memo.getStep());
 					}
-					searchProcess.add(Step.getString(process,  scoreTerminator+ DB_PASS
-							));
+					searchProcess.add(Step.getString(process, scoreTerminator
+							+ DB_PASS));
 				} else {
 
 					List<Step> process = new ArrayList<Step>();
@@ -544,6 +593,15 @@ public abstract class GoBoardSearch {
 				continue;
 			}
 			if (levels.size() == deepth) {
+
+				level.setUnknownChild();
+				List<Step> process = new ArrayList<Step>();
+				for (StepMemo memo : this.getGoBoard().getStepHistory()
+						.getAllSteps()) {
+					process.add(memo.getStep());
+				}
+				searchProcess.add(Step.getString(process, "Unknown FINAL"));
+				updateTreeWhenUnknown(level, step);
 				// cannot expand further. equivalent to ignore one candidate
 				getGoBoard().oneStepBackward();
 				continue;
@@ -582,8 +640,11 @@ public abstract class GoBoardSearch {
 			GoBoard goDemo = new GoBoard(this.getGoBoard().getInitColorState());
 			log.warn("Initial state");
 			goDemo.printState(log);
-
-			return levels.get(levelIndex).getTempBestScore();
+			if (searchLevel.alreadyWin()==false && searchLevel.hasUnknownChild()) {
+				throw new RuntimeException(
+						"no enough terminal state, search Depth is not enough,");
+			}
+			return searchLevel.getTempBestScore();
 		} else {
 			log.error("levelIndex = " + levelIndex);
 			log.error(this.getClass().getName()

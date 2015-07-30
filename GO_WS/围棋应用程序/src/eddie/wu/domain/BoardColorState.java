@@ -870,6 +870,7 @@ public class BoardColorState {
 		buf.append(", whoseturn=");
 		buf.append(this.getWhoseTurnString());
 		buf.append("]");
+		buf.append(this.getStateString());
 		return buf.toString();
 
 	}

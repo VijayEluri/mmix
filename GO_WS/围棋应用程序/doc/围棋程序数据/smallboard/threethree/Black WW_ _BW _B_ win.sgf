@@ -5,7 +5,6 @@
 		(;W[ca];B[cc]
 			(;W[ca];B[ba];W[];B[cb])
 			(;W[ba];B[ca])
-			(;B[cb])
 			(;B[];W[]))
 		(;B[cc];W[ca]
 			(;B[cb];W[cc])
@@ -39,13 +38,8 @@
 		(;B[cb])
 		(;B[cc])
 		(;B[];W[]))
-	(;B[cb])
 	(;B[aa];W[ba]
 		(;B[cb];W[cc])
 		(;B[cc];W[cb])
-		(;B[];W[]))
-	(;B[cc];W[cb]
-		(;B[ba];W[aa])
-		(;B[aa];W[ba])
 		(;B[];W[]))
 	(;B[];W[])))

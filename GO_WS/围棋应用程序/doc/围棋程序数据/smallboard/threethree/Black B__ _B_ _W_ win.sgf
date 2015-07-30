@@ -59,10 +59,6 @@
 		(;B[ac];W[cc]
 			(;B[bc];W[ac])
 			(;B[ac];W[bc])
-			(;B[];W[]))
-		(;B[cc];W[ac]
-			(;B[bc];W[cc])
-			(;B[cc];W[bc])
 			(;B[];W[])))
 	(;B[ca];W[ba]
 		(;B[];W[ac];B[];W[cc])
@@ -91,10 +87,8 @@
 		(;B[bc])
 		(;B[cc])
 		(;B[];W[]))
-	(;B[bc])
 	(;B[ca];W[ba]
 		(;B[bc])
 		(;B[cc])
 		(;B[];W[]))
-	(;B[cc])
 	(;B[];W[])))

@@ -155,10 +155,14 @@ public class SmallGoBoard extends TerritoryAnalysis {
 		 * 
 		 */
 		for (Iterator<Point> iter = points.iterator(); iter.hasNext();) {
+			
 			boolean duplicate = this.globalDuplicate(new Step(iter.next(),
 					color));
-			if (duplicate)
+			if (duplicate){
 				iter.remove();
+				//otherwise, normalized one maybe the one reach duplicated.
+				filterSymmetricEquivalent = false;
+			}
 		}
 
 		/**
