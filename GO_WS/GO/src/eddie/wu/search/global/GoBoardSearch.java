@@ -304,13 +304,8 @@ public abstract class GoBoardSearch {
 					 * 是否当前层的所有的候选点都处理完了。这也意味着该层对应的状态结果已知。<br/>
 					 * all candidates are handled
 					 */
-					if (level.isMax()) {
-						log.warn(level.getWhoseTurnString()
-								+ " Already Lose after trying all candidates: ");
-					} else {
-						log.warn(level.getWhoseTurnString()
-								+ " Already Lose after trying all candidates: ");
-					}
+					log.warn(level.getWhoseTurnString()
+							+ " Already Lose after trying all candidates: ");
 					log.warn(level.getAllCanPoint());
 					if (levelIndex == 0) {
 						if (log.isDebugEnabled()) {
@@ -640,7 +635,8 @@ public abstract class GoBoardSearch {
 			GoBoard goDemo = new GoBoard(this.getGoBoard().getInitColorState());
 			log.warn("Initial state");
 			goDemo.printState(log);
-			if (searchLevel.alreadyWin()==false && searchLevel.hasUnknownChild()) {
+			if (searchLevel.alreadyWin() == false
+					&& searchLevel.hasUnknownChild()) {
 				throw new RuntimeException(
 						"no enough terminal state, search Depth is not enough,");
 			}
