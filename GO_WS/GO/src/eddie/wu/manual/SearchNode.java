@@ -24,7 +24,22 @@ public class SearchNode {
 	SearchNode farther;
 
 	private int score;
+	/**
+	 * the search stops in this node, the score is not known yet.
+	 */
+	private boolean unknownScore;
+	public static final int UNKNOWN_SCORE = Integer.MIN_VALUE;
+
+	public boolean isUnknownScore() {
+		return unknownScore;
+	}
+
+	public void setUnknownScore(boolean unknown) {
+		this.unknownScore = unknown;
+	}
+
 	private boolean max;
+
 	private Step step;
 	private String jieshuo;
 	int variant;// 走完该步所致状态所拥有变化的数目
@@ -77,11 +92,11 @@ public class SearchNode {
 	public SearchNode getChild() {
 		return child;
 	}
-	
-	public void increaseVisit(){
-		
-		visitedTimes+=1;
-		System.out.println(step.toNonSGFString()+this.visitedTimes);
+
+	public void increaseVisit() {
+
+		visitedTimes += 1;
+		System.out.println(step.toNonSGFString() + this.visitedTimes);
 	}
 
 	public SearchNode getLessVisitChild() {
@@ -89,9 +104,9 @@ public class SearchNode {
 		int visit = Integer.MAX_VALUE;
 		SearchNode current = temp;
 		while (temp != null) {
-			System.out.println("visitedTimes"+temp.visitedTimes);
+			System.out.println("visitedTimes" + temp.visitedTimes);
 			if (temp.visitedTimes < visit) {
-				visit = temp.visitedTimes ;
+				visit = temp.visitedTimes;
 				current = temp;
 			}
 			temp = temp.brother;
@@ -419,34 +434,90 @@ public class SearchNode {
 	}
 
 	/**
-	 * initialize the score assuming only terminator has score assigned.
+	 * initialize the score assuming only terminator has score assigned. <br/>
+	 * design enhancement: allow the unknown terminator due to the depth
+	 * limitation.
 	 */
-	public int initScore() {
-		if (this.child == null)
-			return this.score;
-
-		SearchNode temp = this.child.brother;
-		if (this.isMax()) {
-			int max = child.initScore();// proper initial value
-			while (temp != null) {
-				if (temp.initScore() > max) {
-					max = temp.getScore();
-				}
-				temp = temp.brother;
+	public int initScore(ExpectScore expScore) {
+		if (this.child == null) { // terminal node
+			if (this.unknownScore) {
+				this.score = UNKNOWN_SCORE;
+				return UNKNOWN_SCORE;
+			} else {
+				return this.score;
 			}
-			this.score = max;
-			return max;
-		} else {
-			int min = child.initScore();// proper initial value
-			while (temp != null) {
-				if (temp.initScore() < min) {
+		}
+		SearchNode temp = this.child;
+		boolean foundNormal = false;
+		int tempScore = 0;
+		int max = 0;
+		int min = 0;
+		while (temp != null) {
+			tempScore = temp.initScore(expScore);
+			if (tempScore == UNKNOWN_SCORE) {
+				this.unknownScore = true;
+			} else if (foundNormal == false) {
+				foundNormal = true;
+				if (this.isMax()) {
+					max = tempScore; // proper initial value
+				} else {
+					min = tempScore;
+				}
+			} else { // already initialized.
+				if (this.isMax() && tempScore > max) {
+					max = temp.getScore();
+				} else if (this.isMin() && tempScore < min) {
 					min = temp.getScore();
 				}
-				temp = temp.brother;
 			}
-			this.score = min;
-			return min;
+			temp = temp.brother;
 		}
+
+		if (this.isMax()) {
+			this.score = max;
+			if (max >= expScore.getHighExp()) {
+				// already win, it doesn't matter even there is unknown child.
+				this.unknownScore = false;
+				return max;
+			}
+		} else {
+			this.score = min;
+			if (min <= expScore.getLowExp()) {
+				this.unknownScore = false;
+				return min;
+			}
+		}
+		if(this.unknownScore==true){
+			this.score = UNKNOWN_SCORE;
+			return UNKNOWN_SCORE;
+		}else{
+//			this.unknownScore = true;
+			return this.score;
+		}
+		
+		
+		// SearchNode temp = this.child.brother;
+		// if (this.isMax()) {
+		// int max = child.initScore();// proper initial value
+		// while (temp != null) {
+		// if (temp.initScore() > max) {
+		// max = temp.getScore();
+		// }
+		// temp = temp.brother;
+		// }
+		// this.score = max;
+		// return max;
+		// } else {
+		// int min = child.initScore();// proper initial value
+		// while (temp != null) {
+		// if (temp.initScore() < min) {
+		// min = temp.getScore();
+		// }
+		// temp = temp.brother;
+		// }
+		// this.score = min;
+		// return min;
+		// }
 	}
 
 	/**

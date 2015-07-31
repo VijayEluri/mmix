@@ -12,6 +12,11 @@ import eddie.wu.manual.StateLoader;
 import eddie.wu.search.global.GoBoardSearch;
 import eddie.wu.search.small.TwoTwoBoardSearch;
 
+/**
+ * for debugging one case
+ * @author think
+ *
+ */
 public class VerifyTwoTwo extends TestCase {
 	static {
 		String key = LogManager.DEFAULT_CONFIGURATION_KEY;

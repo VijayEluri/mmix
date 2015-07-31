@@ -375,7 +375,7 @@ public abstract class AbsGoBoard {
 	public byte[][] getColorArray() {
 		int matrixSize = this.boardSize + 2;
 		byte[][] a = new byte[matrixSize][matrixSize];
-		byte i, j, k;
+		byte i, j;
 		for (i = 1; i <= boardSize; i++) {
 			for (j = 1; j <= boardSize; j++) {
 				a[i][j] = (byte) (getBoardPoint(i, j).getColor());

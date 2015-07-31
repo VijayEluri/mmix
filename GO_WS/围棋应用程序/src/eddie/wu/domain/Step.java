@@ -223,7 +223,7 @@ public class Step {// implements Step{
 	@Override
 	public String toString() {
 		return "Step [point="
-				+ (point == null ? Constant.GIVE_UP : point.toString())
+				+ (point == null ? Constant.PASS : point.toString())
 				+ ", color=" + ColorUtil.getColorText(color) + ", index="
 				+ index + ", loopSuperior= " + loopSuperior + ", name=" + name
 				+ "]";

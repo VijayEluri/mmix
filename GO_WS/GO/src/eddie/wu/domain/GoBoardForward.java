@@ -935,7 +935,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 	}
 
 	/**
-	 * fix a bug here: forget to store state after give up, so failed to check
+	 * fix a bug here: forget to store state after pass, so failed to check
 	 * same state happens again.(2013/04/28)
 	 * 
 	 * @param color
@@ -1911,6 +1911,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 	}
 
 	public boolean globalDuplicate(Step step) {
+		if(step.isPass()) return false;
 		SimpleNeighborState neighborState = getNeighborState(step);
 		// make safe copy!
 		byte[][] state = this.getColorArray();
@@ -1923,13 +1924,11 @@ public class GoBoardForward extends GoBoardSymmetry {
 				state[row][column] = 0;
 			}
 		}
-		// play the step in state copy.
+		//step is not played yet. play the step in state copy.
 		row = step.getPoint().getRow();
 		column = step.getPoint().getColumn();
 		state[row][column] = (byte) step.getColor();
-
-		// step is not played yet.
-
+		
 		int whoseTurn = ColorUtil.enemyColor(step.getColor());
 		BoardColorState boardState = BoardColorState.getInstance(state,
 				whoseTurn);

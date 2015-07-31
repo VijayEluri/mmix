@@ -27,20 +27,20 @@ import eddie.wu.search.global.TerminalState;
 public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 	private static Logger log = Logger.getLogger(ThreeThreeBoardSearch.class);
 
-//	public ThreeThreeBoardSearch(byte[][] boards, int whoseTurn) {
-//		super(boards, whoseTurn);
-//		initKnownState();
-//	}
+	// public ThreeThreeBoardSearch(byte[][] boards, int whoseTurn) {
+	// super(boards, whoseTurn);
+	// initKnownState();
+	// }
 
 	public ThreeThreeBoardSearch(byte[][] boards, int whoseTurn,
 			int highestScore, int lowestScore) {
 		super(boards, whoseTurn, highestScore, lowestScore);
-		//initKnownState();
+		// initKnownState();
 	}
 
 	public ThreeThreeBoardSearch(BoardColorState state, int expScore) {
-		super(state,expScore);
-		//initKnownState();
+		super(state, expScore);
+		// initKnownState();
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		text[1] = new String("[_, B, _]");
 		text[2] = new String("[_, _, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		
+
 		results.put(BoardColorState.getInstance(state, Constant.BLACK)
 				.normalize(), 9);
 		results.put(BoardColorState.getInstance(state, Constant.WHITE)
@@ -169,7 +169,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 
 	public void shownInitKnownState() {
 		for (Entry<BoardColorState, Integer> result : results.entrySet()) {
-			System.out.print(result.getKey().getStateAsOneLineString());			
+			System.out.print(result.getKey().getStateAsOneLineString());
 			System.out.println("Score = " + result.getValue());
 		}
 	}
@@ -184,8 +184,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		TerminalState ts = new TerminalState();
 		if (goBoard.areBothPass()) {
 			ts.setTerminalState(true);
-			ts.setFinalResult(goBoard
-					.finalResult_doublePass());
+			ts.setFinalResult(goBoard.finalResult_doublePass());
 		} else if (results.containsKey(this.getGoBoard().getBoardColorState())) {
 			knownState = true;
 			ts.setTerminalState(true);
@@ -210,6 +209,9 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 			BoardColorState boardColorStateN = this.getGoBoard()
 					.getBoardColorState();
 			int scoreTerminator = ts.getScore();
+			if (scoreTerminator > 9 || scoreTerminator < -9) {
+				throw new RuntimeException("scoreTerminator" + scoreTerminator);
+			}
 			this.stateFinalizeed(boardColorStateN, scoreTerminator);
 		}
 		return ts;
@@ -236,29 +238,27 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 				expectedScore = 0 - boardSize * boardSize;
 			}
 		}
-		
+
 		return goBoard.getCandidate(color, true, expectedScore);
 
-//		if (goBoard.getInitSymmetryResult().getNumberOfSymmetry() == 0) {
-//			return goBoard.getCandidate(color, false, expectedScore);
-//		} else if (goBoard.getStepHistory().getAllSteps().isEmpty()) {
-//			// first move
-//			return goBoard.getCandidate(color, true, expectedScore);
-//		} else if (goBoard.getStepHistory().noRealStep()) {
-//			// first real move
-//			return goBoard.getCandidate(color, true, expectedScore);
-//		} else {
-//			SymmetryResult symmetry = goBoard.getLastStep().getSymmetry();
-//			//will let symmetry = null for 3*3 board.
-//			if (symmetry != null && symmetry.getNumberOfSymmetry() != 0) {
-//				return goBoard.getCandidate(color, true, expectedScore);
-//			} else {
-//				return goBoard.getCandidate(color, false, expectedScore);
-//			}
-//		}
+		// if (goBoard.getInitSymmetryResult().getNumberOfSymmetry() == 0) {
+		// return goBoard.getCandidate(color, false, expectedScore);
+		// } else if (goBoard.getStepHistory().getAllSteps().isEmpty()) {
+		// // first move
+		// return goBoard.getCandidate(color, true, expectedScore);
+		// } else if (goBoard.getStepHistory().noRealStep()) {
+		// // first real move
+		// return goBoard.getCandidate(color, true, expectedScore);
+		// } else {
+		// SymmetryResult symmetry = goBoard.getLastStep().getSymmetry();
+		// //will let symmetry = null for 3*3 board.
+		// if (symmetry != null && symmetry.getNumberOfSymmetry() != 0) {
+		// return goBoard.getCandidate(color, true, expectedScore);
+		// } else {
+		// return goBoard.getCandidate(color, false, expectedScore);
+		// }
+		// }
 	}
-
-	
 
 	/**
 	 * 1. ensure the state is not history dependent; if it has ever been reached
@@ -273,6 +273,10 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 	 */
 	@Override
 	public void stateDecided(BoardColorState boardColorStateN, int score) {
+		if (score < -9 || score > 9) {
+			return;
+//			throw new RuntimeException("scoreTerminator=" + score);
+		}
 		String name = boardColorStateN.getStateAsOneLineString();
 		String fileName = Constant.rootDir + "smallboard/threethree/decided/"
 				+ name + "win.sgf";

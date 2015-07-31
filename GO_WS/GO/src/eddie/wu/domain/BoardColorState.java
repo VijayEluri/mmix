@@ -848,20 +848,7 @@ public class BoardColorState {
 		this.variant = variant;
 	}
 
-	/**
-	 * @param points
-	 *            Set of BoardPoint
-	 */
-	// public void remove(Set<BoardPoint> points) {
-	// for (Iterator<BoardPoint> iter = points.iterator(); iter.hasNext();) {
-	// remove(iter.next());
-	// }
-	// }
-
-	public void setWhoseTurn(int whoseTurn) {
-		this.whoseTurn = whoseTurn;
-	}
-
+	
 	/**
 	 * 黑白子互换的局面
 	 * 
@@ -883,6 +870,7 @@ public class BoardColorState {
 		buf.append(", whoseturn=");
 		buf.append(this.getWhoseTurnString());
 		buf.append("]");
+		buf.append(this.getStateString());
 		return buf.toString();
 
 	}

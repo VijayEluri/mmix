@@ -4,23 +4,16 @@
 	(;B[ca];W[cc]
 		(;B[cb];W[ca])
 		(;B[ca];W[cb])
-		(;W[];B[]))
-	(;W[cc];B[ca]
-		(;W[cb];B[cc])
-		(;W[cc];B[cb])
 		(;W[];B[])))
-(;B[bc])
-(;W[cc];B[cb]
-	(;W[bc];B[ac]
-		(;W[bc];B[cc])
-		(;W[cc];B[bc])
+(;B[cc];W[cb]
+	(;B[bc];W[ac]
+		(;B[bc];W[cc])
+		(;B[cc];W[bc])
 		(;W[];B[]))
-	(;W[ac];B[bc])
+	(;B[ac];W[bc])
 	(;W[];B[ac];W[];B[bc]))
 (;W[ca];B[cb]
 	(;W[bc];B[ac];W[];B[cc])
 	(;W[ac];B[cc];W[];B[bc])
-	(;W[cc];B[ac];W[];B[bc])
 	(;W[];B[]))
-(;W[ac])
 (;W[];B[]))

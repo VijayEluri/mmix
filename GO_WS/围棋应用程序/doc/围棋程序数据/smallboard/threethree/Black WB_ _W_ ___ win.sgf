@@ -5,47 +5,25 @@
 		(;W[cb];B[bb];W[];B[])
 		(;W[bb];B[cb])
 		(;B[ca];W[cb])
-		(;B[];W[]))
-	(;B[cc];W[ca]
-		(;B[cb];W[bb];B[];W[])
-		(;B[bb];W[cb])
-		(;B[cc];W[cb])
 		(;B[];W[])))
-(;W[bc];B[cb]
-	(;W[];B[])
-	(;W[ac];B[cc]
-		(;W[bc];B[bb];W[];B[])
-		(;W[bb];B[bc])
-		(;B[ac];W[bc])
-		(;B[];W[]))
-	(;B[cc];W[ac]
-		(;B[bc];W[bb];B[];W[])
-		(;B[bb];W[bc])
-		(;B[cc];W[bc])
-		(;B[];W[])))
-(;B[cc];W[ca]
-	(;B[bc];W[]
-		(;B[])
-		(;B[cb];W[ac]
-			(;B[bb];W[cb]
-				(;B[bc];W[cc]
-					(;B[bb];W[bc])
-					(;B[bc];W[bb])
+(;W[cc];B[ca]
+	(;W[bc];B[]
+		(;W[])
+		(;W[cb];B[ac]
+			(;W[bb];B[cb]
+				(;W[bc];B[cc]
+					(;W[bb];B[bc])
+					(;W[bc];B[bb])
 					(;B[];W[]))
-				(;B[cc];W[bc])
+				(;W[cc];B[bc])
 				(;B[];W[]))
-			(;B[cb];W[bb]
-				(;B[bc];W[cc])
-				(;B[cc];W[];B[])
-				(;B[];W[]))
-			(;B[bc];W[bb]
-				(;B[cb];W[cc])
-				(;B[cc];W[];B[])
+			(;W[cb];B[bb]
+				(;W[bc];B[cc])
+				(;W[cc];B[];W[])
 				(;B[];W[]))
 			(;B[cc];W[bb]
 				(;B[];W[])
-				(;B[cb];W[];B[])
-				(;B[bc];W[];B[]))
+				(;B[cb];W[];B[]))
 			(;B[];W[]))
 		(;B[ac];W[cb]
 			(;B[bc];W[bb]
@@ -56,7 +34,7 @@
 			(;B[ac];W[bc])
 			(;B[cc];W[bc])
 			(;B[];W[])))
-	(;B[ac];W[bc];B[];W[])
+	(;W[ac];B[bc];W[];B[])
 	(;B[];W[])
 	(;B[cb];W[bc]
 		(;B[cb];W[bb];B[];W[])
@@ -70,29 +48,7 @@
 			(;B[bc];W[bb];B[];W[])
 			(;B[bb];W[bc])
 			(;B[ac];W[bc])
-			(;B[];W[]))
-		(;B[cc];W[ac]
-			(;B[bc];W[bb];B[];W[])
-			(;B[bb];W[bc])
-			(;B[cc];W[bc])
 			(;B[];W[])))
 	(;B[ac];W[bc])
-	(;B[cc];W[bc])
-	(;B[];W[]))
-(;B[ac];W[bc]
-	(;B[cb];W[]
-		(;B[])
-		(;B[ca];W[cc]
-			(;B[cb];W[bb];B[];W[])
-			(;B[bb];W[cb])
-			(;B[ca];W[cb])
-			(;B[];W[]))
-		(;B[cc];W[ca]
-			(;B[cb];W[bb];B[];W[])
-			(;B[bb];W[cb])
-			(;B[cc];W[cb])
-			(;B[];W[])))
-	(;B[ca];W[cb])
-	(;B[cc];W[cb])
 	(;B[];W[]))
 (;B[];W[]))

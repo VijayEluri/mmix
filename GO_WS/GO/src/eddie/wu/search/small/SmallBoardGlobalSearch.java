@@ -51,10 +51,10 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 
 	/**
 	 * caller provide state and estimated score, search will decide the score.
-	 * if it's Black's turn, expScore vs expScore - 1<br/>
-	 * otherwise, expScore + 1 vs. expScore <br.>
-	 * expScore is for the current player<br/>
-	 * if the score returned in search = expScore, the current turn's player
+	 * if it's Black's turn, expScore v.s. expScore - 1<br/>
+	 * otherwise, expScore + 1 v.s. expScore <br.>
+	 * expScore is for the current player of the state<br/>
+	 * if the score returned in search equals expScore, the current turn's player
 	 * win.
 	 * 
 	 * @param state
@@ -131,13 +131,12 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		if (initTurn == Constant.BLACK) {
 			level.setMax(true);
 			level.setMaxExp(this.getMaxExp());
-			level.setTempBestScore(Integer.MIN_VALUE);
-
 		} else {
 			level.setMax(false);
 			level.setMinExp(this.getMinExp());
-			level.setTempBestScore(Integer.MAX_VALUE);
 		}
+
+		level.initTempBestScore();
 		return level;
 	}
 
@@ -219,7 +218,6 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 
 	public void outputSearchStatistics(Logger log) {
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-			log.warn("searched path = " + getSearchProcess().size());
 			log.warn("Black expect: " + getMaxExp() + ", White expect:"
 					+ getMinExp());
 			log.warn("we calculate steps = " + countSteps);
@@ -228,7 +226,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			long backwardMoves = goBoard.getBackwardMoves();
 			log.warn("backwardMoves = " + backwardMoves);
 			//because we will go back to initial state in the end of the search!
-			TestCase.assertEquals(forwardMoves,backwardMoves);
+//			TestCase.assertEquals(forwardMoves,backwardMoves);
 			log.warn("we know the result = " + results.size());
 			for (Entry<BoardColorState, Integer> entry : results.entrySet()) {
 				if (entry.getKey().getWhoseTurn() == Constant.WHITE)
@@ -246,7 +244,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			int exhaust = 0;
 			for (String list : getSearchProcess()) {
 				count++;
-				//log.warn(list);
+				log.warn(list);
 //				if (count % 100 == 0)
 //					log.warn("count=" + count);
 				if (list.endsWith(DB_PASS + ")")) {
@@ -255,6 +253,8 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 					exhaust++;
 				}
 			}
+
+			log.warn("searched path = " + getSearchProcess().size());
 			log.warn("Pure searched path = "
 					+ (getSearchProcess().size() - exhaust));
 		}
@@ -389,10 +389,10 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 
 			if (score >= high) {
 				if (state.isBlackTurn()) {
-					log.error("search with high = " + high
+					log.error("Black Play First: search with high = " + high
 							+ " succeed with score = " + score);
 				} else {
-					log.error("search with low = " + low
+					log.error("White Play First: search with low = " + low
 							+ " fail with score = " + score);
 				}
 				high = score + 1;
@@ -410,10 +410,10 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 				}
 			} else {
 				if (state.isBlackTurn()) {
-					log.error("search with high = " + high
+					log.error("Black Play First: search with high = " + high
 							+ " fail with score = " + score);
 				} else {
-					log.error("search with low = " + low
+					log.error("White Play First: search with low = " + low
 							+ " succeed with score = " + score);
 				}
 				low = score - 1;

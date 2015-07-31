@@ -8,17 +8,9 @@
 			(;W[bc];B[ac])
 			(;W[ac];B[bc])
 			(;W[];B[]))
-		(;W[bc];B[ac]
-			(;W[ba];B[aa])
-			(;W[aa];B[ba])
-			(;W[];B[]))
 		(;W[aa];B[ba]
 			(;W[bc];B[ac])
 			(;W[ac];B[bc])
-			(;W[];B[]))
-		(;W[ac];B[bc]
-			(;W[ba];B[aa])
-			(;W[aa];B[ba])
 			(;W[];B[]))
 		(;W[];B[]))
 	(;W[cc];B[ac]
@@ -42,7 +34,6 @@
 		(;W[aa];B[ba]
 			(;W[cc];B[cb];W[];B[])
 			(;W[cb];B[cc])
-			(;W[bc];B[cc])
 			(;W[];B[]))
 		(;W[];B[])))
 (;W[ca];B[]
@@ -59,16 +50,6 @@
 						(;W[];B[]))
 					(;W[cc];B[];W[]))
 				(;W[ca];B[ac];W[];B[])
-				(;W[];B[]))
-			(;W[ac];B[cc]
-				(;W[bc];B[ca]
-					(;W[];B[])
-					(;W[ac];B[cc]
-						(;W[bc];B[ac])
-						(;W[ac];B[bc])
-						(;W[];B[]))
-					(;W[cc];B[];W[]))
-				(;W[ac];B[ca];W[];B[])
 				(;W[];B[]))
 			(;W[cc];B[ca];W[];B[]))
 		(;W[ba];B[ac]
@@ -100,8 +81,7 @@
 		(;W[ac];B[aa]
 			(;W[ca];B[bc]
 				(;W[];B[])
-				(;W[ba];B[];W[])
-				(;W[cb];B[];W[]))
+				(;W[ba];B[];W[]))
 			(;W[ba];B[bc]
 				(;W[cb];B[ca])
 				(;W[ca];B[];W[])
@@ -111,5 +91,98 @@
 		(;W[];B[]))
 	(;W[cc];B[]
 		(;W[])
-		(;W[aa];B[ac])
-		(;W[ac];B[aa]))))
+		(;W[aa];B[ac]
+			(;W[ba];B[aa]
+				(;W[cb];B[ca]
+					(;W[bc];B[cc])
+					(;W[cc];B[bc]
+						(;W[cb];B[cc])
+						(;W[cc];B[cb])
+						(;W[];B[]))
+					(;W[];B[]))
+				(;W[cc];B[ca]
+					(;W[];B[])
+					(;W[cb];B[bc]
+						(;W[cb];B[cc])
+						(;W[cc];B[cb])
+						(;W[];B[]))
+					(;W[bc];B[cb]
+						(;W[bc];B[];W[])
+						(;W[cc];B[];W[])
+						(;W[];B[])))
+				(;W[bc];B[ca]
+					(;W[cb];B[cc])
+					(;W[cc];B[cb]
+						(;W[bc];B[];W[])
+						(;W[cc];B[];W[])
+						(;W[];B[]))
+					(;W[];B[]))
+				(;W[ca];B[cb]
+					(;W[ba];B[]
+						(;W[])
+						(;W[bc];B[];W[])
+						(;W[cc];B[];W[]))
+					(;W[ca];B[]
+						(;W[])
+						(;W[bc];B[];W[])
+						(;W[cc];B[];W[]))
+					(;W[];B[]))
+				(;W[];B[]))
+			(;W[cb];B[ba]
+				(;W[cc];B[bc];W[];B[])
+				(;W[bc];B[cc];W[];B[])
+				(;W[];B[])
+				(;W[ca];B[cc]
+					(;W[cb];B[ca])
+					(;W[ca];B[cb])
+					(;W[];B[])))
+			(;W[ca];B[ba]
+				(;W[cc];B[cb];W[];B[])
+				(;W[cb];B[cc]
+					(;W[cb];B[ca])
+					(;W[ca];B[cb])
+					(;W[];B[]))
+				(;W[bc];B[cb];W[];B[])
+				(;W[];B[]))
+			(;W[cc];B[ba]
+				(;W[cb];B[bc];W[];B[])
+				(;W[ca];B[bc];W[];B[])
+				(;W[];B[])
+				(;W[bc];B[cb]
+					(;W[bc];B[];W[])
+					(;W[cc];B[];W[])
+					(;W[];B[])))
+			(;W[bc];B[cc]
+				(;W[ba];B[aa]
+					(;W[cb];B[ca])
+					(;W[ca];B[cb]
+						(;W[ba];B[];W[])
+						(;W[ca];B[];W[])
+						(;W[];B[]))
+					(;W[];B[]))
+				(;W[ca];B[ba];W[];B[])
+				(;W[cb];B[ca]
+					(;W[ba];B[aa])
+					(;W[aa];B[ba])
+					(;W[];B[]))
+				(;W[aa];B[ba]
+					(;W[cb];B[ca])
+					(;W[ca];B[cb])
+					(;W[];B[]))
+				(;W[];B[]))
+			(;W[aa];B[ba]
+				(;W[cb];B[ca]
+					(;W[bc];B[cc])
+					(;W[cc];B[];W[])
+					(;W[];B[]))
+				(;W[cc];B[cb];W[];B[])
+				(;W[bc];B[cc]
+					(;W[cb];B[ca])
+					(;W[ca];B[cb])
+					(;W[];B[]))
+				(;W[ca];B[cb]
+					(;W[bc];B[];W[])
+					(;W[cc];B[];W[])
+					(;W[];B[]))
+				(;W[];B[]))
+			(;W[];B[])))))

@@ -131,13 +131,12 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		if (initTurn == Constant.BLACK) {
 			level.setMax(true);
 			level.setMaxExp(this.getMaxExp());
-			level.setTempBestScore(Integer.MIN_VALUE);
-
 		} else {
 			level.setMax(false);
 			level.setMinExp(this.getMinExp());
-			level.setTempBestScore(Integer.MAX_VALUE);
 		}
+
+		level.initTempBestScore();
 		return level;
 	}
 
@@ -219,7 +218,6 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 
 	public void outputSearchStatistics(Logger log) {
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-			log.warn("searched path = " + getSearchProcess().size());
 			log.warn("Black expect: " + getMaxExp() + ", White expect:"
 					+ getMinExp());
 			log.warn("we calculate steps = " + countSteps);
@@ -228,7 +226,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			long backwardMoves = goBoard.getBackwardMoves();
 			log.warn("backwardMoves = " + backwardMoves);
 			//because we will go back to initial state in the end of the search!
-			TestCase.assertEquals(forwardMoves,backwardMoves);
+//			TestCase.assertEquals(forwardMoves,backwardMoves);
 			log.warn("we know the result = " + results.size());
 			for (Entry<BoardColorState, Integer> entry : results.entrySet()) {
 				if (entry.getKey().getWhoseTurn() == Constant.WHITE)
@@ -246,7 +244,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			int exhaust = 0;
 			for (String list : getSearchProcess()) {
 				count++;
-				//log.warn(list);
+				log.warn(list);
 //				if (count % 100 == 0)
 //					log.warn("count=" + count);
 				if (list.endsWith(DB_PASS + ")")) {
@@ -255,6 +253,8 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 					exhaust++;
 				}
 			}
+
+			log.warn("searched path = " + getSearchProcess().size());
 			log.warn("Pure searched path = "
 					+ (getSearchProcess().size() - exhaust));
 		}

@@ -64,12 +64,12 @@ public class CaptureSearch extends GoBoardSearch {
 		if (targetFirst == false) {
 			level.setMax(true);// 征子方取最大值。
 			level.setMaxExp(this.CAPTURE_SUCCESS);
-			level.setTempBestScore(Integer.MIN_VALUE);
+			
 		} else {
 			level.setMax(false);// 被征子方取最小值
 			level.setMinExp(this.CAPTURE_FAILURE);
-			level.setTempBestScore(Integer.MAX_VALUE);
 		}
+		level.initTempBestScore();
 		return level;
 	}
 
