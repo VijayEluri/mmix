@@ -216,9 +216,9 @@ public abstract class GoBoardSearch {
 		 * 有未确定状态才需要继续搜索.
 		 */
 
-		SearchLevel searchLevel = levels.get(levelIndex);
+		//SearchLevel searchLevel = levels.get(levelIndex);
 		while (true) {
-			SearchLevel level = searchLevel;
+			SearchLevel level = levels.get(levelIndex);
 			BoardColorState boardColorState = this.getGoBoard()
 					.getBoardColorState();
 
@@ -295,7 +295,7 @@ public abstract class GoBoardSearch {
 						// return score;
 					}
 					levels.remove(levelIndex--);
-					level = searchLevel;
+					level = levels.get(levelIndex);
 					level.getChildScore(score);
 					getGoBoard().oneStepBackward();
 					continue;
@@ -354,7 +354,7 @@ public abstract class GoBoardSearch {
 						}
 
 						levels.remove(levelIndex--);
-						level = searchLevel;
+						level = levels.get(levelIndex);
 						if (hasUnknownChild) {
 							level.setUnknownChild();
 						} else {
@@ -635,6 +635,7 @@ public abstract class GoBoardSearch {
 			GoBoard goDemo = new GoBoard(this.getGoBoard().getInitColorState());
 			log.warn("Initial state");
 			goDemo.printState(log);
+			SearchLevel searchLevel = levels.get(levelIndex);
 			if (searchLevel.alreadyWin() == false
 					&& searchLevel.hasUnknownChild()) {
 				throw new RuntimeException(

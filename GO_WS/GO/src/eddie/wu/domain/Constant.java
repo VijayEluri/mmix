@@ -21,12 +21,14 @@ public class Constant {
 	// public static boolean INTERNAL_CHECK = false;
 	public static boolean INTERNAL_CHECK = false;
 	public static final String lineSeparator = SystemUtil.getLineSeparator();
-	public static final String rootDir = "doc/围棋程序数据/";
-	public static final String DEBUG_MANUAL = Constant.rootDir + "调试出错的棋谱/";
+	public static final String rootDir = "data/static/";
+	public static final String STATIC_DATA = "data/static/";
+	public static final String DYNAMIC_DATA = "data/dynamic/";
+	public static final String DEBUG_MANUAL = "data/dynamic/debug";
 	public static final int currentManualIndex = 68;// 68
 	public static final String currentManual = SGFGoManual.getFileName(currentManualIndex);
 
-	public static final String GLOBAL_MANUAL = Constant.rootDir + "weiqigo/go/go.gmd";
+	public static final String GLOBAL_MANUAL = STATIC_DATA + "/go.gmd";
 	// basic constant
 	public static final byte BOARD_SIZE = 19;
 	public static final byte SMALL_BOARD_SIZE = 11;

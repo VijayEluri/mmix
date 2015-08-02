@@ -1,0 +1,4 @@
+1. decide to use lower case in folder name, at least in and beneath the project level.
+also underscore is used to seperate two word in folder name if necessary. this is to 
+be consistent with the fold name in project  like lib, src, test, and so on.
+20150802
