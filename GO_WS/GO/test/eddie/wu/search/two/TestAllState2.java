@@ -40,13 +40,14 @@ import eddie.wu.search.small.TwoTwoBoardSearch;
  */
 public class TestAllState2 extends TestCase {
 	private static Logger log = Logger.getLogger(TestAllState2.class);
+	private static String manualFolder = Constant.DYNAMIC_DATA + "small_board/two_two/";
 	static {
 		Constant.INTERNAL_CHECK = false;
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.ERROR);
 		// Logger.getLogger(GoBoardSearch.class).setLevel(Level.INFO);
 		Logger.getLogger(GoBoardForward.class).setLevel(Level.ERROR);
 		Logger.getLogger(TestAllState2.class).setLevel(Level.WARN);
-		Logger.getLogger(SGFGoManual.class).setLevel(Level.INFO);
+		//Logger.getLogger(SGFGoManual.class).setLevel(Level.INFO);
 		;
 	}
 
@@ -181,16 +182,17 @@ public class TestAllState2 extends TestCase {
 		String name11 = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
 				+ goS.getMaxExp() + goS.getMinExp() + " multiple win.sgf";
-		String fileName1 = Constant.rootDir + "smallboard/twotwo/" + name1;
-		String fileName11 = Constant.rootDir + "smallboard/twotwo/" + name11;
+		
+		String fileName1 = manualFolder + name1;
+		String fileName11 = manualFolder + name11;
 		String name2 = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
 				+ goS.getMaxExp() + goS.getMinExp() + " lose.sgf";
 		String name21 = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
 				+ goS.getMaxExp() + goS.getMinExp() + " multiple lose.sgf";
-		String fileName2 = Constant.rootDir + "smallboard/twotwo/" + name2;
-		String fileName21 = Constant.rootDir + "smallboard/twotwo/" + name21;
+		String fileName2 = manualFolder + name2;
+		String fileName21 = manualFolder + name21;
 
 		int variant = manual.initVariant();
 		log.warn("Before Cleanup ");
@@ -285,7 +287,7 @@ public class TestAllState2 extends TestCase {
 		String name = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
 				+ " win.sgf";
-		String fileName = Constant.rootDir + "smallboard/twotwo/" + name;
+		String fileName = manualFolder+ name;
 		TreeGoManual manual = goS.getTreeGoManual();
 		int initScore = manual.initScore();
 		log.warn("Before Cleanup ");
@@ -323,7 +325,7 @@ public class TestAllState2 extends TestCase {
 		String name = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
 				+ " lose.sgf";
-		String fileName = Constant.rootDir + "smallboard/twotwo/" + name;
+		String fileName = manualFolder + name;
 		TreeGoManual manual = goS.getTreeGoManual();
 		int initScore = manual.initScore();
 		log.warn("Before Cleanup ");
@@ -394,7 +396,7 @@ public class TestAllState2 extends TestCase {
 		String name = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
 				+ " lose.sgf";
-		String fileName = Constant.rootDir + "smallboard/twotwo/" + name;
+		String fileName = manualFolder+ name;
 		TreeGoManual manual = goS.getTreeGoManual();
 		int initScore = manual.initScore();
 		manual.getExpandedString(false);// initialize variant as side effect
@@ -767,7 +769,7 @@ public class TestAllState2 extends TestCase {
 	 * Score=1
 	 */
 	public void testState223() {
-		String fileName = "doc/围棋程序数据/smallboard/twotwo/_WWW.sgf.complex";
+		String fileName = manualFolder+"_WWW.sgf.complex";
 		String[] text = new String[2];
 		text[0] = new String("[_, W]");
 		text[1] = new String("[W, W]");

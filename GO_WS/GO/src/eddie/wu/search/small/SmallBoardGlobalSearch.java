@@ -54,8 +54,8 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	 * if it's Black's turn, expScore v.s. expScore - 1<br/>
 	 * otherwise, expScore + 1 v.s. expScore <br.>
 	 * expScore is for the current player of the state<br/>
-	 * if the score returned in search equals expScore, the current turn's player
-	 * win.
+	 * if the score returned in search equals expScore, the current turn's
+	 * player win.
 	 * 
 	 * @param state
 	 * @param expScore
@@ -225,8 +225,9 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			log.warn("forwardMoves = " + forwardMoves);
 			long backwardMoves = goBoard.getBackwardMoves();
 			log.warn("backwardMoves = " + backwardMoves);
-			//because we will go back to initial state in the end of the search!
-//			TestCase.assertEquals(forwardMoves,backwardMoves);
+			// because we will go back to initial state in the end of the
+			// search!
+			// TestCase.assertEquals(forwardMoves,backwardMoves);
 			log.warn("we know the result = " + results.size());
 			for (Entry<BoardColorState, Integer> entry : results.entrySet()) {
 				if (entry.getKey().getWhoseTurn() == Constant.WHITE)
@@ -235,18 +236,17 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 				// + entry.getValue());
 
 			}
-			String fileName = Constant.rootDir
-					+ "smallboard/threethree/decided/" + "all_state.sgf";
+			String fileName = Constant.DYNAMIC_DATA
+					+ "small_board/three_three/decided/" + "all_state.sgf";
 			SGFGoManual.storeGoManual(fileName, manuals);
 
-			int count = 0;
+			int count = getSearchProcess().size();
 			int bothPass = 0;
 			int exhaust = 0;
 			for (String list : getSearchProcess()) {
-				count++;
-				log.warn(list);
-//				if (count % 100 == 0)
-//					log.warn("count=" + count);
+				if (count < 200) {
+					log.warn(list);
+				}
 				if (list.endsWith(DB_PASS + ")")) {
 					bothPass++;
 				} else if (list.endsWith((EXHAUST + ")"))) {
@@ -255,8 +255,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			}
 
 			log.warn("searched path = " + getSearchProcess().size());
-			log.warn("Pure searched path = "
-					+ (getSearchProcess().size() - exhaust));
+			log.warn("Pure searched path = " + (count - exhaust));
 		}
 	}
 

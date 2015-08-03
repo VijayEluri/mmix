@@ -21,6 +21,8 @@ import eddie.wu.util.FileUtil;
 
 public class TestAllState3 extends TestCase {
 	private static Logger log = Logger.getLogger(TestAllState3.class);
+	private static String manualFolder = Constant.DYNAMIC_DATA
+			+ "small_board/three_three/";
 	static {
 		Constant.INTERNAL_CHECK = false;
 		String key = LogManager.DEFAULT_CONFIGURATION_KEY;
@@ -30,7 +32,7 @@ public class TestAllState3 extends TestCase {
 		Logger.getLogger(GoBoardSearch.class).setLevel(Level.ERROR);
 		Logger.getLogger(GoBoardForward.class).setLevel(Level.ERROR);
 		Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.ERROR);
-		 Logger.getLogger(TestAllState3.class).setLevel(Level.WARN);
+		Logger.getLogger(TestAllState3.class).setLevel(Level.WARN);
 		// Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.WARN);
 		// Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
 		// Logger.getLogger(GoBoardForward.class).setLevel(Level.WARN);
@@ -544,6 +546,13 @@ public class TestAllState3 extends TestCase {
 
 	public void testState_internal(String[] text, int whoseTurn,
 			int expectedScore) {
+		int boardSize = text.length;
+		int deepth = boardSize * boardSize + 4;
+		testState_internal(text, whoseTurn, expectedScore, deepth);
+	}
+
+	public void testState_internal(String[] text, int whoseTurn,
+			int expectedScore, int depth) {
 		boolean exetrem = false;
 		// no need to check whether first player can reach the expected Score.
 		boolean noCheck = false;
@@ -569,11 +578,16 @@ public class TestAllState3 extends TestCase {
 
 		// 1. check we can reach the expected score.
 		ThreeThreeBoardSearch goS = null;
-		int deepth = boardSize * boardSize + 4;
+
 		int score = 0;
 		if (noCheck != true) {
 			goS = new ThreeThreeBoardSearch(boardState, expectedScore);
-			goS.setDeepth(deepth);
+			goS.setDeepth(depth);
+			int variant = 1;
+			for(int i=0;i<depth;i++){
+				variant*=3;
+			}
+			goS.setVariant(variant);
 			score = this.testSearch_internal(goS);
 			assertEquals(expectedScore, score);
 			log.warn("end of positive check");
@@ -590,7 +604,7 @@ public class TestAllState3 extends TestCase {
 			expectedScore--;
 		}
 		goS = new ThreeThreeBoardSearch(boardState, expectedScore);
-		goS.setDeepth(deepth);
+		goS.setDeepth(depth);
 		score = this.testSearch_internal(goS);
 		assertTrue(score != Constant.UNKOWN);
 		assertEquals(originalExp, score);
@@ -598,30 +612,27 @@ public class TestAllState3 extends TestCase {
 	}
 
 	public int testSearch_internal(ThreeThreeBoardSearch goS) {
-		int score =0;
-		try{
-				score= goS.globalSearch();
-		}catch(Exception e){
-			
+		int score = 0;
+		try {
+			score = goS.globalSearch();
+		} catch (Exception e) {
+
 		}
 		String name = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
 				+ goS.getMaxExp() + goS.getMinExp();
-		String fileName1 = Constant.rootDir + "smallboard/threethree/" + name
-				+ "win.sgf";
-		String fileName2 = Constant.rootDir + "smallboard/threethree/" + name
-				+ "lose.sgf";
+
+		String fileName1 = manualFolder + name + "win.sgf";
+		String fileName2 = manualFolder + name + "lose.sgf";
 
 		String nameReverse = goS.getGoBoard().getInitColorState()
 				.blackWhiteSwitch().getStateAsOneLineString();
-		String fileName3 = Constant.rootDir + "smallboard/threethree/"
-				+ nameReverse + "win.sgf";
-		String fileName4 = Constant.rootDir + "smallboard/threethree/"
-				+ nameReverse + "lose.sgf";
-		String filePath_searchProcess = Constant.rootDir
-				+ "smallboard/threethree/" + nameReverse + "searchProcess.txt";
-		String filePath_rawManual = Constant.rootDir + "smallboard/threethree/"
-				+ nameReverse + "rawManual.txt";
+		String fileName3 = manualFolder + nameReverse + "win.sgf";
+		String fileName4 = manualFolder + nameReverse + "lose.sgf";
+		String filePath_searchProcess = manualFolder + nameReverse
+				+ "searchProcess.txt";
+		String filePath_rawManual = manualFolder + nameReverse
+				+ "rawManual.txt";
 		StringBuilder sb = new StringBuilder();
 		if (log.isEnabledFor(Level.WARN)) {
 			log.warn(goS.getGoBoard().getInitColorState().getStateString());
@@ -636,8 +647,7 @@ public class TestAllState3 extends TestCase {
 				sb.append(list);
 			}
 			FileUtil.stringToFile(sb.toString(), filePath_searchProcess);
-			FileUtil.stringToFile(manual.getSGFBodyString(false),
-					filePath_rawManual);
+
 			log.warn("duplicated state begin:");
 			goS.getGoBoard().getStepHistory().printDupState();
 			log.warn("duplicated state end:");
@@ -645,7 +655,12 @@ public class TestAllState3 extends TestCase {
 			int initScore = manual.initScore();
 			log.warn("Init score = " + initScore);
 			log.warn("before clean up");
-			log.warn(manual.getSGFBodyString(false));
+			if (manual.getVariant() < 200) {
+				log.warn(manual.getSGFBodyString(false));
+			} else {
+				FileUtil.stringToFile(manual.getSGFBodyString(false),
+						filePath_rawManual);
+			}
 			if (goS.initTurn == Constant.BLACK) {
 				if (score == goS.getMaxExp()) {// success
 					log.warn("after clean up fail node:");
@@ -793,7 +808,7 @@ public class TestAllState3 extends TestCase {
 		text[0] = new String("[W, W, _]");
 		text[1] = new String("[W, W, B]");
 		text[2] = new String("[_, B, B]");
-		testState_internal(text, Constant.WHITE, -1);
+		testState_internal(text, Constant.WHITE, -1, 22);
 	}
 
 	public void testState_V411() {
