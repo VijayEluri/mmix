@@ -61,18 +61,18 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		text[2] = new String("[_, _, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 
-		results.put(BoardColorState.getInstance(state, Constant.BLACK)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.BLACK)
 				.normalize(), 9);
-		results.put(BoardColorState.getInstance(state, Constant.WHITE)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.WHITE)
 				.normalize(), 9);
 
 		text[0] = new String("[_, B, _]");
 		text[1] = new String("[_, _, _]");
 		text[2] = new String("[_, _, _]");
 		state = StateLoader.LoadStateFromText(text);
-		results.put(BoardColorState.getInstance(state, Constant.BLACK)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.BLACK)
 				.normalize(), 9);
-		results.put(BoardColorState.getInstance(state, Constant.WHITE)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.WHITE)
 				.normalize(), 3);
 
 		text = new String[3];
@@ -80,9 +80,9 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		text[1] = new String("[_, _, _]");
 		text[2] = new String("[_, _, _]");
 		state = StateLoader.LoadStateFromText(text);
-		results.put(BoardColorState.getInstance(state, Constant.BLACK)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.BLACK)
 				.normalize(), 9);
-		results.put(BoardColorState.getInstance(state, Constant.WHITE)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.WHITE)
 				.normalize(), -9);
 
 		/**
@@ -93,18 +93,18 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		text[1] = new String("[_, _, _]");
 		text[2] = new String("[_, _, _]");
 		state = StateLoader.LoadStateFromText(text);
-		results.put(BoardColorState.getInstance(state, Constant.BLACK)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.BLACK)
 				.normalize(), 9);
-		results.put(BoardColorState.getInstance(state, Constant.WHITE)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.WHITE)
 				.normalize(), 3);
 		text = new String[3];
 		text[0] = new String("[_, _, _]");
 		text[1] = new String("[B, B, _]");
 		text[2] = new String("[_, _, _]");
 		state = StateLoader.LoadStateFromText(text);
-		results.put(BoardColorState.getInstance(state, Constant.BLACK)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.BLACK)
 				.normalize(), 9);
-		results.put(BoardColorState.getInstance(state, Constant.WHITE)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.WHITE)
 				.normalize(), 9);
 		/**
 		 * three points big eye!
@@ -114,9 +114,9 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		text[1] = new String("[_, _, _]");
 		text[2] = new String("[_, _, _]");
 		state = StateLoader.LoadStateFromText(text);
-		results.put(BoardColorState.getInstance(state, Constant.BLACK)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.BLACK)
 				.normalize(), 9);
-		results.put(BoardColorState.getInstance(state, Constant.WHITE)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.WHITE)
 				.normalize(), -9);
 
 		text = new String[3];
@@ -124,9 +124,9 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		text[1] = new String("[_, B, _]");
 		text[2] = new String("[_, _, _]");
 		state = StateLoader.LoadStateFromText(text);
-		results.put(BoardColorState.getInstance(state, Constant.BLACK)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.BLACK)
 				.normalize(), 9);
-		results.put(BoardColorState.getInstance(state, Constant.WHITE)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.WHITE)
 				.normalize(), 9);
 		/**
 		 * four points big eye!
@@ -136,9 +136,9 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		text[1] = new String("[_, _, B]");
 		text[2] = new String("[B, B, B]");
 		state = StateLoader.LoadStateFromText(text);
-		results.put(BoardColorState.getInstance(state, Constant.BLACK)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.BLACK)
 				.normalize(), 9);
-		results.put(BoardColorState.getInstance(state, Constant.WHITE)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.WHITE)
 				.normalize(), 4);
 
 		text = new String[3];
@@ -146,9 +146,9 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		text[1] = new String("[_, B, B]");
 		text[2] = new String("[B, B, B]");
 		state = StateLoader.LoadStateFromText(text);
-		results.put(BoardColorState.getInstance(state, Constant.BLACK)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.BLACK)
 				.normalize(), 9);
-		results.put(BoardColorState.getInstance(state, Constant.WHITE)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.WHITE)
 				.normalize(), 4);
 
 		text = new String[3];
@@ -156,9 +156,9 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		text[1] = new String("[B, B, B]");
 		text[2] = new String("[B, B, B]");
 		state = StateLoader.LoadStateFromText(text);
-		results.put(BoardColorState.getInstance(state, Constant.BLACK)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.BLACK)
 				.normalize(), 9);
-		results.put(BoardColorState.getInstance(state, Constant.WHITE)
+		terminalResults.put(BoardColorState.getInstance(state, Constant.WHITE)
 				.normalize(), 4);
 		shownInitKnownState();
 		// for (BoardColorState bcs : new ListAllState().getFinalState(3)) {
@@ -168,7 +168,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 	}
 
 	public void shownInitKnownState() {
-		for (Entry<BoardColorState, Integer> result : results.entrySet()) {
+		for (Entry<BoardColorState, Integer> result : terminalResults.entrySet()) {
 			System.out.print(result.getKey().getStateAsOneLineString());
 			System.out.println("Score = " + result.getValue());
 		}
@@ -185,10 +185,10 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		if (goBoard.areBothPass()) {
 			ts.setTerminalState(true);
 			ts.setFinalResult(goBoard.finalResult_doublePass());
-		} else if (results.containsKey(this.getGoBoard().getBoardColorState())) {
+		} else if (terminalResults.containsKey(this.getGoBoard().getBoardColorState().normalize())) {
 			knownState = true;
 			ts.setTerminalState(true);
-			Integer score = results.get(this.getGoBoard().getBoardColorState());
+			Integer score = terminalResults.get(this.getGoBoard().getBoardColorState().normalize());
 			ts.setScore(score);
 		} else if (goBoard.isFinalState_deadCleanedUp()) {
 			ts.setTerminalState(true);
@@ -271,48 +271,48 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 	 * result score; because white in the future phase did not do its best since
 	 * it only try to reach target score!<br/>
 	 */
-	@Override
-	public void stateDecided(BoardColorState boardColorStateN, int score) {
-		if (score < -9 || score > 9) {
-			return;
-//			throw new RuntimeException("scoreTerminator=" + score);
-		}
-		String name = boardColorStateN.getStateAsOneLineString();
-		String fileName = Constant.rootDir + "smallboard/threethree/decided/"
-				+ name + "win.sgf";
-		// SearchNode root = SearchNode.getSpecialRoot();
-		// root.addChild(this.getGoBoard().getCurrent());
-		SearchNode root = this.getGoBoard().getCurrent().copySubTree();
-		TreeGoManual manual = new TreeGoManual(boardColorStateN);
-		manual.setRoot(root);
-		manual.setResult(String.valueOf(score));
-
-		manuals.add(manual);
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-			log.warn("add non-final (but decided) state with score = " + score);
-			String history = getGoBoard().getCurrent()
-					.getSingleManualStringToRoot(false);
-			log.warn(history);
-			log.warn(boardColorStateN.getStateString());
-		}
-
-		BoardColorState boardColorState = boardColorStateN.normalize();
-		this.results.put(boardColorState, score);
-		// DO not add reverse color version. because score expectation are
-		// different.
-		// +6 means good enough in [-8,-9], but -6 is NOT good enough in
-		// [-8,-9].
-		// be careful of the in-symmetry.
-		// BoardColorState colorStateSwitch = boardColorState.blackWhiteSwitch()
-		// .normalize();
-		// this.results.put(colorStateSwitch, -score);
-		// do not log reverse state!
-		// if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-		// log.warn("add reverse non-final((but decided)) state with score = " +
-		// (-score));
-		// log.warn(colorStateSwitch.getStateString());
-		// }
-
-	}
+//	@Override
+//	public void stateDecided(BoardColorState boardColorStateN, int score) {
+//		if (score < -9 || score > 9) {
+//			return;
+////			throw new RuntimeException("scoreTerminator=" + score);
+//		}
+//		String name = boardColorStateN.getStateAsOneLineString();
+//		String fileName = Constant.rootDir + "smallboard/threethree/decided/"
+//				+ name + "win.sgf";
+//		// SearchNode root = SearchNode.getSpecialRoot();
+//		// root.addChild(this.getGoBoard().getCurrent());
+//		SearchNode root = this.getGoBoard().getCurrent().copySubTree();
+//		TreeGoManual manual = new TreeGoManual(boardColorStateN);
+//		manual.setRoot(root);
+//		manual.setResult(String.valueOf(score));
+//
+//		manuals.add(manual);
+//		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+//			log.warn("add non-final (but decided) state with score = " + score);
+//			String history = getGoBoard().getCurrent()
+//					.getSingleManualStringToRoot(false);
+//			log.warn(history);
+//			log.warn(boardColorStateN.getStateString());
+//		}
+//
+//		BoardColorState boardColorState = boardColorStateN.normalize();
+//		this.terminalResults.put(boardColorState, score);
+//		// DO not add reverse color version. because score expectation are
+//		// different.
+//		// +6 means good enough in [-8,-9], but -6 is NOT good enough in
+//		// [-8,-9].
+//		// be careful of the in-symmetry.
+//		// BoardColorState colorStateSwitch = boardColorState.blackWhiteSwitch()
+//		// .normalize();
+//		// this.results.put(colorStateSwitch, -score);
+//		// do not log reverse state!
+//		// if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+//		// log.warn("add reverse non-final((but decided)) state with score = " +
+//		// (-score));
+//		// log.warn(colorStateSwitch.getStateString());
+//		// }
+//
+//	}
 
 }

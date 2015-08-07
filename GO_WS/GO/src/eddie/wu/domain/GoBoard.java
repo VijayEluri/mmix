@@ -318,7 +318,9 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 				 * root cause, we evaluate the eye effect by revert color, so
 				 * [5,4]become invalid step.
 				 */
-				boolean valid = this.oneStepForward(candidate.getStep());
+//				boolean valid = this.oneStepForward(candidate.getStep());
+				boolean valid = this.validate(candidate.getStep());
+				
 				if (valid) {
 					Group group = this.getBlock(target).getGroup();
 					EyeResult eyeRes = null;
@@ -333,18 +335,19 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 					eyes += eyeRes.getFakeEyes().size();
 					candidate.setEyes(eyes);
 				}
-				if (valid
-						|| this.getLastPoint() == candidate.getStep()
-								.getPoint()) {
-					this.oneStepBackward();
-				}
+//				if (valid
+//						|| this.getLastPoint() == candidate.getStep()
+//								.getPoint()) {
+//					this.oneStepBackward();
+//				}
 				// this.initEyesAfterPlay_dynamic(candidate);
 				candidate.setTigerMouths(this.tigerMouthAfterPlay(point, color)
 						.size());
 			} else if (forTarget == false && state.isEating() == false) {
 				candidate.getStep().revertColor();
 				// this.initEyesAfterPlay_dynamic(candidate);
-				boolean valid = this.oneStepForward(candidate.getStep());
+//				boolean valid = this.oneStepForward(candidate.getStep());
+				boolean valid = this.validate(candidate.getStep());
 				if (valid) {
 					Group group = this.getBlock(target).getGroup();
 					EyeResult eyeRes = null;
@@ -359,11 +362,11 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 					eyes += eyeRes.getFakeEyes().size();
 					candidate.setEyes(eyes);
 				}
-				if (valid
-						|| this.getLastPoint() == candidate.getStep()
-								.getPoint()) {
-					this.oneStepBackward();
-				}
+//				if (valid
+//						|| this.getLastPoint() == candidate.getStep()
+//								.getPoint()) {
+//					this.oneStepBackward();
+//				}
 				candidate.getStep().revertColor();
 
 				candidate.setTigerMouths(this.tigerMouthAfterPlay(point,

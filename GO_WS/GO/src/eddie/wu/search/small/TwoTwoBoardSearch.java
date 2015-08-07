@@ -40,10 +40,10 @@ public class TwoTwoBoardSearch extends SmallBoardGlobalSearch {
 	/**
 	 * the state is decided because of dual give up.
 	 */
-	@Override
-	public void stateDecided(BoardColorState boardColorState, int score) {
-
-	}
+//	@Override
+//	public void stateDecided(BoardColorState boardColorState, int score) {
+//
+//	}
 
 	private void initKnownState() {
 //		String[] text = new String[2];

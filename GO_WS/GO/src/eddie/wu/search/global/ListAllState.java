@@ -1,5 +1,6 @@
 package eddie.wu.search.global;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,7 +40,7 @@ public class ListAllState {
 	int finalState = 0;
 
 	Set<BoardColorState> validStates = new HashSet<BoardColorState>();
-
+	Set<BoardColorState> invalidStates = new HashSet<BoardColorState>();
 	private Set<BoardColorState> finalStates = new HashSet<BoardColorState>(100);
 	// not statically recognized final states;
 	private Set<BoardColorState> notRecFinalStates = new HashSet<BoardColorState>(
@@ -101,22 +102,27 @@ public class ListAllState {
 
 		if (log.isEnabledFor(Level.WARN)) {
 			log.warn("total state count = " + count);
-			// if (type == valid_state) {
-			log.warn("invalid state count = " + invalidState);
-			// }
-			if (type == FINAL_STATE) {
+			if (type == VALID_STATE) {
+				log.warn("invalid state count = " + invalidState);
+				log.warn("invalid state count (filter by symmetry, but distinguish whore turn) = "
+						+ invalidStates.size());
+				log.warn("valid state count = " + (count - invalidState));
+				log.warn("valid state count (filter by symmetry, but distinguish whore turn) = "
+						+ validStates.size());
+			} else if (type == FINAL_STATE) {
 				log.warn("final State count = " + finalState);
-			}
-			for (BoardColorState temp : this.finalStates) {
-				log.warn(temp.getStateString());
-			}
-			if (this.notRecFinalStates.isEmpty() == false) {
-				log.warn("notRecFinalStates count = "
-						+ notRecFinalStates.size());
-				for (BoardColorState temp : this.notRecFinalStates) {
-					log.warn(temp);
+				for (BoardColorState temp : this.finalStates) {
+					log.warn(temp.getStateString());
+				}
+				if (this.notRecFinalStates.isEmpty() == false) {
+					log.warn("notRecFinalStates count = "
+							+ notRecFinalStates.size());
+					for (BoardColorState temp : this.notRecFinalStates) {
+						log.warn(temp);
+					}
 				}
 			}
+
 		}
 		// TODO consider isomorphism of final state. maybe the count will
 		// decrease
@@ -127,22 +133,31 @@ public class ListAllState {
 		if (log.isDebugEnabled())
 			log.debug("count=" + count);
 		// if(count<580) return;
-		if (StateUtil.isValidState(state) == false) {
-			invalidState++;
-			return;
-		} else {
+		try {
 			BoardColorState blackFirst = new BoardColorState(state,
 					Constant.BLACK).normalize();
 			BoardColorState whiteFirst = new BoardColorState(state,
 					Constant.WHITE).normalize();
-			if (!validStates.contains(blackFirst)) {
-				validStates.add(blackFirst);
+			if (StateUtil.isValidState(state) == false) {
+				if (invalidStates.contains(blackFirst) == false) {
+					invalidStates.add(blackFirst);
+				}
+				if (invalidStates.contains(whiteFirst) == false) {
+					invalidStates.add(whiteFirst);
+				}
+				invalidState++;
+				return;
+			} else {
+				if (validStates.contains(blackFirst) == false) {
+					validStates.add(blackFirst);
+				}
+				if (validStates.contains(whiteFirst) == false) {
+					validStates.add(whiteFirst);
+				}
 			}
-			if (!validStates.contains(whiteFirst)) {
-				validStates.add(whiteFirst);
-			}
+		} catch (Exception e) {
+			log.warn(Arrays.toString(state));
 		}
-
 		// StateUtil.printState(state);
 	}
 
@@ -163,7 +178,7 @@ public class ListAllState {
 
 				FinalResult result = sa.finalResult_deadCleanedUp();
 				normalize.setScore(result.getScore());
-				log.warn("It is final state");
+				log.warn("It is final state: dead stone cleaned up.");
 				sa.printState(log);
 
 				if (log.isDebugEnabled())
@@ -177,8 +192,10 @@ public class ListAllState {
 				FinalResult result = sa.finalResult_deadExist();
 				normalize.setScore(result.getScore());
 
-				log.warn("It is final state");
+				log.warn("It is final state: dead Stone exist");
+				log.warn("score=" + normalize.getScore());
 				sa.printState(log);
+				log.warn("");
 
 				if (log.isDebugEnabled())
 					log.debug("Final State" + result);

@@ -116,7 +116,7 @@ public class BreathRaceSearch extends GoBoardSearch {
 	}
 
 	@Override
-	protected void stateDecided(BoardColorState boardColorState, int score) {
+	protected void stateDecided(BoardColorState boardColorState,boolean max, int score, boolean win) {
 		// TODO Auto-generated method stub
 
 	}

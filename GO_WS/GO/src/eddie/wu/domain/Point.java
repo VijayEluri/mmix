@@ -305,6 +305,7 @@ public class Point implements java.io.Serializable {
 	// private static S
 
 	public static Set<Point> getAllPoints(int boardSize) {
+		initAllPoints(boardSize);
 		return allPointMap.get(boardSize);
 	}
 

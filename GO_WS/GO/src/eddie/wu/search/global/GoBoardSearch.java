@@ -39,7 +39,7 @@ public abstract class GoBoardSearch {
 	private int maxExpScore;
 
 	// set it big to deal with ladder calculation
-	public static int deepth = 81;
+	public int depth = 81;
 	/**
 	 * 1. set it small to ensure we have efficient algorithm <br/>
 	 * 2. could be controlled outside. 3. it counts the number of final state we
@@ -52,7 +52,7 @@ public abstract class GoBoardSearch {
 
 	private static final Logger log = Logger.getLogger(GoBoardSearch.class);
 
-	private List<SearchLevel> levels = new ArrayList<SearchLevel>(deepth);
+	private List<SearchLevel> levels = new ArrayList<SearchLevel>(depth);
 
 	/**
 	 * initial state is in level 0
@@ -139,8 +139,14 @@ public abstract class GoBoardSearch {
 	abstract protected boolean isKnownState(BoardColorState boardColorState);
 
 	abstract protected void stateDecided(BoardColorState boardColorState,
-			int score);
+			boolean max, int score, boolean win);
 
+	/**
+	 * 终止局面的结果保存备用。
+	 * 
+	 * @param boardColorStateN
+	 * @param scoreTerminator
+	 */
 	abstract protected void stateFinalizeed(BoardColorState boardColorStateN,
 			int scoreTerminator);
 
@@ -153,8 +159,8 @@ public abstract class GoBoardSearch {
 		NUMBER_OF_VARIANT = variant;
 	}
 
-	public void setDeepth(int deepth) {
-		this.deepth = deepth;
+	public void setDepth(int deepth) {
+		this.depth = deepth;
 	}
 
 	public List<String> getSearchProcess() {
@@ -215,8 +221,6 @@ public abstract class GoBoardSearch {
 		 * decide to completely rewrite it.<br/>
 		 * 有未确定状态才需要继续搜索.
 		 */
-
-		//SearchLevel searchLevel = levels.get(levelIndex);
 		while (true) {
 			SearchLevel level = levels.get(levelIndex);
 			BoardColorState boardColorState = this.getGoBoard()
@@ -262,8 +266,8 @@ public abstract class GoBoardSearch {
 								// this.stateDecided(boardColorStateN,
 								// level.getHighestExp());
 								// better
-								this.stateDecided(boardColorStateN,
-										level.getTempBestScore());
+								this.stateDecided(boardColorStateN, true,
+										level.getTempBestScore(), true);
 							}
 						}
 					} else { // min level
@@ -281,8 +285,8 @@ public abstract class GoBoardSearch {
 								// this.stateDecided(boardColorStateN,
 								// level.getLowestExp());
 								// better
-								this.stateDecided(boardColorStateN,
-										level.getTempBestScore());
+								this.stateDecided(boardColorStateN, false,
+										level.getTempBestScore(), true);
 							}
 						}
 					}
@@ -316,6 +320,7 @@ public abstract class GoBoardSearch {
 						break;
 					} else {
 						int score = level.getTempBestScore();
+						boolean max = level.isMax();
 						/**
 						 * for debugging
 						 * 
@@ -344,20 +349,19 @@ public abstract class GoBoardSearch {
 						searchProcess.add(scoreSuffix);
 						boolean hasUnknownChild = level.hasUnknownChild();
 
-						if (getGoBoard().getStepHistory().isDupReached(
-								boardColorState) == false
-								&& (getGoBoard().noStep() == true || getGoBoard()
-										.getLastStep().isPass() == false)) {
-							log.warn("current state is not a history dependent state");
-							getGoBoard().getStepHistory().printDupState();
-							this.stateDecided(boardColorState, score);
-						}
-
 						levels.remove(levelIndex--);
 						level = levels.get(levelIndex);
 						if (hasUnknownChild) {
 							level.setUnknownChild();
 						} else {
+							if (getGoBoard().getStepHistory().isDupReached(
+									boardColorState) == false
+									&& (getGoBoard().noStep() == true || getGoBoard()
+											.getLastStep().isPass() == false)) {
+								log.warn("current state is not a history dependent state");
+								getGoBoard().getStepHistory().printDupState();
+								this.stateDecided(boardColorState,max, score, false);
+							}
 							level.getChildScore(score);
 						}
 						// level.getNode()
@@ -587,7 +591,7 @@ public abstract class GoBoardSearch {
 				getGoBoard().oneStepBackward();
 				continue;
 			}
-			if (levels.size() == deepth) {
+			if (levels.size() == depth) {
 
 				level.setUnknownChild();
 				List<Step> process = new ArrayList<Step>();
@@ -609,8 +613,8 @@ public abstract class GoBoardSearch {
 			SearchLevel newLevel = buildNewLevel(level);
 			updateTreeWithNewLevel(newLevel, level, step);
 			levels.add(newLevel);
-			if (levels.size() > deepth) {
-				log.error("levels >" + deepth);
+			if (levels.size() > depth) {
+				log.error("levels >" + depth);
 				break;
 			} else if (this.searchProcess.size() - dupCount > NUMBER_OF_VARIANT) {
 				log.error("variants >" + NUMBER_OF_VARIANT);
@@ -662,6 +666,7 @@ public abstract class GoBoardSearch {
 			}
 			log.error("Final State");
 			log.error(this.getGoBoard().getBoardColorState().getStateString());
+			
 			GoBoardForward forward = new GoBoardForward(
 					this.getGoBoard().boardSize);
 

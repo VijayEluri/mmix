@@ -582,7 +582,7 @@ public class TestAllState3 extends TestCase {
 		int score = 0;
 		if (noCheck != true) {
 			goS = new ThreeThreeBoardSearch(boardState, expectedScore);
-			goS.setDeepth(depth);
+			goS.setDepth(depth);
 			int variant = 1;
 			for(int i=0;i<depth;i++){
 				variant*=3;
@@ -604,7 +604,7 @@ public class TestAllState3 extends TestCase {
 			expectedScore--;
 		}
 		goS = new ThreeThreeBoardSearch(boardState, expectedScore);
-		goS.setDeepth(depth);
+		goS.setDepth(depth);
 		score = this.testSearch_internal(goS);
 		assertTrue(score != Constant.UNKOWN);
 		assertEquals(originalExp, score);
@@ -808,7 +808,7 @@ public class TestAllState3 extends TestCase {
 		text[0] = new String("[W, W, _]");
 		text[1] = new String("[W, W, B]");
 		text[2] = new String("[_, B, B]");
-		testState_internal(text, Constant.WHITE, -1, 22);
+		testState_internal(text, Constant.WHITE, -1, 18);
 	}
 
 	public void testState_V411() {

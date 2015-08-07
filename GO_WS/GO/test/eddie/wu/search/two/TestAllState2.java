@@ -153,6 +153,7 @@ public class TestAllState2 extends TestCase {
 	 * WARN (TestAllState2.java:143) - INIT variant=786, s<br/>
 	 * WARN (TestAllState2.java:147) - After Cleanup 2: <br/>
 	 * WARN (TestAllState2.java:149) - INIT variant=28, score=1<br/>
+	 * TODO: no enough memory!
 	 */
 	private void testState1_blackFirst_lose(int high, int low) {
 		String[] text = new String[2];
@@ -162,6 +163,7 @@ public class TestAllState2 extends TestCase {
 		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
 		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, high, low);
 		goS.setVariant(1500000);
+		//goS.setDeepth(18); cannot help. the setup means we need to cover all variants.
 		int score = goS.globalSearch();
 		TreeGoManual manual = goS.getTreeGoManual();
 		int initScore = manual.initScore();
@@ -270,7 +272,7 @@ public class TestAllState2 extends TestCase {
 		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
 		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 1);
 		// goS.setDeepth(2*2*4+1);
-		goS.setDeepth(11);
+		goS.setDepth(11);
 		int score = 0;
 		try {
 			score = goS.globalSearch();
@@ -378,7 +380,7 @@ public class TestAllState2 extends TestCase {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
 		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 2);
-		goS.setDeepth(12);
+		goS.setDepth(12);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 			log.warn("Lose with Score=" + score);
@@ -849,10 +851,11 @@ public class TestAllState2 extends TestCase {
 			count++;
 			if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 				log.warn("==========================");
-				log.warn("count=" + count);
-				log.warn("State=" + state.getStateString());
+				log.warn("count=" + count);				
 				log.warn("Score=" + state.getScore());
 				log.warn("variant=" + state.getVariant());
+				log.warn("State=" + state.getStateString());
+				log.warn("");
 			}
 		}
 	}

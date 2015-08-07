@@ -64,7 +64,7 @@ public class CaptureSearch extends GoBoardSearch {
 		if (targetFirst == false) {
 			level.setMax(true);// 征子方取最大值。
 			level.setMaxExp(this.CAPTURE_SUCCESS);
-			
+
 		} else {
 			level.setMax(false);// 被征子方取最小值
 			level.setMinExp(this.CAPTURE_FAILURE);
@@ -98,7 +98,8 @@ public class CaptureSearch extends GoBoardSearch {
 	}
 
 	@Override
-	protected void stateDecided(BoardColorState boardColorState, int score) {
+	protected void stateDecided(BoardColorState boardColorState, boolean max,
+			int score, boolean win) {
 		// TODO Auto-generated method stub
 
 	}

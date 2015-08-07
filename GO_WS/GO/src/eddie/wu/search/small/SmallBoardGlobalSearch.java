@@ -14,6 +14,7 @@ import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.analy.SmallGoBoard;
+import eddie.wu.manual.ExpectScore;
 import eddie.wu.manual.SGFGoManual;
 import eddie.wu.manual.TreeGoManual;
 import eddie.wu.search.global.Candidate;
@@ -38,7 +39,12 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	 * another idea is to know max or min by whose turn. then the score means
 	 * either >= score or <=score.
 	 */
-	protected Map<BoardColorState, Integer> results = new HashMap<BoardColorState, Integer>();
+	protected Map<BoardColorState, ExpectScore> historyIndependentResult = new HashMap<BoardColorState, ExpectScore>();
+
+	/**
+	 * store terminate state result. not that useful
+	 */
+	protected Map<BoardColorState, Integer> terminalResults = new HashMap<BoardColorState, Integer>();
 
 	List<TreeGoManual> manuals = new ArrayList<TreeGoManual>();
 
@@ -143,12 +149,33 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	@Override
 	public int getScore(BoardColorState boardColorState) {
 		BoardColorState boardColorStateN = boardColorState.normalize();
-		if (results.containsKey(boardColorStateN))
-			return results.get(boardColorStateN).intValue();
+		if (terminalResults.containsKey(boardColorStateN)) {
+			return terminalResults.get(boardColorStateN).intValue();
+		}
 		BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
 				.normalize();
-		return 0 - results.get(boardColorStateS).intValue();
-
+		if (terminalResults.containsKey(boardColorStateS)) {
+			return 0 - terminalResults.get(boardColorStateS).intValue();
+		}
+		if (this.historyIndependentResult.containsKey(boardColorStateN)) {
+			if (boardColorState.isBlackTurn()) {
+				return historyIndependentResult.get(boardColorStateN)
+						.getLowExp();
+			} else {
+				return historyIndependentResult.get(boardColorStateN)
+						.getHighExp();
+			}
+		}
+		if (this.historyIndependentResult.containsKey(boardColorStateS)) {
+			if (boardColorState.isBlackTurn()) {
+				return 0 - historyIndependentResult.get(boardColorStateS)
+						.getHighExp();
+			} else {
+				return 0 - historyIndependentResult.get(boardColorStateS)
+						.getLowExp();
+			}
+		}
+		return 0;
 	}
 
 	/**
@@ -161,10 +188,20 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			ts.setTerminalState(true);
 			ts.setFinalResult(goBoard.finalResult_doublePass());
 
-		} else if (results.containsKey(this.getGoBoard().getBoardColorState())) {
+		} else if (terminalResults.containsKey(this.getGoBoard()
+				.getBoardColorState().normalize())) {
 			ts.setTerminalState(true);
 			// ???
-			ts.setScore(results.get(this.getGoBoard().getBoardColorState())
+			ts.setScore(terminalResults.get(
+					this.getGoBoard().getBoardColorState().normalize())
+					.intValue());
+
+		} else if (terminalResults.containsKey(this.getGoBoard()
+				.getBoardColorState().normalize().blackWhiteSwitch())) {
+			ts.setTerminalState(true);
+			// ???
+			ts.setScore(0 - terminalResults.get(
+					this.getGoBoard().getBoardColorState().normalize())
 					.intValue());
 
 		}
@@ -178,14 +215,18 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	@Override
 	public boolean isKnownState(BoardColorState boardColorState) {
 		BoardColorState boardColorStateN = boardColorState.normalize();
-		if (results.containsKey(boardColorStateN))
+		if (terminalResults.containsKey(boardColorStateN))
+			return true;
+		else if (this.historyIndependentResult.containsKey(boardColorStateN))
 			return true;
 		// Black is not symmetry with White due to different expecting score
 		// like [-8,-9]
-		// BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
-		// .normalize();
-		// if (results.containsKey(boardColorStateS))
-		// return true;
+		BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
+				.normalize();
+		if (terminalResults.containsKey(boardColorStateS))
+			return true;
+		else if (this.historyIndependentResult.containsKey(boardColorStateS))
+			return true;
 		return false;
 	}
 
@@ -228,8 +269,9 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			// because we will go back to initial state in the end of the
 			// search!
 			// TestCase.assertEquals(forwardMoves,backwardMoves);
-			log.warn("we know the result = " + results.size());
-			for (Entry<BoardColorState, Integer> entry : results.entrySet()) {
+			log.warn("we know the result = " + terminalResults.size());
+			for (Entry<BoardColorState, Integer> entry : terminalResults
+					.entrySet()) {
 				if (entry.getKey().getWhoseTurn() == Constant.WHITE)
 					continue;
 				// log.warn(entry.getKey().getStateString() + " the score is = "
@@ -260,7 +302,8 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	}
 
 	public void printKnownResult() {
-		for (Map.Entry<BoardColorState, Integer> entry : results.entrySet()) {
+		for (Map.Entry<BoardColorState, Integer> entry : terminalResults
+				.entrySet()) {
 			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 				log.warn(entry.getKey().getStateString());
 			if (log.isEnabledFor(org.apache.log4j.Level.WARN))
@@ -273,35 +316,60 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	 * Commented out: the state is decided by dual give up, might not be the
 	 * exact value.<br/>
 	 * even the double-pass state is accurate, when it level up the intermediate
-	 * state is not accurate.
+	 * state is not accurate.<br/>
+	 * fix in two ways: 1. user score scope like [4,6]<br/>
+	 * 2. double pass is filtered (should not be treated as terminal state).
 	 */
 	@Override
-	public void stateDecided(BoardColorState boardColorStateN, int score) {
-		// BoardColorState boardColorState = boardColorStateN.normalize();
-		// this.results.put(boardColorState, score);
-		// if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-		// log.warn("add non-final state with score = " + score);
-		// log.warn(boardColorState.getStateString());
-		// }
-		//
-		// BoardColorState colorStateSwitch = boardColorState.blackWhiteSwitch()
-		// .normalize();
-		// this.results.put(colorStateSwitch, -score);
-		//
-		// if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-		// log.warn("add reverse non-final state with score = " + (-score));
-		// log.warn(colorStateSwitch.getStateString());
-		// }
+	public void stateDecided(BoardColorState boardColorStateN, boolean max,
+			int score, boolean win) {
+		BoardColorState boardColorState = boardColorStateN.normalize();
+		int boardSize = boardColorState.boardSize;
+		int low, high;
+		if (max) {
+			if (win) {
+				low = score;
+				high = boardSize * boardSize;
+			} else {
+				high = score;
+				low = 0 - boardSize * boardSize;
+			}
+		} else {
+			if (win) {
+				low = 0 - boardSize * boardSize;
+				high = score;
+			} else {
+				low = score;
+				high = boardSize * boardSize;
+			}
+		}
+		ExpectScore expScore = new ExpectScore(low, high);
+		this.historyIndependentResult.put(boardColorState, expScore);
+		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+			log.warn("add non-final state with score = " + score);
+			log.warn(boardColorState.getStateString());
+		}
+
+		BoardColorState colorStateSwitch = boardColorState.blackWhiteSwitch()
+				.normalize();
+		ExpectScore expScore2 = new ExpectScore(0 - high, 0 - low);
+		this.historyIndependentResult.put(colorStateSwitch, expScore2);
+
+		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+			log.warn("add reverse non-final state with score = " + (-score));
+			log.warn(colorStateSwitch.getStateString());
+		}
 	}
 
 	/**
-	 * 先后手无关的终局状态。
+	 * 先后手无关的终局状态。评分确定。
 	 */
 	@Override
 	public void stateFinalizeed(BoardColorState boardColorStateN,
 			int scoreTerminator) {
-		results.put(boardColorStateN, scoreTerminator);
-		results.put(boardColorStateN.getReverseTurnCopy(), scoreTerminator);
+		terminalResults.put(boardColorStateN, scoreTerminator);
+		terminalResults.put(boardColorStateN.getReverseTurnCopy(),
+				scoreTerminator);
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 			log.warn("we add 2 final state with score = " + scoreTerminator
 					+ "; state is: ");
@@ -310,8 +378,9 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 
 		BoardColorState boardColorStateS = boardColorStateN.blackWhiteSwitch()
 				.normalize();
-		results.put(boardColorStateS, -scoreTerminator);
-		results.put(boardColorStateS.getReverseTurnCopy(), -scoreTerminator);
+		terminalResults.put(boardColorStateS, -scoreTerminator);
+		terminalResults.put(boardColorStateS.getReverseTurnCopy(),
+				-scoreTerminator);
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 
 			log.warn("we add 2 reverse final state with score = "

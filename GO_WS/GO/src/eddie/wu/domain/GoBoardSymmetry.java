@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -355,8 +356,11 @@ public abstract class GoBoardSymmetry extends BasicGoBoard {
 		int size = original.length;
 		int boardSize = size - 2;
 		byte[][] state = new byte[size][size];
-
-		for (Point point : Point.getAllPoints(boardSize)) {
+		Set<Point> allPoints = Point.getAllPoints(boardSize);
+		if (allPoints == null) {
+			System.err.println("allPoints==null");
+		}
+		for (Point point : allPoints) {
 			Point mirror = point.verticalMirror();
 			state[mirror.getRow()][mirror.getColumn()] = original[point
 					.getRow()][point.getColumn()];
@@ -486,6 +490,7 @@ public abstract class GoBoardSymmetry extends BasicGoBoard {
 
 	/**
 	 * with which operation the point can be normalized to the standard point.
+	 * 
 	 * @param point
 	 *            next step to play
 	 * @param symmetryResult
@@ -496,7 +501,7 @@ public abstract class GoBoardSymmetry extends BasicGoBoard {
 			SymmetryResult symmetryResult) {
 		List<PointSymmetry> list = new ArrayList<PointSymmetry>();
 		int numberOfSymmetry = symmetryResult.getNumberOfSymmetry();
-		
+
 		Point horizontalMirror = point.horizontalMirror();
 		SymmetryResult horizontalSym = new SymmetryResult();
 		horizontalSym.setHorizontalSymmetry(true);
@@ -508,10 +513,10 @@ public abstract class GoBoardSymmetry extends BasicGoBoard {
 		SymmetryResult verticalHorizontalSym = new SymmetryResult();
 		verticalHorizontalSym.setVerticalSymmetry(true);
 		verticalHorizontalSym.setHorizontalSymmetry(true);
-		//fix a bug-we need to get the simplest/smaller result
-		//some time one symmetry get same result as no symmetry
+		// fix a bug-we need to get the simplest/smaller result
+		// some time one symmetry get same result as no symmetry
 		list.add(new PointSymmetry(point, new SymmetryResult()));
-		
+
 		if (numberOfSymmetry == 4) {
 			list.add(new PointSymmetry(horizontalMirror, horizontalSym));
 			list.add(new PointSymmetry(verticalMirror, verticalSym));

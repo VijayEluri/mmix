@@ -14,16 +14,19 @@ import eddie.wu.search.global.GoBoardSearch;
 import eddie.wu.search.small.SmallBoardGlobalSearch;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
 /**
  * 处理3*3小棋盘的死活题。比较有意思，很多意外的结果。
+ * 
  * @author think
  *
  */
 public class TestAllState3Colive extends TestCase {
-	private static Logger log = Logger.getLogger(Block.class);
+	private static Logger log = Logger.getLogger(TestAllState3Colive.class);
 	static {
 		Constant.INTERNAL_CHECK = false;
-		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
+		// Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
+		log.setLevel(Level.WARN);
 	}
 
 	public void testState_specialColive1() {
@@ -35,12 +38,15 @@ public class TestAllState3Colive extends TestCase {
 		if (log.isEnabledFor(Level.WARN))
 			log.warn(Arrays.deepToString(state));
 
-		GoBoardSearch goS = new SmallBoardGlobalSearch(state, Constant.BLACK,
-				9, -9);
+		SmallBoardGlobalSearch goS = new SmallBoardGlobalSearch(state,
+				Constant.BLACK, 1, 0);
+		goS.setDepth(22);
 		int score = goS.globalSearch();
-		if (log.isEnabledFor(Level.WARN))
+		if (log.isEnabledFor(Level.WARN)) {
 			log.warn("Score=" + score);
-		assertEquals(1, score);
+			goS.outputSearchStatistics(log);
+		}
+		// assertEquals(1, score);
 	}
 
 	public void testState_specialColive2() {
@@ -49,16 +55,17 @@ public class TestAllState3Colive extends TestCase {
 		text[1] = new String("[W, _, B]");
 		text[2] = new String("[B, B, B]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if (log.isEnabledFor(Level.WARN))
-			log.warn(Arrays.deepToString(state));
 
 		SmallBoardGlobalSearch goS = new SmallBoardGlobalSearch(state,
-				Constant.BLACK,9,-9);
-		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.WARN);
+				Constant.BLACK, 4, 3);
+		// Logger.getLogger(SurviveAnalysis.class).setLevel(Level.WARN);
 		int score = goS.globalSearch();
-		if (log.isEnabledFor(Level.WARN))
+		if (log.isEnabledFor(Level.WARN)) {
+			log.warn(goS.getGoBoard().getInitColorState().toString());
 			log.warn("Score=" + score);
-		goS.outputSearchStatistics();
+		}
+		goS.outputSearchStatistics(log);
+		assertEquals(4, score);
 	}
 
 	/**
@@ -112,13 +119,13 @@ public class TestAllState3Colive extends TestCase {
 			log.warn(Arrays.deepToString(state));
 
 		SmallBoardGlobalSearch goS = new SmallBoardGlobalSearch(state,
-				Constant.BLACK, 9, -9);
-		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.WARN);
+				Constant.BLACK, 4, 3);
+		// Logger.getLogger(SurviveAnalysis.class).setLevel(Level.WARN);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(Level.WARN))
 			log.warn("Score=" + score);
 		assertEquals(4, score);
-		goS.outputSearchStatistics();
+		goS.outputSearchStatistics(log);
 	}
 
 	public void testState_specialColive4() {
@@ -131,12 +138,12 @@ public class TestAllState3Colive extends TestCase {
 			log.warn(Arrays.deepToString(state));
 
 		SmallBoardGlobalSearch goS = new SmallBoardGlobalSearch(state,
-				Constant.BLACK, 9, -9);
+				Constant.BLACK, -3, -4);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(Level.WARN))
 			log.warn("Score=" + score);
 		assertEquals(-3, score);
-		goS.outputSearchStatistics();
+		goS.outputSearchStatistics(log);
 	}
 
 }
