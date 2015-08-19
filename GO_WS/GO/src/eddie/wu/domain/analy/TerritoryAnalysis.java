@@ -241,8 +241,10 @@ public class TerritoryAnalysis extends SurviveAnalysis {
 	}
 
 	/**
-	 * 最纯粹的终局场面 <br/>
-	 * also static judgment.
+	 * 最纯粹的终局场面, also static judgment. <br/>
+	 * 1. dead stone is cleaned up. all left one is live. <br/>
+	 * 2. live one will only have single eyes <br/>
+	 * 3. co-live is not treat as terminal state here.
 	 * 
 	 * @return
 	 */

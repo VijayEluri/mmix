@@ -22,8 +22,8 @@ public class TestZhengZiCalculate_New extends TestCase {
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 
 		logger.setLevel(Level.DEBUG);
-		Point point = Point.getPoint(14, 16);
-		Point firstMove = Point.getPoint(14, 15);
+		Point point = Point.getPoint(19, 14, 16);
+		Point firstMove = Point.getPoint(19, 14, 15);
 		testZhengZi_success(fileName, point, Constant.WHITE);
 
 	}
@@ -32,8 +32,8 @@ public class TestZhengZiCalculate_New extends TestCase {
 		String fileName = "doc/征子局面/征子2";
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 		logger.setLevel(Level.DEBUG);
-		Point point = Point.getPoint(14, 14);
-		Point firstMove = Point.getPoint(13, 14);
+		Point point = Point.getPoint(19, 14, 14);
+		Point firstMove = Point.getPoint(19, 13, 14);
 		testZhengZi_success(fileName, point, Constant.WHITE);
 
 	}
@@ -42,8 +42,8 @@ public class TestZhengZiCalculate_New extends TestCase {
 		String fileName = "doc/征子局面/王磊－曹熏铉";
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 		logger.setLevel(Level.DEBUG);
-		Point point = Point.getPoint(16, 16);
-		Point firstMove = Point.getPoint(16, 15);
+		Point point = Point.getPoint(19, 16, 16);
+		Point firstMove = Point.getPoint(19, 16, 15);
 		testZhengZi_fail(fileName, point, Constant.WHITE);
 
 	}
@@ -52,10 +52,10 @@ public class TestZhengZiCalculate_New extends TestCase {
 		String fileName = "doc/围棋程序数据/死活题局面/双倒扑_1.wjm";
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 		logger.setLevel(Level.DEBUG);
-		Point point = Point.getPoint(17, 17);
-		Point firstMove = Point.getPoint(16, 15);
+		Point point = Point.getPoint(19, 17, 17);
+		Point firstMove = Point.getPoint(19, 16, 15);
 		testZhengZi_success(fileName, point, Constant.BLACK);
-		point = Point.getPoint(18, 18);
+		point = Point.getPoint(19, 18, 18);
 		testZhengZi_success(fileName, point, Constant.BLACK);
 	}
 
@@ -67,8 +67,8 @@ public class TestZhengZiCalculate_New extends TestCase {
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 		logger.setLevel(Level.DEBUG);
 		// Point point = new Point(3, 17);
-		Point point = Point.getPoint(3, 17);
-		Point firstMove = Point.getPoint(4, 16);
+		Point point = Point.getPoint(19, 3, 17);
+		Point firstMove = Point.getPoint(19, 4, 16);
 		testZhengZi_success(fileName, point, Constant.WHITE);
 
 	}

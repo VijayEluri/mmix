@@ -146,37 +146,37 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		return level;
 	}
 
-	@Override
-	public int getScore(BoardColorState boardColorState) {
-		BoardColorState boardColorStateN = boardColorState.normalize();
-		if (terminalResults.containsKey(boardColorStateN)) {
-			return terminalResults.get(boardColorStateN).intValue();
-		}
-		BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
-				.normalize();
-		if (terminalResults.containsKey(boardColorStateS)) {
-			return 0 - terminalResults.get(boardColorStateS).intValue();
-		}
-		if (this.historyIndependentResult.containsKey(boardColorStateN)) {
-			if (boardColorState.isBlackTurn()) {
-				return historyIndependentResult.get(boardColorStateN)
-						.getLowExp();
-			} else {
-				return historyIndependentResult.get(boardColorStateN)
-						.getHighExp();
-			}
-		}
-		if (this.historyIndependentResult.containsKey(boardColorStateS)) {
-			if (boardColorState.isBlackTurn()) {
-				return 0 - historyIndependentResult.get(boardColorStateS)
-						.getHighExp();
-			} else {
-				return 0 - historyIndependentResult.get(boardColorStateS)
-						.getLowExp();
-			}
-		}
-		return 0;
-	}
+//	@Override
+//	public int getScore(BoardColorState boardColorState) {
+//		BoardColorState boardColorStateN = boardColorState.normalize();
+//		if (terminalResults.containsKey(boardColorStateN)) {
+//			return terminalResults.get(boardColorStateN).intValue();
+//		}
+//		BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
+//				.normalize();
+//		if (terminalResults.containsKey(boardColorStateS)) {
+//			return 0 - terminalResults.get(boardColorStateS).intValue();
+//		}
+//		if (this.historyIndependentResult.containsKey(boardColorStateN)) {
+//			if (boardColorState.isBlackTurn()) {
+//				return historyIndependentResult.get(boardColorStateN)
+//						.getLowExp();
+//			} else {
+//				return historyIndependentResult.get(boardColorStateN)
+//						.getHighExp();
+//			}
+//		}
+//		if (this.historyIndependentResult.containsKey(boardColorStateS)) {
+//			if (boardColorState.isBlackTurn()) {
+//				return 0 - historyIndependentResult.get(boardColorStateS)
+//						.getHighExp();
+//			} else {
+//				return 0 - historyIndependentResult.get(boardColorStateS)
+//						.getLowExp();
+//			}
+//		}
+//		return 0;
+//	}
 
 	/**
 	 * two two board optimization
@@ -212,23 +212,23 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	/**
 	 * only normalized state is stored! for efficiency.
 	 */
-	@Override
-	public boolean isKnownState(BoardColorState boardColorState) {
-		BoardColorState boardColorStateN = boardColorState.normalize();
-		if (terminalResults.containsKey(boardColorStateN))
-			return true;
-		else if (this.historyIndependentResult.containsKey(boardColorStateN))
-			return true;
-		// Black is not symmetry with White due to different expecting score
-		// like [-8,-9]
-		BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
-				.normalize();
-		if (terminalResults.containsKey(boardColorStateS))
-			return true;
-		else if (this.historyIndependentResult.containsKey(boardColorStateS))
-			return true;
-		return false;
-	}
+//	@Override
+//	public boolean isKnownState(BoardColorState boardColorState) {
+//		BoardColorState boardColorStateN = boardColorState.normalize();
+//		if (terminalResults.containsKey(boardColorStateN))
+//			return true;
+//		else if (this.historyIndependentResult.containsKey(boardColorStateN))
+//			return true;
+//		// Black is not symmetry with White due to different expecting score
+//		// like [-8,-9]
+//		BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
+//				.normalize();
+//		if (terminalResults.containsKey(boardColorStateS))
+//			return true;
+//		else if (this.historyIndependentResult.containsKey(boardColorStateS))
+//			return true;
+//		return false;
+//	}
 
 	public void outputSearchStatistics() {
 		outputSearchStatistics(log);

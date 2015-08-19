@@ -41,7 +41,10 @@ public class ListAllState {
 
 	Set<BoardColorState> validStates = new HashSet<BoardColorState>();
 	Set<BoardColorState> invalidStates = new HashSet<BoardColorState>();
-	private Set<BoardColorState> finalStates = new HashSet<BoardColorState>(100);
+	private Set<BoardColorState> finalStateDeadCleanedup = new HashSet<BoardColorState>(
+			100);
+	private Set<BoardColorState> finalStateDeadExist = new HashSet<BoardColorState>(
+			100);
 	// not statically recognized final states;
 	private Set<BoardColorState> notRecFinalStates = new HashSet<BoardColorState>(
 			100);
@@ -53,7 +56,8 @@ public class ListAllState {
 
 	public Set<BoardColorState> getFinalState(int boardSize) {
 		this.listAllState(boardSize, FINAL_STATE);
-		return this.finalStates;
+		finalStateDeadCleanedup.addAll(finalStateDeadExist);
+		return this.finalStateDeadCleanedup;
 	}
 
 	/**
@@ -101,18 +105,35 @@ public class ListAllState {
 		}
 
 		if (log.isEnabledFor(Level.WARN)) {
-			log.warn("total state count = " + count);
+			log.warn("total state count (whose turn independent) = " + count);
 			if (type == VALID_STATE) {
-				log.warn("invalid state count = " + invalidState);
-				log.warn("invalid state count (filter by symmetry, but distinguish whore turn) = "
+				log.warn("Invalid state count (whose turn independent) = "
+						+ invalidState);
+				log.warn("Pure invalid state count (filter by symmetry) = "
 						+ invalidStates.size());
-				log.warn("valid state count = " + (count - invalidState));
+				for (BoardColorState temp : this.invalidStates) {
+					log.warn(temp.getStateString());
+				}
+				log.warn("valid state count (whose turn independent) = "
+						+ (count - invalidState));
 				log.warn("valid state count (filter by symmetry, but distinguish whore turn) = "
 						+ validStates.size());
-			} else if (type == FINAL_STATE) {
-				log.warn("final State count = " + finalState);
-				for (BoardColorState temp : this.finalStates) {
+				for (BoardColorState temp : this.validStates) {
 					log.warn(temp.getStateString());
+				}
+			} else if (type == FINAL_STATE) {
+				log.warn("final State total count = " + finalState);
+				log.warn("final State count of dead cleaned up = "
+						+ finalStateDeadCleanedup.size());
+				for (BoardColorState temp : this.finalStateDeadCleanedup) {
+					log.warn(temp.getStateString());
+					log.warn("Score = " + temp.getScore());
+				}
+				log.warn("final State count of dead exist = "
+						+ finalStateDeadExist.size());
+				for (BoardColorState temp : this.finalStateDeadExist) {
+					log.warn(temp.getStateString());
+					log.warn("Score = " + temp.getScore());
 				}
 				if (this.notRecFinalStates.isEmpty() == false) {
 					log.warn("notRecFinalStates count = "
@@ -136,24 +157,27 @@ public class ListAllState {
 		try {
 			BoardColorState blackFirst = new BoardColorState(state,
 					Constant.BLACK).normalize();
-			BoardColorState whiteFirst = new BoardColorState(state,
-					Constant.WHITE).normalize();
+
 			if (StateUtil.isValidState(state) == false) {
 				if (invalidStates.contains(blackFirst) == false) {
+					// needn't care whose turn since it is invalid anyway.
 					invalidStates.add(blackFirst);
-				}
-				if (invalidStates.contains(whiteFirst) == false) {
-					invalidStates.add(whiteFirst);
 				}
 				invalidState++;
 				return;
 			} else {
 				if (validStates.contains(blackFirst) == false) {
 					validStates.add(blackFirst);
+					// white first will be converted to black first (with
+					// opposite score)
+					// important to switch color first.
+					BoardColorState whiteFirst = new BoardColorState(state,
+							Constant.WHITE).blackWhiteSwitch().normalize();
+					if (validStates.contains(whiteFirst) == false) {
+						validStates.add(whiteFirst);
+					}
 				}
-				if (validStates.contains(whiteFirst) == false) {
-					validStates.add(whiteFirst);
-				}
+
 			}
 		} catch (Exception e) {
 			log.warn(Arrays.toString(state));
@@ -170,39 +194,58 @@ public class ListAllState {
 			return;
 		}
 
-		TerritoryAnalysis sa = new TerritoryAnalysis(state);
+		TerritoryAnalysis sa = new TerritoryAnalysis(state, Constant.BLACK);
 
 		try {
 			BoardColorState normalize = sa.getBoardColorState().normalize();
-			if (sa.isFinalState_deadCleanedUp()) {
+			if (finalStateDeadCleanedup.contains(normalize))
+				return;
+			else if (sa.isFinalState_deadCleanedUp()) {
 
 				FinalResult result = sa.finalResult_deadCleanedUp();
 				normalize.setScore(result.getScore());
-				log.warn("It is final state: dead stone cleaned up.");
-				sa.printState(log);
 
-				if (log.isDebugEnabled())
+				if (log.isDebugEnabled()) {
+					log.debug("It is final state: dead stone cleaned up.");
+					sa.printState(log);
 					log.debug("Final State" + result);
-				if (log.isDebugEnabled())
 					log.debug("count=" + count);
-				finalState++;
-				finalStates.add(normalize);
+				}
+				finalState += 2;
+				finalStateDeadCleanedup.add(normalize);
+				/*
+				 * we also store the white first state even though the score is
+				 * same. and we convert it to black first format. so low level
+				 * we only store black first state, if whose turn doesn't match,
+				 * we need to convert.
+				 */
+				BoardColorState whiteFirst = new TerritoryAnalysis(state,
+						Constant.WHITE).getBoardColorState().blackWhiteSwitch()
+						.normalize();
+				whiteFirst.setScore(0 - result.getScore());
+				finalStateDeadCleanedup.add(whiteFirst);
+			} else if (finalStateDeadExist.contains(normalize)) {
+				return;
 			} else if (sa.isFinalState_deadExist()) {
 
 				FinalResult result = sa.finalResult_deadExist();
 				normalize.setScore(result.getScore());
 
-				log.warn("It is final state: dead Stone exist");
-				log.warn("score=" + normalize.getScore());
-				sa.printState(log);
-				log.warn("");
-
-				if (log.isDebugEnabled())
+				if (log.isDebugEnabled()) {
+					log.warn("It is final state: dead Stone exist");
+					log.warn("score=" + normalize.getScore());
+					sa.printState(log);
+					log.warn("");
 					log.debug("Final State" + result);
-				if (log.isDebugEnabled())
 					log.debug("count=" + count);
-				finalState++;
-				finalStates.add(normalize);
+				}
+				finalState += 2;
+				finalStateDeadExist.add(normalize);
+				BoardColorState whiteFirst = new TerritoryAnalysis(state,
+						Constant.WHITE).getBoardColorState().blackWhiteSwitch()
+						.normalize();
+				whiteFirst.setScore(0 - result.getScore());
+				finalStateDeadExist.add(whiteFirst);
 			} else if (notRecFinalStates.size() < 0
 					&& sa.isPotentialFinal() == true) {
 				if (TerritoryAnalysis.isFinalState_dynamic(state)) {

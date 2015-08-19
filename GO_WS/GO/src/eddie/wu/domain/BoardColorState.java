@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +18,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 
+import eddie.wu.domain.comp.BoardColorComparator;
 import eddie.wu.domain.comp.RowColumnComparator;
 
 /**
@@ -692,12 +692,12 @@ public class BoardColorState {
 	 * @return
 	 */
 	public BoardColorState normalize() {
-		BoardColorState state = new BoardColorState(this.boardSize,
-				this.whoseTurn);
+		// BoardColorState state = new BoardColorState(this.boardSize,
+		// this.whoseTurn);
 
 		List<BoardColorState> list = new ArrayList<BoardColorState>();
-
-		List<BoardColorState> list2 = new ArrayList<BoardColorState>();
+		Set<BoardColorState> set = new HashSet<BoardColorState>();
+		// List<BoardColorState> list2 = new ArrayList<BoardColorState>();
 		// BoardColorState backSlash = new BoardColorState(this.)
 		byte[][] originalState = getMatrixState();
 		byte[][] verticalMirror = GoBoardSymmetry.verticalMirror(originalState);
@@ -705,20 +705,21 @@ public class BoardColorState {
 				.horizontalMirror(originalState);
 		byte[][] horizontalVertical = GoBoardSymmetry
 				.horizontalMirror(verticalMirror);
-		list.add(this);
-		list.add(BoardColorState.getInstance(verticalMirror, whoseTurn));
-		list.add(BoardColorState.getInstance(horizontalMirror, whoseTurn));
-		list.add(BoardColorState.getInstance(horizontalVertical, whoseTurn));
+		set.add(this);
+		set.add(BoardColorState.getInstance(verticalMirror, whoseTurn));
+		set.add(BoardColorState.getInstance(horizontalMirror, whoseTurn));
+		set.add(BoardColorState.getInstance(horizontalVertical, whoseTurn));
 
-		list.add(BoardColorState.getInstance(
+		set.add(BoardColorState.getInstance(
 				GoBoardSymmetry.forwardSlashMirror(originalState), whoseTurn));
-		list.add(BoardColorState.getInstance(
+		set.add(BoardColorState.getInstance(
 				GoBoardSymmetry.forwardSlashMirror(verticalMirror), whoseTurn));
-		list.add(BoardColorState.getInstance(
+		set.add(BoardColorState.getInstance(
 				GoBoardSymmetry.forwardSlashMirror(horizontalMirror), whoseTurn));
-		list.add(BoardColorState.getInstance(
+		set.add(BoardColorState.getInstance(
 				GoBoardSymmetry.forwardSlashMirror(horizontalVertical),
 				whoseTurn));
+		list.addAll(set);
 		if (log.isInfoEnabled()) {
 			for (BoardColorState state2 : list) {
 				log.info(state2.getStateString().toString());
@@ -727,7 +728,7 @@ public class BoardColorState {
 
 		boolean colorSwitchIncluded = list.contains(this.blackWhiteSwitch());
 
-		Collections.sort(list, new BoardColorStateComparator());
+		Collections.sort(list, new BoardColorComparator());
 		if (colorSwitchIncluded) {
 			log.info("colorSwitchIncluded:" + colorSwitchIncluded);
 			return list.get(0);
@@ -848,7 +849,6 @@ public class BoardColorState {
 		this.variant = variant;
 	}
 
-	
 	/**
 	 * 黑白子互换的局面
 	 * 
@@ -933,47 +933,11 @@ public class BoardColorState {
 		return this.blackStones - this.whiteStones;
 	}
 
-}
+	public long[] getBlackLongArray() {
+		return black.toLongArray();
+	}
 
-class BoardColorStateComparator implements Comparator<BoardColorState> {
-
-	@Override
-	public int compare(BoardColorState o1, BoardColorState o2) {
-		int rowColumnSum1 = o1.getRowColumnSum();
-		int rowColumnSum2 = o2.getRowColumnSum();
-		if (rowColumnSum1 != rowColumnSum2) {
-			return rowColumnSum1 - rowColumnSum2;
-		}
-
-		int rowSum1 = o1.getRowSum();
-		int rowSum2 = o2.getRowSum();
-		if (rowSum1 != rowSum2) {
-			return rowSum1 - rowSum2;
-		}
-
-		int blackRowColumnSum1 = o1.getBlackRowColumnSum();
-		int blackRowColumnSum2 = o2.getBlackRowColumnSum();
-		if (blackRowColumnSum1 != blackRowColumnSum2) {
-			return blackRowColumnSum1 - blackRowColumnSum2;
-		}
-
-		int blackRowSum1 = o1.getBlackRowSum();
-		int blackRowSum2 = o2.getBlackRowSum();
-		if (blackRowSum1 != blackRowSum2) {
-			return blackRowSum1 - blackRowSum2;
-		}
-
-		int blackMin1 = o1.getMinRowColumnSum_black();
-		int blackMin2 = o2.getMinRowColumnSum_black();
-		if (blackMin1 != blackMin2) {
-			return blackMin1 - blackMin2;
-		}
-
-		int whiteMin1 = o1.getMinRowColumnSum_white();
-		int whiteMin2 = o2.getMinRowColumnSum_white();
-		if (whiteMin1 != whiteMin2) {
-			return whiteMin1 - whiteMin2;
-		}
-		return 0;// impossible
+	public long[] getWhiteLongArray() {
+		return white.toLongArray();
 	}
 }

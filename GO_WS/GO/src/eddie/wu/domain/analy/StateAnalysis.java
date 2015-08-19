@@ -60,7 +60,7 @@ public class StateAnalysis extends GoBoard {
 	public StateAnalysis(int boardSize) {
 		super(boardSize);
 	}
-	
+
 	public StateAnalysis(byte[][] state) {
 		this(state, Constant.BLACK);
 	}
@@ -114,14 +114,15 @@ public class StateAnalysis extends GoBoard {
 		}
 		this.collectSpecialPoint();
 	}
+
 	/**
 	 * TODO:// init special data
+	 * 
 	 * @param colorState
 	 */
 	public StateAnalysis(BoardColorState colorState) {
 		super(colorState);
 	}
-	
 
 	protected Set<Point> tigerMouth = new HashSet<Point>();
 
@@ -270,18 +271,22 @@ public class StateAnalysis extends GoBoard {
 
 		for (Block blockTemp : blackWhiteBlocks) {
 			if (blockTemp.isBlack())
-				if(log.isEnabledFor(Level.WARN)) log.warn(blockTemp);
+				if (log.isEnabledFor(Level.WARN))
+					log.warn(blockTemp);
 		}
 		for (Block blockTemp : blackWhiteBlocks) {
 			if (blockTemp.isWhite())
-				if(log.isEnabledFor(Level.WARN)) log.warn(blockTemp);
+				if (log.isEnabledFor(Level.WARN))
+					log.warn(blockTemp);
 		}
 
 		for (BlankBlock blockTemp : this.eyeBlocks) {
-			if(log.isEnabledFor(Level.WARN)) log.warn(blockTemp);
+			if (log.isEnabledFor(Level.WARN))
+				log.warn(blockTemp);
 		}
 		for (BlankBlock blockTemp : this.sharedBlankBlocks) {
-			if(log.isEnabledFor(Level.WARN)) log.warn(blockTemp);
+			if (log.isEnabledFor(Level.WARN))
+				log.warn(blockTemp);
 		}
 
 	}
@@ -302,8 +307,9 @@ public class StateAnalysis extends GoBoard {
 		Set<Block> whiteBlocks = new HashSet<Block>();
 
 		if (block.getNumberOfPoint() > 10) {
-			if(log.isEnabledFor(Level.WARN)) log.warn("There is a big blank block with "
-					+ block.getNumberOfPoint() + " points");
+			if (log.isEnabledFor(Level.WARN))
+				log.warn("There is a big blank block with "
+						+ block.getNumberOfPoint() + " points");
 		}
 
 		for (Point point : block.getPoints()) {
@@ -360,7 +366,7 @@ public class StateAnalysis extends GoBoard {
 		int myColor = block.getColor();
 		int enemyColor = ColorUtil.enemyColor(myColor);
 		for (Point point : block.getPoints()) {
-			
+
 			for (Delta delta : Constant.ADJACENTS) {
 				Point nb = point.getNeighbour(delta);
 				if (nb == null) {
@@ -370,16 +376,16 @@ public class StateAnalysis extends GoBoard {
 					block.addEnemyBlock_twoWay(this.getBlock(nb));
 				}
 			}
-//			for (j = 0; j < 4; j++) {
-//				a = (byte) (row + CS.szld[j][0]);
-//				b = (byte) (column + CS.szld[j][1]);
-//				if (log.isDebugEnabled()) {
-//					log.debug("a=" + a + ", b=" + b);
-//				}
-//				if (getColor(a, b) == enemyColor) {
-//					block.addEnemyBlock_twoWay(this.getBlock(a, b));
-//				}
-//			}
+			// for (j = 0; j < 4; j++) {
+			// a = (byte) (row + CS.szld[j][0]);
+			// b = (byte) (column + CS.szld[j][1]);
+			// if (log.isDebugEnabled()) {
+			// log.debug("a=" + a + ", b=" + b);
+			// }
+			// if (getColor(a, b) == enemyColor) {
+			// block.addEnemyBlock_twoWay(this.getBlock(a, b));
+			// }
+			// }
 		} // for
 
 	}
@@ -594,7 +600,13 @@ public class StateAnalysis extends GoBoard {
 	}
 
 	public int getColor(Point point) {
-		return getBoardPoint(point).getColor();
+		try {
+			return getBoardPoint(point).getColor();
+		} catch (Exception e) {
+			System.out.println(point+" "+boardSize);
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
 	}
 
 	public int getColor(int row, int column) {
@@ -697,43 +709,43 @@ public class StateAnalysis extends GoBoard {
 
 	public List<Block> getBlackWhiteBlocks() {
 		/**
-		 * blackWhiteBlocks is not maintained when one step forward and backward. so lazy load here.
+		 * blackWhiteBlocks is not maintained when one step forward and
+		 * backward. so lazy load here.
 		 */
 		this.blackWhiteBlocks.clear();
 		for (Point point : Point.getAllPoints(boardSize)) {
 			BasicBlock basicBlock = this.getBasicBlock(point);
-			if (basicBlock.isBlank()==false) {			
+			if (basicBlock.isBlank() == false) {
 				this.blackWhiteBlocks.add((Block) basicBlock);
 			}
 		}
-		
-		
+
 		List<Block> list = new ArrayList<Block>(this.blackWhiteBlocks.size());
 		list.addAll(this.blackWhiteBlocks);
 		Collections.sort(list, new BlockRowColumnComparator());
 		return list;
 	}
 
-	//maybe not up to date
-//	public List<BasicBlock> getAllBlocks() {
-//		int size = this.blackWhiteBlocks.size() + this.eyeBlocks.size()
-//				+ this.sharedBlankBlocks.size();
-//		List<BasicBlock> list = new ArrayList<BasicBlock>(size);
-//		list.addAll(this.blackWhiteBlocks);
-//		list.addAll(this.eyeBlocks);
-//		list.addAll(this.sharedBlankBlocks);
-//		Collections.sort(list, new BlockRowColumnComparator());
-//		return list;
-//	}
+	// maybe not up to date
+	// public List<BasicBlock> getAllBlocks() {
+	// int size = this.blackWhiteBlocks.size() + this.eyeBlocks.size()
+	// + this.sharedBlankBlocks.size();
+	// List<BasicBlock> list = new ArrayList<BasicBlock>(size);
+	// list.addAll(this.blackWhiteBlocks);
+	// list.addAll(this.eyeBlocks);
+	// list.addAll(this.sharedBlankBlocks);
+	// Collections.sort(list, new BlockRowColumnComparator());
+	// return list;
+	// }
 
-//	public BoardColorState getBoardColorState() {
-//		BoardColorState boardState = new BoardColorState(boardSize);
-//		for (int i = 1; i <= boardSize; i++) {
-//			for (int j = 1; j <= boardSize; j++) {
-//				boardState.add(getBoardPoint(i, j));
-//			}
-//		}
-//		return boardState;
-//	}
+	// public BoardColorState getBoardColorState() {
+	// BoardColorState boardState = new BoardColorState(boardSize);
+	// for (int i = 1; i <= boardSize; i++) {
+	// for (int j = 1; j <= boardSize; j++) {
+	// boardState.add(getBoardPoint(i, j));
+	// }
+	// }
+	// return boardState;
+	// }
 
 }

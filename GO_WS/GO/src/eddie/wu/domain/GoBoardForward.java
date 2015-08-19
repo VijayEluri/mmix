@@ -33,9 +33,10 @@ public class GoBoardForward extends GoBoardSymmetry {
 	private StepHistory stepHistory = new StepHistory();
 	private boolean checkForward = false;
 	private BoardStatistic statistic = new BoardStatistic();
-	
-	//count how many moved we have forwarded, used in search 
+
+	// count how many moved we have forwarded, used in search
 	private long forwardMoves = 0;
+
 	public GoBoardForward(int boardSize) {
 		super(boardSize);
 		this.stepHistory.colorStates.add(initColorState);
@@ -162,7 +163,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 		} else {
 			current = child;
 		}
-		
+
 		forwardMoves++;
 		if (step.isPass()) {
 			this.pass(step.getColor());
@@ -420,10 +421,11 @@ public class GoBoardForward extends GoBoardSymmetry {
 
 				check(message);
 			}
-		}		
+		}
 		return true;
 	}
-	public long getForwardMoves(){
+
+	public long getForwardMoves() {
 		return forwardMoves;
 	}
 
@@ -606,6 +608,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 
 	/**
 	 * 打劫时的虚拟劫材应对。 注意悔棋时需要对应处理。
+	 * 
 	 * @deprecated not used yet!
 	 * @return
 	 */
@@ -935,8 +938,8 @@ public class GoBoardForward extends GoBoardSymmetry {
 	}
 
 	/**
-	 * fix a bug here: forget to store state after pass, so failed to check
-	 * same state happens again.(2013/04/28)
+	 * fix a bug here: forget to store state after pass, so failed to check same
+	 * state happens again.(2013/04/28)
 	 * 
 	 * @param color
 	 */
@@ -1279,13 +1282,12 @@ public class GoBoardForward extends GoBoardSymmetry {
 		}
 		if (!breaths.equals(block.getBreathPoints())) {
 			this.errorState();
-			if (log.isEnabledFor(Level.WARN))
+			if (log.isEnabledFor(Level.WARN)) {
 				log.warn(block);
-			if (log.isEnabledFor(Level.WARN))
 				log.warn("original breath of " + block.getBehalfPoint()
 						+ " is " + breaths);
-			if (log.isEnabledFor(Level.WARN))
 				log.warn("new calculated breath is" + block.getBreathPoints());
+			}
 			throw new RuntimeException("气数计算有误!");
 		}
 
@@ -1840,9 +1842,10 @@ public class GoBoardForward extends GoBoardSymmetry {
 
 	/**
 	 * 双虚手终局
+	 * 
 	 * @return
 	 */
-	public boolean areBothPass() {		
+	public boolean areBothPass() {
 		return this.getStepHistory().areBothPass();
 	}
 
@@ -1911,7 +1914,8 @@ public class GoBoardForward extends GoBoardSymmetry {
 	}
 
 	public boolean globalDuplicate(Step step) {
-		if(step.isPass()) return false;
+		if (step.isPass())
+			return false;
 		SimpleNeighborState neighborState = getNeighborState(step);
 		// make safe copy!
 		byte[][] state = this.getColorArray();
@@ -1924,11 +1928,11 @@ public class GoBoardForward extends GoBoardSymmetry {
 				state[row][column] = 0;
 			}
 		}
-		//step is not played yet. play the step in state copy.
+		// step is not played yet. play the step in state copy.
 		row = step.getPoint().getRow();
 		column = step.getPoint().getColumn();
 		state[row][column] = (byte) step.getColor();
-		
+
 		int whoseTurn = ColorUtil.enemyColor(step.getColor());
 		BoardColorState boardState = BoardColorState.getInstance(state,
 				whoseTurn);

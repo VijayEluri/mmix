@@ -15,12 +15,18 @@ import eddie.wu.domain.analy.StateAnalysis;
 import eddie.wu.domain.comp.SymmetryRowColumnComparator;
 
 /**
- * @author eddie may be no use to separate out this class at the first glance.
- *         but I believe it will be a good choice with the future in the mind.
+ * @author eddie ,<br/>
+ *         may be no use to separate out this class at the first glance. but I
+ *         believe it will be a good choice with the future in the mind.
  * 
  *         FLY WEIGHT Design Pattern 享元设计模式
  */
 public class Point implements java.io.Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static Point giveUp = null;
 	// public static Point absLoopThreat = new Point()
 
@@ -50,16 +56,6 @@ public class Point implements java.io.Serializable {
 
 	public final byte boardSize;
 	public final byte middleLine;
-
-	// public static Point getPoint(int boardSize, int row, int column) {
-	// if (Constant.DEBUG_CGCL == true) {
-	//
-	// }
-	// if (pointsMap.get(Integer.valueOf(boardSize)) == null) {
-	// initAllPoints(boardSize);
-	// }
-	// return pointsMap.get(Integer.valueOf(boardSize))[row][column];
-	// }
 
 	/**
 	 * 该点作为眼位是否为中央眼位（这里二线也算中央。）
@@ -120,18 +116,11 @@ public class Point implements java.io.Serializable {
 		return pointsMap.get(Integer.valueOf(boardSize))[row][column];
 	}
 
-	public static Point getPoint(int row, int column) {
-		int boardSize = Constant.BOARD_SIZE;
-		if (pointsMap.get(Integer.valueOf(boardSize)) == null) {
-			initAllPoints(boardSize);
-		}
-		return pointsMap.get(Integer.valueOf(boardSize))[row][column];
-	}
-
 	public static Point getPoint(int boardSize, int row, int column) {
-		if (Point.isNotValid(boardSize, row, column))
+		if (Point.isNotValid(boardSize, row, column)) {
 			throw new RuntimeException("invalid Point [" + boardSize + ","
 					+ row + "," + column + "]");
+		}
 		if (pointsMap.get(Integer.valueOf(boardSize)) == null) {
 			initAllPoints(boardSize);
 		}
@@ -146,35 +135,13 @@ public class Point implements java.io.Serializable {
 	}
 
 	/**
-	 * tricky! convert form one dimension coordinate into two dimension
-	 * coordinate.
-	 * 
-	 * @param point
-	 */
-	// public Point(short point) {
-	// this((byte) ((point - 1) / Constant.SIZEOFBOARD + 1),
-	// (byte) ((point - 1) % Constant.SIZEOFBOARD + 1));
-	// }
-	//
-	// public Point(int point) {
-	// this((byte) ((point - 1) / Constant.SIZEOFBOARD + 1),
-	// (byte) ((point - 1) % Constant.SIZEOFBOARD + 1));
-	// }
-
-	/**
 	 * @return Returns the column.
 	 */
 	public byte getColumn() {
 		return column;
 	}
 
-	/**
-	 * @param column
-	 *            The column to set.
-	 */
-	// public void setColumn(byte column) {
-	// this.column = column;
-	// }
+	
 
 	/**
 	 * @return Returns the row.
@@ -183,13 +150,6 @@ public class Point implements java.io.Serializable {
 		return row;
 	}
 
-	/**
-	 * @param row
-	 *            The row to set.
-	 */
-	// public void setRow(byte row) {
-	// this.row = row;
-	// }
 
 	/**
 	 * from 1 to 361
@@ -201,7 +161,7 @@ public class Point implements java.io.Serializable {
 	}
 
 	/**
-	 * from 1 to 361
+	 * from 1 to 361 if board size is of 19
 	 * 
 	 * @return
 	 */
@@ -302,10 +262,10 @@ public class Point implements java.io.Serializable {
 		return points;
 	}
 
-	// private static S
-
 	public static Set<Point> getAllPoints(int boardSize) {
-		initAllPoints(boardSize);
+		if (pointsMap.get(Integer.valueOf(boardSize)) == null) {
+			initAllPoints(boardSize);
+		}
 		return allPointMap.get(boardSize);
 	}
 
@@ -318,10 +278,10 @@ public class Point implements java.io.Serializable {
 			for (int j = 1; j <= boardSize; j++) {
 				points[i][j] = new Point(boardSize, i, j);
 				allPoints.add(points[i][j]);
-				pointsMap.put(boardSize, points);
-				allPointMap.put(Integer.valueOf(boardSize), allPoints);
 			}
 		}
+		pointsMap.put(Integer.valueOf(boardSize), points);
+		allPointMap.put(Integer.valueOf(boardSize), allPoints);
 		if (boardSize < 9)
 			return;
 		zhanJiao = new HashSet<Point>();

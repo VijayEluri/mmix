@@ -44,7 +44,7 @@ public class TestAllState2 extends TestCase {
 	static {
 		Constant.INTERNAL_CHECK = false;
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.ERROR);
-		// Logger.getLogger(GoBoardSearch.class).setLevel(Level.INFO);
+		Logger.getLogger(GoBoardSearch.class).setLevel(Level.INFO);
 		Logger.getLogger(GoBoardForward.class).setLevel(Level.ERROR);
 		Logger.getLogger(TestAllState2.class).setLevel(Level.WARN);
 		//Logger.getLogger(SGFGoManual.class).setLevel(Level.INFO);

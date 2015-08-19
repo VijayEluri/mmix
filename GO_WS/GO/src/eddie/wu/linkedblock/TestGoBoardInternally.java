@@ -84,7 +84,7 @@ public class TestGoBoardInternally extends TestCase {
 			Set<Point> originalB = goBoard.getBlankBlock(1, 1).getPoints();
 			for (row = 1; row <= Constant.BOARD_SIZE; row++) {
 				for (column = 1; column <= Constant.BOARD_SIZE; column++) {
-					Point point = Point.getPoint(row, column);
+					Point point = Point.getPoint(Constant.BOARD_SIZE,row, column);
 
 					if (originalB.contains(point) == false)
 						log.debug(point);

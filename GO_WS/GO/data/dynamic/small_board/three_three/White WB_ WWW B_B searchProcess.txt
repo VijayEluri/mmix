@@ -1,0 +1,1 @@
+[INIT]B-->[PAS]W-->[PAS](1 DB_PASS)[INIT]B-->[1,3]W-->[PAS]B-->[PAS](4 DB_PASS)[INIT]B-->[1,3]W-->[PAS]B-->[3,2](FINAL 9)[INIT]B-->[1,3](9 EXHAUST)

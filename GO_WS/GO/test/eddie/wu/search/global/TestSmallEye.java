@@ -18,7 +18,7 @@ public class TestSmallEye extends TestCase {
 	public void testStraightThree() {
 		String inname = "doc/围棋程序数据/大眼基本死活/直三.wjm";
 		byte[][] state = StateAnalysis.LoadState(inname);
-		Point point = Point.getPoint(1, 17);
+		Point point = Point.getPoint(19,1, 17);
 		new GoBoard(state).getBigEyeBreathPattern(point).printPattern();
 
 		BigEyeSearch search;

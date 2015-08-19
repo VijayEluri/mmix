@@ -50,7 +50,7 @@ public class TestBigEyeSearch_old extends TestCase {
 		text[2] = new String("[B, B, _, B]");
 		text[3] = new String("[B, B, B, B]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		Point target  = Point.getPoint(2, 2);
+		Point target  = Point.getPoint(4,2, 2);
 
 		BigEyeSearch search;
 		int score;
@@ -79,7 +79,7 @@ public class TestBigEyeSearch_old extends TestCase {
 		text[3] = new String("[B, B, B, B]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		
-		Point point = Point.getPoint(1, 2);
+		Point point = Point.getPoint(4,1, 2);
 
 		BigEyeSearch search;
 		int score;
@@ -105,7 +105,7 @@ public class TestBigEyeSearch_old extends TestCase {
 		text[4] = new String("[_, W, _, B, B]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		
-		Point point = Point.getPoint(1, 3);
+		Point point = Point.getPoint(4,1, 3);
 		new GoBoard(state).getBigEyeBreathPattern(point).printPattern();
 
 		BigEyeSearch search;
@@ -132,7 +132,7 @@ public class TestBigEyeSearch_old extends TestCase {
 		text[4] = new String("[_, W, _, B, B]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		
-		Point point = Point.getPoint(1, 3);
+		Point point = Point.getPoint(4,1, 3);
 		new GoBoard(state).getBigEyeBreathPattern(point).printPattern();
 
 		BigEyeSearch  search;
@@ -155,7 +155,7 @@ public class TestBigEyeSearch_old extends TestCase {
 		 	text[5] = new String("[_, B, W, W, W, W]");
 			byte[][] state = StateLoader.LoadStateFromText(text);
 		BigEyeSearch search;
-		search = new BigEyeSearch(state, Point.getPoint(2, 3), Constant.WHITE,
+		search = new BigEyeSearch(state, Point.getPoint(4,2, 3), Constant.WHITE,
 				false, false);
 		int score = search.globalSearch();
 		if (log.isEnabledFor(Level.WARN))
@@ -174,7 +174,7 @@ public class TestBigEyeSearch_old extends TestCase {
 		
 		byte[][] state = StateLoader.LoadStateFromText(text);
 
-		Point target  = Point.getPoint(2, 3);
+		Point target  = Point.getPoint(4,2, 3);
 
 		BigEyeSearch goS;
 		goS = new BigEyeSearch(state, target, Constant.WHITE,
@@ -292,7 +292,7 @@ public class TestBigEyeSearch_old extends TestCase {
 		text[4] = new String("[_, W, W, W, W]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 
-		Point point = Point.getPoint(1, 3);
+		Point point = Point.getPoint(4,1, 3);
 		new GoBoard(state).getBigEyeBreathPattern(point).printPattern();
 
 		BigEyeSearch search;
@@ -326,7 +326,7 @@ public class TestBigEyeSearch_old extends TestCase {
 		text[4] = new String("[_, W, W, W, W]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 
-		Point point = Point.getPoint(1, 3);
+		Point point = Point.getPoint(4,1, 3);
 		BigEyeSearch search;
 		int score;
 
@@ -361,7 +361,7 @@ public class TestBigEyeSearch_old extends TestCase {
 		text[4] = new String("[_, W, W, W, _]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
 
-		Point point = Point.getPoint(1, 3);
+		Point point = Point.getPoint(4,1, 3);
 		BigEyeSearch search;
 		int score;
 		search = new BigEyeSearch(state, point, Constant.BLACK, false, false);

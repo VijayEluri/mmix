@@ -15,6 +15,7 @@ import eddie.wu.util.GBKToUTF8;
 
 public class TestZhengZiCalculate extends TestCase {
 	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
+
 	public void testConvert() {
 		ZhengZiCalculate a = new ZhengZiCalculate();
 		byte[][] b = new byte[10][2];
@@ -22,7 +23,7 @@ public class TestZhengZiCalculate extends TestCase {
 			b[i][0] = (byte) (i + 5);
 			b[i][1] = (byte) (i + 4);
 		}
-		Point[] c = a.convertArrayToPoints(Constant.BOARD_SIZE,b);
+		Point[] c = a.convertArrayToPoints(Constant.BOARD_SIZE, b);
 		for (int i = 0; i < b.length - 1; i++) {
 			assertEquals(c[i].getRow(), (byte) (i + 5 + 1));
 			assertEquals(c[i].getColumn(), (byte) (i + 4 + 1));
@@ -34,8 +35,8 @@ public class TestZhengZiCalculate extends TestCase {
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 
 		logger.setLevel(Level.DEBUG);
-		Point point = Point.getPoint(14, 16);
-		Point firstMove = Point.getPoint(14, 15);
+		Point point = Point.getPoint(19, 14, 16);
+		Point firstMove = Point.getPoint(19, 14, 15);
 		testZhengZi(fileName, point, firstMove);
 
 	}
@@ -44,8 +45,8 @@ public class TestZhengZiCalculate extends TestCase {
 		String fileName = "doc/征子局面/征子2";
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 		logger.setLevel(Level.DEBUG);
-		Point point = Point.getPoint(14, 14);
-		Point firstMove = Point.getPoint(13, 14);
+		Point point = Point.getPoint(19, 14, 14);
+		Point firstMove = Point.getPoint(19, 13, 14);
 		testZhengZi(fileName, point, firstMove);
 
 	}
@@ -58,8 +59,8 @@ public class TestZhengZiCalculate extends TestCase {
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 		logger.setLevel(Level.DEBUG);
 		// Point point = new Point(3, 17);
-		Point point = Point.getPoint(3, 17);
-		Point firstMove = Point.getPoint(4, 16);
+		Point point = Point.getPoint(19, 3, 17);
+		Point firstMove = Point.getPoint(19, 4, 16);
 		testZhengZi(fileName, point, firstMove);
 
 	}
@@ -77,7 +78,8 @@ public class TestZhengZiCalculate extends TestCase {
 		for (int j = 0; j < points.length; j++) {
 			if (points[j] == null)
 				break;
-			if(log.isDebugEnabled()) log.debug(points[j]);
+			if (log.isDebugEnabled())
+				log.debug(points[j]);
 		}
 
 	}

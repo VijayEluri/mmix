@@ -111,16 +111,16 @@ public class CaptureSearch extends GoBoardSearch {
 
 	}
 
-	@Override
-	public boolean isKnownState(BoardColorState boardColorState) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+//	@Override
+//	public boolean isKnownState(BoardColorState boardColorState) {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
 
-	@Override
-	public int getScore(BoardColorState boardColorState) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+//	@Override
+//	public int getScore(BoardColorState boardColorState) {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
 
 }

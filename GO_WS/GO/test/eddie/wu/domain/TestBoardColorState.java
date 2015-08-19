@@ -6,12 +6,14 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import eddie.wu.manual.StateLoader;
-import eddie.wu.util.GBKToUTF8;
 
 public class TestBoardColorState extends TestCase {
-	private static final Logger log = Logger.getLogger(GBKToUTF8.class);
+	private static final Logger log = Logger.getLogger(TestBoardColorState.class);
+	static{
+		Logger.getLogger(TestBoardColorState.class).setLevel(Level.INFO);
+	}
 	public void test() {
-		Logger.getLogger(BoardColorState.class).setLevel(Level.INFO);
+		
 		String[] text = new String[3];
 		text[0] = new String("[W, W, _]");
 		text[1] = new String("[B, B, B]");
@@ -24,6 +26,34 @@ public class TestBoardColorState extends TestCase {
 
 		// if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(normalize.getDisplayMatrixState()));
 	}
+	
+	public void testNormalize1(){
+		
+		String[] text = new String[3];
+		text[0] = new String("[B, B, _]");
+		text[1] = new String("[_, B, B]");
+		text[2] = new String("[B, _, B]");
+		byte[][] state = StateLoader.LoadStateFromText(text);
+		BoardColorState normalize = BoardColorState.getInstance(state,
+				Constant.BLACK).normalize();
+		if(log.isEnabledFor(Level.WARN)) log.warn("Normalized:");
+		if(log.isEnabledFor(Level.WARN)) log.warn(normalize.getStateString());
+		   
+	}
+public void testNormalize2(){
+		
+		String[] text = new String[3];
+		text[0] = new String("[B, _, B]");
+		text[1] = new String("[_, B, B]");
+		text[2] = new String("[B, B, _]");
+		byte[][] state = StateLoader.LoadStateFromText(text);
+		BoardColorState normalize = BoardColorState.getInstance(state,
+				Constant.BLACK).normalize();
+		if(log.isEnabledFor(Level.WARN)) log.warn("Normalized:");
+		if(log.isEnabledFor(Level.WARN)) log.warn(normalize.getStateString());
+		   
+	}
+
 
 	public void testTwoTwo() {
 		Logger.getLogger(BoardColorState.class).setLevel(Level.INFO);

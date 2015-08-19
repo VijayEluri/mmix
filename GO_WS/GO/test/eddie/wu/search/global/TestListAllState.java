@@ -87,22 +87,23 @@ public class TestListAllState extends TestCase {
 	 * final State count = 98
 	 */
 	public void test3_finalState1() {
-		Set<BoardColorState> validStates = las.getFinalState(3);
-		if (log.isEnabledFor(Level.WARN)) {
-			log.warn("pure final states = " + validStates.size());
-		}
-		int count = 0;
-		for (BoardColorState state : validStates) {
-			if (state.isBlackTurn()) {
-				count++;
-
-				if (log.isEnabledFor(Level.WARN)) {
-					log.warn("count = " + count);
-					log.warn(", score = " + state.getScore());
-					log.warn(state.getStateString());
-				}
-			}
-		}
+		las.getFinalState(3);
+//		Set<BoardColorState> validStates = las.getFinalState(3);
+//		if (log.isEnabledFor(Level.WARN)) {
+//			log.warn("pure final states = " + validStates.size());
+//		}
+//		int count = 0;
+//		for (BoardColorState state : validStates) {
+//			if (state.isBlackTurn()) {
+//				count++;
+//
+//				if (log.isEnabledFor(Level.WARN)) {
+//					log.warn("count = " + count);
+//					log.warn(", score = " + state.getScore());
+//					log.warn(state.getStateString());
+//				}
+//			}
+//		}
 		// i = 0;
 		// for (BoardColorState state : notRecFinalStates) {
 		// log.debug("Not recognized final state: " + (++i));

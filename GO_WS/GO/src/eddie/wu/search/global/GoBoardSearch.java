@@ -114,7 +114,7 @@ public abstract class GoBoardSearch {
 		return this.minExpScore;
 	}
 
-	abstract protected int getScore(BoardColorState boardColorState);
+	//abstract protected int getScore(BoardColorState boardColorState);
 
 	abstract protected TerminalState getTerminalState();
 
@@ -136,7 +136,7 @@ public abstract class GoBoardSearch {
 
 	}
 
-	abstract protected boolean isKnownState(BoardColorState boardColorState);
+	//abstract protected boolean isKnownState(BoardColorState boardColorState);
 
 	abstract protected void stateDecided(BoardColorState boardColorState,
 			boolean max, int score, boolean win);
@@ -560,36 +560,36 @@ public abstract class GoBoardSearch {
 
 				getGoBoard().oneStepBackward();
 				continue;
-			} else if (this.isKnownState(boardColorStateN)) {
-				/**
-				 * we already know the result
-				 */
-				int scoreTerminator = this.getScore(boardColorStateN);
-				level.getNeighborScore(scoreTerminator, step);
-				if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-					log.warn("we already know the result after " + step);
-					// this.getGoBoard().printState();
-					log.warn(this.getGoBoard().getBoardColorState()
-							.getStateString()
-							+ " the score is = " + scoreTerminator);
-				}
-
-				/**
-				 * for debugging
-				 * 
-				 */
-				updateTreeWhenTerminate(level, step, scoreTerminator);
-				List<Step> process = new ArrayList<Step>();
-				for (StepMemo memo : this.getGoBoard().getStepHistory()
-						.getAllSteps()) {
-					process.add(memo.getStep());
-				}
-
-				searchProcess.add(Step.getString(process, "KNOWN "
-						+ scoreTerminator));
-
-				getGoBoard().oneStepBackward();
-				continue;
+//			} else if (this.isKnownState(boardColorStateN)) {
+//				/**
+//				 * we already know the result
+//				 */
+//				int scoreTerminator = this.getScore(boardColorStateN);
+//				level.getNeighborScore(scoreTerminator, step);
+//				if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
+//					log.warn("we already know the result after " + step);
+//					// this.getGoBoard().printState();
+//					log.warn(this.getGoBoard().getBoardColorState()
+//							.getStateString()
+//							+ " the score is = " + scoreTerminator);
+//				}
+//
+//				/**
+//				 * for debugging
+//				 * 
+//				 */
+//				updateTreeWhenTerminate(level, step, scoreTerminator);
+//				List<Step> process = new ArrayList<Step>();
+//				for (StepMemo memo : this.getGoBoard().getStepHistory()
+//						.getAllSteps()) {
+//					process.add(memo.getStep());
+//				}
+//
+//				searchProcess.add(Step.getString(process, "KNOWN "
+//						+ scoreTerminator));
+//
+//				getGoBoard().oneStepBackward();
+//				continue;
 			}
 			if (levels.size() == depth) {
 

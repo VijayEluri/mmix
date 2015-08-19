@@ -3,44 +3,44 @@ package eddie.wu.domain.comp;
 import java.util.Comparator;
 
 import eddie.wu.domain.BoardColorState;
-import eddie.wu.domain.Point;
+import eddie.wu.domain.Constant;
 
 public class BoardColorComparator implements Comparator<BoardColorState> {
-
 	@Override
 	public int compare(BoardColorState o1, BoardColorState o2) {
-		if (o1.getWhoseTurn() != o2.getWhoseTurn())
-			return o1.getWhoseTurn() - o2.getWhoseTurn();
-		if (o1.getBlackPoints().equals(o2.getBlackPoints())) {
-			if (o1.getWhitePoints().equals(o2.getWhitePoints())) {
-				return 0;
-			} else if (o1.getWhitePoints().size() != o2.getWhitePoints().size()) {
-				return o1.getWhitePoints().size() - o2.getWhitePoints().size();
-			} else {
-				int count1 = 0, count2 = 0;
-				for (Point point : o1.getWhitePoints()) {
-					count1 += point.getOneDimensionCoordinate();
-				}
-				for (Point point : o2.getWhitePoints()) {
-					count2 += point.getOneDimensionCoordinate();
-				}
-				return count1 - count2;
-			}
+		if (o1.getWhoseTurn() != o2.getWhoseTurn()) {
+			return (o1.getWhoseTurn() == Constant.BLACK) ? -1 : 1;
+		}
+
+		long[] black1 = o1.getBlackLongArray();
+		long[] black2 = o2.getBlackLongArray();
+		if (black1.length != black2.length) {
+			return black1.length - black2.length;
 		} else {
-			if (o1.getBlackPoints().size() != o2.getBlackPoints().size()) {
-				return o1.getBlackPoints().size() - o2.getBlackPoints().size();
-			} else {
-				int count1 = 0, count2 = 0;
-				for (Point point : o1.getBlackPoints()) {
-					count1 += point.getOneDimensionCoordinate();
+			for (int i = 0; i < black1.length; i++) {
+				if (black1[i] != black2[i]) {
+					return (black1[i] > black2[i]) ? 1 : -1;
 				}
-				for (Point point : o2.getBlackPoints()) {
-					count2 += point.getOneDimensionCoordinate();
-				}
-				return count1 - count2;
 			}
 		}
-		// return 0;
+		// if black stones are exactly same
+		long[] white1 = o1.getWhiteLongArray();
+		long[] white2 = o2.getWhiteLongArray();
+		if (white1.length != white2.length) {
+			return white1.length - white2.length;
+		} else {
+			for (int i = 0; i < white1.length; i++) {
+				if (white1[i] != white2[i]) {
+					return (white1[i] > white2[i]) ? 1 : -1;
+				}
+			}
+		}
+
+		// if white is also exactly same
+		System.out.println(o1.getStateString());
+		System.out.println(o2.getStateString());
+		System.err.println(o1.equals(o2));
+		throw new RuntimeException("return 0");
 	}
 
 }

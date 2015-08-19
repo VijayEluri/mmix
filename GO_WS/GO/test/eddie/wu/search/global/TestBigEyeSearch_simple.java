@@ -53,20 +53,20 @@ public class TestBigEyeSearch_simple extends TestCase {
 
 		String inname = "doc/围棋程序数据/大眼基本死活/中央曲四.wjm";
 		byte[][] state = StateAnalysis.LoadState(inname);
-		new GoBoard(state).getBigEyeBreathPattern(Point.getPoint(2, 16))
+		new GoBoard(state).getBigEyeBreathPattern(Point.getPoint(19,2, 16))
 				.printPattern();
 
 		BigEyeLiveSearch search;
 		// search = new BigEyeLiveSearch(state, Point.getPoint(2, 15),true);
 		// search.globalSearch();
 		int score;
-		search = new BigEyeLiveSearch(state, Point.getPoint(2, 16), false,
+		search = new BigEyeLiveSearch(state, Point.getPoint(19,2, 16), false,
 				false);
 		score = search.globalSearch();
 		if (log.isEnabledFor(Level.WARN))
 			log.warn("score=" + score);
 
-		search = new BigEyeLiveSearch(state, Point.getPoint(2, 16), true, false);
+		search = new BigEyeLiveSearch(state, Point.getPoint(19,2, 16), true, false);
 		score = search.globalSearch();
 		if (log.isEnabledFor(Level.WARN))
 			log.warn("score=" + score);
@@ -152,7 +152,7 @@ public class TestBigEyeSearch_simple extends TestCase {
 
 		String inname = "doc/围棋程序数据/大眼基本死活/曲四无外气.wjm";
 		byte[][] state = StateAnalysis.LoadState(inname);
-		Point point = Point.getPoint(1, 17);
+		Point point = Point.getPoint(19,1, 17);
 		new GoBoard(state).getBigEyeBreathPattern(point).printPattern();
 
 		BigEyeLiveSearch search;
@@ -174,7 +174,7 @@ public class TestBigEyeSearch_simple extends TestCase {
 
 		String inname = "doc/围棋程序数据/大眼基本死活/曲四一口外气.wjm";
 		byte[][] state = StateAnalysis.LoadState(inname);
-		Point point = Point.getPoint(1, 17);
+		Point point = Point.getPoint(19,1, 17);
 		new GoBoard(state).getBigEyeBreathPattern(point).printPattern();
 
 		BigEyeLiveSearch search;
@@ -196,7 +196,7 @@ public class TestBigEyeSearch_simple extends TestCase {
 
 		String inname = "doc/围棋程序数据/大眼基本死活/曲四口两外气.wjm";
 		byte[][] state = StateAnalysis.LoadState(inname);
-		Point point = Point.getPoint(1, 17);
+		Point point = Point.getPoint(19,1, 17);
 		new GoBoard(state).getBigEyeBreathPattern(point).printPattern();
 
 		BigEyeLiveSearch search;
@@ -223,7 +223,7 @@ public class TestBigEyeSearch_simple extends TestCase {
 		BigEyeLiveSearch search;
 		// search = new BigEyeLiveSearch(state, Point.getPoint(2, 15),true);
 		// search.globalSearch();
-		search = new BigEyeLiveSearch(state, Point.getPoint(2, 15), false,
+		search = new BigEyeLiveSearch(state, Point.getPoint(19,2, 15), false,
 				false);
 		int score = search.globalSearch();
 		if (log.isEnabledFor(Level.WARN))
@@ -470,7 +470,7 @@ public class TestBigEyeSearch_simple extends TestCase {
 
 		String inname = "doc/围棋程序数据/大眼基本死活/板六_无外气.wjm";
 		byte[][] state = StateAnalysis.LoadState(inname);
-		Point point = Point.getPoint(1, 17);
+		Point point = Point.getPoint(19,1, 17);
 		new GoBoard(state).getBigEyeBreathPattern(point).printPattern();
 
 		BigEyeLiveSearch search;
@@ -495,7 +495,7 @@ public class TestBigEyeSearch_simple extends TestCase {
 
 		String inname = "doc/围棋程序数据/大眼基本死活/板六_一口外气.wjm";
 		byte[][] state = StateAnalysis.LoadState(inname);
-		Point point = Point.getPoint(1, 17);
+		Point point = Point.getPoint(19,1, 17);
 		new GoBoard(state).getBigEyeBreathPattern(point).printPattern();
 
 		BigEyeLiveSearch search;
@@ -517,7 +517,7 @@ public class TestBigEyeSearch_simple extends TestCase {
 
 		String inname = "doc/围棋程序数据/大眼基本死活/板六_两口外气.wjm";
 		byte[][] state = StateAnalysis.LoadState(inname);
-		Point point = Point.getPoint(1, 17);
+		Point point = Point.getPoint(19,1, 17);
 		new GoBoard(state).getBigEyeBreathPattern(point).printPattern();
 
 		BigEyeLiveSearch search;

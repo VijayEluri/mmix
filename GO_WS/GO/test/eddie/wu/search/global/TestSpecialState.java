@@ -21,13 +21,14 @@ import eddie.wu.search.eye.BigEyeSearch;
 
 public class TestSpecialState extends TestCase {
 	private static Logger log = Logger.getLogger(Block.class);
-	static{
+	static {
 		Logger.getLogger(TerritoryAnalysis.class).setLevel(Level.INFO);
 	}
+
 	public void testStraightThree() {
 		String inname = "doc/围棋程序数据/围棋规则/循环劫单劫加摇橹劫.wjm";
 		byte[][] state = StateAnalysis.LoadState(inname);
-		Point point = Point.getPoint(17, 3);
+		Point point = Point.getPoint(19, 17, 3);
 		// 不是大眼
 		// new GoBoard(state).getBigEyeBreathPattern(point).printPattern();
 
@@ -40,20 +41,21 @@ public class TestSpecialState extends TestCase {
 		SurviveAnalysis sa = new SurviveAnalysis(state);
 		sa.printState();
 		EyeResult realEyes = sa.getRealEyes(point, false);
-		if(log.isEnabledFor(Level.WARN)) log.warn(realEyes);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(realEyes);
 
-//		 search = new BigEyeSearch(state, point, false, false);
-//		 score = search.globalSearch();
-//		 if(log.isEnabledFor(Level.WARN)) log.warn("score=" + score);
-//		 assertEquals(score, BigEyeSearch.DEAD);
-//		
-//		 search = new BigEyeSearch(state, point, false, true);
-//		 score = search.globalSearch();
-//		 if(log.isEnabledFor(Level.WARN)) log.warn("score=" + score);
-//		 assertEquals(score, BigEyeSearch.LIVE);
+		// search = new BigEyeSearch(state, point, false, false);
+		// score = search.globalSearch();
+		// if(log.isEnabledFor(Level.WARN)) log.warn("score=" + score);
+		// assertEquals(score, BigEyeSearch.DEAD);
+		//
+		// search = new BigEyeSearch(state, point, false, true);
+		// score = search.globalSearch();
+		// if(log.isEnabledFor(Level.WARN)) log.warn("score=" + score);
+		// assertEquals(score, BigEyeSearch.LIVE);
 
 		// point = Point.getPoint(17, 17);
-		 // search = new BigEyeSearch(state, point, false, false);
+		// search = new BigEyeSearch(state, point, false, false);
 		// score = search.globalSearch();
 		// if(log.isEnabledFor(Level.WARN)) log.warn("score=" + score);
 		// assertEquals(score, BigEyeSearch.LIVE);
@@ -73,31 +75,35 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[_, W, _, W]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
 
 		Point point = Point.getPoint(4, 2, 2);
- 
+
 		point = Point.getPoint(4, 3, 2);
 		assertTrue(sa.isLiveWithoutTwoEye(point));
 
 		boolean finalState = sa.isFinalState_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalState=" + finalState);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalState=" + finalState);
 		this.assertTrue(finalState);
 		//
 
 		FinalResult finalResult = sa.finalResult_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn(finalResult);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(finalResult);
 		int score = finalResult.getScore();
 		this.assertEquals(1, score);
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" + score);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalResult: score=" + score);
 
 		// score = sa.finalResult_noCandidate().getScore();
-		// if(log.isEnabledFor(Level.WARN)) log.warn("finalResult_noCandidate(): score=" + score);
+		// if(log.isEnabledFor(Level.WARN))
+		// log.warn("finalResult_noCandidate(): score=" + score);
 	}
-	
-	
+
 	public void testLiveState6_1() {
 		String[] text = new String[6];
 		text[0] = new String("[W, W, B, _, W, _]");
@@ -108,21 +114,21 @@ public class TestSpecialState extends TestCase {
 		text[5] = new String("[W, B, B, B, _, _]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
 
 		Point point;
 		point = Point.getPoint(6, 5, 5);
 		assertFalse(sa.isAlreadyLive_dynamic(point));
-		point = Point.getPoint(6, 4, 2);		
+		point = Point.getPoint(6, 4, 2);
 		assertFalse(sa.isAlreadyLive_dynamic(point));
-		
-	
-		// score = sa.finalResult_noCandidate().getScore();
-		// if(log.isEnabledFor(Level.WARN)) log.warn("finalResult_noCandidate(): score=" + score);
-	}
 
+		// score = sa.finalResult_noCandidate().getScore();
+		// if(log.isEnabledFor(Level.WARN))
+		// log.warn("finalResult_noCandidate(): score=" + score);
+	}
 
 	public void testLiveState5_1() {
 		String[] text = new String[5];
@@ -133,7 +139,8 @@ public class TestSpecialState extends TestCase {
 		text[4] = new String("[_, W, _, B, _]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
 
@@ -144,7 +151,8 @@ public class TestSpecialState extends TestCase {
 		// assertTrue(sa.isLive(point));
 		//
 		// boolean finalState = sa.isFinalState();
-		// if(log.isEnabledFor(Level.WARN)) log.warn("finalState=" + finalState);
+		// if(log.isEnabledFor(Level.WARN)) log.warn("finalState=" +
+		// finalState);
 		// this.assertTrue(finalState);
 		// //
 		//
@@ -152,10 +160,12 @@ public class TestSpecialState extends TestCase {
 		// if(log.isEnabledFor(Level.WARN)) log.warn(finalResult);
 		// int score = finalResult.getScore();
 		// this.assertEquals(1, score);
-		// if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" + score);
+		// if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" +
+		// score);
 
 		// score = sa.finalResult_noCandidate().getScore();
-		// if(log.isEnabledFor(Level.WARN)) log.warn("finalResult_noCandidate(): score=" + score);
+		// if(log.isEnabledFor(Level.WARN))
+		// log.warn("finalResult_noCandidate(): score=" + score);
 	}
 
 	/**
@@ -172,7 +182,8 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[W, W, W, _]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
 
@@ -191,7 +202,8 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[B, _, _, B]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
 
@@ -203,16 +215,18 @@ public class TestSpecialState extends TestCase {
 
 		point = Point.getPoint(4, 4, 1);
 		assertTrue(sa.isRemovable_static(point));
-		
+
 		point = Point.getPoint(4, 4, 4);
 		assertTrue(sa.isRemovable_static(point));
-		
-		//Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
+
+		// Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
 		assertTrue(sa.isFinalState_deadExist());
 		FinalResult finalResult = sa.finalResult_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn(finalResult);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(finalResult);
 		int score = finalResult.getScore();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" + score);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalResult: score=" + score);
 		assertEquals(0, score);
 	}
 
@@ -230,7 +244,8 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[B, B, W, _]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
 
@@ -241,14 +256,17 @@ public class TestSpecialState extends TestCase {
 		assertFalse(sa.isAlreadyLive_dynamic(point));
 
 		boolean finalState = sa.isFinalState_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalState=" + finalState);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalState=" + finalState);
 		assertTrue(finalState);
 		//
 
 		FinalResult finalResult = sa.finalResult_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn(finalResult);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(finalResult);
 		int score = finalResult.getScore();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" + score);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalResult: score=" + score);
 		assertEquals(16, score);
 
 	}
@@ -267,7 +285,8 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[B, W, _, _]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
 
@@ -278,14 +297,16 @@ public class TestSpecialState extends TestCase {
 		assertFalse(sa.isAlreadyLive_dynamic(point));
 
 		boolean finalState = sa.isFinalState_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalState=" + finalState);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalState=" + finalState);
 		assertFalse(finalState);
 		//
 
 		// FinalResult finalResult = sa.finalResult();
 		// if(log.isEnabledFor(Level.WARN)) log.warn(finalResult);
 		// int score = finalResult.getScore();
-		// if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" + score);
+		// if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" +
+		// score);
 		// assertEquals(16, score);
 
 	}
@@ -304,7 +325,8 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[W, W, W, _]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
@@ -330,7 +352,8 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[W, W, _, W]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
@@ -338,13 +361,16 @@ public class TestSpecialState extends TestCase {
 		Point point = Point.getPoint(4, 2, 1);
 		assertTrue(sa.isAlreadyLive_dynamic(point));
 		boolean finalState = sa.isFinalState_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalState=" + finalState);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalState=" + finalState);
 		assertTrue(finalState);
 
 		FinalResult finalResult = sa.finalResult_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn(finalResult);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(finalResult);
 		int score = finalResult.getScore();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" + score);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalResult: score=" + score);
 		assertEquals(-16, score);
 
 		point = Point.getPoint(4, 4, 4);
@@ -366,7 +392,8 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[_, W, _, _]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
@@ -378,13 +405,15 @@ public class TestSpecialState extends TestCase {
 		assertTrue(sa.isAlreadyLive_dynamic(point));
 
 		boolean finalState = sa.isFinalState_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalState=" + finalState);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalState=" + finalState);
 		assertFalse(finalState);
 
 		// FinalResult finalResult = sa.finalResult();
 		// if(log.isEnabledFor(Level.WARN)) log.warn(finalResult);
 		// int score = finalResult.getScore();
-		// if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" + score);
+		// if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" +
+		// score);
 		// assertEquals(-16, score);
 
 	}
@@ -397,26 +426,30 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[_, W, _, B]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
 
 		Point point;
-//		point = Point.getPoint(4, 2, 1);
-//		assertTrue(sa.isLive(point));
+		// point = Point.getPoint(4, 2, 1);
+		// assertTrue(sa.isLive(point));
 
-//		point = Point.getPoint(4, 3, 2);
-//		assertTrue(sa.isLive(point));
+		// point = Point.getPoint(4, 3, 2);
+		// assertTrue(sa.isLive(point));
 
 		boolean finalState = sa.isFinalState_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalState=" + finalState);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalState=" + finalState);
 		assertTrue(finalState);
 
 		FinalResult finalResult = sa.finalResult_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn(finalResult);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(finalResult);
 		int score = finalResult.getScore();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" + score);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalResult: score=" + score);
 		assertEquals(-1, score);
 
 	}
@@ -436,7 +469,8 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[_, W, W, _]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
@@ -445,13 +479,16 @@ public class TestSpecialState extends TestCase {
 		assertTrue(sa.isAlreadyLive_dynamic(point));
 
 		boolean finalState = sa.isFinalState_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalState=" + finalState);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalState=" + finalState);
 		assertTrue(finalState);
 
 		FinalResult finalResult = sa.finalResult_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn(finalResult);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(finalResult);
 		int score = finalResult.getScore();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" + score);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalResult: score=" + score);
 		assertEquals(-16, score);
 
 	}
@@ -471,7 +508,8 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[_, W, W, _]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
@@ -483,13 +521,16 @@ public class TestSpecialState extends TestCase {
 		assertTrue(sa.isAlreadyLive_dynamic(point));
 
 		boolean finalState = sa.isFinalState_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalState=" + finalState);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalState=" + finalState);
 		assertTrue(finalState);
 
 		FinalResult finalResult = sa.finalResult_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn(finalResult);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(finalResult);
 		int score = finalResult.getScore();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" + score);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalResult: score=" + score);
 		assertEquals(-16, score);
 
 	}
@@ -504,7 +545,8 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[B, _, B, _]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
@@ -514,13 +556,16 @@ public class TestSpecialState extends TestCase {
 		assertTrue(sa.isAlreadyLive_dynamic(point));
 
 		boolean finalState = sa.isFinalState_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalState=" + finalState);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalState=" + finalState);
 		assertTrue(finalState);
 
 		FinalResult finalResult = sa.finalResult_deadExist();
-		if(log.isEnabledFor(Level.WARN)) log.warn(finalResult);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(finalResult);
 		int score = finalResult.getScore();
-		if(log.isEnabledFor(Level.WARN)) log.warn("finalResult: score=" + score);
+		if (log.isEnabledFor(Level.WARN))
+			log.warn("finalResult: score=" + score);
 		assertEquals(16, score);
 
 	}
@@ -539,7 +584,8 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[_, _, _, B]");
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
 
@@ -564,7 +610,8 @@ public class TestSpecialState extends TestCase {
 		text[3] = new String("[W, W, W, _]");
 
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
 
@@ -587,17 +634,18 @@ public class TestSpecialState extends TestCase {
 		text[7] = new String("[_, _, W, B, W, W, W, W, W]");
 		text[8] = new String("[_, _, W, B, W, _, B, B, B]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if(log.isEnabledFor(Level.WARN)) log.warn(Arrays.deepToString(state));
+		if (log.isEnabledFor(Level.WARN))
+			log.warn(Arrays.deepToString(state));
 
 		TerritoryAnalysis sa = new TerritoryAnalysis(state);
 
 		Point point = Point.getPoint(9, 6, 4);
-		assert(sa.isAlreadyLive_dynamic(point));
+		assert (sa.isAlreadyLive_dynamic(point));
 
 		point = Point.getPoint(9, 8, 5);
 		assertTrue(sa.isAlreadyLive_dynamic(point));
-		
-		//如果相邻两块都不是活棋，就需要通过搜索确定结果
+
+		// 如果相邻两块都不是活棋，就需要通过搜索确定结果
 	}
 
 }

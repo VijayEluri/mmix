@@ -25,8 +25,8 @@ public class TestGoBoardZhengzi extends TestCase {
 		String fileName = "doc/征子局面/征子2";
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 		logger.setLevel(Level.DEBUG);
-		Point point = Point.getPoint(14, 14);
-		Point firstMove = Point.getPoint(13, 14);
+		Point point = Point.getPoint(19, 14, 14);
+		Point firstMove = Point.getPoint(19, 13, 14);
 		testZhengZi(fileName, point, firstMove);
 
 	}
@@ -39,8 +39,8 @@ public class TestGoBoardZhengzi extends TestCase {
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 		logger.setLevel(Level.DEBUG);
 		// Point point = new Point(3, 17);
-		Point point = Point.getPoint(3, 17);
-		Point firstMove = Point.getPoint(4, 16);
+		Point point = Point.getPoint(19, 3, 17);
+		Point firstMove = Point.getPoint(19, 4, 16);
 		testZhengZi(fileName, point, firstMove);
 
 	}
@@ -50,8 +50,8 @@ public class TestGoBoardZhengzi extends TestCase {
 		Logger logger = Logger.getLogger(GoBoard.class.getName() + "Zhengzi");
 
 		logger.setLevel(Level.DEBUG);
-		Point point = Point.getPoint(14, 16);
-		Point firstMove = Point.getPoint(14, 15);
+		Point point = Point.getPoint(19, 14, 16);
+		Point firstMove = Point.getPoint(19, 14, 15);
 		testZhengZi(fileName, point, firstMove);
 
 	}
@@ -63,23 +63,29 @@ public class TestGoBoardZhengzi extends TestCase {
 
 		BoardColorState state = StateLoader.load(fileName);
 		// new LoadExercise().loadZhengZi();
-		if(log.isDebugEnabled()) log.debug("state" + state);
+		if (log.isDebugEnabled())
+			log.debug("state" + state);
 		GoBoardLadder linkedBlockGoBoard = new GoBoardLadder(state);
 
 		// linkedBlockGoBoard.generateHighLevelState();
-		if(log.isDebugEnabled()) log.debug("black Block" + linkedBlockGoBoard.getBlackBlocksOnTheFly());
-		if(log.isDebugEnabled()) log.debug("white Block" + linkedBlockGoBoard.getWhiteBlocks());
+		if (log.isDebugEnabled())
+			log.debug("black Block"
+					+ linkedBlockGoBoard.getBlackBlocksOnTheFly());
+		if (log.isDebugEnabled())
+			log.debug("white Block" + linkedBlockGoBoard.getWhiteBlocks());
 		result = linkedBlockGoBoard.jiSuanZhengZi(point);
 		if (result[126][0] == 1) {
 			// goapplet.goboard.qiquan();
 		}
 		for (byte i = 1; i <= result[0][1]; i++) {
 			// goapplet.goboard.cgcl(result[i][0], result[i][1]);
-			if(log.isDebugEnabled()) log.debug("[" + result[i][0] + "," + result[i][1] + "]");
+			if (log.isDebugEnabled())
+				log.debug("[" + result[i][0] + "," + result[i][1] + "]");
 		}
 
-		if(log.isDebugEnabled()) log.debug("征子计算的结果为：" + result[0][0]);
+		if (log.isDebugEnabled())
+			log.debug("征子计算的结果为：" + result[0][0]);
 		this.assertEquals(127, result[0][0]);
-		this.assertEquals(firstMove, Point.getPoint(result[1][0], result[1][1]));
+		this.assertEquals(firstMove, Point.getPoint(19,result[1][0], result[1][1]));
 	}
 }

@@ -104,7 +104,7 @@ class  TestForArray implements Cloneable{
 	public void init(){
 		point[0][1]=new BoardPoint();
 		point[0][1].setColor(ColorUtil.BLACK);
-		point[0][1].setPoint(Point.getPoint(5,5));
+		point[0][1].setPoint(Point.getPoint(19,5,5));
 	}
 	public Object clone() throws CloneNotSupportedException{
 		return super.clone();

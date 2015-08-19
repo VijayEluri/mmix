@@ -1,5 +1,8 @@
 package eddie.wu.search.three;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import junit.framework.TestCase;
 
 import org.apache.log4j.Level;
@@ -16,6 +19,7 @@ import eddie.wu.manual.SGFGoManual;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.manual.TreeGoManual;
 import eddie.wu.search.global.GoBoardSearch;
+import eddie.wu.search.global.ListAllState;
 import eddie.wu.search.small.ThreeThreeBoardSearch;
 import eddie.wu.util.FileUtil;
 
@@ -76,6 +80,15 @@ public class TestAllState3 extends TestCase {
 		text[2] = new String("[_, W, _]");
 		testState_internal(text, Constant.BLACK, -3);
 		testState_internal(text, Constant.WHITE, -9);
+	}
+	
+	public void testState_1314() {
+		Logger.getLogger(GoBoardSearch.class).setLevel(Level.INFO);
+		String[] text = new String[3];
+		text[0] = new String("[_, W, _]");
+		text[1] = new String("[W, _, _]");
+		text[2] = new String("[_, _, _]");
+		testState_internal(text, Constant.BLACK, -3);
 	}
 
 	public void testState_2() {
@@ -553,13 +566,25 @@ public class TestAllState3 extends TestCase {
 
 	public void testState_internal(String[] text, int whoseTurn,
 			int expectedScore, int depth) {
+		byte[][] state = StateLoader.LoadStateFromText(text);
+		BoardColorState boardState = new BoardColorState(state, whoseTurn);
+		testState_internal(boardState, expectedScore, depth, false);
+	}
+
+	public void testState_internal(BoardColorState boardState,
+			int expectedScore, int depth) {
+		testState_internal(boardState, expectedScore, depth, false);
+	}
+
+	public void testState_internal(BoardColorState boardState,
+			int expectedScore, int depth, boolean tillBothPass) {
 		boolean exetrem = false;
 		// no need to check whether first player can reach the expected Score.
 		boolean noCheck = false;
 
-		int boardSize = text.length;
+		int boardSize = boardState.boardSize;
 		int maxScore = boardSize * boardSize;
-
+		int whoseTurn = boardState.getWhoseTurn();
 		if (expectedScore == -maxScore) {
 			exetrem = true;
 			if (whoseTurn == Constant.BLACK) {
@@ -572,9 +597,9 @@ public class TestAllState3 extends TestCase {
 				noCheck = true;
 			}
 		}
-
-		byte[][] state = StateLoader.LoadStateFromText(text);
-		BoardColorState boardState = new BoardColorState(state, whoseTurn);
+		//
+		// byte[][] state = StateLoader.LoadStateFromText(text);
+		// BoardColorState boardState = new BoardColorState(state, whoseTurn);
 
 		// 1. check we can reach the expected score.
 		ThreeThreeBoardSearch goS = null;
@@ -583,9 +608,10 @@ public class TestAllState3 extends TestCase {
 		if (noCheck != true) {
 			goS = new ThreeThreeBoardSearch(boardState, expectedScore);
 			goS.setDepth(depth);
+			goS.setTillBothPass(tillBothPass);
 			int variant = 1;
-			for(int i=0;i<depth;i++){
-				variant*=3;
+			for (int i = 0; i < depth; i++) {
+				variant *= 3;
 			}
 			goS.setVariant(variant);
 			score = this.testSearch_internal(goS);
@@ -605,6 +631,7 @@ public class TestAllState3 extends TestCase {
 		}
 		goS = new ThreeThreeBoardSearch(boardState, expectedScore);
 		goS.setDepth(depth);
+		goS.setTillBothPass(tillBothPass);
 		score = this.testSearch_internal(goS);
 		assertTrue(score != Constant.UNKOWN);
 		assertEquals(originalExp, score);
@@ -725,6 +752,14 @@ public class TestAllState3 extends TestCase {
 		text[2] = new String("[_, _, B]");
 		testState_internal(text, Constant.BLACK, 3);
 	}
+	
+	public void testState_V11() {
+		String[] text = new String[3];
+		text[0] = new String("[_, _, _]");
+		text[1] = new String("[_, _, B]");
+		text[2] = new String("[_, B, _]");
+		testState_internal(text, Constant.WHITE, 3);
+	}
 
 	/**
 	 * 3. TODO 2
@@ -842,6 +877,38 @@ public class TestAllState3 extends TestCase {
 		testState_internal(text, Constant.BLACK, -4);
 		testState_internal(text, Constant.WHITE, -4);
 
+	}
+
+	/**
+	 * 相互印证。<br/>
+	 * 
+	 */
+	public void test_verifyFinalStateWithDynamicSearch() {
+		Logger.getLogger(ListAllState.class).setLevel(Level.ERROR);
+		Logger.getLogger(TestAllState3.class).setLevel(Level.ERROR);
+		ListAllState las = new ListAllState();
+		Set<BoardColorState> finalState = las.getFinalState(3);
+		Set<BoardColorState> wrongState = new HashSet<BoardColorState>();
+		int count = 0;
+		for (BoardColorState state : finalState) {
+			System.out.println("count = " + (count++));
+			
+			if(count!=184) continue;
+			else{
+				System.out.println("Score = " +state.getScore());
+			}
+			System.out.println(state.getStateString());
+			int depth = 15;
+			this.testState_internal(state, state.getScore(), depth, true);
+			BoardColorState stateSwitch = state.getReverseTurnCopy();
+			System.out.println(stateSwitch.getStateString());
+			this.testState_internal(stateSwitch, state.getScore(), depth, true);
+			// wrongState.add(state);
+		}
+		// for (BoardColorState state : wrongState) {
+		// log.warn(state.toString());
+		// log.warn(state.getScore());
+		// }
 	}
 
 }
