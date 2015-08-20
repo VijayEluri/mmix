@@ -69,7 +69,6 @@ public class CaptureSearch extends GoBoardSearch {
 			level.setMax(false);// 被征子方取最小值
 			level.setMinExp(this.CAPTURE_FAILURE);
 		}
-		level.initTempBestScore();
 		return level;
 	}
 

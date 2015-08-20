@@ -665,7 +665,7 @@ public class TestAllState3 extends TestCase {
 			log.warn(goS.getGoBoard().getInitColorState().getStateString());
 			log.warn("Score=" + score);
 			log.warn("searched "
-					+ (goS.getSearchProcess().size() - goS.dupCount));
+					+ goS.getSearchProcess().size());
 			goS.outputSearchStatistics(log);
 			TreeGoManual manual = goS.getTreeGoManual();
 			log.warn("Most Expensive path: ");

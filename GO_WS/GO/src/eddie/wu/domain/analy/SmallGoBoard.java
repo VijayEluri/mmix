@@ -49,8 +49,7 @@ public class SmallGoBoard extends TerritoryAnalysis {
 	 * @param filterSymmetricEquivalent
 	 * @return
 	 */
-	public List<Candidate> getCandidate(int whoseTurn,
-			boolean filterSymmetricEquivalent) {
+	public List<Candidate> getCandidate(int whoseTurn, boolean filterSymmetricEquivalent) {
 		return getCandidate(whoseTurn, filterSymmetricEquivalent, 0);
 	}
 
@@ -64,8 +63,7 @@ public class SmallGoBoard extends TerritoryAnalysis {
 	 * 
 	 * @return
 	 */
-	public List<Candidate> getCandidate(int color,
-			boolean filterSymmetricEquivalent, int expectedScore) {
+	public List<Candidate> getCandidate(int color, boolean filterSymmetricEquivalent, int expectedScore) {
 		assert this.boardSize <= 5;
 		List<Candidate> fillingEyes = new ArrayList<Candidate>();
 		List<Point> fillingEyeP = new ArrayList<Point>();
@@ -88,10 +86,8 @@ public class SmallGoBoard extends TerritoryAnalysis {
 						int blocks = blankBlock.getNeighborBlocks().size();
 						if (blankBlock.isSinglePointEye()) {
 							// 己方不填眼，对方是否可下看气数。
-							if ((color == Constant.BLACK && blankBlock
-									.isBlackEye())
-									|| (color == Constant.WHITE && blankBlock
-											.isWhiteEye())) {
+							if ((color == Constant.BLACK && blankBlock.isBlackEye())
+									|| (color == Constant.WHITE && blankBlock.isWhiteEye())) {
 
 								/**
 								 * need to handle this exceptional case, the eye
@@ -107,27 +103,24 @@ public class SmallGoBoard extends TerritoryAnalysis {
 									continue;// do not fill real eyes.
 								} else {
 									// may connect blocks
-									boolean realSingleEye = this
-											.isRealSingleEye(
-													blankBlock
-															.getMinBreathNeighborBlock(),
-													blankBlock.getUniquePoint());
+									boolean realSingleEye = this.isRealSingleEye(blankBlock.getMinBreathNeighborBlock(),
+											blankBlock.getUniquePoint());
 									if (realSingleEye) {
 										continue;
 									} else {
 										/**
 										 * Avoid Black to play at [3,3] in case
 										 * below<br/>
-										 * text[0] = new String("[_, W, _]");<br/>
-										 * text[1] = new String("[B, W, B]");<br/>
-										 * text[2] = new String("[B, B, _]");<br/>
+										 * text[0] = new String("[_, W, _]");
+										 * <br/>
+										 * text[1] = new String("[B, W, B]");
+										 * <br/>
+										 * text[2] = new String("[B, B, _]");
+										 * <br/>
 										 */
-										if (blankBlock
-												.getMinBreathNeighborBlock()
-												.getBreaths() >= 2) {
+										if (blankBlock.getMinBreathNeighborBlock().getBreaths() >= 2) {
 											// maybe we can handle it better now
-											fillingEyeP.add(boardPoint
-													.getPoint());
+											fillingEyeP.add(boardPoint.getPoint());
 											// continue;
 										}
 									}
@@ -141,8 +134,7 @@ public class SmallGoBoard extends TerritoryAnalysis {
 
 					}
 
-					int breaths = breathAfterPlay(boardPoint.getPoint(), color)
-							.size();
+					int breaths = breathAfterPlay(boardPoint.getPoint(), color).size();
 					if (breaths > 0) {
 						points.add(boardPoint.getPoint());
 					}
@@ -158,8 +150,10 @@ public class SmallGoBoard extends TerritoryAnalysis {
 			Step stepCan = new Step(iter.next(), color);
 			boolean duplicate = this.globalDuplicate(stepCan);
 			if (duplicate) {
-				System.out.println(this.getStateString().toString());
-				System.out.println("Step " + stepCan + " cause duplication.");
+				if (log.isEnabledFor(Level.WARN)) {
+					log.warn(this.getStateString().toString());
+					log.warn("Step " + stepCan + " cause duplication.");
+				}
 				iter.remove();
 				// otherwise, normalized one maybe the one reach duplicated.
 				filterSymmetricEquivalent = false;
@@ -232,8 +226,7 @@ public class SmallGoBoard extends TerritoryAnalysis {
 			 */
 			if (state.isEating()) {
 				if (state.getFriendBlockNumber() == 1) {
-					Block friendBlock = state.getFriendBlocks().iterator()
-							.next();
+					Block friendBlock = state.getFriendBlocks().iterator().next();
 					Point pointT = friendBlock.getBehalfPoint();
 					if (friendBlock.getNumberOfPoint() >= 4) {
 						boolean selfLive = false;
@@ -243,14 +236,11 @@ public class SmallGoBoard extends TerritoryAnalysis {
 							selfLive = this.isStaticLive(pointT);
 						}
 						if (selfLive) {
-							Block enemyBlock = state.getEatenBlocks()
-									.iterator().next();
-							boolean enemyDead = this
-									.isRemovable_static(enemyBlock);
+							Block enemyBlock = state.getEatenBlocks().iterator().next();
+							boolean enemyDead = this.isRemovable_static(enemyBlock);
 							if (enemyDead) {
 								Candidate eatingDead = new Candidate();
-								eatingDead.setStep(new Step(point, color,
-										getShoushu() + 1));
+								eatingDead.setStep(new Step(point, color, getShoushu() + 1));
 								eatingDead.setEatingDead(true);
 								eatingDeads.add(eatingDead);
 								continue;
@@ -291,9 +281,7 @@ public class SmallGoBoard extends TerritoryAnalysis {
 					candidates.add(candidate);
 				}
 
-			} else if (state.isEating() == false
-					&& state.isCapturing() == false
-					&& state.getIncreasedBreath() < 0) {
+			} else if (state.isEating() == false && state.isCapturing() == false && state.getIncreasedBreath() < 0) {
 				// not favor the move cannot increase breath.
 				decreaseBreath.add(candidate);
 			} else {
@@ -311,8 +299,7 @@ public class SmallGoBoard extends TerritoryAnalysis {
 
 		Candidate candidatePass = new Candidate();
 		candidatePass.setStep(new Step(null, color, getShoushu() + 1));
-		if (this.getStepHistory().getAllSteps().isEmpty() == false
-				&& this.getLastStep().isPass() == true) {
+		if (this.getStepHistory().getAllSteps().isEmpty() == false && this.getLastStep().isPass() == true) {
 			// 前一步对方弃权,下一步有限考虑弃权,有望及早到达终点状态.
 			// this logic is only good for 2*2 board.
 			if (boardSize <= 4) {

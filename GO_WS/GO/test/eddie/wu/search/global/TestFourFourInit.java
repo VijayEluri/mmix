@@ -91,13 +91,7 @@ public class TestFourFourInit extends TestCase {
 			log.warn(goS.getSearchProcess().size());
 		if (log.isEnabledFor(Level.WARN))
 			log.warn("Score=" + score);
-		// assertTrue(score >= 1);
-		if (goS.getBestResult() != null) {
-			for (Step step : goS.getBestResult()) {
-				if (log.isEnabledFor(Level.WARN))
-					log.warn(step + "<br/>");
-			}
-		}
+		
 		goS.printKnownResult();
 		return score;
 	}

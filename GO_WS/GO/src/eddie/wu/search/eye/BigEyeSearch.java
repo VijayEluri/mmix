@@ -302,13 +302,11 @@ public class BigEyeSearch extends GoBoardSearch {
 			level = new SearchLevel(0, targetColor);// 做眼方先下
 			level.setMax(true);// 做眼方取最大值。
 			level.setMaxExp(RelativeResult.DUAL_LIVE);
-			level.setTempBestScore(RelativeResult.ALREADY_DEAD - 1);
 		} else {
 			int enemyColor = ColorUtil.enemyColor(targetColor);
 			level = new SearchLevel(0, enemyColor);// 破眼方先下
 			level.setMax(false);
 			level.setMinExp(RelativeResult.ALREADY_DEAD);
-			level.setTempBestScore(RelativeResult.ALREADY_LIVE + 1);
 		}
 		return level;
 	}

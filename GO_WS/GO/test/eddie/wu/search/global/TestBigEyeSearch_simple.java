@@ -307,7 +307,7 @@ public class TestBigEyeSearch_simple extends TestCase {
 			log.warn(goS.getGoBoard().getInitColorState().getStateString());
 			log.warn("Score=" + score);
 			log.warn("searched "
-					+ (goS.getSearchProcess().size() - goS.dupCount));
+					+ goS.getSearchProcess().size() );
 			// goS.outputSearchStatistics(log);
 			TreeGoManual manual = goS.getTreeGoManual();
 			// System.out.println(manual.getInitState());

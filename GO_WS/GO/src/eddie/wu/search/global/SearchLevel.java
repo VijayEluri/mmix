@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import eddie.wu.domain.ColorUtil;
+import eddie.wu.domain.Constant;
 import eddie.wu.domain.Step;
 import eddie.wu.manual.SearchNode;
 
@@ -25,7 +26,7 @@ public class SearchLevel {
 	/**
 	 * whose turn at current level/status.
 	 */
-	private int color;
+	private int whoseTrun_;
 	/**
 	 * 当前层取max还是min<br/>
 	 * black未必是max,比如死活计算时.
@@ -53,11 +54,11 @@ public class SearchLevel {
 	/**
 	 * 当前层临时的计算结果
 	 */
-	private int tempBestScore = 0;
+	private int tempBestScore = Constant.UNKOWN;
 
 	public SearchLevel(int level, int color) {
 		this.levelIndex = level;
-		this.color = color;
+		this.whoseTrun_ = color;
 	}
 
 	/**
@@ -69,6 +70,8 @@ public class SearchLevel {
 	 */
 	public boolean alreadyWin() {
 		if (isInitialized() == false)
+			return false;
+		if(this.tempBestScore == Constant.UNKOWN)
 			return false;
 		if (max) {
 			if (this.tempBestScore >= this.highExp){
@@ -98,7 +101,7 @@ public class SearchLevel {
 	}
 
 	public int getColor() {
-		return color;
+		return whoseTrun_;
 	}
 
 	public int getHighestExp() {
@@ -166,9 +169,12 @@ public class SearchLevel {
 		// firstSuperiorScore = score;// = score / 2;
 		// }
 		// ignore unknown score and its branch
-		if (score == Integer.MAX_VALUE || score == Integer.MIN_VALUE) {
+		if (score == Constant.UNKOWN) {
 			unknownChild = true;
 			return;
+		}
+		if(this.tempBestScore == Constant.UNKOWN){
+			this.tempBestScore = score; //first achievable result.
 		}
 		if (max) {
 			if (score > this.tempBestScore) {
@@ -199,21 +205,7 @@ public class SearchLevel {
 	public void setMinExp(int lowestExp) {
 		this.lowExp = lowestExp;
 	}
-
-	public void setTempBestScore(int tempBestScore) {
-		this.tempBestScore = tempBestScore;
-	}
-
-	/**
-	 * keep Integer.MIN_VALUE to stand for unknown.
-	 */
-	public void initTempBestScore() {
-		if (max) {
-			setTempBestScore(Integer.MIN_VALUE + 1);
-		} else {
-			setTempBestScore(Integer.MAX_VALUE);
-		}
-	}
+	
 
 	public static boolean unknownScore(int score) {
 		return score == Integer.MAX_VALUE || score == Integer.MIN_VALUE + 1;
@@ -234,7 +226,7 @@ public class SearchLevel {
 	public String toString() {
 		if (max)
 			return "Level [level=" + levelIndex + ", color="
-					+ ColorUtil.getColorText(color) + ", whoseTurn="
+					+ ColorUtil.getColorText(whoseTrun_) + ", whoseTurn="
 					+ this.getWhoseTurnString() + ",  highestExp=" + highExp
 					+ ", tempBestScore=" + tempBestScore + "]";
 		else
@@ -246,9 +238,9 @@ public class SearchLevel {
 
 	public String getWhoseTurnString() {
 		if (max)
-			return "MAX" + "[" + ColorUtil.getColorText(color) + "]";
+			return "MAX" + "[" + ColorUtil.getColorText(whoseTrun_) + "]";
 		else
-			return "MIN" + "[" + ColorUtil.getColorText(color) + "]";
+			return "MIN" + "[" + ColorUtil.getColorText(whoseTrun_) + "]";
 
 	}
 

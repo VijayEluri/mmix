@@ -140,7 +140,7 @@ public class BoardColorState {
 	 */
 	private transient int finalScore = Constant.UNKOWN;// finalized score
 	/**
-	 * // temp best. could be better.
+	 * temporarily best. could be better.
 	 */
 	private transient int tempBestScore = Constant.UNKOWN;
 	private transient int variant;// 搜索中变化的数目

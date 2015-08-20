@@ -141,8 +141,6 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			level.setMax(false);
 			level.setMinExp(this.getMinExp());
 		}
-
-		level.initTempBestScore();
 		return level;
 	}
 

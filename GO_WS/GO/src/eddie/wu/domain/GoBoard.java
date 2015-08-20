@@ -434,7 +434,7 @@ public class GoBoard extends GoBoardBackward implements Cloneable,
 	 * @param loopSuperior
 	 * @return
 	 */
-	public List<Candidate> getCandidate_forTarget(Point target,
+	public List<Candidate> whoseTurn(Point target,
 			Set<Point> scope, boolean forTarget, boolean loopSuperior,
 			boolean liveSearch) {
 		int color = this.getColor(target);
