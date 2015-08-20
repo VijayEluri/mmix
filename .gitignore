@@ -19,6 +19,7 @@
 *.bak
 *.jar
 *.log
+*.sgf
 *.o
 *.ko
 *.html
