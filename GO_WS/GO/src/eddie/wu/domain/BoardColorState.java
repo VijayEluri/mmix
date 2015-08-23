@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 
 import eddie.wu.domain.comp.BoardColorComparator;
 import eddie.wu.domain.comp.RowColumnComparator;
+import eddie.wu.search.ScopeScore;
 
 /**
  * The most basic way to represent the state of the board without derived
@@ -138,11 +139,29 @@ public class BoardColorState {
 	/**
 	 * 搜索相关的数据结构
 	 */
-	private transient int finalScore = Constant.UNKOWN;// finalized score
+	// private transient boolean exactScore;
+	// public boolean isExactScore() {
+	// return exactScore;
+	// }
+
+//	public ScopeScore getScopeScore() {
+//		if(this.scopeScore==null){
+//			this.scopeScore = ScopeScore.getInstance();
+//		}
+//		return scopeScore;
+//	}
+
+	// public void setFuzzyScore(ScopeScore fuzzyScore) {
+	// this.fuzzyScore = fuzzyScore;
+	// }
+
+	private transient ScopeScore scopeScore;
+	// private transient int finalScore = Constant.UNKOWN;// finalized score
+
 	/**
 	 * temporarily best. could be better.
 	 */
-	private transient int tempBestScore = Constant.UNKOWN;
+	// private transient int tempBestScore = Constant.UNKOWN;
 	private transient int variant;// 搜索中变化的数目
 
 	public BoardColorState(byte[][] board, int whoseTurn) {
@@ -486,8 +505,12 @@ public class BoardColorState {
 		}
 	}
 
+	/**
+	 * for old code
+	 * @return
+	 */
 	public int getScore() {
-		return finalScore;
+		return scopeScore.getExactScore();
 	}
 
 	public StringBuilder getStateString() {
@@ -841,9 +864,12 @@ public class BoardColorState {
 		return ColorUtil.evenNumberOfPoints(count);
 	}
 
-	public void setScore(int score) {
-		this.finalScore = score;
-	}
+//	public void setScore(int score) {
+//		if(this.scopeScore==null){
+//		this.scopeScore = ScopeScore.getInstance(score);
+//		}
+//		this.scopeScore.updateAccurateScore(score);
+//	}
 
 	public void setVariant(int variant) {
 		this.variant = variant;

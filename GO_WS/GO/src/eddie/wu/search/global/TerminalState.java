@@ -4,8 +4,20 @@ import eddie.wu.domain.analy.FinalResult;
 
 public class TerminalState {
 	private boolean terminalState;
-	private FinalResult finalResult;
+	private boolean bothPass;// special case of terminal state.
 	private int score;
+	private FinalResult finalResult;
+
+	public boolean isBothPass() {
+		return bothPass;
+	}
+
+	public void setBothPass(boolean bothPass) {
+		this.bothPass = bothPass;
+		if (bothPass) {
+			terminalState = true;
+		}
+	}
 
 	public boolean isTerminalState() {
 		return terminalState;

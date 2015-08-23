@@ -1,13 +1,17 @@
 package eddie.wu.search.global;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Step;
 import eddie.wu.manual.SearchNode;
+import eddie.wu.search.ScopeScore;
 
 /**
  * 辅助实现深度优先搜索,用于小棋盘的全局搜索. 每一层有若干个状态 <br/>
@@ -24,9 +28,13 @@ public class SearchLevel {
 	private int levelIndex;
 
 	/**
+	 * prevStep is played to reach current state/level.
+	 */
+	private Step prevStep;
+	/**
 	 * whose turn at current level/status.
 	 */
-	private int whoseTrun_;
+	private int whoseTurn;
 	/**
 	 * 当前层取max还是min<br/>
 	 * black未必是max,比如死活计算时.
@@ -35,10 +43,35 @@ public class SearchLevel {
 
 	/**
 	 * TODO: highExp is needed only for root=max<br/>
-	 * lowExp is needed only for root=min<br/>
 	 */
-	private int highExp;// for max
-	private int lowExp; // for min
+	private int expScore;// for max
+
+	/**
+	 * whether the score is achieved by both pass!
+	 */
+	private boolean scoreByBothPass;
+
+	private boolean scoreHistoryDep;
+
+	public boolean isScoreHistoryDep() {
+		if (this.reachDup) {
+			if (this.alreadyWin() == false) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return scoreHistoryDep;
+		}
+	}
+
+	public void setScoreHistoryDep(boolean scoreHistoryDep) {
+		this.scoreHistoryDep = scoreHistoryDep;
+	}
+
+	public boolean isScoreByBothPass() {
+		return scoreByBothPass;
+	}
 
 	private List<Candidate> candidates;
 	private Iterator<Candidate> iterator;
@@ -56,9 +89,51 @@ public class SearchLevel {
 	 */
 	private int tempBestScore = Constant.UNKOWN;
 
-	public SearchLevel(int level, int color) {
-		this.levelIndex = level;
-		this.whoseTrun_ = color;
+	/**
+	 * whether current state may reach duplicate states (blocked); record them
+	 * for future knowledge.
+	 */
+	private boolean reachDup = false;
+	private Set<BoardColorState> dupStates = null;
+
+	public boolean isReachDup() {
+		return reachDup;
+	}
+
+	public void setReachDup(boolean reachDup) {
+		this.reachDup = reachDup;
+	}
+
+	public Set<BoardColorState> getDupStates() {
+		return dupStates;
+	}
+
+	public BoardColorState getDupState() {
+		if (this.reachDup == false)
+			return null;
+		return dupStates.iterator().next();
+	}
+
+	public void addDupState(BoardColorState dupState) {
+		if (dupStates == null) { // lazy!
+			dupStates = new HashSet<BoardColorState>();
+		}
+		this.dupStates.add(dupState);
+		this.reachDup = true;
+	}
+
+	public SearchLevel(int levelIndex, int whoseTurn, Step prevStep) {
+		this.levelIndex = levelIndex;
+		this.whoseTurn = whoseTurn;
+		this.prevStep = prevStep;
+	}
+
+	public Step getPrevStep() {
+		return prevStep;
+	}
+
+	public boolean isPrevStepPass() {
+		return prevStep == null;
 	}
 
 	/**
@@ -71,15 +146,15 @@ public class SearchLevel {
 	public boolean alreadyWin() {
 		if (isInitialized() == false)
 			return false;
-		if(this.tempBestScore == Constant.UNKOWN)
+		if (this.tempBestScore == Constant.UNKOWN)
 			return false;
 		if (max) {
-			if (this.tempBestScore >= this.highExp){
-				unknownChild = false;//win overwrite unknown child
+			if (this.tempBestScore >= this.expScore) {
+				unknownChild = false;// win overwrite unknown child
 				return true;
 			}
 		} else {
-			if (this.tempBestScore <= this.lowExp){
+			if (this.tempBestScore <= this.expScore) {
 				unknownChild = false;
 				return true;
 			}
@@ -100,20 +175,16 @@ public class SearchLevel {
 		updateWithScore(score);
 	}
 
-	public int getColor() {
-		return whoseTrun_;
-	}
-
-	public int getHighestExp() {
-		return highExp;
+	public int getWhoseTurn() {
+		return whoseTurn;
 	}
 
 	public int getLevel() {
 		return levelIndex;
 	}
 
-	public int getLowestExp() {
-		return lowExp;
+	public int getExpScore() {
+		return expScore;
 	}
 
 	/**
@@ -121,8 +192,8 @@ public class SearchLevel {
 	 * 
 	 * @param score
 	 */
-	public void getNeighborScore(int score, Step step) {
-		updateWithScore(score);
+	public void getNeighborScore(int score, boolean bothPass) {
+		updateWithScore(score, bothPass);
 
 	}
 
@@ -154,17 +225,24 @@ public class SearchLevel {
 	}
 
 	private boolean unknownChild;
-	public boolean hasUnknownChild(){
+
+	public boolean hasUnknownChild() {
 		return unknownChild;
 	}
-	public void setUnknownChild(){
+
+	public void setUnknownChild() {
 		this.unknownChild = true;
 	}
+
 	// private boolean maxFirst;//做活方先手提劫。
 	// private int firstSuperiorScore;//先手提劫方劫材有利的结果
 	// private int firstInteriorScore;//先手提劫方劫材不利的结果
 	// private
 	public void updateWithScore(int score) {
+		updateWithScore(score, false);
+	}
+
+	public void updateWithScore(int score, boolean bothPass) {
 		// if (skip == true) {
 		// firstSuperiorScore = score;// = score / 2;
 		// }
@@ -173,23 +251,66 @@ public class SearchLevel {
 			unknownChild = true;
 			return;
 		}
-		if(this.tempBestScore == Constant.UNKOWN){
-			this.tempBestScore = score; //first achievable result.
+		if (this.tempBestScore == Constant.UNKOWN) {
+			this.tempBestScore = score; // first achievable result.
+			this.scoreByBothPass = bothPass;
 		}
 		if (max) {
 			if (score > this.tempBestScore) {
 				this.tempBestScore = score;
+				this.scoreByBothPass = bothPass;
 			}
 		} else {
 			if (score < this.tempBestScore) {
 				this.tempBestScore = score;
+				this.scoreByBothPass = bothPass;
 			}
 		}
 
 	}
 
+	public boolean updateWithFuzzyScore(ScopeScore score) {
+		//score maybe still initial, e.g. unknown score due to limit.
+		if(score.isInit()) return false;
+		
+		boolean win = false;
+		assert this.alreadyWin() == false;
+		if (score.isInit()) {
+			throw new RuntimeException("is init");
+		}
+		if (max) {
+			if (score.isUp()) {
+				throw new RuntimeException("score confilict");
+			} else {
+				if (score.getLow() >= expScore) {
+					this.tempBestScore = score.getLow();
+					return true;
+				}else if(score.getLow() > this.getTempBestScore()){
+					this.tempBestScore = score.getLow();
+				}
+			}
+
+		} else {
+			if (score.isUp()) {
+				if (score.getHigh() <= expScore) {
+					this.tempBestScore = score.getHigh();
+					return true;
+				}else if(score.getHigh()<this.tempBestScore){
+					this.tempBestScore = score.getHigh();
+				}
+			} else {
+				throw new RuntimeException("score confilict");
+			}
+		}
+		return false;
+	}
+
 	public int getTempBestScore() {
 		return tempBestScore;
+	}
+
+	public List<Candidate> getCandidates() {
+		return candidates;
 	}
 
 	public void setCandidates(List<Candidate> candidates) {
@@ -198,14 +319,9 @@ public class SearchLevel {
 		iterator = candidates.iterator();
 	}
 
-	public void setMaxExp(int highestExp) {
-		this.highExp = highestExp;
+	public void setExpScore(int highestExp) {
+		this.expScore = highestExp;
 	}
-
-	public void setMinExp(int lowestExp) {
-		this.lowExp = lowestExp;
-	}
-	
 
 	public static boolean unknownScore(int score) {
 		return score == Integer.MAX_VALUE || score == Integer.MIN_VALUE + 1;
@@ -226,21 +342,21 @@ public class SearchLevel {
 	public String toString() {
 		if (max)
 			return "Level [level=" + levelIndex + ", color="
-					+ ColorUtil.getColorText(whoseTrun_) + ", whoseTurn="
-					+ this.getWhoseTurnString() + ",  highestExp=" + highExp
+					+ ColorUtil.getColorText(whoseTurn) + ", whoseTurn="
+					+ this.getWhoseTurnString() + ",  highestExp=" + expScore
 					+ ", tempBestScore=" + tempBestScore + "]";
 		else
 			return "Level [level=" + levelIndex + ", whoseTurn="
-					+ this.getWhoseTurnString() + ", lowestExp=" + lowExp
+					+ this.getWhoseTurnString() + ", lowestExp=" + expScore
 					+ ", tempBestScore=" + tempBestScore + "]";
 
 	}
 
 	public String getWhoseTurnString() {
 		if (max)
-			return "MAX" + "[" + ColorUtil.getColorText(whoseTrun_) + "]";
+			return "MAX" + "[" + ColorUtil.getColorText(whoseTurn) + "]";
 		else
-			return "MIN" + "[" + ColorUtil.getColorText(whoseTrun_) + "]";
+			return "MIN" + "[" + ColorUtil.getColorText(whoseTurn) + "]";
 
 	}
 
@@ -254,6 +370,17 @@ public class SearchLevel {
 
 	public boolean isInitialized() {
 		return candidates != null;
+	}
+
+	public boolean blackIsMax() {
+		if (max) {
+			if (whoseTurn == Constant.BLACK)
+				return true;
+		} else {
+			if (whoseTurn == Constant.WHITE)
+				return true;
+		}
+		return false;
 	}
 
 }

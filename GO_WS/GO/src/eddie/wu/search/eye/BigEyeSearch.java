@@ -299,14 +299,14 @@ public class BigEyeSearch extends GoBoardSearch {
 	public SearchLevel getInitLevel() {
 		SearchLevel level;
 		if (targetFirst == true) {
-			level = new SearchLevel(0, targetColor);// 做眼方先下
+			level = new SearchLevel(0, targetColor,null);// 做眼方先下
 			level.setMax(true);// 做眼方取最大值。
-			level.setMaxExp(RelativeResult.DUAL_LIVE);
+			level.setExpScore(RelativeResult.DUAL_LIVE);
 		} else {
 			int enemyColor = ColorUtil.enemyColor(targetColor);
-			level = new SearchLevel(0, enemyColor);// 破眼方先下
+			level = new SearchLevel(0, enemyColor,null);// 破眼方先下
 			level.setMax(false);
-			level.setMinExp(RelativeResult.ALREADY_DEAD);
+			level.setExpScore(RelativeResult.ALREADY_DEAD);
 		}
 		return level;
 	}
@@ -467,7 +467,7 @@ public class BigEyeSearch extends GoBoardSearch {
 	}
 
 	@Override
-	protected List<Candidate> getCandidate(int color) {
+	protected void initCandidate(SearchLevel level,int color) {
 		Point targetCopy = target;
 		Set<Point> multiCopy = null;
 		if (multiTarget != null) {
@@ -491,23 +491,25 @@ public class BigEyeSearch extends GoBoardSearch {
 		boolean forTarget = color == targetBlock.getColor();
 
 		// 目标方劫财有利。
+		List<Candidate> candidate = null;
 		if (this.targetLoopSuperior) {
 			if (forTarget)
-				return goBoard.getCandidate_forTarget(multiCopy, targetCopy,
+				candidate = goBoard.getCandidate_forTarget(multiCopy, targetCopy,
 						candidates, color, forTarget, forTarget);
 			else
-				return goBoard.getCandidate_forAttacker(multiCopy, targetCopy,
+				candidate =  goBoard.getCandidate_forAttacker(multiCopy, targetCopy,
 						candidates, enemyCandidates, color, forTarget,
 						forTarget);
 		} else {
 			if (forTarget)
-				return goBoard.getCandidate_forTarget(multiCopy, targetCopy,
+				candidate = goBoard.getCandidate_forTarget(multiCopy, targetCopy,
 						candidates, color, forTarget, !forTarget);
 			else
-				return goBoard.getCandidate_forAttacker(multiCopy, targetCopy,
+				candidate =  goBoard.getCandidate_forAttacker(multiCopy, targetCopy,
 						candidates, enemyCandidates, color, forTarget,
 						!forTarget);
 		}
+		level.setCandidates(candidate);
 	}
 
 	// @Override

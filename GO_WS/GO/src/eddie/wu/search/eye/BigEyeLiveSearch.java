@@ -208,14 +208,14 @@ public class BigEyeLiveSearch extends GoBoardSearch {
 	public SearchLevel getInitLevel() {
 		SearchLevel level;
 		if (targetFirst == true) {
-			level = new SearchLevel(0, targetColor);// 做眼方先下
+			level = new SearchLevel(0, targetColor, null);// 做眼方先下
 			level.setMax(true);// 做眼方取最大值。
-			level.setMaxExp(RelativeResult.ALREADY_LIVE);
+			level.setExpScore(RelativeResult.ALREADY_LIVE);
 		} else {
 			int enemyColor = ColorUtil.enemyColor(targetColor);
-			level = new SearchLevel(0, enemyColor);// 破眼方先下
+			level = new SearchLevel(0, enemyColor, null);// 破眼方先下
 			level.setMax(false);
-			level.setMinExp(RelativeResult.ALREADY_DEAD);
+			level.setExpScore(RelativeResult.ALREADY_DEAD);
 		}
 		return level;
 	}
@@ -385,16 +385,18 @@ public class BigEyeLiveSearch extends GoBoardSearch {
 	 *            whose turn!
 	 */
 	@Override
-	protected List<Candidate> getCandidate(int color) {
+	protected void initCandidate(SearchLevel level, int color) {
 		int targetColor = goBoard.getColor(target);
 		boolean forTarget = color == targetColor;
+		List<Candidate> candidates = null;
 		if (forTarget) {
-			return goBoard.whoseTurn(target, candidateScope, true,
+			candidates = goBoard.whoseTurn(target, candidateScope, true,
 					targetLoopSuperior, liveSearch);
 		} else {
-			return goBoard.whoseTurn(target, candidateScope,
-					false, !targetLoopSuperior, liveSearch);
+			candidates = goBoard.whoseTurn(target, candidateScope, false,
+					!targetLoopSuperior, liveSearch);
 		}
+		level.setCandidates(candidates);
 	}
 
 	@Override
@@ -412,7 +414,8 @@ public class BigEyeLiveSearch extends GoBoardSearch {
 	// }
 
 	@Override
-	protected void stateDecided(BoardColorState boardColorState,boolean max, int score,boolean win) {
+	protected void stateDecided(BoardColorState boardColorState, boolean max,
+			int score, boolean win) {
 		// TODO Auto-generated method stub
 
 	}
@@ -424,17 +427,17 @@ public class BigEyeLiveSearch extends GoBoardSearch {
 
 	}
 
-//	@Override
-//	public boolean isKnownState(BoardColorState boardColorState) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
+	// @Override
+	// public boolean isKnownState(BoardColorState boardColorState) {
+	// // TODO Auto-generated method stub
+	// return false;
+	// }
 
-//	@Override
-//	public int getScore(BoardColorState boardColorState) {
-//		// TODO Auto-generated method stub
-//		return 0;
-//	}
+	// @Override
+	// public int getScore(BoardColorState boardColorState) {
+	// // TODO Auto-generated method stub
+	// return 0;
+	// }
 
 	public int getTargetColor() {
 		return targetColor;

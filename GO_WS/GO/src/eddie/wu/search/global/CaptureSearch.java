@@ -60,22 +60,22 @@ public class CaptureSearch extends GoBoardSearch {
 			whoseTurn = ColorUtil.enemyColor(targetColor);
 		}
 		List<Candidate> candidates;
-		level = new SearchLevel(0, whoseTurn);
+		level = new SearchLevel(0, whoseTurn,null);
 		if (targetFirst == false) {
 			level.setMax(true);// 征子方取最大值。
-			level.setMaxExp(this.CAPTURE_SUCCESS);
+			level.setExpScore(this.CAPTURE_SUCCESS);
 
 		} else {
 			level.setMax(false);// 被征子方取最小值
-			level.setMinExp(this.CAPTURE_FAILURE);
+			level.setExpScore(this.CAPTURE_FAILURE);
 		}
 		return level;
 	}
 
 	@Override
-	protected List<Candidate> getCandidate(int color) {
+	protected void initCandidate(SearchLevel level,int color) {
 
-		return goBoard.getCaptureCandidate(target, color);
+		level.setCandidates(goBoard.getCaptureCandidate(target, color));
 
 	}
 

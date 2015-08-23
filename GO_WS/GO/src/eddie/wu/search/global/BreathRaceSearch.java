@@ -56,7 +56,7 @@ public class BreathRaceSearch extends GoBoardSearch {
 	}
 
 	@Override
-	protected List<Candidate> getCandidate(int color) {
+	protected void initCandidate(SearchLevel level, int color) {
 		Block block = null;
 		if (color == firstColor) {
 			block = getGoBoard().getBlock(targetFirst);
@@ -99,7 +99,8 @@ public class BreathRaceSearch extends GoBoardSearch {
 		if (getGoBoard().canIncreaseBreath_temporarily(block)) {
 		}
 
-		return null;
+		List<Candidate> candidates = null;//TODO
+		level.setCandidates(candidates);
 	}
 
 	@Override

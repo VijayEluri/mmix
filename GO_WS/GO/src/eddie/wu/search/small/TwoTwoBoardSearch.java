@@ -10,6 +10,7 @@ import eddie.wu.domain.analy.TerritoryAnalysis;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.GoBoardSearch;
+import eddie.wu.search.global.SearchLevel;
 
 /**
  * 2*2的小棋盘真正的终局状态很少，变化中有很多循环。状态对应的结果和达到该状态的过程相关。<br/>
@@ -29,29 +30,29 @@ public class TwoTwoBoardSearch extends SmallBoardGlobalSearch {
 
 	public TwoTwoBoardSearch(BoardColorState state, int expScore) {
 		super(state, expScore);
-//		initKnownState();
+		// initKnownState();
 	}
-	
+
 	public TwoTwoBoardSearch(BoardColorState state, int maxExp, int minExp) {
 		super(state, maxExp, minExp);
-//		initKnownState();
+		// initKnownState();
 	}
 
 	/**
 	 * the state is decided because of dual give up.
 	 */
-//	@Override
-//	public void stateDecided(BoardColorState boardColorState, int score) {
-//
-//	}
+	// @Override
+	// public void stateDecided(BoardColorState boardColorState, int score) {
+	//
+	// }
 
 	private void initKnownState() {
-//		String[] text = new String[2];
-//		text[0] = new String("[B, _]");
-//		text[1] = new String("[_, B]");
-//		byte[][] state = StateLoader.LoadStateFromText(text);
-//		this.stateFinalizeed(new BoardColorState(state, Constant.WHITE), 4);
-		
+		// String[] text = new String[2];
+		// text[0] = new String("[B, _]");
+		// text[1] = new String("[_, B]");
+		// byte[][] state = StateLoader.LoadStateFromText(text);
+		// this.stateFinalizeed(new BoardColorState(state, Constant.WHITE), 4);
+
 		// this.results.put(, 4);
 		// Not necessary, since only normalized one will be stored!
 		// text[0] = new String("[_, B]");
@@ -66,7 +67,7 @@ public class TwoTwoBoardSearch extends SmallBoardGlobalSearch {
 	 * 解决方法是仅仅考虑初始的对称性。仅仅是当前局面有对称性，而历史没有对称性，是不够的。
 	 */
 	@Override
-	protected List<Candidate> getCandidate(int color) {
+	protected void initCandidate(SearchLevel level, int color) {
 		int expectedScore;
 		if (color == Constant.BLACK) {
 			expectedScore = getMaxExp();
@@ -74,18 +75,17 @@ public class TwoTwoBoardSearch extends SmallBoardGlobalSearch {
 			expectedScore = getMinExp();
 		}
 		if (goBoard.getInitSymmetryResult().getNumberOfSymmetry() == 0) {
-			return goBoard.getCandidate(color, false, expectedScore);
+			level.setCandidates(goBoard.getCandidate(level, false, expectedScore));
 		} else if (goBoard.getStepHistory().getAllSteps().isEmpty()) {
 			// first move
-			return goBoard.getCandidate(color, true, expectedScore);
+			level.setCandidates(goBoard.getCandidate(level, true, expectedScore));
 		} else if (goBoard.getStepHistory().noRealStep()) {
 			// first real move
-			return goBoard.getCandidate(color, true, expectedScore);
+			level.setCandidates(goBoard.getCandidate(level, true, expectedScore));
 		} else if (goBoard.getLastStep().getSymmetry().getNumberOfSymmetry() != 0) {
-			return goBoard.getCandidate(color, true, expectedScore);
+			level.setCandidates( goBoard.getCandidate(level, true, expectedScore));
 		} else {
-			return goBoard.getCandidate(color, false, expectedScore);
+			level.setCandidates( goBoard.getCandidate(level, false, expectedScore));
 		}
 	}
-
 }

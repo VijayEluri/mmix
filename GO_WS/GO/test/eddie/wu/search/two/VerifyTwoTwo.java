@@ -22,9 +22,9 @@ public class VerifyTwoTwo extends TestCase {
 		String key = LogManager.DEFAULT_CONFIGURATION_KEY;
 		String value = "log4j_error.xml";
 		System.setProperty(key, value);
-//		Logger.getLogger(TwoTwoBoardSearch.class).setLevel(Level.WARN);
-//		Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
-//		Logger.getLogger(GoBoardForward.class).setLevel(Level.WARN);
+		Logger.getLogger(TwoTwoBoardSearch.class).setLevel(Level.WARN);
+		Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
+		//Logger.getLogger(GoBoardForward.class).setLevel(Level.WARN);
 	}
 
 	public void testInitState() {

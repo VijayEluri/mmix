@@ -1,20 +1,13 @@
 package eddie.wu.search.small;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
-import eddie.wu.domain.SymmetryResult;
-import eddie.wu.domain.analy.TerritoryAnalysis;
-import eddie.wu.manual.SearchNode;
 import eddie.wu.manual.StateLoader;
-import eddie.wu.manual.TreeGoManual;
-import eddie.wu.search.global.Candidate;
-import eddie.wu.search.global.GoBoardSearch;
+import eddie.wu.search.global.SearchLevel;
 import eddie.wu.search.global.TerminalState;
 
 /**
@@ -187,12 +180,16 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 	/**
 	 * three three board optimization
 	 */
-
 	@Override
 	protected TerminalState getTerminalState() {
 		TerminalState ts = new TerminalState();
-		if (tillBothPass) { //special strategy
+		if (tillBothPass) {
+			/**
+			 * special strategy in global search, will end only if all dead
+			 * stone is cleaned up.
+			 */
 			if (goBoard.areBothPass()) {
+				ts.setBothPass(true);
 				ts.setTerminalState(true);
 				ts.setFinalResult(goBoard.finalResult_doublePass());
 			} else {
@@ -205,6 +202,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 
 		if (goBoard.areBothPass()) {
 			ts.setTerminalState(true);
+			ts.setBothPass(true);
 			ts.setFinalResult(goBoard.finalResult_doublePass());
 		} else if (terminalResults.containsKey(this.getGoBoard()
 				.getBoardColorState().normalize())) {
@@ -245,7 +243,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 	 * 对称的不同候选点可能一个是同型再现,而另外一个不是.这就有了差异.
 	 */
 	@Override
-	protected List<Candidate> getCandidate(int color) {
+	protected void initCandidate(SearchLevel level, int color) {
 		int expectedScore;
 		int boardSize = goBoard.boardSize;
 		if (boardSize <= 3) {
@@ -262,7 +260,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 			}
 		}
 
-		return goBoard.getCandidate(color, true, expectedScore);
+	   level.setCandidates(goBoard.getCandidate(level, true, expectedScore));
 
 		// if (goBoard.getInitSymmetryResult().getNumberOfSymmetry() == 0) {
 		// return goBoard.getCandidate(color, false, expectedScore);

@@ -6,6 +6,7 @@ import eddie.wu.domain.Block;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
 import eddie.wu.search.global.Candidate;
+import eddie.wu.search.global.SearchLevel;
 
 /**
  * onGoing<br/>
@@ -38,20 +39,21 @@ public class LoopSearch extends BigEyeSearch {
 		super(state, target, targetColor, makeEye, targetSuperior);
 	}
 
-	@Override
-	protected List<Candidate> getCandidate(int color) {
-		Block targetBlock = goBoard.getBlock(getTarget());
-		boolean forTarget = color == targetBlock.getColor();
-		// 目标方劫财有利。
-		return goBoard.getCandidate_forTarget(null, getTarget(), candidates,
-				color, forTarget, forTarget);
-		// if(targetColor==color){
-		// if()
-		// }else{
-		//
-		// }
-		// return null;
-	}
+//	@Override
+//	protected void initCandidate(SearchLevel level, int color) {
+//		Block targetBlock = goBoard.getBlock(getTarget());
+//		boolean forTarget = color == targetBlock.getColor();
+//		// 目标方劫财有利。
+//		List<Candidate> candidates = goBoard.getCandidate_forTarget(null, getTarget(), candidates,
+//				color, forTarget, forTarget);
+//		level.setCandidates(candidates);
+//		// if(targetColor==color){
+//		// if()
+//		// }else{
+//		//
+//		// }
+//		// return null;
+//	}
 
 	@Override
 	protected boolean isTerminateState() {

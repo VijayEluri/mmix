@@ -115,8 +115,10 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		this.initTurn = whoseTurn; // (brother)
 	}
 
-	protected List<Candidate> getCandidate(int color) {
-		return goBoard.getCandidate(color, true);
+	@Override
+	protected void initCandidate(SearchLevel level, int color) {		
+		List<Candidate> candidates = goBoard.getCandidate(color, true);
+		level.setCandidates(candidates);
 	}
 
 	@Override
@@ -130,51 +132,49 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 
 	@Override
 	public SearchLevel getInitLevel() {
-
-		SearchLevel level = new SearchLevel(0, initTurn);
-
+		SearchLevel level = new SearchLevel(0, initTurn,null);
 		// level 0: all candidates of original state.
 		if (initTurn == Constant.BLACK) {
 			level.setMax(true);
-			level.setMaxExp(this.getMaxExp());
+			level.setExpScore(this.getMaxExp());
 		} else {
 			level.setMax(false);
-			level.setMinExp(this.getMinExp());
+			level.setExpScore(this.getMinExp());
 		}
 		return level;
 	}
 
-//	@Override
-//	public int getScore(BoardColorState boardColorState) {
-//		BoardColorState boardColorStateN = boardColorState.normalize();
-//		if (terminalResults.containsKey(boardColorStateN)) {
-//			return terminalResults.get(boardColorStateN).intValue();
-//		}
-//		BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
-//				.normalize();
-//		if (terminalResults.containsKey(boardColorStateS)) {
-//			return 0 - terminalResults.get(boardColorStateS).intValue();
-//		}
-//		if (this.historyIndependentResult.containsKey(boardColorStateN)) {
-//			if (boardColorState.isBlackTurn()) {
-//				return historyIndependentResult.get(boardColorStateN)
-//						.getLowExp();
-//			} else {
-//				return historyIndependentResult.get(boardColorStateN)
-//						.getHighExp();
-//			}
-//		}
-//		if (this.historyIndependentResult.containsKey(boardColorStateS)) {
-//			if (boardColorState.isBlackTurn()) {
-//				return 0 - historyIndependentResult.get(boardColorStateS)
-//						.getHighExp();
-//			} else {
-//				return 0 - historyIndependentResult.get(boardColorStateS)
-//						.getLowExp();
-//			}
-//		}
-//		return 0;
-//	}
+	// @Override
+	// public int getScore(BoardColorState boardColorState) {
+	// BoardColorState boardColorStateN = boardColorState.normalize();
+	// if (terminalResults.containsKey(boardColorStateN)) {
+	// return terminalResults.get(boardColorStateN).intValue();
+	// }
+	// BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
+	// .normalize();
+	// if (terminalResults.containsKey(boardColorStateS)) {
+	// return 0 - terminalResults.get(boardColorStateS).intValue();
+	// }
+	// if (this.historyIndependentResult.containsKey(boardColorStateN)) {
+	// if (boardColorState.isBlackTurn()) {
+	// return historyIndependentResult.get(boardColorStateN)
+	// .getLowExp();
+	// } else {
+	// return historyIndependentResult.get(boardColorStateN)
+	// .getHighExp();
+	// }
+	// }
+	// if (this.historyIndependentResult.containsKey(boardColorStateS)) {
+	// if (boardColorState.isBlackTurn()) {
+	// return 0 - historyIndependentResult.get(boardColorStateS)
+	// .getHighExp();
+	// } else {
+	// return 0 - historyIndependentResult.get(boardColorStateS)
+	// .getLowExp();
+	// }
+	// }
+	// return 0;
+	// }
 
 	/**
 	 * two two board optimization
@@ -183,6 +183,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	protected TerminalState getTerminalState() {
 		TerminalState ts = new TerminalState();
 		if (goBoard.areBothPass()) {
+			ts.setBothPass(true);
 			ts.setTerminalState(true);
 			ts.setFinalResult(goBoard.finalResult_doublePass());
 
@@ -210,23 +211,23 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	/**
 	 * only normalized state is stored! for efficiency.
 	 */
-//	@Override
-//	public boolean isKnownState(BoardColorState boardColorState) {
-//		BoardColorState boardColorStateN = boardColorState.normalize();
-//		if (terminalResults.containsKey(boardColorStateN))
-//			return true;
-//		else if (this.historyIndependentResult.containsKey(boardColorStateN))
-//			return true;
-//		// Black is not symmetry with White due to different expecting score
-//		// like [-8,-9]
-//		BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
-//				.normalize();
-//		if (terminalResults.containsKey(boardColorStateS))
-//			return true;
-//		else if (this.historyIndependentResult.containsKey(boardColorStateS))
-//			return true;
-//		return false;
-//	}
+	// @Override
+	// public boolean isKnownState(BoardColorState boardColorState) {
+	// BoardColorState boardColorStateN = boardColorState.normalize();
+	// if (terminalResults.containsKey(boardColorStateN))
+	// return true;
+	// else if (this.historyIndependentResult.containsKey(boardColorStateN))
+	// return true;
+	// // Black is not symmetry with White due to different expecting score
+	// // like [-8,-9]
+	// BoardColorState boardColorStateS = boardColorState.blackWhiteSwitch()
+	// .normalize();
+	// if (terminalResults.containsKey(boardColorStateS))
+	// return true;
+	// else if (this.historyIndependentResult.containsKey(boardColorStateS))
+	// return true;
+	// return false;
+	// }
 
 	public void outputSearchStatistics() {
 		outputSearchStatistics(log);
@@ -455,10 +456,10 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 
 			if (score >= high) {
 				if (state.isBlackTurn()) {
-					log.error("Black Play First: search with high = " + high
+					log.warn("Black Play First: search with high = " + high
 							+ " succeed with score = " + score);
 				} else {
-					log.error("White Play First: search with low = " + low
+					log.warn("White Play First: search with low = " + low
 							+ " fail with score = " + score);
 				}
 				high = score + 1;
@@ -476,10 +477,10 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 				}
 			} else {
 				if (state.isBlackTurn()) {
-					log.error("Black Play First: search with high = " + high
+					log.warn("Black Play First: search with high = " + high
 							+ " fail with score = " + score);
 				} else {
-					log.error("White Play First: search with low = " + low
+					log.warn("White Play First: search with low = " + low
 							+ " succeed with score = " + score);
 				}
 				low = score - 1;

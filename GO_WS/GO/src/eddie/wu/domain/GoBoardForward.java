@@ -1905,7 +1905,7 @@ public class GoBoardForward extends GoBoardSymmetry {
 
 				if (this.getNeighborState(original, selfColor).isValid() == false)
 					return false;
-				if (globalDuplicate(step) == true)
+				if (reachDuplicate(step) == true)
 					return false;
 				return true;
 			}
@@ -1913,9 +1913,15 @@ public class GoBoardForward extends GoBoardSymmetry {
 
 	}
 
-	public boolean globalDuplicate(Step step) {
+	public boolean reachDuplicate(Step step) {
 		if (step.isPass())
 			return false;
+		return globalDuplicate(step) != null;
+	}
+
+	public BoardColorState globalDuplicate(Step step) {
+		if (step.isPass())
+			return null;
 		SimpleNeighborState neighborState = getNeighborState(step);
 		// make safe copy!
 		byte[][] state = this.getColorArray();
@@ -1940,9 +1946,9 @@ public class GoBoardForward extends GoBoardSymmetry {
 			if (log.isEnabledFor(Level.WARN)) {
 				log.warn("落子点无效:全局同型再现!候选点排除。" + step);
 			}
-			return true;
+			return boardState;
 		}
-		return false;
+		return null;
 	}
 
 	public boolean validate(final int row, final int column) {
