@@ -1,7 +1,7 @@
 package eddie.wu.domain;
 
 import eddie.wu.domain.analy.StateAnalysis;
-import eddie.wu.search.SurviveCalculate;
+import eddie.wu.search.old.SurviveCalculate;
 import junit.framework.TestCase;
 
 public class TestStateAnalysis extends TestCase {

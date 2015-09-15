@@ -7,8 +7,8 @@ import org.apache.log4j.Logger;
 
 import eddie.wu.domain.analy.StateAnalysis;
 import eddie.wu.domain.analy.SurviveAnalysis;
-import eddie.wu.search.Candidate;
-import eddie.wu.search.LocalResult;
+import eddie.wu.search.old.Candidate;
+import eddie.wu.search.old.LocalResult;
 
 /**
  * 死活计算。

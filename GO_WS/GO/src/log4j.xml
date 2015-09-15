@@ -7,6 +7,22 @@
 			<param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n" />
 		</layout>
 	</appender -->
+	
+	<!-- appender name="search.state.add" class="org.apache.log4j.FileAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p (%F:%L) - %m%n" />
+		</layout>
+	</appender>
+	<appender name="search.state.apply" class="org.apache.log4j.FileAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p (%F:%L) - %m%n" />
+		</layout>
+	</appender>
+	<appender name="search.terminal.state.add" class="org.apache.log4j.FileAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p (%F:%L) - %m%n" />
+		</layout>
+	</appender> -->
 	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%-5p (%F:%L) - %m%n" />
@@ -80,13 +96,18 @@
 
 	<category name="go.BothLive">
 		<priority value="INFO" />
-	</category>
-	
-	
-	<category name="eddie.wu.search.global.TestAllState">
-		<priority value="DEBUG" />
 	</category!-->
 	
+	
+	<category name="search.state.add">
+		<priority value="DEBUG" />
+	</category>
+	<category name="search.state.apply">
+		<priority value="DEBUG" />
+	</category>
+	<category name="search.terminal.state.add">
+		<priority value="DEBUG" />
+	</category>	
 
 	<root>
 		<priority value="ERROR" />

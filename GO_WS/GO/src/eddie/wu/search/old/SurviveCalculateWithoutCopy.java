@@ -1,4 +1,4 @@
-package eddie.wu.search;
+package eddie.wu.search.old;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +18,8 @@ import eddie.wu.domain.Point;
 import eddie.wu.domain.survive.RelativeSurviveResult;
 import eddie.wu.domain.survive.SmallEye;
 import eddie.wu.domain.survive.SurviveResult;
+import eddie.wu.search.BlankPoint;
+import eddie.wu.search.BlankPointBreathComparator;
 
 /**
  * 利用悔棋的功能来实现计算,性能应该比复制棋盘状态好,<br/>

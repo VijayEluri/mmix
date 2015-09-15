@@ -30,6 +30,16 @@ public class TestCandidate3 extends TestCase {
 
 	}
 	
+	public void testCandidate3232() {
+		String[] text = new String[3];
+		text[0] = new String("[_, W, _]");
+		text[1] = new String("[B, B, W]");
+		text[2] = new String("[_, B, W]");
+		testCandidate(text, Constant.WHITE);
+		testCandidate(text, Constant.BLACK);
+
+	}
+	
 	//WARN  (TestAllState3.java:575) - [INIT]W-->[1,2]B-->[2,2]W-->[2,3]B-->[1,3]W-->[2,1]B-->[3,1](-6 EXHAUST)
 	public void testCandidate3001() {
 		String[] text = new String[3];

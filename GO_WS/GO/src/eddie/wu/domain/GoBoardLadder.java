@@ -11,9 +11,9 @@ import org.apache.log4j.Logger;
 
 import eddie.wu.api.ZhengZiInterface;
 import eddie.wu.linkedblock.LocalResultOfZhengZi;
-import eddie.wu.search.Controller;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.CaptureSearch;
+import eddie.wu.search.old.Controller;
 
 /**
  * the logic of ladder calculation. 征子计算的逻辑.<br/>

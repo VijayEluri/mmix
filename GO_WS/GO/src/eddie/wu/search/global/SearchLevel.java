@@ -54,7 +54,7 @@ public class SearchLevel {
 	private boolean scoreHistoryDep;
 
 	public boolean isScoreHistoryDep() {
-		if (this.reachDup) {
+		if (this.reachingDup) {
 			if (this.alreadyWin() == false) {
 				return true;
 			} else {
@@ -93,15 +93,15 @@ public class SearchLevel {
 	 * whether current state may reach duplicate states (blocked); record them
 	 * for future knowledge.
 	 */
-	private boolean reachDup = false;
+	private boolean reachingDup = false;
 	private Set<BoardColorState> dupStates = null;
 
-	public boolean isReachDup() {
-		return reachDup;
+	public boolean isReachingDup() {
+		return reachingDup;
 	}
 
-	public void setReachDup(boolean reachDup) {
-		this.reachDup = reachDup;
+	public void setReachingDup(boolean reachDup) {
+		this.reachingDup = reachDup;
 	}
 
 	public Set<BoardColorState> getDupStates() {
@@ -109,7 +109,7 @@ public class SearchLevel {
 	}
 
 	public BoardColorState getDupState() {
-		if (this.reachDup == false)
+		if (this.reachingDup == false)
 			return null;
 		return dupStates.iterator().next();
 	}
@@ -119,7 +119,14 @@ public class SearchLevel {
 			dupStates = new HashSet<BoardColorState>();
 		}
 		this.dupStates.add(dupState);
-		this.reachDup = true;
+		this.reachingDup = true;
+	}
+	public void addDupStates(Set<BoardColorState> dupStates) {
+		if (dupStates == null) { // lazy!
+			dupStates = new HashSet<BoardColorState>();
+		}
+		this.dupStates.addAll(dupStates);
+		this.reachingDup = true;
 	}
 
 	public SearchLevel(int levelIndex, int whoseTurn, Step prevStep) {
@@ -269,40 +276,47 @@ public class SearchLevel {
 
 	}
 
-	public boolean updateWithFuzzyScore(ScopeScore score) {
-		//score maybe still initial, e.g. unknown score due to limit.
-		if(score.isInit()) return false;
-		
-		boolean win = false;
+	/**
+	 * when apply terminal state's known score (maybe not accurate) to parent
+	 * level. parent state level v.s. child state's score!
+	 * 
+	 * @param score
+	 * @return
+	 */
+	public SearchLevel updateWithFuzzyScore(ScopeScore score) {
+		// score maybe still initial, e.g. unknown score due to limit.
+//		if (score.isInit())
+//			return this;
+//		boolean win = false;
 		assert this.alreadyWin() == false;
-		if (score.isInit()) {
-			throw new RuntimeException("is init");
-		}
-		if (max) {
-			if (score.isUp()) {
-				throw new RuntimeException("score confilict");
-			} else {
-				if (score.getLow() >= expScore) {
-					this.tempBestScore = score.getLow();
-					return true;
-				}else if(score.getLow() > this.getTempBestScore()){
+//		if (score.isInit()) {
+//			throw new RuntimeException("is init");
+//		}
+		if (score.isExact()) {
+			if (max) {
+				if (score.getLow() > this.tempBestScore) {
 					this.tempBestScore = score.getLow();
 				}
+			} else {
+				if (score.getLow() < this.tempBestScore) {
+					this.tempBestScore = score.getLow();
+				}
+			}
+		} else if (max) {// parent is max// child is min.
+			if (score.getLow() >= expScore) {
+				this.tempBestScore = score.getLow();
+			} else if (score.getLow() > this.getTempBestScore()) {
+				this.tempBestScore = score.getLow();
 			}
 
-		} else {
-			if (score.isUp()) {
-				if (score.getHigh() <= expScore) {
-					this.tempBestScore = score.getHigh();
-					return true;
-				}else if(score.getHigh()<this.tempBestScore){
-					this.tempBestScore = score.getHigh();
-				}
-			} else {
-				throw new RuntimeException("score confilict");
+		} else { // parent is min, child is max
+			if (score.getHigh() <= expScore) {
+				this.tempBestScore = score.getHigh();
+			} else if (score.getHigh() < this.tempBestScore) {
+				this.tempBestScore = score.getHigh();
 			}
 		}
-		return false;
+		return this;
 	}
 
 	public int getTempBestScore() {
@@ -383,4 +397,15 @@ public class SearchLevel {
 		return false;
 	}
 
+	public ScopeScore getScopeScore(int boardSize) {
+		ScopeScore score = ScopeScore.getInitScore(boardSize);
+		if (this.alreadyWin()) {
+			score.updateWin(getTempBestScore(), isMax());
+		} else if (this.hasNext() == false) {
+			score.updateLose(getTempBestScore(), isMax());
+		} else {
+			return null;
+		}
+		return score;
+	}
 }

@@ -3,6 +3,7 @@ package eddie.wu.search.two;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -24,9 +25,13 @@ import eddie.wu.manual.SGFGoManual;
 import eddie.wu.manual.SearchNode;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.manual.TreeGoManual;
+import eddie.wu.search.HistoryDepScore;
+import eddie.wu.search.ScopeScore;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.GoBoardSearch;
 import eddie.wu.search.global.ListAllState;
+import eddie.wu.search.small.SmallBoardGlobalSearch;
+import eddie.wu.search.small.ThreeThreeBoardSearch;
 import eddie.wu.search.small.TwoTwoBoardSearch;
 
 /**
@@ -40,14 +45,15 @@ import eddie.wu.search.small.TwoTwoBoardSearch;
  */
 public class TestAllState2 extends TestCase {
 	private static Logger log = Logger.getLogger(TestAllState2.class);
-	private static String manualFolder = Constant.DYNAMIC_DATA + "small_board/two_two/";
+	private static String manualFolder = Constant.DYNAMIC_DATA
+			+ "small_board/two_two/";
 	static {
 		Constant.INTERNAL_CHECK = false;
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.ERROR);
 		Logger.getLogger(GoBoardSearch.class).setLevel(Level.INFO);
 		Logger.getLogger(GoBoardForward.class).setLevel(Level.ERROR);
-		Logger.getLogger(TestAllState2.class).setLevel(Level.WARN);
-		//Logger.getLogger(SGFGoManual.class).setLevel(Level.INFO);
+		Logger.getLogger(TestAllState2.class).setLevel(Level.INFO);
+		// Logger.getLogger(SGFGoManual.class).setLevel(Level.INFO);
 		;
 	}
 
@@ -116,7 +122,7 @@ public class TestAllState2 extends TestCase {
 	}
 
 	public void testState1_blackFirst_lose_4_4() {
-		testState1_blackFirst_lose(4, -4);// 112s
+		testState1_blackFirst_lose(2, 4, -4);// 112s
 	}
 
 	/**
@@ -128,11 +134,11 @@ public class TestAllState2 extends TestCase {
 	 * that this move is NOT one of them.
 	 */
 	public void testState1_blackFirst_lose_5_5() {
-		testState1_blackFirst_lose(5, -5);//
+		testState1_blackFirst_lose(2, 5, -5);//
 	}
 
 	public void testState1_blackFirst_lose_2_0() {
-		testState1_blackFirst_lose(2, 0);// 5s
+		testState1_blackFirst_lose(2, 2, 0);// 5s
 	}
 
 	/**
@@ -155,15 +161,34 @@ public class TestAllState2 extends TestCase {
 	 * WARN (TestAllState2.java:149) - INIT variant=28, score=1<br/>
 	 * TODO: no enough memory!
 	 */
-	private void testState1_blackFirst_lose(int high, int low) {
-		String[] text = new String[2];
-		text[0] = new String("[_, _]");
-		text[1] = new String("[_, _]");
-		byte[][] state = StateLoader.LoadStateFromText(text);
-		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
-		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, high, low);
+	protected void testState1_blackFirst_lose(int boardSize, int high, int low) {
+		BoardColorState boardState = null;
+		int expScore = 1;
+		if (boardSize == 2) {
+			String[] text = new String[2];
+			text[0] = new String("[_, _]");
+			text[1] = new String("[_, _]");
+			byte[][] state = StateLoader.LoadStateFromText(text);
+			boardState = new BoardColorState(state, Constant.BLACK);
+		} else if (boardSize == 3) {
+			String[] text = new String[3];
+			text[0] = new String("[_, _, _]");
+			text[1] = new String("[_, _, _]");
+			text[2] = new String("[_, _, _]");
+			byte[][] state = StateLoader.LoadStateFromText(text);
+			boardState = new BoardColorState(state, Constant.BLACK);
+			expScore = 9;
+		}
+
+		SmallBoardGlobalSearch goS = null;
+		if (boardSize == 2) {
+			goS = new TwoTwoBoardSearch(boardState, high, low);
+		} else {
+			goS = new ThreeThreeBoardSearch(boardState, high, low);
+		}
 		goS.setVariant(1500000);
-		//goS.setDeepth(18); cannot help. the setup means we need to cover all variants.
+		// goS.setDeepth(18); cannot help. the setup means we need to cover all
+		// variants.
 		int score = goS.globalSearch();
 		TreeGoManual manual = goS.getTreeGoManual();
 		int initScore = manual.initScore();
@@ -174,7 +199,7 @@ public class TestAllState2 extends TestCase {
 			// log.warn(Constant.lineSeparator + manual.getMostExpPath());
 			goS.outputSearchStatistics(log);
 		}
-		assertEquals(1, score);
+		assertEquals(expScore, score);
 		assertTrue(score != high);
 		assertTrue(score != low);
 
@@ -184,7 +209,7 @@ public class TestAllState2 extends TestCase {
 		String name11 = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
 				+ goS.getMaxExp() + goS.getMinExp() + " multiple win.sgf";
-		
+
 		String fileName1 = manualFolder + name1;
 		String fileName11 = manualFolder + name11;
 		String name2 = goS.getGoBoard().getInitColorState()
@@ -277,7 +302,7 @@ public class TestAllState2 extends TestCase {
 		try {
 			score = goS.globalSearch();
 		} catch (Exception e) {
-//			this.fail(message);
+			// this.fail(message);
 		}
 
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
@@ -289,7 +314,7 @@ public class TestAllState2 extends TestCase {
 		String name = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
 				+ " win.sgf";
-		String fileName = manualFolder+ name;
+		String fileName = manualFolder + name;
 		TreeGoManual manual = goS.getTreeGoManual();
 		int initScore = manual.initScore();
 		log.warn("Before Cleanup ");
@@ -298,8 +323,8 @@ public class TestAllState2 extends TestCase {
 		if (initVariant < 500) {
 			log.warn(manual.getSGFBodyString(false));
 		}
-		
-		if(initScore==SearchNode.UNKNOWN_SCORE){
+
+		if (initScore == SearchNode.UNKNOWN_SCORE) {
 			return;
 		}
 		// manual.cleanupBadMove_firstWin(goS.initTurn, goS.getMaxExp());
@@ -398,7 +423,7 @@ public class TestAllState2 extends TestCase {
 		String name = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
 				+ " lose.sgf";
-		String fileName = manualFolder+ name;
+		String fileName = manualFolder + name;
 		TreeGoManual manual = goS.getTreeGoManual();
 		int initScore = manual.initScore();
 		manual.getExpandedString(false);// initialize variant as side effect
@@ -729,6 +754,43 @@ public class TestAllState2 extends TestCase {
 		text[0] = new String("[B, _]");
 		text[1] = new String("[_, W]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
+		
+		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
+		
+		GoBoardSearch goS = new TwoTwoBoardSearch(boardState, 4);
+		int score = goS.globalSearch();
+		if(log.isInfoEnabled()){
+			log.info(boardState.getStateString());
+			log.warn("Score=" + score);
+		}			
+		assertEquals(1, score);
+		
+		if (log.isInfoEnabled()) {
+			log.info("");
+			log.info("Independent: " + goS.getStateReached().size());
+			for (Entry<BoardColorState, ScopeScore> entry : goS
+					.getStateReached().entrySet()) {
+				log.info(entry.getKey());
+				log.info(entry.getValue());
+				log.info("");
+			}
+			log.info("");
+			log.info("Dependent" + goS.getStateHisDepReached().size());
+			for (Entry<BoardColorState, HistoryDepScore> entry : goS
+					.getStateHisDepReached().entrySet()) {
+				log.info(entry.getKey());
+				log.info(entry.getValue() + " depends on: ");
+				log.info(entry.getValue().getState());
+				log.info("");
+			}
+		}
+	}
+
+	public void testState2_AA1() {
+		String[] text = new String[2];
+		text[0] = new String("[B, _]");
+		text[1] = new String("[_, W]");
+		byte[][] state = StateLoader.LoadStateFromText(text);
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn(Arrays.deepToString(state));
 		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
@@ -771,7 +833,7 @@ public class TestAllState2 extends TestCase {
 	 * Score=1
 	 */
 	public void testState223() {
-		String fileName = manualFolder+"_WWW.sgf.complex";
+		String fileName = manualFolder + "_WWW.sgf.complex";
 		String[] text = new String[2];
 		text[0] = new String("[_, W]");
 		text[1] = new String("[W, W]");
@@ -851,7 +913,7 @@ public class TestAllState2 extends TestCase {
 			count++;
 			if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
 				log.warn("==========================");
-				log.warn("count=" + count);				
+				log.warn("count=" + count);
 				log.warn("Score=" + state.getScore());
 				log.warn("variant=" + state.getVariant());
 				log.warn("State=" + state.getStateString());

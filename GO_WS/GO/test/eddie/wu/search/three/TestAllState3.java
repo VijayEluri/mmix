@@ -30,13 +30,17 @@ public class TestAllState3 extends TestCase {
 	static {
 		Constant.INTERNAL_CHECK = false;
 		String key = LogManager.DEFAULT_CONFIGURATION_KEY;
-		String value = "log4j_error.xml";
+		String value = "log4j.xml";
 		System.setProperty(key, value);
 		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.ERROR);
-		Logger.getLogger(GoBoardSearch.class).setLevel(Level.ERROR);
+		//Logger.getLogger(GoBoardSearch.class).setLevel(Level.INFO);
 		Logger.getLogger(GoBoardForward.class).setLevel(Level.ERROR);
-		Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.ERROR);
+//		Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.INFO);
+		Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.INFO);
 		Logger.getLogger(TestAllState3.class).setLevel(Level.WARN);
+		Logger.getLogger("search.terminal.state.add").setLevel(Level.WARN);
+		Logger.getLogger("search.state.apply").setLevel(Level.DEBUG);
+		Logger.getLogger("search.state.add").setLevel(Level.DEBUG);
 		// Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.WARN);
 		// Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
 		// Logger.getLogger(GoBoardForward.class).setLevel(Level.WARN);
@@ -51,6 +55,17 @@ public class TestAllState3 extends TestCase {
 		testState_internal(text, Constant.BLACK, +9);
 
 	}
+	
+	public void testState_init3() {
+		String[] text = new String[3];
+		text[0] = new String("[_, W, _]");
+		text[1] = new String("[B, B, W]");
+		text[2] = new String("[_, B, W]");
+
+		testState_internal(text, Constant.BLACK, +9);
+
+	}
+
 
 	/**
 	 * TODO 2
@@ -81,7 +96,7 @@ public class TestAllState3 extends TestCase {
 		testState_internal(text, Constant.BLACK, -3);
 		testState_internal(text, Constant.WHITE, -9);
 	}
-	
+
 	public void testState_1314() {
 		Logger.getLogger(GoBoardSearch.class).setLevel(Level.INFO);
 		String[] text = new String[3];
@@ -647,7 +662,7 @@ public class TestAllState3 extends TestCase {
 		}
 		String name = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
-				+ goS.getMaxExp() + goS.getMinExp();
+				+ goS.getExpScore().toFileName();
 
 		String fileName1 = manualFolder + name + "win.sgf";
 		String fileName2 = manualFolder + name + "lose.sgf";
@@ -664,8 +679,7 @@ public class TestAllState3 extends TestCase {
 		if (log.isEnabledFor(Level.WARN)) {
 			log.warn(goS.getGoBoard().getInitColorState().getStateString());
 			log.warn("Score=" + score);
-			log.warn("searched "
-					+ goS.getSearchProcess().size());
+			log.warn("searched " + goS.getSearchProcess().size());
 			goS.outputSearchStatistics(log);
 			TreeGoManual manual = goS.getTreeGoManual();
 			log.warn("Most Expensive path: ");
@@ -678,9 +692,12 @@ public class TestAllState3 extends TestCase {
 			log.warn("duplicated state begin:");
 			goS.getGoBoard().getStepHistory().printDupState();
 			log.warn("duplicated state end:");
+			goS.printKnownResult();
+			goS.logStateReached();
 
 			int initScore = manual.initScore();
 			log.warn("Init score = " + initScore);
+			log.warn(goS.getExpScore());
 			log.warn("before clean up");
 			if (manual.getVariant() < 200) {
 				log.warn(manual.getSGFBodyString(false));
@@ -752,7 +769,7 @@ public class TestAllState3 extends TestCase {
 		text[2] = new String("[_, _, B]");
 		testState_internal(text, Constant.BLACK, 3);
 	}
-	
+
 	public void testState_V11() {
 		String[] text = new String[3];
 		text[0] = new String("[_, _, _]");
@@ -892,10 +909,11 @@ public class TestAllState3 extends TestCase {
 		int count = 0;
 		for (BoardColorState state : finalState) {
 			System.out.println("count = " + (count++));
-			
-			if(count!=184) continue;
-			else{
-				System.out.println("Score = " +state.getScore());
+
+			if (count != 184)
+				continue;
+			else {
+				System.out.println("Score = " + state.getScore());
 			}
 			System.out.println(state.getStateString());
 			int depth = 15;

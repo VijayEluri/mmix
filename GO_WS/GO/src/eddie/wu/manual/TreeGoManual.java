@@ -146,7 +146,7 @@ public class TreeGoManual extends AbsGoManual {
 			if (sgf) {
 				sb.append(max.getStep().toSGFString());
 			} else {
-				sb.append(Constant.lineSeparator + "--"
+				sb.append(Constant.lineSeparator + "choose step: --"
 						+ max.getStep().toNonSGFString() + "-->");
 				sb.append(Constant.lineSeparator);
 				goB.oneStepForward(max.getStep());

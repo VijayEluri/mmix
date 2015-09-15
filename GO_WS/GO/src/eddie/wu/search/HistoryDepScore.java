@@ -3,8 +3,8 @@ package eddie.wu.search;
 import eddie.wu.domain.BoardColorState;
 
 /**
- * the score for history dependent state, mostly happened in 2*2 board.
- * simplify the design by assuming only one history sate reachable.
+ * the score for history dependent state, mostly happened in 2*2 board. simplify
+ * the design by assuming only one history sate reachable.
  */
 
 public class HistoryDepScore extends ScopeScore {
@@ -15,6 +15,8 @@ public class HistoryDepScore extends ScopeScore {
 	BoardColorState state;
 
 	private HistoryDepScore(BoardColorState state) {
+		super(0 - state.boardSize * state.boardSize, state.boardSize
+				* state.boardSize);
 		this.state = state;
 	}
 
@@ -25,8 +27,6 @@ public class HistoryDepScore extends ScopeScore {
 	public BoardColorState getState() {
 		return state;
 	}
-	
-	
 
 	// public static ScopeScore getInstance(int score, BoardColorState state) {
 	// HistoryDepScore scopeScore = new HistoryDepScore(state);

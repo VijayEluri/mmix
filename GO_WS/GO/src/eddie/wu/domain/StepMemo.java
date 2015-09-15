@@ -192,14 +192,19 @@ public class StepMemo implements Serializable {
 	public void setStep(Step step) {
 		this.step = step;
 	}
+	
+	public String toSimpleString(){
+		return step.toString();
+	}
 
 	@Override
 	public String toString() {
-		if (step.isPass())
-			return step.toString();
+		
 		StringBuilder sb = new StringBuilder(step.toString());
-
 		sb.append("\r\n");
+		if (step.isPass())
+			return sb.toString();
+		
 		if (neighborState.isEating()) {
 			TestCase.assertFalse(eatenBlocks.isEmpty());
 			sb.append("下列块被提吃: ");

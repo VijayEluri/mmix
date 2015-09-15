@@ -19,6 +19,7 @@ import eddie.wu.domain.NeighborState;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
 import eddie.wu.domain.SymmetryResult;
+import eddie.wu.manual.StateLoader;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.CandidateComparator;
 import eddie.wu.search.global.SearchLevel;
@@ -157,7 +158,7 @@ public class SmallGoBoard extends TerritoryAnalysis {
 		 * 提前识别出可能导致全局再现的候选点。
 		 * 
 		 */
-		level.setReachDup(false);// safer.
+		level.setReachingDup(false);// safer.
 		for (Iterator<Point> iter = points.iterator(); iter.hasNext();) {
 			Step stepCan = new Step(iter.next(), color);
 			BoardColorState dupState = this.globalDuplicate(stepCan);
@@ -167,24 +168,25 @@ public class SmallGoBoard extends TerritoryAnalysis {
 					log.warn("Step " + stepCan + " cause duplication.");
 				}
 				iter.remove();
-				level.setReachDup(true);
+				level.setReachingDup(true);
 				level.addDupState(dupState);
 				// otherwise, normalized one maybe the one reach duplicated.
 				filterSymmetricEquivalent = false;
 			}
 		}
-		if (level.isReachDup() && level.getDupStates().size() > 1) {
+		if (level.isReachingDup() && level.getDupStates().size() > 1) {
 			this.errorState();
-			for(BoardColorState tempState:level.getDupStates()){
+			for (BoardColorState tempState : level.getDupStates()) {
 				log.error(tempState.getStateString());
 			}
 			// haven't think it over, should not be easy to encounter
 			// current state can reach more than one history state.
-			//throw new RuntimeException("more then one duplicates reachable!");
-			//1[_, _]01
-			//2[B, _]02
-			//can reach duplicate at[1,1] and [2,2].
-			
+			// throw new
+			// RuntimeException("more then one duplicates reachable!");
+			// 1[_, _]01
+			// 2[B, _]02
+			// can reach duplicate at[1,1] and [2,2].
+
 		}
 
 		/**
@@ -350,6 +352,22 @@ public class SmallGoBoard extends TerritoryAnalysis {
 		candidates.addAll(decreaseBreath);
 		candidates.addAll(eatingDeads);
 		candidates.addAll(fillingEyes);
+
+		debug(candidates);
 		return candidates;
+	}
+
+	public void debug(List<Candidate> candidates) {
+		String[] text = new String[3];
+		text[0] = new String("[_, W, _]");
+		text[1] = new String("[B, B, W]");
+		text[2] = new String("[_, B, W]");
+		byte[][] state = StateLoader.LoadStateFromText(text);
+		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
+		if (boardState.equals(this.getBoardColorState())) {
+			log.error(this.getStepHistory().getAllSteps());
+			log.error(candidates);
+			
+		}
 	}
 }

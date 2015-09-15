@@ -27,6 +27,8 @@ import eddie.wu.search.global.TerminalState;
  * 这里的search都是由黑方先行。
  */
 public class SmallBoardGlobalSearch extends GoBoardSearch {
+	private static final Logger logStatistic = Logger
+			.getLogger("search.statistic");
 	private static final Logger log = Logger
 			.getLogger(SmallBoardGlobalSearch.class);
 	SmallGoBoard goBoard;
@@ -230,7 +232,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	// }
 
 	public void outputSearchStatistics() {
-		outputSearchStatistics(log);
+		outputSearchStatistics(logStatistic);
 	}
 
 	// protected TerminalState getTerminalState() {
@@ -408,7 +410,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		int dir = 0;// direction to check further
 		int maxScore = state.boardSize * state.boardSize;
 		int bestScore = 0;
-		GoBoardSearch goS;
+		SmallBoardGlobalSearch goS;
 
 		assert (expScore <= maxScore);
 		assert (expScore >= 0 - maxScore);
@@ -453,7 +455,8 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			}
 			score = goS.globalSearch();
 			state.setVariant(goS.getSearchProcess().size());
-
+			goS.logStateReached();
+			goS.outputSearchStatistics();
 			if (score >= high) {
 				if (state.isBlackTurn()) {
 					log.warn("Black Play First: search with high = " + high

@@ -28,9 +28,9 @@ public class ListAllState {
 	private static final Logger log;
 
 	static {
-		String key = LogManager.DEFAULT_CONFIGURATION_KEY;
-		String value = "log4j_error.xml";
-		System.setProperty(key, value);
+//		String key = LogManager.DEFAULT_CONFIGURATION_KEY;
+//		String value = "log4j_error.xml";
+//		System.setProperty(key, value);
 		log = Logger.getLogger(ListAllState.class);
 		log.setLevel(Level.WARN);
 

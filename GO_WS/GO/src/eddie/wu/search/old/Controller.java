@@ -1,4 +1,4 @@
-package eddie.wu.search;
+package eddie.wu.search.old;
 
 /**
  * 用于控制展开的类.定义了每层的 控制信息. 每一层可能有多个局面（状态）,<br/>

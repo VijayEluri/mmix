@@ -5,7 +5,7 @@ import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.analy.StateAnalysis;
-import eddie.wu.search.SurviveCalculate;
+import eddie.wu.search.old.SurviveCalculate;
 
 public class TestSurviveCalculate extends TestCase {
 	private String root = "doc/围棋程序数据/大眼基本死活/";

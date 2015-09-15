@@ -10,7 +10,7 @@ import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
 import eddie.wu.manual.StateLoader;
-import eddie.wu.search.ZhengZiCalculate;
+import eddie.wu.search.old.ZhengZiCalculate;
 import eddie.wu.util.GBKToUTF8;
 
 public class TestZhengZiCalculate extends TestCase {

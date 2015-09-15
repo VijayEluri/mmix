@@ -45,6 +45,11 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		// initKnownState();
 	}
 
+	public ThreeThreeBoardSearch(BoardColorState state, int low, int high) {
+		super(state, low, high);
+		// initKnownState();
+	}
+
 	/**
 	 * the state is decided because of dual give up.
 	 */
@@ -260,7 +265,7 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 			}
 		}
 
-	   level.setCandidates(goBoard.getCandidate(level, true, expectedScore));
+		level.setCandidates(goBoard.getCandidate(level, true, expectedScore));
 
 		// if (goBoard.getInitSymmetryResult().getNumberOfSymmetry() == 0) {
 		// return goBoard.getCandidate(color, false, expectedScore);

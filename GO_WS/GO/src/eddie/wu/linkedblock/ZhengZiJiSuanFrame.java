@@ -27,7 +27,7 @@ import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
 import eddie.wu.domain.Point;
-import eddie.wu.search.ZhengZiCalculate;
+import eddie.wu.search.old.ZhengZiCalculate;
 
 /**
  * UI for GoBoard

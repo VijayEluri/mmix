@@ -144,12 +144,12 @@ public class BoardColorState {
 	// return exactScore;
 	// }
 
-//	public ScopeScore getScopeScore() {
-//		if(this.scopeScore==null){
-//			this.scopeScore = ScopeScore.getInstance();
-//		}
-//		return scopeScore;
-//	}
+	// public ScopeScore getScopeScore() {
+	// if(this.scopeScore==null){
+	// this.scopeScore = ScopeScore.getInstance();
+	// }
+	// return scopeScore;
+	// }
 
 	// public void setFuzzyScore(ScopeScore fuzzyScore) {
 	// this.fuzzyScore = fuzzyScore;
@@ -507,6 +507,7 @@ public class BoardColorState {
 
 	/**
 	 * for old code
+	 * 
 	 * @return
 	 */
 	public int getScore() {
@@ -864,12 +865,12 @@ public class BoardColorState {
 		return ColorUtil.evenNumberOfPoints(count);
 	}
 
-//	public void setScore(int score) {
-//		if(this.scopeScore==null){
-//		this.scopeScore = ScopeScore.getInstance(score);
-//		}
-//		this.scopeScore.updateAccurateScore(score);
-//	}
+	public void setScore(int score) {
+		if (this.scopeScore == null) {
+			this.scopeScore = new ScopeScore(score);
+		}
+		this.scopeScore.updateAccurateScore(score);
+	}
 
 	public void setVariant(int variant) {
 		this.variant = variant;

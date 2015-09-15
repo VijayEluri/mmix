@@ -1,6 +1,5 @@
 package eddie.wu.search;
 
-
 /**
  * in order to store inaccurate score. <br/>
  * TODO: history dependent score cannot be compared.
@@ -9,8 +8,54 @@ package eddie.wu.search;
  *
  */
 public class ScopeScore {
-	private int low = 0 - Integer.MAX_VALUE;
-	private int high = Integer.MAX_VALUE;
+	private int low;// = 0 - Integer.MAX_VALUE;
+	private int high;// = Integer.MAX_VALUE;
+
+	/**
+	 * how many times we encounter this state during search. count as one as
+	 * terminate state,
+	 */
+	private transient int count;
+	/**
+	 * how many times we encounter this state during search, but cannot apply
+	 * the score. count as one after state is decided.
+	 * 
+	 */
+	private transient int notAppliedTimes;
+
+	/**
+	 * how many times the state is refer as known result, hence avoid searing
+	 * the sub-space.
+	 */
+	private transient int appliedTimes;
+
+	/**
+	 * terminal state has accurate score;
+	 * 
+	 * @param score
+	 */
+	public ScopeScore(int score) {
+		low = score;
+		high = score;
+	}
+
+	/**
+	 * could be initial score.
+	 * 
+	 * @param low
+	 * @param high
+	 */
+	protected ScopeScore(int low, int high) {
+		this.low = low;
+		this.high = high;
+	}
+
+	public static ScopeScore getInitScore(int boardSize) {
+		int high = boardSize * boardSize;
+		int low = 0 - high;
+		return new ScopeScore(low, high);
+	}
+
 	public int getLow() {
 		return low;
 	}
@@ -19,46 +64,38 @@ public class ScopeScore {
 		return high;
 	}
 
-	private boolean up;
-	public boolean isUp() {
-		return up;
+	public int getAppliedTimes() {
+		return appliedTimes;
 	}
 
-//	public void setUp(boolean up) {
-//		this.up = up;
-//	}
+	public void increaseAppliedTimes() {
+		appliedTimes++;
+	}
 
-	/**
-	 * how many times we encounter this state during search.
-	 */
-	private transient int count;
-	
-	public void increaseCount(){
+	public int getNotAppliedTimes() {
+		return notAppliedTimes;
+	}
+
+	public void increaseNotAppliedTimes() {
+		notAppliedTimes++;
+	}
+
+	public void increaseCount() {
 		count++;
 	}
 
-	protected ScopeScore() {
+	public int getCount() {
+		return count;
 	}
 
-	public static ScopeScore getInstance() {
-		return new ScopeScore();
-	}
-
-	public static ScopeScore getInstance(int score) {
-		ScopeScore scopeScore = new ScopeScore();
-		scopeScore.low = score;
-		scopeScore.high = score;
-		// up or not doesn't matter here.
-		return scopeScore;
-	}
-
-	public boolean isInit() {
-		return (low == 0 - Integer.MAX_VALUE) && (high == Integer.MAX_VALUE);
-	}
+	// public boolean isInit() {
+	// return (high == boardSize * boardSize)
+	// && (low == 0 - boardSize * boardSize);
+	// }
 
 	public boolean isExact() {
-		if (isInit())
-			return false;
+		// if (isInit())
+		// return false;
 		return low == high;
 	}
 
@@ -69,21 +106,19 @@ public class ScopeScore {
 			throw new RuntimeException("Not accurate Score.");
 		}
 	}
-	
+
 	/**
 	 * accurate score
+	 * 
 	 * @param score
 	 */
-	public void updateAccurateScore(int score, boolean max) {
-		if (isInit()) {
-			low = score;
-			high = score;
-			up = max;
-		} else if (low <= score && score <= high) {
+	public void updateAccurateScore(int score) {
+		if (low <= score && score <= high) {
 			low = score;
 			high = score;
 		} else {
-			throw new RuntimeException("Score Conflict");
+			throw new RuntimeException("Score Conflict：" + score
+					+ this.toString());
 		}
 	}
 
@@ -93,69 +128,81 @@ public class ScopeScore {
 	 * @param maxWin
 	 */
 	public void updateWin(int score, boolean maxWin) {
-		if (isInit()) {
-			if (maxWin) {
-				low = score;
-				up = true;
-			} else {
-				high = score;
-				up = false;
+		if (maxWin) {
+			if (score > high) {
+				throw new RuntimeException("Conflict: score [" + score + "]"
+						+ " > high [" + high + "]" + this.toString());
 			}
-		} else { // already has scores.
-			if (maxWin) {
-				if (score > high) {
-					throw new RuntimeException("Conflict: score > high");
-				}
-				if (score > low) {
-					low = score;
-					assert up = true;
-				}
-			} else {
-				if (score < low) {
-					throw new RuntimeException("Conflict: score < low");
-				}
-				if (score < high) {
-					high = score;
-					assert up = false;
-				}
+			if (score > low) {
+				low = score;
+			}
+		} else {
+			if (score < low) {
+				throw new RuntimeException("Conflict: score [" + score + "]"
+						+ " < low[" + low + "]" + this.toString());
+			}
+			if (score < high) {
+				high = score;
 			}
 		}
 	}
 
-	public void updateLose(int score, boolean maxLose) {
-		if (this.isInit()) {
-			if (maxLose) {
-				high = score; // hat value
-				up = true;
-			} else {
+	/**
+	 * @param max
+	 *            who lose? max or min
+	 */
+	public void updateLose(int score, boolean max) {
+		if (max) {
+			if (score < low) {
+				throw new RuntimeException("Conflict: score [" + score
+						+ "] < low [" + low + "]" + this.toString());
+			}
+			if (score < high) {
+				high = score; // reduce hat
+			}
+		} else {
+			if (score > high) {
+				throw new RuntimeException("Conflict: score " + "(" + score
+						+ ")" + " > high " + "(" + high + ")" + this.toString());
+			}
+			if (score > low) {
 				low = score;
-				up = false;
 			}
-		} else {// already has scores.
-			if (maxLose) {
-				if (score < low) {
-					throw new RuntimeException("Conflict: score < low");
-				}
-				if (score < high) {
-					high = score; // reduce hat
-					assert up = true;
-				}
-			} else {
-				if (score > high) {
-					throw new RuntimeException("Conflict: score > high");
-				}
-				if (score > low) {
-					low = score;
-					assert up = false;
-				}
-			}
-			
-			
 		}
 	}
-	
-//	public boolean alreadyWin(boolean max, int expScore){
-//		
-//	}
+
+	@Override
+	public String toString() {
+		if (this.isExact()) {
+			return "[score=" + low + ", count=" + count + "]";
+		}
+		return "ScopeScore [low=" + low + ", high=" + high + ", count=" + count
+				+ "]";
+	}
+
+	public ScopeScore mirror() {
+		int low = 0 - this.high;
+		int high = 0 - this.low;
+		return new ScopeScore(low, high);
+	}
+
+	/**
+	 * 
+	 * @param mirrorScore
+	 *            Not modified
+	 */
+	public void merge(ScopeScore mirrorScore) {
+		if (low < mirrorScore.low) {
+			low = mirrorScore.low;
+		}
+		if (high > mirrorScore.high) {
+			high = mirrorScore.high;
+		}
+
+		if (low > high) {
+			throw new RuntimeException("low = " + low + ", high = " + high);
+		}
+
+	}
 
 }
