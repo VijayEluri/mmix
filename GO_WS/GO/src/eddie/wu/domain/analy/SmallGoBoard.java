@@ -169,14 +169,14 @@ public class SmallGoBoard extends TerritoryAnalysis {
 				}
 				iter.remove();
 				level.setReachingDup(true);
-				level.addDupState(dupState);
+				level.addDirectDupState(dupState);
 				// otherwise, normalized one maybe the one reach duplicated.
 				filterSymmetricEquivalent = false;
 			}
 		}
-		if (level.isReachingDup() && level.getDupStates().size() > 1) {
+		if (level.isReachingDup() && level.getDirectDupStates().size() > 1) {
 			this.errorState();
-			for (BoardColorState tempState : level.getDupStates()) {
+			for (BoardColorState tempState : level.getDirectDupStates()) {
 				log.error(tempState.getStateString());
 			}
 			// haven't think it over, should not be easy to encounter
@@ -365,6 +365,7 @@ public class SmallGoBoard extends TerritoryAnalysis {
 		byte[][] state = StateLoader.LoadStateFromText(text);
 		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
 		if (boardState.equals(this.getBoardColorState())) {
+			log.error(boardState.getStateString());
 			log.error(this.getStepHistory().getAllSteps());
 			log.error(candidates);
 			

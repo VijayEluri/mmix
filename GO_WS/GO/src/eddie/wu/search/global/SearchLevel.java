@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.sun.org.glassfish.external.statistics.Stats;
+
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Constant;
@@ -51,24 +53,6 @@ public class SearchLevel {
 	 */
 	private boolean scoreByBothPass;
 
-	private boolean scoreHistoryDep;
-
-	public boolean isScoreHistoryDep() {
-		if (this.reachingDup) {
-			if (this.alreadyWin() == false) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return scoreHistoryDep;
-		}
-	}
-
-	public void setScoreHistoryDep(boolean scoreHistoryDep) {
-		this.scoreHistoryDep = scoreHistoryDep;
-	}
-
 	public boolean isScoreByBothPass() {
 		return scoreByBothPass;
 	}
@@ -90,43 +74,106 @@ public class SearchLevel {
 	private int tempBestScore = Constant.UNKOWN;
 
 	/**
-	 * whether current state may reach duplicate states (blocked); record them
-	 * for future knowledge.
+	 * whether current state may directly reach duplicate states (blocked);
+	 * record them for future knowledge.
 	 */
 	private boolean reachingDup = false;
-	private Set<BoardColorState> dupStates = null;
+	/**
+	 * if reachingDup = false; indirect dup. states are collected in
+	 * inDirectDupStates;
+	 */
+	private Set<BoardColorState> indirectDupStates = null;
+
+	/**
+	 * directDupState saves directly reaching duplicate states if reachingDup =
+	 * true;
+	 */
+	private Set<BoardColorState> directDupStates = null;
+
+	/**
+	 * it save directly reaching duplicate states if reachingDup = true;
+	 * otherwise, it just collects
+	 */
+	// private BoardColorState directDupState = null;
 
 	public boolean isReachingDup() {
 		return reachingDup;
+	}
+
+	public boolean isReachingDupIndirectly() {
+		return this.indirectDupStates != null
+				&& this.indirectDupStates.isEmpty() == false;
 	}
 
 	public void setReachingDup(boolean reachDup) {
 		this.reachingDup = reachDup;
 	}
 
-	public Set<BoardColorState> getDupStates() {
-		return dupStates;
+	public Set<BoardColorState> getDirectDupStates() {
+		return this.directDupStates;
 	}
 
-	public BoardColorState getDupState() {
-		if (this.reachingDup == false)
+	/**
+	 * we can reuse history dependent state only if there is only one state.
+	 * 
+	 * @return
+	 */
+	public BoardColorState getUniqueDupState() {
+		Set<BoardColorState> dupStates = this.getAllDupStates();
+		if (dupStates.size() != 1)
 			return null;
-		return dupStates.iterator().next();
+		else
+			return dupStates.iterator().next();
 	}
 
-	public void addDupState(BoardColorState dupState) {
-		if (dupStates == null) { // lazy!
-			dupStates = new HashSet<BoardColorState>();
+	public void addDirectDupState(BoardColorState dupState) {
+		if (directDupStates == null) { // lazy!
+			directDupStates = new HashSet<BoardColorState>();
 		}
-		this.dupStates.add(dupState);
+		this.directDupStates.add(dupState);
 		this.reachingDup = true;
 	}
-	public void addDupStates(Set<BoardColorState> dupStates) {
-		if (dupStates == null) { // lazy!
-			dupStates = new HashSet<BoardColorState>();
+
+	/**
+	 * just collecting those data, we will not reuse history dependent state if
+	 * it depends on more than one state
+	 * 
+	 * @param dupStates
+	 */
+	public void addDirectDupStates(Set<BoardColorState> dupStates) {
+		if (this.directDupStates == null) { // lazy!
+			this.directDupStates = new HashSet<BoardColorState>();
 		}
-		this.dupStates.addAll(dupStates);
-		this.reachingDup = true;
+		this.directDupStates.addAll(dupStates);
+	}
+
+	public void addIndirectDupStates(Set<BoardColorState> dupStates) {
+		if (this.indirectDupStates == null) { // lazy!
+			this.indirectDupStates = new HashSet<BoardColorState>();
+		}
+		this.indirectDupStates.addAll(dupStates);
+	}
+
+	public void addIndirectDupStates(BoardColorState dupState) {
+		if (this.indirectDupStates == null) { // lazy!
+			this.indirectDupStates = new HashSet<BoardColorState>();
+		}
+		this.indirectDupStates.add(dupState);
+	}
+
+	public Set<BoardColorState> getIndirectDupStates() {
+		return this.indirectDupStates;
+	}
+
+	public Set<BoardColorState> getAllDupStates() {
+		Set<BoardColorState> states = new HashSet<BoardColorState>();
+		if (this.reachingDup) {
+			states.addAll(this.directDupStates);
+		} else if (this.indirectDupStates != null
+				&& indirectDupStates.isEmpty() == false) {
+			states.addAll(this.indirectDupStates);
+		}
+		return states;
 	}
 
 	public SearchLevel(int levelIndex, int whoseTurn, Step prevStep) {
@@ -151,8 +198,8 @@ public class SearchLevel {
 	 * @return
 	 */
 	public boolean alreadyWin() {
-		if (isInitialized() == false)
-			return false;
+		// if (isInitialized() == false)
+		// return false;
 		if (this.tempBestScore == Constant.UNKOWN)
 			return false;
 		if (max) {
@@ -165,6 +212,16 @@ public class SearchLevel {
 				unknownChild = false;
 				return true;
 			}
+		}
+		return false;
+	}
+
+	public boolean alreadyLose() {
+		if (this.isInitialized() ){
+			if(this.iterator.hasNext() == false) return true;
+		}else{
+			//TODO: may remove tempScore
+			
 		}
 		return false;
 	}
@@ -285,13 +342,13 @@ public class SearchLevel {
 	 */
 	public SearchLevel updateWithFuzzyScore(ScopeScore score) {
 		// score maybe still initial, e.g. unknown score due to limit.
-//		if (score.isInit())
-//			return this;
-//		boolean win = false;
+		// if (score.isInit())
+		// return this;
+		// boolean win = false;
 		assert this.alreadyWin() == false;
-//		if (score.isInit()) {
-//			throw new RuntimeException("is init");
-//		}
+		// if (score.isInit()) {
+		// throw new RuntimeException("is init");
+		// }
 		if (score.isExact()) {
 			if (max) {
 				if (score.getLow() > this.tempBestScore) {

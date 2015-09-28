@@ -279,6 +279,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 				// + entry.getValue());
 
 			}
+			this.logHistoryDepStateReached();
 			String fileName = Constant.DYNAMIC_DATA
 					+ "small_board/three_three/decided/" + "all_state.sgf";
 			SGFGoManual.storeGoManual(fileName, manuals);
@@ -456,6 +457,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			score = goS.globalSearch();
 			state.setVariant(goS.getSearchProcess().size());
 			goS.logStateReached();
+			goS.logHistoryDepStateReached();
 			goS.outputSearchStatistics();
 			if (score >= high) {
 				if (state.isBlackTurn()) {

@@ -23,8 +23,11 @@ public class VerifyTwoTwo extends TestCase {
 		String value = "log4j_error.xml";
 		System.setProperty(key, value);
 		Logger.getLogger(TwoTwoBoardSearch.class).setLevel(Level.WARN);
-		Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
-		//Logger.getLogger(GoBoardForward.class).setLevel(Level.WARN);
+//		Logger.getLogger(GoBoardSearch.class).setLevel(Level.DEBUG);
+		Logger.getLogger("search.state.apply").setLevel(Level.DEBUG);
+		Logger.getLogger("search.state.add").setLevel(Level.DEBUG);
+		Logger.getLogger("search.termial.state.add").setLevel(Level.DEBUG);
+		//Logger.getLogger("search.statistic").setLevel(Level.WARN);
 	}
 
 	public void testInitState() {
@@ -54,12 +57,12 @@ public class VerifyTwoTwo extends TestCase {
 		int score_whiteTurn = TwoTwoBoardSearch.getAccurateScore(stateB);
 		assertEquals(-1, score_whiteTurn);
 
-		System.out.println("with expScore = 4");
-		score_whiteTurn = TwoTwoBoardSearch.getAccurateScore(stateB, 4);
-		assertEquals(-1, score_whiteTurn);
-		
-		System.out.println("with expScore = -4");
-		score_whiteTurn = TwoTwoBoardSearch.getAccurateScore(stateB, -4);
-		assertEquals(-1, score_whiteTurn);
+//		System.out.println("with expScore = 4");
+//		score_whiteTurn = TwoTwoBoardSearch.getAccurateScore(stateB, 4);
+//		assertEquals(-1, score_whiteTurn);
+//		
+//		System.out.println("with expScore = -4");
+//		score_whiteTurn = TwoTwoBoardSearch.getAccurateScore(stateB, -4);
+//		assertEquals(-1, score_whiteTurn);
 	}
 }

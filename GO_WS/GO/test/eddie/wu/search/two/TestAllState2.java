@@ -754,17 +754,17 @@ public class TestAllState2 extends TestCase {
 		text[0] = new String("[B, _]");
 		text[1] = new String("[_, W]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		
+
 		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
-		
+
 		GoBoardSearch goS = new TwoTwoBoardSearch(boardState, 4);
 		int score = goS.globalSearch();
-		if(log.isInfoEnabled()){
+		if (log.isInfoEnabled()) {
 			log.info(boardState.getStateString());
 			log.warn("Score=" + score);
-		}			
+		}
 		assertEquals(1, score);
-		
+
 		if (log.isInfoEnabled()) {
 			log.info("");
 			log.info("Independent: " + goS.getStateReached().size());
@@ -779,9 +779,13 @@ public class TestAllState2 extends TestCase {
 			for (Entry<BoardColorState, HistoryDepScore> entry : goS
 					.getStateHisDepReached().entrySet()) {
 				log.info(entry.getKey());
-				log.info(entry.getValue() + " depends on: ");
-				log.info(entry.getValue().getState());
-				log.info("");
+
+				for (Entry<BoardColorState, ScopeScore> entry2 : entry
+						.getValue().getMap().entrySet()) {
+					log.info(entry2.getValue() + " depends on: ");
+					log.info(entry2.getKey());
+					log.info("");
+				}
 			}
 		}
 	}
