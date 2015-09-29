@@ -72,7 +72,7 @@ public class SearchLevel {
 	 * at level 0, node is a special root node;
 	 */
 	private SearchNode node;
-	
+
 	/**
 	 * 当前层临时的未初始化的计算结果
 	 */
@@ -100,7 +100,8 @@ public class SearchLevel {
 	}
 
 	public boolean isReachingDupIndirectly() {
-		return this.indirectDupStates != null && this.indirectDupStates.isEmpty() == false;
+		return this.indirectDupStates != null
+				&& this.indirectDupStates.isEmpty() == false;
 	}
 
 	public void setReachingDup(boolean reachDup) {
@@ -167,7 +168,8 @@ public class SearchLevel {
 		Set<BoardColorState> states = new HashSet<BoardColorState>();
 		if (this.reachingDup) {
 			states.addAll(this.directDupStates);
-		} else if (this.indirectDupStates != null && indirectDupStates.isEmpty() == false) {
+		} else if (this.indirectDupStates != null
+				&& indirectDupStates.isEmpty() == false) {
 			states.addAll(this.indirectDupStates);
 		}
 		return states;
@@ -243,9 +245,6 @@ public class SearchLevel {
 		return max;
 	}
 
-	
-	
-
 	public int getWhoseTurn() {
 		return whoseTurn;
 	}
@@ -258,15 +257,15 @@ public class SearchLevel {
 		return expScore;
 	}
 
-	/**
-	 * 在展开中的level的某个候选点的分数已知。
-	 * 
-	 * @param score
-	 */
-	public void getNeighborScore(int score, boolean bothPass) {
-		updateWithScore(score, bothPass);
-
-	}
+//	/**
+//	 * 在展开中的level的某个候选点的分数已知。
+//	 * 
+//	 * @param score
+//	 */
+//	public void getNeighborScore(int score, boolean bothPass) {
+//		updateWithScore(score, bothPass);
+//
+//	}
 
 	/**
 	 * 
@@ -400,7 +399,7 @@ public class SearchLevel {
 	}
 
 	public void setCandidates(List<Candidate> candidates) {
-		//need a safe copy!
+		// need a safe copy!
 		this.candidates = new ArrayList<Candidate>();
 		this.candidates.addAll(candidates);
 		iterator = candidates.iterator();
@@ -409,8 +408,6 @@ public class SearchLevel {
 	public void setExpScore(int highestExp) {
 		this.expScore = highestExp;
 	}
-
-	
 
 	/**
 	 * 从上一个状态(level), max 即黑方下, min即白方下; max指的是取所有候选点的max.
@@ -426,13 +423,23 @@ public class SearchLevel {
 	@Override
 	public String toString() {
 		if (max)
-			return "Level [level=" + levelIndex + ", color=" + ColorUtil.getColorText(whoseTurn) + ", whoseTurn="
-					+ this.getWhoseTurnString() + ",  highestExp=" + expScore + ", tempBestScore=" + tempBestScore
-					+ "]";
+			return "Level [level=" + levelIndex + ", color="
+					+ ColorUtil.getColorText(whoseTurn) + ", whoseTurn="
+					+ this.getWhoseTurnString() + ",  highestExp=" + expScore
+					+ ", tempBestScore=" + tempBestScore + "]";
 		else
-			return "Level [level=" + levelIndex + ", whoseTurn=" + this.getWhoseTurnString() + ", lowestExp=" + expScore
+			return "Level [level=" + levelIndex + ", whoseTurn="
+					+ this.getWhoseTurnString() + ", lowestExp=" + expScore
 					+ ", tempBestScore=" + tempBestScore + "]";
 
+	}
+
+	public String getExpScoreAsString() {
+		if (max) {
+			return getExpScore() + "[Up]";
+		} else {
+			return getExpScore() + "[Down]";
+		}
 	}
 
 	public String getWhoseTurnString() {
