@@ -27,6 +27,7 @@ public class VerifyTwoTwo extends TestCase {
 		Logger.getLogger("search.state.apply").setLevel(Level.DEBUG);
 		Logger.getLogger("search.state.add").setLevel(Level.DEBUG);
 		Logger.getLogger("search.termial.state.add").setLevel(Level.DEBUG);
+		Logger.getLogger("search.process").setLevel(Level.DEBUG);
 		//Logger.getLogger("search.statistic").setLevel(Level.WARN);
 	}
 

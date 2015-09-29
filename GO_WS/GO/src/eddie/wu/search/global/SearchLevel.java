@@ -44,7 +44,7 @@ public class SearchLevel {
 	private boolean max;
 
 	/**
-	 * TODO: highExp is needed only for root=max<br/>
+	 * expScore + max/min means the criteria for win/lose<br/>
 	 */
 	private int expScore;// for max
 
@@ -52,6 +52,12 @@ public class SearchLevel {
 	 * whether the score is achieved by both pass!
 	 */
 	private boolean scoreByBothPass;
+
+	/**
+	 * true when the state is terminal one, or reaching depth limit, or with
+	 * known score from reused state. it need not to expansion by candidates.
+	 */
+	boolean noExpansion;
 
 	public boolean isScoreByBothPass() {
 		return scoreByBothPass;
@@ -66,10 +72,9 @@ public class SearchLevel {
 	 * at level 0, node is a special root node;
 	 */
 	private SearchNode node;
-
-	// private int numberOfCandidate = 0;
+	
 	/**
-	 * 当前层临时的计算结果
+	 * 当前层临时的未初始化的计算结果
 	 */
 	private int tempBestScore = Constant.UNKOWN;
 
@@ -90,19 +95,12 @@ public class SearchLevel {
 	 */
 	private Set<BoardColorState> directDupStates = null;
 
-	/**
-	 * it save directly reaching duplicate states if reachingDup = true;
-	 * otherwise, it just collects
-	 */
-	// private BoardColorState directDupState = null;
-
 	public boolean isReachingDup() {
 		return reachingDup;
 	}
 
 	public boolean isReachingDupIndirectly() {
-		return this.indirectDupStates != null
-				&& this.indirectDupStates.isEmpty() == false;
+		return this.indirectDupStates != null && this.indirectDupStates.isEmpty() == false;
 	}
 
 	public void setReachingDup(boolean reachDup) {
@@ -169,8 +167,7 @@ public class SearchLevel {
 		Set<BoardColorState> states = new HashSet<BoardColorState>();
 		if (this.reachingDup) {
 			states.addAll(this.directDupStates);
-		} else if (this.indirectDupStates != null
-				&& indirectDupStates.isEmpty() == false) {
+		} else if (this.indirectDupStates != null && indirectDupStates.isEmpty() == false) {
 			states.addAll(this.indirectDupStates);
 		}
 		return states;
@@ -191,17 +188,11 @@ public class SearchLevel {
 	}
 
 	/**
-	 * means no need to consider the neighbors.
-	 * 在当前局面下，前面的选择已经达到最佳效果，没有必要考虑其他的候选棋步了。<br/>
-	 * 现在要求对称的计分系统。<br/>
+	 * called if score is initialized.
 	 * 
 	 * @return
 	 */
-	public boolean alreadyWin() {
-		// if (isInitialized() == false)
-		// return false;
-		if (this.tempBestScore == Constant.UNKOWN)
-			return false;
+	public boolean alreadyWin_() {
 		if (max) {
 			if (this.tempBestScore >= this.expScore) {
 				unknownChild = false;// win overwrite unknown child
@@ -209,35 +200,51 @@ public class SearchLevel {
 			}
 		} else {
 			if (this.tempBestScore <= this.expScore) {
-				unknownChild = false;
+				unknownChild = false;// win overwrite unknown child
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public boolean alreadyLose() {
-		if (this.isInitialized() ){
-			if(this.iterator.hasNext() == false) return true;
-		}else{
-			//TODO: may remove tempScore
-			
+	/**
+	 * means no need to consider the neighbors.
+	 * 在当前局面下，前面的选择已经达到最佳效果，没有必要考虑其他的候选棋步了。<br/>
+	 * 现在要求对称的计分系统。<br/>
+	 * 
+	 * @return
+	 */
+	public boolean alreadyWin() {
+		if (this.tempBestScore == Constant.UNKOWN)
+			return false;
+		return this.alreadyWin_();
+	}
+
+	public boolean exhausted() {
+		if (this.noExpansion == true) {
+			return true;
+		} else {
+			if (this.isInitialized()) {
+				if (this.iterator.hasNext()) {
+					return false;
+				} else {
+					return true;
+				}
+			} else {
+				// TODO: may remove tempScore
+				// impossible
+				throw new RuntimeException("not init!");
+			}
 		}
-		return false;
+
 	}
 
 	public boolean isMax() {
 		return max;
 	}
 
-	/**
-	 * 下一层的结果已知，反馈给上一层。
-	 * 
-	 * @param score
-	 */
-	public void getChildScore(int score) {
-		updateWithScore(score);
-	}
+	
+	
 
 	public int getWhoseTurn() {
 		return whoseTurn;
@@ -274,6 +281,8 @@ public class SearchLevel {
 	}
 
 	public String getAllCanPoint() {
+		if (candidates == null)
+			return "no candidates";
 		StringBuilder sb = new StringBuilder();
 		for (Candidate can : candidates) {
 			sb.append(can.getStep().toNonSGFString());
@@ -285,6 +294,8 @@ public class SearchLevel {
 	 * 该层包含的局面数
 	 */
 	public int getNumberOfCandidate() {
+		if (candidates == null)
+			return 0;
 		return candidates.size();
 	}
 
@@ -301,7 +312,11 @@ public class SearchLevel {
 	// private boolean maxFirst;//做活方先手提劫。
 	// private int firstSuperiorScore;//先手提劫方劫材有利的结果
 	// private int firstInteriorScore;//先手提劫方劫材不利的结果
-	// private
+	/**
+	 * 下一层的结果已知，反馈给上一层。
+	 * 
+	 * @param score
+	 */
 	public void updateWithScore(int score) {
 		updateWithScore(score, false);
 	}
@@ -385,6 +400,7 @@ public class SearchLevel {
 	}
 
 	public void setCandidates(List<Candidate> candidates) {
+		//need a safe copy!
 		this.candidates = new ArrayList<Candidate>();
 		this.candidates.addAll(candidates);
 		iterator = candidates.iterator();
@@ -394,9 +410,7 @@ public class SearchLevel {
 		this.expScore = highestExp;
 	}
 
-	public static boolean unknownScore(int score) {
-		return score == Integer.MAX_VALUE || score == Integer.MIN_VALUE + 1;
-	}
+	
 
 	/**
 	 * 从上一个状态(level), max 即黑方下, min即白方下; max指的是取所有候选点的max.
@@ -412,13 +426,11 @@ public class SearchLevel {
 	@Override
 	public String toString() {
 		if (max)
-			return "Level [level=" + levelIndex + ", color="
-					+ ColorUtil.getColorText(whoseTurn) + ", whoseTurn="
-					+ this.getWhoseTurnString() + ",  highestExp=" + expScore
-					+ ", tempBestScore=" + tempBestScore + "]";
+			return "Level [level=" + levelIndex + ", color=" + ColorUtil.getColorText(whoseTurn) + ", whoseTurn="
+					+ this.getWhoseTurnString() + ",  highestExp=" + expScore + ", tempBestScore=" + tempBestScore
+					+ "]";
 		else
-			return "Level [level=" + levelIndex + ", whoseTurn="
-					+ this.getWhoseTurnString() + ", lowestExp=" + expScore
+			return "Level [level=" + levelIndex + ", whoseTurn=" + this.getWhoseTurnString() + ", lowestExp=" + expScore
 					+ ", tempBestScore=" + tempBestScore + "]";
 
 	}
