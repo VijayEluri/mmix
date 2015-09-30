@@ -6,6 +6,13 @@ import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 
 public class BoardColorComparator implements Comparator<BoardColorState> {
+	/**
+	 * normalize state.<br/>
+	 * 1. black first if two color exist at the same time<br/>
+	 * 2. less black stone is better<br/>
+	 * 3. in tie, lower coordinate is better<br/>
+	 * 4. other wise check white stone.
+	 */
 	@Override
 	public int compare(BoardColorState o1, BoardColorState o2) {
 		if (o1.getWhoseTurn() != o2.getWhoseTurn()) {

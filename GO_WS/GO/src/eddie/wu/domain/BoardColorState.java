@@ -100,8 +100,7 @@ public class BoardColorState {
 
 		// log.debug("shoushu: " + expected.getShoushu() + "v.s."
 		// + actual.getShoushu());
-		log.debug("whoseturn: " + expected.whoseTurn + " v.s. "
-				+ actual.whoseTurn);
+		log.debug("whoseturn: " + expected.whoseTurn + " v.s. " + actual.whoseTurn);
 
 	}
 
@@ -203,8 +202,7 @@ public class BoardColorState {
 	 * @return
 	 */
 	public BoardColorState blackWhiteSwitch() {
-		BoardColorState state = new BoardColorState(this.boardSize,
-				ColorUtil.enemyColor(this.whoseTurn));
+		BoardColorState state = new BoardColorState(this.boardSize, ColorUtil.enemyColor(this.whoseTurn));
 		state.black = (BitSet) this.white.clone();
 		state.white = (BitSet) this.black.clone();
 		state.blackStones = this.whiteStones;
@@ -221,20 +219,17 @@ public class BoardColorState {
 			return false;
 		}
 		BoardColorState boardState = (BoardColorState) object;
-		if (boardState.blackStones != blackStones
-				|| boardState.whiteStones != whiteStones) {
+		if (boardState.blackStones != blackStones || boardState.whiteStones != whiteStones) {
 			return false;
 		} else if (boardState.whoseTurn != whoseTurn) {
 			// to accommodate the case we do not know whose Turn.
 			if (whoseTurn == -1 || boardState.whoseTurn == -1) {
-				return this.black.equals(boardState.black)
-						&& this.white.equals(boardState.white);
+				return this.black.equals(boardState.black) && this.white.equals(boardState.white);
 			} else {
 				return false;
 			}
 		} else {
-			return this.black.equals(boardState.black)
-					&& this.white.equals(boardState.white);
+			return this.black.equals(boardState.black) && this.white.equals(boardState.white);
 		}
 
 	}
@@ -251,8 +246,7 @@ public class BoardColorState {
 
 		for (int row = 1; row <= boardSize; row++) {
 			for (int column = 1; column < boardSize + 1 - row; column++) {
-				if (getColor(boardSize + 1 - column, boardSize + 1 - row) != getColor(
-						row, column)) {
+				if (getColor(boardSize + 1 - column, boardSize + 1 - row) != getColor(row, column)) {
 					return false;
 
 				}
@@ -330,8 +324,7 @@ public class BoardColorState {
 	}
 
 	public BoardColorState getCopy() {
-		BoardColorState state = new BoardColorState(this.boardSize,
-				ColorUtil.enemyColor(this.whoseTurn));
+		BoardColorState state = new BoardColorState(this.boardSize, ColorUtil.enemyColor(this.whoseTurn));
 		state.black = (BitSet) this.black.clone();
 		state.white = (BitSet) this.white.clone();
 		state.blackStones = this.blackStones;
@@ -453,8 +446,7 @@ public class BoardColorState {
 	 * @return
 	 */
 	public BoardColorState getReverseTurnCopy() {
-		BoardColorState state = new BoardColorState(this.boardSize,
-				ColorUtil.enemyColor(this.whoseTurn));
+		BoardColorState state = new BoardColorState(this.boardSize, ColorUtil.enemyColor(this.whoseTurn));
 		state.black = (BitSet) this.black.clone();// ?
 		state.white = (BitSet) this.white.clone();
 		state.blackStones = this.blackStones;
@@ -547,8 +539,7 @@ public class BoardColorState {
 		for (int i = 0; i < state.length; i++) {
 			// if(log.isDebugEnabled()) log.debug(Arrays.toString(state[i]));
 			if (i + 1 < 10) {
-				result.append("0" + (i + 1) + Arrays.toString(state[i]) + "0"
-						+ (1 + i));
+				result.append("0" + (i + 1) + Arrays.toString(state[i]) + "0" + (1 + i));
 				result.append(Constant.lineSeparator);
 			} else {
 				result.append((i + 1) + Arrays.toString(state[i]) + (i + 1));
@@ -682,8 +673,7 @@ public class BoardColorState {
 		for (byte i = 1; i <= boardSize; i++) {
 			for (byte j = 1; j <= boardSize; j++) {
 				if (board[i][j] == ColorUtil.BLACK) {
-					black.set(Point.getPoint(boardSize, i, j)
-							.getOneDimensionCoordinate());
+					black.set(Point.getPoint(boardSize, i, j).getOneDimensionCoordinate());
 					blackStones++;
 					blackRowColumnSum += (i + j);
 					rowColumnSum += (i + j);
@@ -691,8 +681,7 @@ public class BoardColorState {
 					rowSum += i;
 
 				} else if (board[i][j] == ColorUtil.WHITE) {
-					white.set(Point.getPoint(boardSize, i, j)
-							.getOneDimensionCoordinate());
+					white.set(Point.getPoint(boardSize, i, j).getOneDimensionCoordinate());
 					whiteStones++;
 					rowSum += i;
 					rowColumnSum += (i + j);
@@ -725,24 +714,17 @@ public class BoardColorState {
 		// BoardColorState backSlash = new BoardColorState(this.)
 		byte[][] originalState = getMatrixState();
 		byte[][] verticalMirror = GoBoardSymmetry.verticalMirror(originalState);
-		byte[][] horizontalMirror = GoBoardSymmetry
-				.horizontalMirror(originalState);
-		byte[][] horizontalVertical = GoBoardSymmetry
-				.horizontalMirror(verticalMirror);
+		byte[][] horizontalMirror = GoBoardSymmetry.horizontalMirror(originalState);
+		byte[][] horizontalVertical = GoBoardSymmetry.horizontalMirror(verticalMirror);
 		set.add(this);
 		set.add(BoardColorState.getInstance(verticalMirror, whoseTurn));
 		set.add(BoardColorState.getInstance(horizontalMirror, whoseTurn));
 		set.add(BoardColorState.getInstance(horizontalVertical, whoseTurn));
 
-		set.add(BoardColorState.getInstance(
-				GoBoardSymmetry.forwardSlashMirror(originalState), whoseTurn));
-		set.add(BoardColorState.getInstance(
-				GoBoardSymmetry.forwardSlashMirror(verticalMirror), whoseTurn));
-		set.add(BoardColorState.getInstance(
-				GoBoardSymmetry.forwardSlashMirror(horizontalMirror), whoseTurn));
-		set.add(BoardColorState.getInstance(
-				GoBoardSymmetry.forwardSlashMirror(horizontalVertical),
-				whoseTurn));
+		set.add(BoardColorState.getInstance(GoBoardSymmetry.forwardSlashMirror(originalState), whoseTurn));
+		set.add(BoardColorState.getInstance(GoBoardSymmetry.forwardSlashMirror(verticalMirror), whoseTurn));
+		set.add(BoardColorState.getInstance(GoBoardSymmetry.forwardSlashMirror(horizontalMirror), whoseTurn));
+		set.add(BoardColorState.getInstance(GoBoardSymmetry.forwardSlashMirror(horizontalVertical), whoseTurn));
 		list.addAll(set);
 		if (log.isInfoEnabled()) {
 			for (BoardColorState state2 : list) {
@@ -766,6 +748,63 @@ public class BoardColorState {
 		// Collections.sort(list, new BoardColorStateComparator());
 
 		return list.get(0);
+	}
+
+	public static SymmetryResult getSymmetryOper(BoardColorState normal, BoardColorState original) {
+		assert normal.getWhoseTurn() == original.getWhoseTurn();
+
+		byte[][] originalState = original.getMatrixState();
+		byte[][] verticalMirror = GoBoardSymmetry.verticalMirror(originalState);
+		byte[][] horizontalMirror = GoBoardSymmetry.horizontalMirror(originalState);
+		byte[][] horizontalVertical = GoBoardSymmetry.horizontalMirror(verticalMirror);
+		int whoseTurn = original.getWhoseTurn();
+		SymmetryResult sym = new SymmetryResult();
+		if (normal.equals(original)) {
+			// no thing to do.
+		} else if (normal.equals(BoardColorState.getInstance(verticalMirror, whoseTurn))) {
+			sym.setVerticalSymmetry(true);
+		} else if (normal.equals(BoardColorState.getInstance(horizontalMirror, whoseTurn))) {
+			sym.setHorizontalSymmetry(true);
+		} else if (normal.equals(BoardColorState.getInstance(horizontalVertical, whoseTurn))) {
+			sym.setVerticalSymmetry(true);
+			sym.setHorizontalSymmetry(true);
+		} else if (normal
+				.equals(BoardColorState.getInstance(GoBoardSymmetry.forwardSlashMirror(originalState), whoseTurn))) {
+			sym.setForwardSlashSymmetry(true);
+		} else if (normal
+				.equals(BoardColorState.getInstance(GoBoardSymmetry.forwardSlashMirror(verticalMirror), whoseTurn))) {
+			sym.setForwardSlashSymmetry(true);
+			sym.setVerticalSymmetry(true);
+		} else if (normal
+				.equals(BoardColorState.getInstance(GoBoardSymmetry.forwardSlashMirror(horizontalMirror), whoseTurn))) {
+			sym.setForwardSlashSymmetry(true);
+			sym.setHorizontalSymmetry(true);
+		} else if (normal.equals(
+				BoardColorState.getInstance(GoBoardSymmetry.forwardSlashMirror(horizontalVertical), whoseTurn))) {
+			sym.setForwardSlashSymmetry(true);
+			sym.setVerticalSymmetry(true);
+			sym.setHorizontalSymmetry(true);
+		}
+		return sym;
+	}
+	
+	public BoardColorState convert(SymmetryResult operation){
+		if(operation.getNumberOfSymmetry()==0) return this;
+		byte[][] res = this.getMatrixState();;
+		int whoseTurn = this.getWhoseTurn();
+		if (operation.isBackwardSlashSymmetry()) {
+			res = GoBoardSymmetry.backwardSlashMirror(res);
+		}
+		if (operation.isForwardSlashSymmetry()) {			
+			res = GoBoardSymmetry.forwardSlashMirror(res);
+		}
+		if (operation.isHorizontalSymmetry()) {
+			res = GoBoardSymmetry.horizontalMirror(res);
+		}
+		if (operation.isVerticalSymmetry()) {
+			res = GoBoardSymmetry.verticalMirror(res);
+		}
+		return BoardColorState.getInstance(res, whoseTurn);
 	}
 
 	public void output() {
@@ -938,8 +977,7 @@ public class BoardColorState {
 		int middleLine = (boardSize + 2) / 2;
 		for (int row = 1; row <= boardSize; row++) {
 			for (int column = 1; column < middleLine; column++) {
-				if (getColor(row, column) != getColor(row, boardSize + 1
-						- column)) {
+				if (getColor(row, column) != getColor(row, boardSize + 1 - column)) {
 					return false;
 				}
 			}

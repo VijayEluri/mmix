@@ -6,22 +6,21 @@
  */
 package eddie.wu;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import eddie.wu.arrayblock.TestArrayGoBoardExternally;
 import eddie.wu.domain.GoBoard;
+import eddie.wu.domain.TestBoardColorState;
 import eddie.wu.linkedblock.TestBlock;
 import eddie.wu.linkedblock.TestBoardPoint;
-import eddie.wu.linkedblock.TestBoardColorState;
 import eddie.wu.linkedblock.TestColorUtil;
 import eddie.wu.linkedblock.TestGoBoardInternally;
 import eddie.wu.linkedblock.TestLoadGoManual;
 import eddie.wu.linkedblock.TestPoint;
 import eddie.wu.other.TestLog4j;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * @author eddie only the class in linkedblock package are well tested. TODO To
