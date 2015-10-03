@@ -27,24 +27,7 @@ public class TestAllState3 extends TestCase {
 	private static Logger log = Logger.getLogger(TestAllState3.class);
 	private static String manualFolder = Constant.DYNAMIC_DATA
 			+ "small_board/three_three/";
-	static {
-		Constant.INTERNAL_CHECK = false;
-		String key = LogManager.DEFAULT_CONFIGURATION_KEY;
-		String value = "log4j.xml";
-		System.setProperty(key, value);
-		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.ERROR);
-		//Logger.getLogger(GoBoardSearch.class).setLevel(Level.INFO);
-		Logger.getLogger(GoBoardForward.class).setLevel(Level.ERROR);
-//		Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.INFO);
-		Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.INFO);
-		Logger.getLogger(TestAllState3.class).setLevel(Level.WARN);
-		Logger.getLogger("search.terminal.state.add").setLevel(Level.WARN);
-		Logger.getLogger("search.state.apply").setLevel(Level.DEBUG);
-		Logger.getLogger("search.state.add").setLevel(Level.DEBUG);
-		// Logger.getLogger(ThreeThreeBoardSearch.class).setLevel(Level.WARN);
-		// Logger.getLogger(GoBoardSearch.class).setLevel(Level.WARN);
-		// Logger.getLogger(GoBoardForward.class).setLevel(Level.WARN);
-	}
+	
 
 	public void testState_init() {
 		String[] text = new String[3];
@@ -648,7 +631,7 @@ public class TestAllState3 extends TestCase {
 		goS.setDepth(depth);
 		goS.setTillBothPass(tillBothPass);
 		score = this.testSearch_internal(goS);
-		assertTrue(score != Constant.UNKOWN);
+		assertTrue(score != Constant.UNKNOWN);
 		assertEquals(originalExp, score);
 
 	}
@@ -658,7 +641,7 @@ public class TestAllState3 extends TestCase {
 		try {
 			score = goS.globalSearch();
 		} catch (Exception e) {
-
+			throw e;
 		}
 		String name = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
@@ -680,7 +663,7 @@ public class TestAllState3 extends TestCase {
 			log.warn(goS.getGoBoard().getInitColorState().getStateString());
 			log.warn("Score=" + score);
 			log.warn("searched " + goS.getSearchProcess().size());
-			goS.outputSearchStatistics(log);
+			goS.outputSearchStatistics();
 			TreeGoManual manual = goS.getTreeGoManual();
 			log.warn("Most Expensive path: ");
 			log.warn(Constant.lineSeparator + manual.getMostExpPath());

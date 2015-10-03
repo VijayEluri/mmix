@@ -230,7 +230,7 @@ public class BigEyeLiveSearch extends GoBoardSearch {
 		// ts.setTerminalState(false);
 		// }
 		int score = this.getScore();
-		if (score != Constant.UNKOWN) {
+		if (score != Constant.UNKNOWN) {
 			ts.setTerminalState(true);
 			ts.setScore(this.getScore());
 		} else {
@@ -297,7 +297,7 @@ public class BigEyeLiveSearch extends GoBoardSearch {
 
 		if (goBoard.noStep() == false && goBoard.getLastStep().isPass()) {
 			if (this.targetColor == goBoard.getLastStep().getColor()) {
-				return Constant.UNKOWN;// only means without two eyes.
+				return Constant.UNKNOWN;// only means without two eyes.
 			}
 		}
 
@@ -377,7 +377,7 @@ public class BigEyeLiveSearch extends GoBoardSearch {
 		}
 		// is there enough potential to live.
 
-		return Constant.UNKOWN;// 仍是未定状态。
+		return Constant.UNKNOWN;// 仍是未定状态。
 	}
 
 	/**

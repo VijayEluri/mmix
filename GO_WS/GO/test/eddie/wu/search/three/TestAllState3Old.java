@@ -3,20 +3,17 @@ package eddie.wu.search.three;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import eddie.wu.domain.Block;
 import eddie.wu.domain.Constant;
-import eddie.wu.domain.GoBoardForward;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
-import eddie.wu.domain.analy.SurviveAnalysis;
 import eddie.wu.domain.analy.SmallGoBoard;
+import eddie.wu.domain.analy.SurviveAnalysis;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.GoBoardSearch;
@@ -24,18 +21,7 @@ import eddie.wu.search.small.ThreeThreeBoardSearch;
 
 public class TestAllState3Old extends TestCase {
 	private static Logger log = Logger.getLogger(Block.class);
-	static {
-		Constant.INTERNAL_CHECK = false;
-		String key = LogManager.DEFAULT_CONFIGURATION_KEY;
-		String value = "log4j_error.xml";
-//		System.setProperty(key, value);
-		Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
-		Logger.getLogger(SmallGoBoard.class).setLevel(Level.INFO);
-//		Logger.getLogger(GoBoardSearch.class).setLevel(Level.ERROR);
-//		Logger.getLogger(GoBoardForward.class).setLevel(Level.ERROR);
-		
-		Logger.getLogger(GoBoardSearch.class).setLevel(Level.DEBUG);
-	}
+	
 
 	public void testState_init() {
 		String[] text = new String[3];

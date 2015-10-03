@@ -23,11 +23,7 @@ import junit.framework.TestCase;
  */
 public class TestAllState3Colive extends TestCase {
 	private static Logger log = Logger.getLogger(TestAllState3Colive.class);
-	static {
-		Constant.INTERNAL_CHECK = false;
-		// Logger.getLogger(SurviveAnalysis.class).setLevel(Level.INFO);
-		log.setLevel(Level.WARN);
-	}
+	
 
 	public void testState_specialColive1() {
 		String[] text = new String[3];
@@ -44,7 +40,7 @@ public class TestAllState3Colive extends TestCase {
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(Level.WARN)) {
 			log.warn("Score=" + score);
-			goS.outputSearchStatistics(log);
+			goS.outputSearchStatistics();
 		}
 		// assertEquals(1, score);
 	}
@@ -64,7 +60,7 @@ public class TestAllState3Colive extends TestCase {
 			log.warn(goS.getGoBoard().getInitColorState().toString());
 			log.warn("Score=" + score);
 		}
-		goS.outputSearchStatistics(log);
+		goS.outputSearchStatistics();
 		assertEquals(4, score);
 	}
 
@@ -125,7 +121,7 @@ public class TestAllState3Colive extends TestCase {
 		if (log.isEnabledFor(Level.WARN))
 			log.warn("Score=" + score);
 		assertEquals(4, score);
-		goS.outputSearchStatistics(log);
+		goS.outputSearchStatistics();
 	}
 
 	public void testState_specialColive4() {
@@ -143,7 +139,7 @@ public class TestAllState3Colive extends TestCase {
 		if (log.isEnabledFor(Level.WARN))
 			log.warn("Score=" + score);
 		assertEquals(-3, score);
-		goS.outputSearchStatistics(log);
+		goS.outputSearchStatistics();
 	}
 
 }

@@ -175,10 +175,10 @@ public class SmallGoBoard extends TerritoryAnalysis {
 			}
 		}
 		if (level.isReachingDup() && level.getDirectDupStates().size() > 1) {
-			this.errorState();
-			for (BoardColorState tempState : level.getDirectDupStates()) {
-				log.error(tempState.getStateString());
-			}
+//			this.errorState();
+//			for (BoardColorState tempState : level.getDirectDupStates()) {
+//				log.error(tempState.getStateString());
+//			}
 			// haven't think it over, should not be easy to encounter
 			// current state can reach more than one history state.
 			// throw new

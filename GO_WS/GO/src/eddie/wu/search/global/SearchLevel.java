@@ -68,7 +68,7 @@ public class SearchLevel {
 
 	/**
 	 * the node without play at current level's candidate <br/>
-	 * just played previous level's candidate/step to reach current level.<br/>
+	 * just played previous level's candidate/step (prevStep) to reach current level/state.<br/>
 	 * at level 0, node is a special root node;
 	 */
 	private SearchNode node;
@@ -76,7 +76,7 @@ public class SearchLevel {
 	/**
 	 * 当前层临时的未初始化的计算结果
 	 */
-	private int tempBestScore = Constant.UNKOWN;
+	private int tempBestScore = Constant.UNKNOWN;
 
 	/**
 	 * whether current state may directly reach duplicate states (blocked);
@@ -168,7 +168,8 @@ public class SearchLevel {
 		Set<BoardColorState> states = new HashSet<BoardColorState>();
 		if (this.reachingDup) {
 			states.addAll(this.directDupStates);
-		} else if (this.indirectDupStates != null
+		} //bug here: else
+		if (this.indirectDupStates != null
 				&& indirectDupStates.isEmpty() == false) {
 			states.addAll(this.indirectDupStates);
 		}
@@ -186,7 +187,7 @@ public class SearchLevel {
 	}
 
 	public boolean isPrevStepPass() {
-		return prevStep == null;
+		return prevStep != null && prevStep.isPass();
 	}
 
 	/**
@@ -217,7 +218,7 @@ public class SearchLevel {
 	 * @return
 	 */
 	public boolean alreadyWin() {
-		if (this.tempBestScore == Constant.UNKOWN)
+		if (this.tempBestScore == Constant.UNKNOWN)
 			return false;
 		return this.alreadyWin_();
 	}
@@ -325,11 +326,11 @@ public class SearchLevel {
 		// firstSuperiorScore = score;// = score / 2;
 		// }
 		// ignore unknown score and its branch
-		if (score == Constant.UNKOWN) {
+		if (score == Constant.UNKNOWN) {
 			unknownChild = true;
 			return;
 		}
-		if (this.tempBestScore == Constant.UNKOWN) {
+		if (this.tempBestScore == Constant.UNKNOWN) {
 			this.tempBestScore = score; // first achievable result.
 			this.scoreByBothPass = bothPass;
 		}
@@ -344,7 +345,7 @@ public class SearchLevel {
 				this.scoreByBothPass = bothPass;
 			}
 		}
-
+		
 	}
 
 	/**

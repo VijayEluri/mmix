@@ -17,10 +17,12 @@ import eddie.wu.domain.analy.SmallGoBoard;
 import eddie.wu.manual.ExpectScore;
 import eddie.wu.manual.SGFGoManual;
 import eddie.wu.manual.TreeGoManual;
+import eddie.wu.search.ScopeScore;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.GoBoardSearch;
 import eddie.wu.search.global.SearchLevel;
 import eddie.wu.search.global.TerminalState;
+import eddie.wu.search.global.VerifySearchResult;
 
 /**
  * 1. only for small board (3<=size<=?).<br/>
@@ -118,7 +120,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	}
 
 	@Override
-	protected void initCandidate(SearchLevel level, int color) {		
+	protected void initCandidate(SearchLevel level, int color) {
 		List<Candidate> candidates = goBoard.getCandidate(color, true);
 		level.setCandidates(candidates);
 	}
@@ -134,7 +136,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 
 	@Override
 	public SearchLevel getInitLevel() {
-		SearchLevel level = new SearchLevel(0, initTurn,null);
+		SearchLevel level = new SearchLevel(0, initTurn, null);
 		// level 0: all candidates of original state.
 		if (initTurn == Constant.BLACK) {
 			level.setMax(true);
@@ -232,75 +234,75 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	// }
 
 	public void outputSearchStatistics() {
-		outputSearchStatistics(logStatistic);
-	}
-
-	// protected TerminalState getTerminalState() {
-	// TerminalState ts = new TerminalState();
-	// // boolean state = goBoard.isFinalState(1);
-	// int state = goBoard.finalStateType();
-	// if (state <= 0) {
-	// ts.setTerminalState(false);
-	// } else {
-	// ts.setTerminalState(true);
-	// ts.setFinalResult(goBoard.finalResult(state));
-	// // ts.setScore(this)
-	// }
-	// return ts;
-	// }
-
-	// protected int getScore() {
-	// FinalResult finalResult = goBoard.finalResult();
-	// if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-	// log.warn(goBoard.getStateString().toString());
-	// log.warn(finalResult.toString());
-	// }
-	// return finalResult.getScore();
-	// }
-
-	public void outputSearchStatistics(Logger log) {
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN)) {
-			log.warn("Black expect: " + getMaxExp() + ", White expect:"
-					+ getMinExp());
-			log.warn("we calculate steps = " + countSteps);
-			long forwardMoves = goBoard.getForwardMoves();
-			log.warn("forwardMoves = " + forwardMoves);
-			long backwardMoves = goBoard.getBackwardMoves();
-			log.warn("backwardMoves = " + backwardMoves);
-			// because we will go back to initial state in the end of the
-			// search!
-			// TestCase.assertEquals(forwardMoves,backwardMoves);
-			log.warn("we know the result = " + terminalResults.size());
-			for (Entry<BoardColorState, Integer> entry : terminalResults
-					.entrySet()) {
-				if (entry.getKey().getWhoseTurn() == Constant.WHITE)
-					continue;
-				// log.warn(entry.getKey().getStateString() + " the score is = "
-				// + entry.getValue());
-
-			}
-			this.logHistoryDepStateReached();
-			String fileName = Constant.DYNAMIC_DATA
-					+ "small_board/three_three/decided/" + "all_state.sgf";
-			SGFGoManual.storeGoManual(fileName, manuals);
-
-			int count = getSearchProcess().size();
-			int bothPass = 0;
-			int exhaust = 0;
-			for (String list : getSearchProcess()) {
-				if (count < 200) {
-					log.warn(list);
-				}
-				if (list.endsWith(DB_PASS + ")")) {
-					bothPass++;
-				} else if (list.endsWith((EXHAUST + ")"))) {
-					exhaust++;
-				}
-			}
-
-			log.warn("searched path = " + getSearchProcess().size());
-			log.warn("Pure searched path = " + (count - exhaust));
+		{// ensure win/lose manual is ready!
+			TreeGoManual manual = getTreeGoManual();
+			int initScore = manual.initScore();
+			boolean maxWin = false;
+			if (initScore >= this.getMaxExp())
+				maxWin = true;
+			manual.cleanupBadMoveForWinner(maxWin);
+			manual.getMostExpManual().print(logStatistic);
 		}
+		if (logStatistic.isInfoEnabled() == false) {
+			return;
+		}
+		logStatistic.info("Black expect: " + getMaxExp() + ", White expect:"
+				+ getMinExp());
+		logStatistic.info("we calculate steps = " + countSteps);
+		long forwardMoves = goBoard.getForwardMoves();
+		logStatistic.info("forwardMoves = " + forwardMoves);
+		long backwardMoves = goBoard.getBackwardMoves();
+		logStatistic.info("backwardMoves = " + backwardMoves);
+		// because we will go back to initial state in the end of the
+		// search!
+		// TestCase.assertEquals(forwardMoves,backwardMoves);
+		logStatistic.info("we know the result = " + terminalResults.size());
+		for (Entry<BoardColorState, Integer> entry : terminalResults.entrySet()) {
+			if (entry.getKey().getWhoseTurn() == Constant.WHITE)
+				continue;
+			// logStatistic.info(entry.getKey().getStateString() +
+			// " the score is = "
+			// + entry.getValue());
+
+		}
+		this.logHistoryDepStateReached();
+		String fileName = Constant.DYNAMIC_DATA
+				+ "small_board/three_three/decided/" + "all_state.sgf";
+		SGFGoManual.storeGoManual(fileName, manuals);
+
+		int count = getSearchProcess().size();
+		int bothPass = 0;
+		int exhaust = 0;
+		for (String list : getSearchProcess()) {
+			if (count < 2000) {
+				logStatistic.info(list);
+			}
+			if (list.endsWith(DB_PASS + ")")) {
+				bothPass++;
+			} else if (list.endsWith((EXHAUST + ")"))) {
+				exhaust++;
+			}
+		}
+
+		logStatistic.info("searched path = " + getSearchProcess().size());
+		logStatistic.info("Pure searched path = " + (count - exhaust));
+
+		TreeGoManual manual = getTreeGoManual();
+		logStatistic.info("raw data: ");
+		logStatistic.info(manual.getSGFBodyString(false));
+		int initScore = manual.initScore();
+
+		logStatistic.info("Before Cleanup ");
+		logStatistic.info("Init score = " + initScore);
+		logStatistic.info(manual.getSGFBodyString(false));
+		boolean maxWin = false;
+		if (initScore >= this.getMaxExp())
+			maxWin = true;
+		manual.cleanupBadMoveForWinner(maxWin);
+		logStatistic.info("After Cleanup " + this.getExpScore());
+		logStatistic.info(manual.getSGFBodyString(false));
+		manual.getMostExpManual().print(logStatistic);
+
 	}
 
 	public void printKnownResult() {
@@ -400,17 +402,19 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 	 * utility method for better external use.
 	 * 
 	 * @param state
+	 * @param expScore
+	 *            is the estimation of right score, but not guaranteed.
 	 * @return
 	 */
 
 	public static int getAccurateScore(BoardColorState state, int expScore) {
-
+		ScopeScore scopeScore = ScopeScore.getInitScore(state.boardSize);
 		int high = 1;
 		int low = 0;
 		int score = 0;
 		int dir = 0;// direction to check further
 		int maxScore = state.boardSize * state.boardSize;
-		int bestScore = 0;
+		// int bestScore = 0;
 		SmallBoardGlobalSearch goS;
 
 		assert (expScore <= maxScore);
@@ -426,7 +430,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			if (expScore == -maxScore) {
 				// Black must win, simulate the result with searching
 				dir = 1;
-				bestScore = expScore;
+				// bestScore = expScore;
 				high = expScore + 1;
 			} else {
 				high = expScore;
@@ -436,7 +440,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			if (expScore == maxScore) {
 				// White must win, simulate the result with searching
 				dir = -1;
-				bestScore = expScore;
+				// bestScore = expScore;
 				low = expScore - 1;
 			} else {
 				low = expScore;
@@ -444,6 +448,8 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			high = low + 1;
 		}
 
+		TreeGoManual win = null;
+		TreeGoManual lose = null;
 		do {
 			if (state.boardSize == 2) {
 				goS = new TwoTwoBoardSearch(state, state.isBlackTurn() ? high
@@ -459,50 +465,85 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			goS.logStateReached();
 			goS.logHistoryDepStateReached();
 			goS.outputSearchStatistics();
+
 			if (score >= high) {
 				if (state.isBlackTurn()) {
 					log.warn("Black Play First: search with high = " + high
 							+ " succeed with score = " + score);
+					scopeScore.updateWin(score, true);
+					win = goS.getTreeGoManual();
+
 				} else {
 					log.warn("White Play First: search with low = " + low
 							+ " fail with score = " + score);
+					scopeScore.updateLose(score, false);
+					lose = goS.getTreeGoManual();
 				}
+				if (scopeScore.isExact())
+					break;
 				high = score + 1;
 				low = high - 1;
-				if (dir == 0) {
-					dir = 1;
-					bestScore = score;
-				} else if (dir == -1) {
-					assert (score == bestScore);
-					TestCase.assertEquals(score, bestScore);
-					return score;
-				} else {
-					bestScore = score;
-					continue;
-				}
+				// if (dir == 0) {
+				// dir = 1;
+				// //bestScore = score;
+				// } else if (dir == -1) {
+				// //assert (score == bestScore);
+				// TestCase.assertEquals(score, bestScore);
+				// return score;
+				// } else {
+				// bestScore = score;
+				// continue;
+				// }
 			} else {
 				if (state.isBlackTurn()) {
 					log.warn("Black Play First: search with high = " + high
 							+ " fail with score = " + score);
+					scopeScore.updateLose(score, true);
+					lose = goS.getTreeGoManual();
 				} else {
 					log.warn("White Play First: search with low = " + low
 							+ " succeed with score = " + score);
+					scopeScore.updateWin(score, false);
+					win = goS.getTreeGoManual();
 				}
+				if (scopeScore.isExact())
+					break;
 				low = score - 1;
 				high = low + 1;
-				if (dir == 0) {
-					dir = -1;
-					bestScore = score;
-				} else if (dir == 1) {
-					assert (score == bestScore);
-					TestCase.assertEquals(score, bestScore);
-					return score;
-				} else {
-					bestScore = score;
-					continue;
-				}
+				// if (dir == 0) {
+				// dir = -1;
+				// bestScore = score;
+				// } else if (dir == 1) {
+				// assert (score == bestScore);
+				// TestCase.assertEquals(score, bestScore);
+				// return score;
+				// } else {
+				// bestScore = score;
+				// continue;
+				// }
 			}
 		} while (high <= maxScore && low > -maxScore);
+		score = scopeScore.getExactScore();
+		if (state.isBlackTurn()) {
+			if (score == -maxScore) {
+				VerifySearchResult.verifyBetterImpossible(state, score, lose);
+			} else if (score == maxScore) {
+				VerifySearchResult.VerifyWin(state, score, win);
+			} else {
+				VerifySearchResult.VerifyWin(state, score, win);
+				VerifySearchResult.verifyBetterImpossible(state, score, lose);
+			}
+		} else if (state.isWhiteTurn()) {
+			if (score == -maxScore) {
+				VerifySearchResult.VerifyWin(state, score, win);
+			} else if (score == maxScore) {
+				VerifySearchResult.verifyBetterImpossible(state, score, lose);
+			} else {
+				VerifySearchResult.VerifyWin(state, score, win);
+				VerifySearchResult.verifyBetterImpossible(state, score, lose);
+			}
+		}
+
 		return score;
 	}
 }

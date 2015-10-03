@@ -3,6 +3,8 @@ package eddie.wu.manual;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoardSymmetry;
 import eddie.wu.domain.Point;
@@ -487,15 +489,14 @@ public class SearchNode {
 				return min;
 			}
 		}
-		if(this.unknownScore==true){
+		if (this.unknownScore == true) {
 			this.score = UNKNOWN_SCORE;
 			return UNKNOWN_SCORE;
-		}else{
-//			this.unknownScore = true;
+		} else {
+			// this.unknownScore = true;
 			return this.score;
 		}
-		
-		
+
 		// SearchNode temp = this.child.brother;
 		// if (this.isMax()) {
 		// int max = child.initScore();// proper initial value
@@ -611,10 +612,12 @@ public class SearchNode {
 		child = null; // Detach children
 		boolean minWin = !maxWin;
 		while (temp != null) {
-			if ((maxWin && this.isMax() && temp.getScore() < this.getScore())
-					|| (minWin && this.isMin() && temp.getScore() > this
-							.getScore())) {
-				// ignore not effective move.
+			//bug fix, handle unknown score.
+			if ((maxWin && this.isMax() && (temp.getScore() == Constant.UNKNOWN || temp
+					.getScore() < this.getScore()))
+					|| (minWin && this.isMin() && (temp.getScore() == Constant.UNKNOWN || temp
+							.getScore() > this.getScore()))) {
+				// ignore not effective move, include unknown children.
 				temp = temp.brother;
 			} else {
 				// rebuild with valid child.

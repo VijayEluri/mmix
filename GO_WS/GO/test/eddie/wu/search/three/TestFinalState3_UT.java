@@ -12,7 +12,7 @@ import eddie.wu.domain.analy.SmallGoBoard;
 import eddie.wu.domain.analy.TerritoryAnalysis;
 import eddie.wu.manual.StateLoader;
 
-public class TestFinalState3 extends TestCase {
+public class TestFinalState3_UT extends TestCase {
 
 	@Test
 	public void test() {

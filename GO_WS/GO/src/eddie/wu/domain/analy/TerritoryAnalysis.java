@@ -192,7 +192,7 @@ public class TerritoryAnalysis extends SurviveAnalysis {
 		int score2 = goS2.globalSearch();
 
 		if (score1 == score2) {
-			if (score1 != Constant.UNKOWN) {
+			if (score1 != Constant.UNKNOWN) {
 				if (log.isEnabledFor(Level.WARN))
 					log.warn("Score1=" + score1);
 				return true;
