@@ -6,14 +6,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.sun.org.glassfish.external.statistics.Stats;
-
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.Step;
+import eddie.wu.domain.SymmetryResult;
+import eddie.wu.manual.ExpectScore;
 import eddie.wu.manual.SearchNode;
+import eddie.wu.manual.TreeGoManual;
 import eddie.wu.search.ScopeScore;
+import eddie.wu.search.ScoreWithManual;
 
 /**
  * 辅助实现深度优先搜索,用于小棋盘的全局搜索. 每一层有若干个状态 <br/>
@@ -44,9 +46,11 @@ public class SearchLevel {
 	private boolean max;
 
 	/**
-	 * expScore + max/min means the criteria for win/lose<br/>
+	 * expScore (this.getExpScore()) + max/min means the criteria for win/lose<br/>
+	 * private int expScore;// for max, replaced by this.getExpScore()
 	 */
-	private int expScore;// for max
+
+	private ExpectScore expScore;
 
 	/**
 	 * whether the score is achieved by both pass!
@@ -68,7 +72,8 @@ public class SearchLevel {
 
 	/**
 	 * the node without play at current level's candidate <br/>
-	 * just played previous level's candidate/step (prevStep) to reach current level/state.<br/>
+	 * just played previous level's candidate/step (prevStep) to reach current
+	 * level/state.<br/>
 	 * at level 0, node is a special root node;
 	 */
 	private SearchNode node;
@@ -168,7 +173,7 @@ public class SearchLevel {
 		Set<BoardColorState> states = new HashSet<BoardColorState>();
 		if (this.reachingDup) {
 			states.addAll(this.directDupStates);
-		} //bug here: else
+		} // bug here: else
 		if (this.indirectDupStates != null
 				&& indirectDupStates.isEmpty() == false) {
 			states.addAll(this.indirectDupStates);
@@ -186,6 +191,12 @@ public class SearchLevel {
 		return prevStep;
 	}
 
+	/**
+	 * prevStep.isPass() previous step is a Pass prevStep == null means initial
+	 * searching state!
+	 * 
+	 * @return
+	 */
 	public boolean isPrevStepPass() {
 		return prevStep != null && prevStep.isPass();
 	}
@@ -197,13 +208,31 @@ public class SearchLevel {
 	 */
 	public boolean alreadyWin_() {
 		if (max) {
-			if (this.tempBestScore >= this.expScore) {
+			if (this.tempBestScore >= this.getExpScore()) {
 				unknownChild = false;// win overwrite unknown child
 				return true;
 			}
 		} else {
-			if (this.tempBestScore <= this.expScore) {
+			if (this.tempBestScore <= this.getExpScore()) {
 				unknownChild = false;// win overwrite unknown child
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * current Player exhausted all candidates and still does not win yet.
+	 * 
+	 * @return
+	 */
+	public boolean opponentWin_() {
+		if (max) {
+			if (this.tempBestScore <= this.expScore.getLowExp()) {
+				return true;
+			}
+		} else {
+			if (this.tempBestScore >= this.expScore.getHighExp()) {
 				return true;
 			}
 		}
@@ -255,18 +284,21 @@ public class SearchLevel {
 	}
 
 	public int getExpScore() {
-		return expScore;
+		if (max)
+			return expScore.getHighExp();
+		else
+			return expScore.getLowExp();
 	}
 
-//	/**
-//	 * 在展开中的level的某个候选点的分数已知。
-//	 * 
-//	 * @param score
-//	 */
-//	public void getNeighborScore(int score, boolean bothPass) {
-//		updateWithScore(score, bothPass);
-//
-//	}
+	// /**
+	// * 在展开中的level的某个候选点的分数已知。
+	// *
+	// * @param score
+	// */
+	// public void getNeighborScore(int score, boolean bothPass) {
+	// updateWithScore(score, bothPass);
+	//
+	// }
 
 	/**
 	 * 
@@ -345,7 +377,7 @@ public class SearchLevel {
 				this.scoreByBothPass = bothPass;
 			}
 		}
-		
+
 	}
 
 	/**
@@ -375,14 +407,14 @@ public class SearchLevel {
 				}
 			}
 		} else if (max) {// parent is max// child is min.
-			if (score.getLow() >= expScore) {
+			if (score.getLow() >= this.getExpScore()) {
 				this.tempBestScore = score.getLow();
 			} else if (score.getLow() > this.getTempBestScore()) {
 				this.tempBestScore = score.getLow();
 			}
 
 		} else { // parent is min, child is max
-			if (score.getHigh() <= expScore) {
+			if (score.getHigh() <= this.getExpScore()) {
 				this.tempBestScore = score.getHigh();
 			} else if (score.getHigh() < this.tempBestScore) {
 				this.tempBestScore = score.getHigh();
@@ -406,8 +438,8 @@ public class SearchLevel {
 		iterator = candidates.iterator();
 	}
 
-	public void setExpScore(int highestExp) {
-		this.expScore = highestExp;
+	public void setExpScore(ExpectScore expScore) {
+		this.expScore = expScore;
 	}
 
 	/**
@@ -474,15 +506,67 @@ public class SearchLevel {
 		return false;
 	}
 
-	public ScopeScore getScopeScore(int boardSize) {
-		ScopeScore score = ScopeScore.getInitScore(boardSize);
-		if (this.alreadyWin()) {
-			score.updateWin(getTempBestScore(), isMax());
+	// public ScopeScore getScopeScore(int boardSize) {
+	// ScopeScore score = ScopeScore.getInitScore(boardSize);
+	// if (this.alreadyWin()) {
+	// score.updateWin(getTempBestScore(), isMax());
+	// } else if (this.hasNext() == false) {
+	// score.updateLose(getTempBestScore(), isMax());
+	// } else {
+	// return null;
+	// }
+	// ScopeScore score2 = getScopeScore_(boardSize);
+	// if (score2.isExact() == false)
+	// TestCase.assertEquals(score, score2);
+	// return score2;
+	// }
+
+	public ScoreWithManual getScopeScore_(BoardColorState normalizedState,
+			SymmetryResult sym) {
+		int boardSize = normalizedState.boardSize;
+		ScoreWithManual scopeScore = null;
+		if (this.tempBestScore == Constant.UNKNOWN){
+		return null;
+			//return ScopeScore.getInitScore(boardSize);
+		}
+		if (this.alreadyWin_()) {
+			TreeGoManual manual = this.getNode().wrapAsManual(
+					normalizedState, sym);
+			manual.cleanupBadMoveForWinner(max);
+			scopeScore = new ScoreWithManual(this.tempBestScore, max, boardSize,max,manual);
+			if(sym.blackWhiteSymmetric){
+				scopeScore.mirrorScore();
+			}
 		} else if (this.hasNext() == false) {
-			score.updateLose(getTempBestScore(), isMax());
+			if (this.opponentWin_() == false) {
+				// TODO
+				TreeGoManual manualLose = this.getNode().wrapAsManual(
+						normalizedState, sym);
+				manualLose.cleanupBadMoveForWinner(!max);
+				TreeGoManual manualWin = this.getNode().wrapAsManual(
+						normalizedState, sym);
+				manualWin.cleanupBadMoveForWinner(max);
+//				scopeScore.win = manualWin;
+//				scopeScore.lose = manualLose;
+				scopeScore =  new ScoreWithManual(tempBestScore, manualWin, manualLose);
+				if(sym.blackWhiteSymmetric){
+					scopeScore.mirrorScore();
+				}
+				
+			} else {
+				TreeGoManual manual = this.getNode().wrapAsManual(
+						normalizedState, sym);
+				manual.cleanupBadMoveForWinner(!max);
+				
+				scopeScore = new ScoreWithManual(this.tempBestScore, !max, boardSize,max,manual);
+				if(sym.blackWhiteSymmetric){
+					scopeScore.mirrorScore();
+				}
+				
+			}
 		} else {
 			return null;
 		}
-		return score;
+		return scopeScore;
 	}
 }

@@ -63,11 +63,11 @@ public class CaptureSearch extends GoBoardSearch {
 		level = new SearchLevel(0, whoseTurn,null);
 		if (targetFirst == false) {
 			level.setMax(true);// 征子方取最大值。
-			level.setExpScore(this.CAPTURE_SUCCESS);
+			level.setExpScore(this.getExpScore());
 
 		} else {
 			level.setMax(false);// 被征子方取最小值
-			level.setExpScore(this.CAPTURE_FAILURE);
+			level.setExpScore(this.getExpScore());
 		}
 		return level;
 	}

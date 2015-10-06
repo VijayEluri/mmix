@@ -105,7 +105,7 @@ public class VerifySearchResult {
 			}
 			// prepared before hand: before the first move.
 			SymmetryResult symmetryResult = board.getSymmetryResult();
-
+			String string = board.getStateString().toString();
 			Candidate candidate = currentLevel.getNextCandidate();
 			board.oneStepForward(candidate.getStep());
 			log.debug(candidate.getStep() + "--->");
@@ -147,7 +147,9 @@ public class VerifySearchResult {
 			TestCase.assertNotNull(child);
 			manual.navigateToChild(candidate.getStep());
 			if (manual.getCurrent().getChild() == null) {
-				log.debug("No response");
+				log.error("current state: "+string);
+				log.error("last step: "+candidate.getStep());
+				log.error("No response");
 			}
 			Step stepResponse = manual.getCurrent().getChild().getStep();
 

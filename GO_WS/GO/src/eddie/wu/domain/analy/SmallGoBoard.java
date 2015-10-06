@@ -19,6 +19,7 @@ import eddie.wu.domain.NeighborState;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
 import eddie.wu.domain.SymmetryResult;
+import eddie.wu.domain.comp.SymmetryRowColumnComparator;
 import eddie.wu.manual.StateLoader;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.CandidateComparator;
@@ -197,8 +198,8 @@ public class SmallGoBoard extends TerritoryAnalysis {
 		if (filterSymmetricEquivalent == true) {
 			SymmetryResult symmetryResult = this.getSymmetryResult();
 			if (symmetryResult.getNumberOfSymmetry() != 0) {
-
-				Set<Point> points2 = new HashSet<Point>();
+				//only cover the normalized ones.
+				Set<Point> normalizedPoints = new HashSet<Point>();
 				Set<Point> listAll = new HashSet<Point>();
 				for (Iterator<Point> iter = points.iterator(); iter.hasNext();) {
 					Point point = iter.next();
@@ -207,11 +208,12 @@ public class SmallGoBoard extends TerritoryAnalysis {
 
 					List<Point> listVar = point.deNormalize(symmetryResult);
 					listAll.addAll(listVar);
-					// only keep one of all the symmetric candidates.
-					points2.add(listVar.get(0));
+					// only keep the normalized one of all the symmetric candidates.
+					Collections.sort(listVar, new SymmetryRowColumnComparator());
+					normalizedPoints.add(listVar.get(0));
 
 				}
-				can.addAll(points2);
+				can.addAll(normalizedPoints);
 			} else {
 				can.addAll(points);
 			}

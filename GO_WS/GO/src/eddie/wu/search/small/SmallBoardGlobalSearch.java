@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
 
 import eddie.wu.domain.BoardColorState;
@@ -17,7 +15,9 @@ import eddie.wu.domain.analy.SmallGoBoard;
 import eddie.wu.manual.ExpectScore;
 import eddie.wu.manual.SGFGoManual;
 import eddie.wu.manual.TreeGoManual;
+import eddie.wu.search.HistoryDepScore;
 import eddie.wu.search.ScopeScore;
+import eddie.wu.search.ScoreWithManual;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.GoBoardSearch;
 import eddie.wu.search.global.SearchLevel;
@@ -139,12 +139,11 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		SearchLevel level = new SearchLevel(0, initTurn, null);
 		// level 0: all candidates of original state.
 		if (initTurn == Constant.BLACK) {
-			level.setMax(true);
-			level.setExpScore(this.getMaxExp());
+			level.setMax(true);			
 		} else {
 			level.setMax(false);
-			level.setExpScore(this.getMinExp());
 		}
+		level.setExpScore(this.getExpScore());
 		return level;
 	}
 
@@ -238,7 +237,8 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			TreeGoManual manual = getTreeGoManual();
 			int initScore = manual.initScore();
 			boolean maxWin = false;
-			if (initScore >= this.getMaxExp())
+//			if(this.initTurn==Constant.BLACK)
+			if (initScore >= this.getExpScore().getHighExp())
 				maxWin = true;
 			manual.cleanupBadMoveForWinner(maxWin);
 			manual.getMostExpManual().print(logStatistic);
@@ -246,8 +246,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		if (logStatistic.isInfoEnabled() == false) {
 			return;
 		}
-		logStatistic.info("Black expect: " + getMaxExp() + ", White expect:"
-				+ getMinExp());
+		logStatistic.info(this.getExpScore());
 		logStatistic.info("we calculate steps = " + countSteps);
 		long forwardMoves = goBoard.getForwardMoves();
 		logStatistic.info("forwardMoves = " + forwardMoves);
@@ -296,7 +295,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 		logStatistic.info("Init score = " + initScore);
 		logStatistic.info(manual.getSGFBodyString(false));
 		boolean maxWin = false;
-		if (initScore >= this.getMaxExp())
+		if (initScore >= this.getExpScore().getHighExp())
 			maxWin = true;
 		manual.cleanupBadMoveForWinner(maxWin);
 		logStatistic.info("After Cleanup " + this.getExpScore());
@@ -465,7 +464,11 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			goS.logStateReached();
 			goS.logHistoryDepStateReached();
 			goS.outputSearchStatistics();
-
+			
+			//check whether the state collected in this search is compatible with existing searchResult.
+			Map<BoardColorState, ScoreWithManual> stateReached2 = goS.getStateReached();
+			ScopeScore.merge(stateReached_,stateReached2);
+			HistoryDepScore.merge(hisDepState_, goS.getStateHisDepReached());
 			if (score >= high) {
 				if (state.isBlackTurn()) {
 					log.warn("Black Play First: search with high = " + high
@@ -546,4 +549,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 
 		return score;
 	}
+	
+	
+
 }

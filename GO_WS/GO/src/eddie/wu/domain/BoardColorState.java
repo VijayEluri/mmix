@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -716,47 +717,73 @@ public class BoardColorState {
 	 * @return
 	 */
 	public BoardColorState normalize() {
-		// BoardColorState state = new BoardColorState(this.boardSize,
-		// this.whoseTurn);
+		return this.normalizeInternal().getState();
+	}
 
-		List<BoardColorState> list = new ArrayList<BoardColorState>();
-		Set<BoardColorState> set = new HashSet<BoardColorState>();
-		// List<BoardColorState> list2 = new ArrayList<BoardColorState>();
-		// BoardColorState backSlash = new BoardColorState(this.)
+	/**
+	 * 棋盘的状态有四角八边变化。需要将其标准化。这样其他的变体可以统一对待。<br/>
+	 * 黑白交换后本质上是等价的，结果和whoseTurn都改变。
+	 * 
+	 * @return also the symmetry operation between current state and its
+	 *         Normalized state.
+	 */
+	public StateSymmetry normalizeInternal() {
+
+		List<StateSymmetry> list = new ArrayList<StateSymmetry>();
+		Set<StateSymmetry> set = new HashSet<StateSymmetry>();
 		byte[][] originalState = getMatrixState();
-		byte[][] verticalMirror = GoBoardSymmetry.verticalMirror(originalState);
-		byte[][] horizontalMirror = GoBoardSymmetry
+		byte[][] verticalMirrorState = GoBoardSymmetry
+				.verticalMirror(originalState);
+		byte[][] horizontalMirrorState = GoBoardSymmetry
 				.horizontalMirror(originalState);
-		byte[][] horizontalVertical = GoBoardSymmetry
-				.horizontalMirror(verticalMirror);
-		set.add(this);
-		set.add(BoardColorState.getInstance(verticalMirror, whoseTurn));
-		set.add(BoardColorState.getInstance(horizontalMirror, whoseTurn));
-		set.add(BoardColorState.getInstance(horizontalVertical, whoseTurn));
+		byte[][] horizontalVerticalMirrorState = GoBoardSymmetry
+				.horizontalMirror(verticalMirrorState);
 
-		set.add(BoardColorState.getInstance(
-				GoBoardSymmetry.forwardSlashMirror(originalState), whoseTurn));
-		set.add(BoardColorState.getInstance(
-				GoBoardSymmetry.forwardSlashMirror(verticalMirror), whoseTurn));
-		set.add(BoardColorState.getInstance(
-				GoBoardSymmetry.forwardSlashMirror(horizontalMirror), whoseTurn));
-		set.add(BoardColorState.getInstance(
-				GoBoardSymmetry.forwardSlashMirror(horizontalVertical),
-				whoseTurn));
+		SymmetryResult originalSym = new SymmetryResult();
+		set.add(new StateSymmetry(this, originalSym));
+		SymmetryResult verticalSym = new SymmetryResult();
+		verticalSym.setVerticalSymmetry(true);
+		set.add(new StateSymmetry(BoardColorState.getInstance(
+				verticalMirrorState, whoseTurn), verticalSym));
+
+		SymmetryResult horizontalSym = new SymmetryResult();
+		horizontalSym.setHorizontalSymmetry(true);
+		set.add(new StateSymmetry(BoardColorState.getInstance(
+				horizontalMirrorState, whoseTurn), horizontalSym));
+
+		SymmetryResult horizontalVerticalSym = new SymmetryResult();
+		horizontalVerticalSym.setHorizontalSymmetry(true);
+		horizontalVerticalSym.setVerticalSymmetry(true);
+		set.add(new StateSymmetry(BoardColorState.getInstance(
+				horizontalVerticalMirrorState, whoseTurn),
+				horizontalVerticalSym));
+
+		set.add(new StateSymmetry(BoardColorState.getInstance(
+				GoBoardSymmetry.forwardSlashMirror(originalState), whoseTurn),
+				originalSym.getCopy().setForwardSlashSymmetry(true)));
+		set.add(new StateSymmetry(BoardColorState.getInstance(
+				GoBoardSymmetry.forwardSlashMirror(verticalMirrorState),
+				whoseTurn), verticalSym.getCopy().setForwardSlashSymmetry(true)));
+		set.add(new StateSymmetry(BoardColorState.getInstance(
+				GoBoardSymmetry.forwardSlashMirror(horizontalMirrorState),
+				whoseTurn), horizontalSym.getCopy().setForwardSlashSymmetry(
+				true)));
+		set.add(new StateSymmetry(BoardColorState.getInstance(GoBoardSymmetry
+				.forwardSlashMirror(horizontalVerticalMirrorState), whoseTurn),
+				horizontalVerticalSym.getCopy().setForwardSlashSymmetry(true)));
 		list.addAll(set);
 		if (log.isInfoEnabled()) {
-			for (BoardColorState state2 : list) {
-				log.info(state2.getStateString().toString());
+			for (StateSymmetry state2 : list) {
+				log.info(state2.getState().getStateString().toString());
 			}
 		}
 
 		boolean colorSwitchIncluded = list.contains(this.blackWhiteSwitch());
-
-		Collections.sort(list, new BoardColorComparator());
+		Collections.sort(list, new StateComparator());
 		if (colorSwitchIncluded) {
 			log.info("colorSwitchIncluded:" + colorSwitchIncluded);
-			return list.get(0);
 		}
+		return list.get(0);
 		// do not switch between black and white.
 		// BoardColorState standard = list.get(0);
 		// BoardColorState switched = standard.blackWhiteSwitch();
@@ -765,7 +792,6 @@ public class BoardColorState {
 		// list.add(standard);
 		// Collections.sort(list, new BoardColorStateComparator());
 
-		return list.get(0);
 	}
 
 	public void output() {
@@ -867,7 +893,7 @@ public class BoardColorState {
 
 	public void setScore(int score) {
 		if (this.scopeScore == null) {
-			this.scopeScore = new ScopeScore(score);
+			this.scopeScore = ScopeScore.getAccurateScore(score);
 		}
 		this.scopeScore.updateAccurateScore(score);
 	}
@@ -966,5 +992,43 @@ public class BoardColorState {
 
 	public long[] getWhiteLongArray() {
 		return white.toLongArray();
+	}
+
+	public BoardColorState convert(SymmetryResult stateSymmetry) {
+		byte[][] state = this.getMatrixState();
+		if (stateSymmetry.isHorizontalSymmetry()) {
+			state = GoBoardSymmetry.horizontalMirror(state);
+		}
+		if (stateSymmetry.isVerticalSymmetry()) {
+			state = GoBoardSymmetry.verticalMirror(state);
+		}
+		if (stateSymmetry.isBackwardSlashSymmetry()) {
+			state = GoBoardSymmetry.backwardSlashMirror(state);
+		}
+		if (stateSymmetry.isForwardSlashSymmetry()) {
+			state = GoBoardSymmetry.forwardSlashMirror(state);
+		}
+		if(stateSymmetry.blackWhiteSymmetric){
+			return BoardColorState.getInstance(state, whoseTurn).blackWhiteSwitch();
+		}else{
+			return BoardColorState.getInstance(state, whoseTurn);
+		}
+	}
+
+	/**
+	 * black white symmetric means same state with different whose turn has
+	 * exactly opposite result
+	 * 
+	 * @return
+	 */
+	public boolean isBlackWhiteSymmetric() {
+		return this.equals(this.blackWhiteSwitch());
+	}
+}
+
+class StateComparator implements Comparator<StateSymmetry> {
+	@Override
+	public int compare(StateSymmetry o1, StateSymmetry o2) {
+		return BoardColorComparator.compare_(o1.getState(), o2.getState());
 	}
 }

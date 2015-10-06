@@ -3,8 +3,8 @@ package eddie.wu.search.two;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -14,12 +14,10 @@ import org.apache.log4j.Logger;
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoard;
-import eddie.wu.domain.GoBoardForward;
 import eddie.wu.domain.Point;
 import eddie.wu.domain.Step;
 import eddie.wu.domain.analy.FinalResult;
 import eddie.wu.domain.analy.SmallGoBoard;
-import eddie.wu.domain.analy.SurviveAnalysis;
 import eddie.wu.domain.analy.TerritoryAnalysis;
 import eddie.wu.manual.SGFGoManual;
 import eddie.wu.manual.SearchNode;
@@ -27,6 +25,7 @@ import eddie.wu.manual.StateLoader;
 import eddie.wu.manual.TreeGoManual;
 import eddie.wu.search.HistoryDepScore;
 import eddie.wu.search.ScopeScore;
+import eddie.wu.search.ScoreWithManual;
 import eddie.wu.search.global.Candidate;
 import eddie.wu.search.global.GoBoardSearch;
 import eddie.wu.search.global.ListAllState;
@@ -56,9 +55,6 @@ public class TestAllState2_IT extends TestCase {
 		List<Candidate> candidate = sa.getCandidate(Constant.BLACK, false);
 		log.warn(candidate);
 	}
-
-	
-
 
 	public void testState1_blackFirst_lose_2_0() {
 		testState1_blackFirst_lose(2, 2, 0);// 5s
@@ -126,21 +122,16 @@ public class TestAllState2_IT extends TestCase {
 		assertTrue(score != high);
 		assertTrue(score != low);
 
-		String name1 = goS.getGoBoard().getInitColorState()
+		String name = goS.getGoBoard().getInitColorState()
 				.getStateAsOneLineString()
-				+ goS.getMaxExp() + goS.getMinExp() + " win.sgf";
-		String name11 = goS.getGoBoard().getInitColorState()
-				.getStateAsOneLineString()
-				+ goS.getMaxExp() + goS.getMinExp() + " multiple win.sgf";
+				+ goS.getExpScore().toFileName();
+		String name1 = name + " win.sgf";
+		String name11 = name + " multiple win.sgf";
 
 		String fileName1 = manualFolder + name1;
 		String fileName11 = manualFolder + name11;
-		String name2 = goS.getGoBoard().getInitColorState()
-				.getStateAsOneLineString()
-				+ goS.getMaxExp() + goS.getMinExp() + " lose.sgf";
-		String name21 = goS.getGoBoard().getInitColorState()
-				.getStateAsOneLineString()
-				+ goS.getMaxExp() + goS.getMinExp() + " multiple lose.sgf";
+		String name2 = name + " lose.sgf";
+		String name21 = name + " multiple lose.sgf";
 		String fileName2 = manualFolder + name2;
 		String fileName21 = manualFolder + name21;
 
@@ -331,16 +322,16 @@ public class TestAllState2_IT extends TestCase {
 		goS.setDepth(12);
 		int score = goS.globalSearch();
 		assertEquals(1, score);
-		
+
 		goS.outputSearchStatistics();
 		String name = goS.getGoBoard().getInitColorState()
-				.getStateAsOneLineString()+ goS.getExpScore().toFileName()
-				+ " lose.sgf";
+				.getStateAsOneLineString()
+				+ goS.getExpScore().toFileName() + " lose.sgf";
 		String fileName = manualFolder + name;
-		TreeGoManual manual = goS.getTreeGoManual();		
+		TreeGoManual manual = goS.getTreeGoManual();
 		SGFGoManual.storeGoManual(fileName, manual);
-		log.info("result is stored into "+fileName);
-		
+		log.info("result is stored into " + fileName);
+
 		VerifySearchResult.verifyBetterImpossible(boardState, 1, manual);
 	}
 
@@ -355,9 +346,9 @@ public class TestAllState2_IT extends TestCase {
 		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
 			log.warn("Score=" + score);
 		assertEquals(-1, score);
-		
+
 		goS.outputSearchStatistics();
-		TreeGoManual manual = goS.getTreeGoManual();	
+		TreeGoManual manual = goS.getTreeGoManual();
 		VerifySearchResult.verifyBetterImpossible(boardState, -1, manual);
 	}
 
@@ -673,7 +664,7 @@ public class TestAllState2_IT extends TestCase {
 		if (log.isInfoEnabled()) {
 			log.info("");
 			log.info("Independent: " + goS.getStateReached().size());
-			for (Entry<BoardColorState, ScopeScore> entry : goS
+			for (Entry<BoardColorState, ScoreWithManual> entry : goS
 					.getStateReached().entrySet()) {
 				log.info(entry.getKey());
 				log.info(entry.getValue());
@@ -685,7 +676,7 @@ public class TestAllState2_IT extends TestCase {
 					.getStateHisDepReached().entrySet()) {
 				log.info(entry.getKey());
 
-				for (Entry<BoardColorState, ScopeScore> entry2 : entry
+				for (Entry<BoardColorState, ScoreWithManual> entry2 : entry
 						.getValue().getMap().entrySet()) {
 					log.info(entry2.getValue() + " depends on: ");
 					log.info(entry2.getKey());
@@ -829,6 +820,7 @@ public class TestAllState2_IT extends TestCase {
 				log.warn("");
 			}
 		}
+		log.error("History Independent state");
+		
 	}
-
 }

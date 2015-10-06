@@ -689,7 +689,7 @@ public class TestAllState3 extends TestCase {
 						filePath_rawManual);
 			}
 			if (goS.initTurn == Constant.BLACK) {
-				if (score == goS.getMaxExp()) {// success
+				if (score == goS.getExpScore().getHighExp()) {// success
 					log.warn("after clean up fail node:");
 					// manual.cleanupBadMove_firstWin(goS.initTurn,
 					// goS.getMaxExp());
@@ -698,7 +698,7 @@ public class TestAllState3 extends TestCase {
 					SGFGoManual.storeGoManual(fileName1, manual);
 					manual.blackWhiteSwitch();
 					SGFGoManual.storeGoManual(fileName3, manual);
-				} else if (score < goS.getMaxExp()) {// fail
+				} else if (score < goS.getExpScore().getHighExp()) {// fail
 					log.warn("after clean up fail node:");
 					// manual.cleanupBadMove_firstLose(goS.initTurn,
 					// goS.getMaxExp());
@@ -710,7 +710,7 @@ public class TestAllState3 extends TestCase {
 				}
 
 			} else if (goS.initTurn == Constant.WHITE) {
-				if (score == goS.getMinExp()) {
+				if (score == goS.getExpScore().getLowExp()) {
 					log.warn("after clean up fail node:");
 					// manual.cleanupBadMove_firstWin(goS.initTurn,
 					// goS.getMinExp());

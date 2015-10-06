@@ -70,9 +70,9 @@ public class TwoTwoBoardSearch extends SmallBoardGlobalSearch {
 	protected void initCandidate(SearchLevel level, int color) {
 		int expectedScore;
 		if (color == Constant.BLACK) {
-			expectedScore = getMaxExp();
+			expectedScore = this.getExpScore().getHighExp();
 		} else {
-			expectedScore = getMinExp();
+			expectedScore = this.getExpScore().getLowExp();
 		}
 		if (goBoard.getInitSymmetryResult().getNumberOfSymmetry() == 0) {
 			level.setCandidates(goBoard.getCandidate(level, false, expectedScore));

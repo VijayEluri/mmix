@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 
+import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 import eddie.wu.domain.GoBoardSymmetry;
 import eddie.wu.domain.Point;
@@ -76,19 +77,31 @@ public class SearchNode {
 		return nodeCopy;
 	}
 
+	/**
+	 * safe copy of node itself without recursive.
+	 * 
+	 * @param sym
+	 * @return
+	 */
 	public SearchNode getCopy(SymmetryResult sym) {
-		Step step2 = null;
-		SearchNode copy = null;
+		Step stepTemp = null;
+		SearchNode nodeCopy = null;
 		if (step == null) {
-			copy = SearchNode.createSpecialRoot();
+			nodeCopy = SearchNode.createSpecialRoot();
 		} else {
-			step2 = step.getCopy();
-			step2.convert(sym);
-			copy = new SearchNode(step2);
+			stepTemp = step.getCopy();
+			stepTemp.convert(sym);
+			nodeCopy = new SearchNode(stepTemp);
 		}
-		copy.score = this.score;
-		copy.max = this.max;
-		return copy;
+		if (sym.blackWhiteSymmetric) {
+//			nodeCopy.getStep().
+			nodeCopy.score = -this.score;
+			nodeCopy.max = !this.max;
+		} else {
+			nodeCopy.score = this.score;
+			nodeCopy.max = this.max;
+		}
+		return nodeCopy;
 	}
 
 	public SearchNode getChild() {
@@ -612,7 +625,7 @@ public class SearchNode {
 		child = null; // Detach children
 		boolean minWin = !maxWin;
 		while (temp != null) {
-			//bug fix, handle unknown score.
+			// bug fix, handle unknown score.
 			if ((maxWin && this.isMax() && (temp.getScore() == Constant.UNKNOWN || temp
 					.getScore() < this.getScore()))
 					|| (minWin && this.isMin() && (temp.getScore() == Constant.UNKNOWN || temp
@@ -890,6 +903,14 @@ public class SearchNode {
 		return node;
 	}
 
+	public SearchNode copySubTree(SymmetryResult sym) {
+		if (sym == null)
+			return copySubTree();
+		SearchNode node = mirrorSubTree_internal(sym);
+		node.step = null;
+		return node;
+	}
+
 	/**
 	 * this node itself is copied and form sub tree.
 	 * 
@@ -919,4 +940,25 @@ public class SearchNode {
 		return copy;
 	}
 
+	/**
+	 * TODO: safe copy!
+	 * 
+	 * @param state
+	 * @return
+	 */
+	public TreeGoManual wrapAsManual(BoardColorState state, SymmetryResult sym) {
+		// SearchNode rootNodeTemp = SearchNode.createSpecialRoot();
+		// SearchNode temp = child;
+		// while(temp!=null){
+		// temp = temp.brother;
+		// rootNodeTemp.addChild(temp);
+		// }
+		SearchNode rootNodeTemp = this.copySubTree(sym);
+
+		TreeGoManual manual = new TreeGoManual(rootNodeTemp, state.boardSize,
+				state.getWhoseTurn());
+		manual.setInitState(state);
+
+		return manual;
+	}
 }

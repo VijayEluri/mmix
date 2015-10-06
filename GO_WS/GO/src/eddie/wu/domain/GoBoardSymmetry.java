@@ -9,12 +9,11 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import eddie.wu.domain.comp.SymmetryRowColumnComparator;
-
 /**
  * 原先仅仅考虑奇数路的棋盘,如19路和11路.<br/>
- * 现在增加对偶数路棋盘的支持,比如2路和4路.
- * 
+ * 现在增加对偶数路棋盘的支持,比如2路和4路.<br/>
+ * in general, the symmetry related code for state is in BoardColorState.
+ * here is the short cut for implicit current state in GoBoard.
  * @author Eddie
  * 
  * 
