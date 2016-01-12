@@ -253,9 +253,9 @@ public class ThreeThreeBoardSearch extends SmallBoardGlobalSearch {
 		int boardSize = goBoard.boardSize;
 		if (boardSize <= 3) {
 			if (color == Constant.BLACK) {
-				expectedScore = getMaxExp();
+				expectedScore = this.getExpScore().getHighExp();
 			} else {
-				expectedScore = getMinExp();
+				expectedScore = this.getExpScore().getLowExp();
 			}
 		} else {
 			if (color == Constant.BLACK) {

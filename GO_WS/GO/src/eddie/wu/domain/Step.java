@@ -124,11 +124,14 @@ public class Step {// implements Step{
 		if (operation.isVerticalSymmetry()) {
 			verticalMirror();
 		}
+		if(operation.blackWhiteSymmetric){
+			blackWhiteMirror();
+		}
 	}
 
-	// public void setColor(int color) {
-	// this.color = (byte) color;
-	// }
+	public void blackWhiteMirror() {
+		this.color = (byte)ColorUtil.enemyColor(this.color);
+	}
 
 	public void forwardSlashMirror() {
 		this.point = this.point.forwardSlashMirror();

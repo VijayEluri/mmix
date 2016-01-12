@@ -5,6 +5,7 @@ public class SymmetryResult {
 	private boolean verticalSymmetry;
 	private boolean forwardSlashSymmetry;
 	private boolean backwardSlashSymmetry;
+	public boolean blackWhiteSymmetric;
 
 	public SymmetryResult getCopy() {
 		SymmetryResult res = new SymmetryResult();
@@ -58,8 +59,9 @@ public class SymmetryResult {
 		return forwardSlashSymmetry;
 	}
 
-	public void setForwardSlashSymmetry(boolean forwardSlashSymmetry) {
+	public SymmetryResult setForwardSlashSymmetry(boolean forwardSlashSymmetry) {
 		this.forwardSlashSymmetry = forwardSlashSymmetry;
+		return this;
 	}
 
 	public boolean isBackwardSlashSymmetry() {

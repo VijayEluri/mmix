@@ -503,7 +503,9 @@ public class Point implements java.io.Serializable {
 	}
 
 	public Point normalize(SymmetryResult symmetryResult) {
-		return deNormalize(symmetryResult).get(0);
+		List<Point> list = deNormalize(symmetryResult);
+		Collections.sort(list, new SymmetryRowColumnComparator());
+		return list.get(0);
 	}
 
 	/**
@@ -577,8 +579,7 @@ public class Point implements java.io.Serializable {
 			}
 			list.add(point);
 		}
-
-		Collections.sort(list, new SymmetryRowColumnComparator());
+		
 		return list;
 	}
 

@@ -30,9 +30,13 @@ public class ExpectScore {
 		return "ExpectScore [highExp=" + highExp + ", lowExp=" + lowExp + "]";
 	}
 
+	/**
+	 * get low_high, "-1_0" as example.
+	 * 
+	 * @return
+	 */
 	public String toFileName() {
-
-		return highExp + "_" + lowExp;
+		return lowExp + "_" + highExp;
 	}
 
 }

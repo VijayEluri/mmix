@@ -1,4 +1,4 @@
-Here I just try to use iBatic through a few simple examples. I have to say
+Here I just try to use iBatis through a few simple examples. I have to say
 that I like the idea behind the design of iBatis. To me Hibernate is too
 complex for some common tasks. At least, iBatis is a good alternatives, or
-competitor of HIbernate.
+competitor of HIbernate in some context.

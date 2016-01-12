@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import eddie.wu.domain.BoardColorState;
+import eddie.wu.domain.SymmetryResult;
 import eddie.wu.search.global.SearchLevel;
 
 /**
@@ -16,9 +17,9 @@ public class HistoryDepScore {
 	/**
 	 * may has different score with different history state.
 	 */
-	private Map<BoardColorState, ScopeScore> map = new HashMap<BoardColorState, ScopeScore>();
+	private Map<BoardColorState, ScoreWithManual> map = new HashMap<BoardColorState, ScoreWithManual>();
 
-	public Map<BoardColorState, ScopeScore> getMap() {
+	public Map<BoardColorState, ScoreWithManual> getMap() {
 		return map;
 	}
 
@@ -33,11 +34,17 @@ public class HistoryDepScore {
 	// this.state = state;
 	// }
 
+	/**
+	 * 
+	 * @param state
+	 * @param score depends on the state (duplicated and blocked)
+	 * @return
+	 */
 	public static HistoryDepScore getInstance(BoardColorState state,
-			ScopeScore score) {
-		HistoryDepScore score2 = new HistoryDepScore();
-		score2.map.put(state, score);
-		return score2;
+			ScoreWithManual score) {
+		HistoryDepScore depScore = new HistoryDepScore();
+		depScore.map.put(state, score);
+		return depScore;
 	}
 
 	// public BoardColorState getState() {
@@ -52,34 +59,63 @@ public class HistoryDepScore {
 	// return scopeScore;
 	// }
 
-	public void updateScoreWithSearchLevel(SearchLevel level) {
-		BoardColorState key = level.getUniqueDupState();
-		if(key==null) return; //history dependent but not reusable.
-		if(map.containsKey(key)){
-			ScopeScore score = map.get(key);
-			System.out.print("contains dependent state: "+key.getStateString());
-			if (level.alreadyWin()) {
-				score.updateWin(level.getTempBestScore(), level.isMax());
-			} else {
-				score.updateLose(level.getTempBestScore(), level.isMax());
-				score.increaseCount();
-			}
-		}else{
-			map.put(key, level.getScopeScore(key.boardSize));
+	public void updateScoreWithSearchLevel(SearchLevel level, SymmetryResult symmetry, boolean mirror) {
+		BoardColorState key = level.getUniqueDupState().convert(symmetry);
+		if (key == null)
+			return; // history dependent but not reusable.
+		ScoreWithManual newScore = level.getScopeScore_(key, symmetry);
+		if (map.containsKey(key)) {
+			ScoreWithManual score = map.get(key);
+			score.merge(newScore);
+		} else {
+			map.put(key, newScore);
 		}
-		
+
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("HistoryDepScore ");
-		for(Entry<BoardColorState,ScopeScore> entry: this.map.entrySet()){
+		for (Entry<BoardColorState, ScoreWithManual> entry : this.map.entrySet()) {
 			sb.append(entry.getKey().getStateString());
 			sb.append("\t");
 			sb.append(entry.getValue().toString());
 		}
 		return sb.toString();
 	}
-	
-	
+
+	/**
+	 * generally newStates has less entries unless the first few rounds.
+	 * 
+	 * @param oldStates
+	 * @param newStates
+	 */
+	public static void merge(Map<BoardColorState, HistoryDepScore> oldStates,
+			Map<BoardColorState, HistoryDepScore> newStates) {
+		for (Entry<BoardColorState, HistoryDepScore> newEntry : newStates
+				.entrySet()) {
+			if (oldStates.containsKey(newEntry.getKey())) {
+				oldStates.get(newEntry.getKey()).merge(newEntry.getValue());
+			} else {
+				oldStates.put(newEntry.getKey(), newEntry.getValue());
+			}
+		}
+	}
+
+	/**
+	 * when the same state has different dependencies.
+	 * 
+	 * @param newScore
+	 */
+	public void merge(HistoryDepScore newScore) {
+		ScopeScore.merge(map, newScore.getMap());
+		// for(Entry<BoardColorState, ScopeScore> newEntry :
+		// newScore.getMap().entrySet()){
+		// if(map.containsKey(newEntry.getKey())){
+		// map.get(newEntry.getKey()).merge(newEntry.getValue());
+		// }else{
+		// map.put(newEntry.getKey(), newEntry.getValue());
+		// }
+		// }
+	}
 }

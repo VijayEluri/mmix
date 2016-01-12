@@ -1,5 +1,11 @@
 package eddie.wu.search;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
+import eddie.wu.domain.BoardColorState;
+import eddie.wu.manual.TreeGoManual;
+
 /**
  * in order to store inaccurate score. <br/>
  * TODO: history dependent score cannot be compared.
@@ -8,8 +14,8 @@ package eddie.wu.search;
  *
  */
 public class ScopeScore {
-	private int low;// = 0 - Integer.MAX_VALUE;
-	private int high;// = Integer.MAX_VALUE;
+	protected int low;// = 0 - Integer.MAX_VALUE;
+	protected int high;// = Integer.MAX_VALUE;
 
 	/**
 	 * how many times we encounter this state during search. count as one as
@@ -34,9 +40,8 @@ public class ScopeScore {
 	 * 
 	 * @param score
 	 */
-	public ScopeScore(int score) {
-		low = score;
-		high = score;
+	public static ScopeScore getAccurateScore(int score) {
+		return new ScopeScore(score, score);
 	}
 
 	/**
@@ -48,6 +53,16 @@ public class ScopeScore {
 	protected ScopeScore(int low, int high) {
 		this.low = low;
 		this.high = high;
+	}
+
+	public ScopeScore(int score, boolean up, int boardSize) {
+		if (up) {
+			this.low = score;
+			this.high = boardSize * boardSize;
+		} else {
+			this.low = 0 - boardSize * boardSize;
+			this.high = score;
+		}
 	}
 
 	public static ScopeScore getInitScore(int boardSize) {
@@ -123,7 +138,7 @@ public class ScopeScore {
 	}
 
 	/**
-	 * 
+	 * @deprecated by merge
 	 * @param score
 	 * @param maxWin
 	 */
@@ -172,6 +187,31 @@ public class ScopeScore {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + high;
+		result = prime * result + low;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ScopeScore other = (ScopeScore) obj;
+		if (high != other.high)
+			return false;
+		if (low != other.low)
+			return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		if (this.isExact()) {
 			return "[score=" + low + ", count=" + count + "]";
@@ -183,10 +223,13 @@ public class ScopeScore {
 	public ScopeScore mirror() {
 		int low = 0 - this.high;
 		int high = 0 - this.low;
-		return new ScopeScore(low, high);
+		ScopeScore mirror = new ScopeScore(low, high);
+		//mirror.l
+		return mirror;
 	}
 
 	/**
+	 * TODO: lose/win manual.
 	 * 
 	 * @param mirrorScore
 	 *            Not modified
@@ -204,5 +247,24 @@ public class ScopeScore {
 		}
 
 	}
+
+	/**
+	 * generally newStates has less entries unless the first few rounds.
+	 * 
+	 * @param oldStates
+	 * @param newStates
+	 */
+	public static void merge(Map<BoardColorState, ScoreWithManual> oldStates,
+			Map<BoardColorState, ScoreWithManual> newStates) {
+		for (Entry<BoardColorState, ScoreWithManual> newEntry : newStates.entrySet()) {
+			if (oldStates.containsKey(newEntry.getKey())) {
+				oldStates.get(newEntry.getKey()).merge(newEntry.getValue());
+			} else {
+				oldStates.put(newEntry.getKey(), newEntry.getValue());
+			}
+		}
+	}
+
+	
 
 }
