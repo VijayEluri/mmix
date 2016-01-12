@@ -23,6 +23,7 @@
 *.o
 *.ko
 *.html
+*.pdf
 .metadata
 bak
 GO_WS2

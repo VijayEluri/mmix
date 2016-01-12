@@ -17,11 +17,11 @@ public class VerifyTwoTwo extends VerifyTwoTwo_IT {
 //		Logger.getLogger(TwoTwoBoardSearch.class).setLevel(Level.WARN);
 //		Logger.getLogger(GoBoardSearch.class).setLevel(Level.DEBUG);
 //		Logger.getLogger("search.state.apply").setLevel(Level.DEBUG);
-		Logger.getLogger("search.state.add").setLevel(Level.INFO);
+		Logger.getLogger("search.state.add").setLevel(Level.DEBUG);
 //		Logger.getLogger("search.termial.state.add").setLevel(Level.DEBUG);
 //		Logger.getLogger("search.process").setLevel(Level.DEBUG);
 //		Logger.getLogger("search.statistic").setLevel(Level.DEBUG);
-//		Logger.getLogger("search.verify").setLevel(Level.DEBUG);
+		Logger.getLogger("search.verify").setLevel(Level.DEBUG);
 	}
 	
 	public void testInitState_white_turn() {
@@ -30,6 +30,6 @@ public class VerifyTwoTwo extends VerifyTwoTwo_IT {
 	}
 	
 	public void testInitState() {
-		testInitState();
+		super.testInitState();
 	}
 }

@@ -23,7 +23,9 @@ import junit.framework.TestCase;
  */
 public class TestAllState3Colive extends TestCase {
 	private static Logger log = Logger.getLogger(TestAllState3Colive.class);
-	
+	static{
+		log.setLevel(Level.INFO);
+	}
 
 	public void testState_specialColive1() {
 		String[] text = new String[3];
@@ -35,7 +37,7 @@ public class TestAllState3Colive extends TestCase {
 			log.warn(Arrays.deepToString(state));
 
 		SmallBoardGlobalSearch goS = new SmallBoardGlobalSearch(state,
-				Constant.BLACK, 1, 0);
+				Constant.BLACK, 2, 0);
 		goS.setDepth(22);
 		int score = goS.globalSearch();
 		if (log.isEnabledFor(Level.WARN)) {

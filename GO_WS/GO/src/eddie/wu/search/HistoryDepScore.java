@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.SymmetryResult;
 import eddie.wu.search.global.SearchLevel;
+import eddie.wu.search.global.VerifySearchResult;
 
 /**
  * the score for history dependent state, mostly happened in 2*2 board. simplify
@@ -90,24 +91,24 @@ public class HistoryDepScore {
 	 * @param oldStates
 	 * @param newStates
 	 */
-	public static void merge(Map<BoardColorState, HistoryDepScore> oldStates,
-			Map<BoardColorState, HistoryDepScore> newStates) {
-		for (Entry<BoardColorState, HistoryDepScore> newEntry : newStates
-				.entrySet()) {
-			if (oldStates.containsKey(newEntry.getKey())) {
-				oldStates.get(newEntry.getKey()).merge(newEntry.getValue());
-			} else {
-				oldStates.put(newEntry.getKey(), newEntry.getValue());
-			}
-		}
-	}
+//	public static void merge(Map<BoardColorState, HistoryDepScore> oldStates,
+//			Map<BoardColorState, HistoryDepScore> newStates) {
+//		for (Entry<BoardColorState, HistoryDepScore> newEntry : newStates
+//				.entrySet()) {
+//			if (oldStates.containsKey(newEntry.getKey())) {
+//				oldStates.get(newEntry.getKey()).merge(newEntry.getValue());
+//			} else {
+//				oldStates.put(newEntry.getKey(), newEntry.getValue());
+//			}
+//		}
+//	}
 
 	/**
 	 * when the same state has different dependencies.
 	 * 
 	 * @param newScore
 	 */
-	public void merge(HistoryDepScore newScore) {
+	public void merge(BoardColorState state, HistoryDepScore newScore) {
 		ScopeScore.merge(map, newScore.getMap());
 		// for(Entry<BoardColorState, ScopeScore> newEntry :
 		// newScore.getMap().entrySet()){
@@ -117,5 +118,31 @@ public class HistoryDepScore {
 		// map.put(newEntry.getKey(), newEntry.getValue());
 		// }
 		// }
+		
+		for (Entry<BoardColorState, ScoreWithManual> newEntry : newScore.getMap()
+				.entrySet()) {
+			// verify new States in current search first
+			BoardColorState stateDep = newEntry.getKey();
+			ScoreWithManual scoreWithManual = newEntry.getValue();
+			// ScopeScore scopeScore = scoreWithManual.scopeScore;
+			try {
+				
+				VerifySearchResult.verify(state, scoreWithManual);
+			} catch (Throwable e) {
+				System.err.println("wrong state " + state);
+				System.err.println("manual " + scoreWithManual);
+				throw e;
+			}
+			if (map.containsKey(newEntry.getKey())) {
+				try {
+					map.get(newEntry.getKey()).merge(newEntry.getValue());
+				} catch (RuntimeException e) {
+					System.err.println(newEntry.getKey());
+					throw e;
+				}
+			} else {
+				map.put(newEntry.getKey(), newEntry.getValue());
+			}
+		}
 	}
 }

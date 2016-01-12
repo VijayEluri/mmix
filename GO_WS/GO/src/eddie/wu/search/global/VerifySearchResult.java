@@ -3,9 +3,10 @@ package eddie.wu.search.global;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.apache.log4j.Logger;
 
-import junit.framework.TestCase;
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.ColorUtil;
 import eddie.wu.domain.Step;
@@ -14,7 +15,8 @@ import eddie.wu.domain.analy.FinalResult;
 import eddie.wu.domain.analy.SmallGoBoard;
 import eddie.wu.manual.SearchNode;
 import eddie.wu.manual.TreeGoManual;
-import eddie.wu.search.two.TestAllState2;
+import eddie.wu.search.ScopeScore;
+import eddie.wu.search.ScoreWithManual;
 
 /**
  * during global search we get two result for right score. <br/>
@@ -39,18 +41,25 @@ public class VerifySearchResult {
 	 */
 	public static void VerifyWin(BoardColorState state, int score,
 			TreeGoManual manual) {
-		SmallGoBoard board = new SmallGoBoard(manual.getInitState());
-		int colorB = ColorUtil.enemyColor(manual.getInitTurn());
-		// computer is first player. - get right play from manual
-		Step initStep = manual.getCurrent().getChild().getStep();
-		board.oneStepForward(initStep);
-		manual.navigateToChild(initStep);
-		SearchLevel currentLevel = new SearchLevel(0, colorB, initStep);
 		log.debug("Verify Win for state " + state.getStateString() + ", score="
 				+ score);
-		log.debug("First player play at " + initStep
-				+ " first.");
-		verify(board, score, currentLevel, manual, state.isBlackTurn(),true);
+		log.debug(manual.getSGFBodyString(false));
+		TestCase.assertEquals(state, manual.getInitState());
+
+		SmallGoBoard board = new SmallGoBoard(manual.getInitState());
+		int colorB = ColorUtil.enemyColor(manual.getInitTurn());
+
+		// computer is first player. - get right play from manual
+		manual.backToRoot();
+		Step initStep = manual.getCurrent().getChild().getStep();
+		boolean success = board.oneStepForward(initStep);
+		TestCase.assertTrue(success);
+		manual.navigateToChild(initStep);
+
+		SearchLevel currentLevel = new SearchLevel(0, colorB, initStep);
+		log.debug("First player play at " + initStep + " first.");
+
+		verify(board, score, currentLevel, manual, state.isBlackTurn(), true);
 	}
 
 	/**
@@ -61,8 +70,13 @@ public class VerifySearchResult {
 		SmallGoBoard board = new SmallGoBoard(manual.getInitState());
 		SearchLevel currentLevel = new SearchLevel(0, manual.getInitTurn(),
 				null);
-		log.debug("Verify Better is not possible for state "
-				+ state.getStateString() + ", score=" + score);
+		manual.backToRoot();
+		if (log.isDebugEnabled()) {
+			log.debug("Verify Better is not possible for state "
+					+ state.getStateString() + ", score=" + score);
+			log.debug(manual.getSGFBodyString(false));
+		}
+		TestCase.assertEquals(state, manual.getInitState());
 		verify(board, score, currentLevel, manual, state.isBlackTurn(), false);
 	}
 
@@ -80,6 +94,7 @@ public class VerifySearchResult {
 	private static void verify(SmallGoBoard board, int score,
 			SearchLevel currentLevel, TreeGoManual manual, boolean max,
 			boolean win) {
+//		log.info(manual.getSGFBodyString(false));
 
 		// Here one level stands for one back and forth in general,
 		List<SearchLevel> levels = new ArrayList<SearchLevel>(32);
@@ -105,26 +120,14 @@ public class VerifySearchResult {
 			}
 			// prepared before hand: before the first move.
 			SymmetryResult symmetryResult = board.getSymmetryResult();
-			String string = board.getStateString().toString();
+			BoardColorState boardState = board.getBoardColorState();
+			String string = boardState.getStateString().toString();
 			Candidate candidate = currentLevel.getNextCandidate();
 			board.oneStepForward(candidate.getStep());
 			log.debug(candidate.getStep() + "--->");
 			if (board.areBothPass()) {
 				FinalResult passScore = board.finalResult_doublePass();
-				if (max) {
-					if (win) {
-						TestCase.assertTrue(passScore.getScore() >= score);
-					} else {
-						TestCase.assertTrue(passScore.getScore() <= score);
-					}
-				}else{
-					if (win) {
-						TestCase.assertTrue(passScore.getScore() <= score);
-					} else {
-						TestCase.assertTrue(passScore.getScore() >= score);
-					}
-				}
-
+				verifyScore(win, max, score, passScore);
 				board.oneStepBackward();
 				continue;
 			}
@@ -133,36 +136,67 @@ public class VerifySearchResult {
 			SearchNode child = manual.getCurrent()
 					.getChild(candidate.getStep());
 			if (child == null) {
-				if (manual.getCurrent().containsChildMove_mirrorSubTree(
-						symmetryResult, candidate.getStep())) {
-					log.debug("After mirroring, Manual contains move "
-							+ candidate.getStep().toNonSGFString());
-					child = manual.getCurrent().getChild(candidate.getStep());
+				if (manual.getCurrent().getChild() == null) {
+					// boardState = board.getBoardColorState();
+					ScopeScore scopeScore = GoBoardSearch
+							.getScoreOfKnonwState(boardState);
+					verifyScopeScoreReused(win, max, score, scopeScore);
+					board.oneStepBackward();
+					continue;
+				} else {
+					log.debug("Before mirroring: cannot find "
+							+ candidate.getStep() + "from "
+							+ manual.getCurrent().getChildren());
+					if (manual.getCurrent().containsChildMove_mirrorSubTree(
+							symmetryResult, candidate.getStep())) {
+						log.debug("After mirroring, Manual contains move "
+								+ candidate.getStep().toNonSGFString());
+						log.debug("from children "
+								+ manual.getCurrent().getChildrenStep());
+						child = manual.getCurrent().getChild(
+								candidate.getStep());
+					} else {
+						log.error("After mirrorring, no progess");
+						log.error("from children "
+								+ manual.getCurrent().getChildrenStep());
+					}
 				}
 			}
 			if (child == null) {
-				log.debug("cannot find " + candidate.getStep() + "from "
+				log.error("cannot find " + candidate.getStep() + "from "
 						+ manual.getCurrent().getChildren());
+				log.error("Current State:" + boardState);
+				ScopeScore scopeScore = GoBoardSearch
+						.getScoreOfKnonwState(boardState);
+				System.out.println(scopeScore);
 			}
 			TestCase.assertNotNull(child);
 			manual.navigateToChild(candidate.getStep());
+
 			if (manual.getCurrent().getChild() == null) {
-				log.error("current state: "+string);
-				log.error("last step: "+candidate.getStep());
+				boardState = board.getBoardColorState();
+				ScopeScore scopeScore = GoBoardSearch
+						.getScoreOfKnonwState(boardState);
+				verifyScopeScoreReused(win, max, score, scopeScore);
+				board.oneStepBackward();
+				manual.up();
+				continue;
+			}
+			if (manual.getCurrent().getChild() == null) {
+				// temporarily add the know states' manual here
+				log.error("current state: " + string);
+				log.error("last step: " + candidate.getStep());
 				log.error("No response");
 			}
 			Step stepResponse = manual.getCurrent().getChild().getStep();
 
 			board.oneStepForward(stepResponse);
 			manual.navigateToChild(stepResponse);
-			log.debug(stepResponse);
+			log.debug(stepResponse + "--response");
 			if (board.areBothPass()) {
 				FinalResult passScore = board.finalResult_doublePass();
-				if (win==max) {
-					TestCase.assertTrue(passScore.getScore() >= score);
-				} else {
-					TestCase.assertTrue(passScore.getScore() <= score);
-				}
+				verifyScore(win, max, score, passScore);
+
 				board.oneStepBackward();
 				board.oneStepBackward();
 				manual.up();
@@ -177,4 +211,114 @@ public class VerifySearchResult {
 		}
 	}
 
+	private static void verifyScopeScoreReused(boolean max, boolean win,
+			int score, ScopeScore scopeScore) {
+		if (win) {
+			if (max) {
+				TestCase.assertTrue(scopeScore.getLow() >= score);
+			} else {
+				TestCase.assertTrue(scopeScore.getHigh() <= score);
+			}
+		} else {
+			if (max) {
+				TestCase.assertTrue(scopeScore.getHigh() <= score);
+			} else {
+				TestCase.assertTrue(scopeScore.getLow() >= score);
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param win
+	 * @param max
+	 * @param score
+	 * @param passScore
+	 */
+	private static void verifyScore(boolean win, boolean max, int score,
+			FinalResult passScore) {
+		if (win == max) {
+			TestCase.assertTrue("" + passScore + score,
+					passScore.getScore() >= score);
+		} else {
+			TestCase.assertTrue(passScore.getScore() <= score);
+		}
+		// equivalent, but not as cool.
+		if (win) {
+			if (max) {
+				TestCase.assertTrue(passScore.getScore() >= score);
+			} else {
+				TestCase.assertTrue(passScore.getScore() <= score);
+			}
+		} else {
+			if (max) {
+				TestCase.assertTrue(passScore.getScore() <= score);
+			} else {
+				TestCase.assertTrue(passScore.getScore() >= score);
+			}
+		}
+	}
+
+	/**
+	 * after we get exact score
+	 * 
+	 * @param state
+	 * @param score
+	 * @param win
+	 * @param lose
+	 */
+	public static void verify(BoardColorState state, int score,
+			TreeGoManual win, TreeGoManual lose) {
+		int maxScore = state.boardSize * state.boardSize;
+		if (state.isBlackTurn()) {
+			if (score == -maxScore) {
+				VerifySearchResult.verifyBetterImpossible(state, score, lose);
+			} else if (score == maxScore) {
+				VerifySearchResult.VerifyWin(state, score, win);
+			} else {
+				VerifySearchResult.VerifyWin(state, score, win);
+				VerifySearchResult.verifyBetterImpossible(state, score, lose);
+			}
+		} else if (state.isWhiteTurn()) {
+			if (score == -maxScore) {
+				VerifySearchResult.VerifyWin(state, score, win);
+			} else if (score == maxScore) {
+				VerifySearchResult.verifyBetterImpossible(state, score, lose);
+			} else {
+				VerifySearchResult.VerifyWin(state, score, win);
+				VerifySearchResult.verifyBetterImpossible(state, score, lose);
+			}
+		}
+	}
+
+	/**
+	 * check before add to known result.
+	 * 
+	 * @param state
+	 * @param scoreWithManual
+	 */
+	public static void verify(BoardColorState state,
+			ScoreWithManual scoreWithManual) {
+		ScopeScore scopeScore = scoreWithManual.scopeScore;
+		if (scoreWithManual.max) {
+			if (scopeScore.getLow() != -state.boardSize * state.boardSize) {
+				VerifySearchResult.VerifyWin(state, scopeScore.getLow(),
+						scoreWithManual.win);
+			}
+			if (scopeScore.getHigh() != state.boardSize * state.boardSize) {
+				VerifySearchResult.verifyBetterImpossible(state,
+						scopeScore.getHigh(), scoreWithManual.lose);
+			}
+		} else {// min
+			if (scopeScore.getHigh() != state.boardSize * state.boardSize) {
+				VerifySearchResult.VerifyWin(state, scopeScore.getHigh(),
+						scoreWithManual.win);
+			}
+			if (scopeScore.getLow() != 0 - state.boardSize * state.boardSize) {
+				VerifySearchResult.verifyBetterImpossible(state,
+						scopeScore.getLow(), scoreWithManual.lose);
+			}
+
+		}
+	}
 }

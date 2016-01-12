@@ -254,7 +254,10 @@ public class TreeGoManual extends AbsGoManual {
 	// brother = brother.brother;
 	// }
 	// }
-
+	public void backToRoot(){
+		this.current = root;
+	}
+	
 	public void up() {
 		if (current != root)
 			this.current = current.farther;

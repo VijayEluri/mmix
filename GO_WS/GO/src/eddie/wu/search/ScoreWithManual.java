@@ -39,9 +39,11 @@ public class ScoreWithManual {
 	 * @param mirrorScore
 	 *            Not modified
 	 */
-	public void merge(ScoreWithManual scoreWithManual) {
+	public boolean merge(ScoreWithManual scoreWithManual) {
+		boolean updated=false;
 		if (scopeScore.low < scoreWithManual.scopeScore.getLow()) {
 			scopeScore.low = scoreWithManual.scopeScore.getLow();
+			updated=true;
 			if (max) {
 				this.win = scoreWithManual.win;
 			} else {
@@ -50,18 +52,20 @@ public class ScoreWithManual {
 		}
 		if (scopeScore.high > scoreWithManual.scopeScore.getHigh()) {
 			scopeScore.high = scoreWithManual.scopeScore.getHigh();
+			updated=true;
 			if (max) {
 				this.lose = scoreWithManual.lose;
 			} else {
 				this.win = scoreWithManual.win;
 			}
 		}
-
+		
 		if (scopeScore.low > scopeScore.high) {
+			System.err.println("new score is "+scoreWithManual.scopeScore);
 			throw new RuntimeException("low = " + scopeScore.low + ", high = "
 					+ scopeScore.high);
 		}
-
+		return updated;
 	}
 
 	public void mirrorScore() {
@@ -71,6 +75,7 @@ public class ScoreWithManual {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer("ScoreWithManual [");
+		sb.append("max="+max);
 		sb.append(scopeScore.toString());
 		if (win != null) {
 			sb.append("win=");

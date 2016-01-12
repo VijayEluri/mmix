@@ -468,7 +468,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			//check whether the state collected in this search is compatible with existing searchResult.
 			Map<BoardColorState, ScoreWithManual> stateReached2 = goS.getStateReached();
 			ScopeScore.merge(stateReached_,stateReached2);
-			HistoryDepScore.merge(hisDepState_, goS.getStateHisDepReached());
+			//HistoryDepScore.merge(hisDepState_, goS.getStateHisDepReached());
 			if (score >= high) {
 				if (state.isBlackTurn()) {
 					log.warn("Black Play First: search with high = " + high
@@ -527,26 +527,7 @@ public class SmallBoardGlobalSearch extends GoBoardSearch {
 			}
 		} while (high <= maxScore && low > -maxScore);
 		score = scopeScore.getExactScore();
-		if (state.isBlackTurn()) {
-			if (score == -maxScore) {
-				VerifySearchResult.verifyBetterImpossible(state, score, lose);
-			} else if (score == maxScore) {
-				VerifySearchResult.VerifyWin(state, score, win);
-			} else {
-				VerifySearchResult.VerifyWin(state, score, win);
-				VerifySearchResult.verifyBetterImpossible(state, score, lose);
-			}
-		} else if (state.isWhiteTurn()) {
-			if (score == -maxScore) {
-				VerifySearchResult.VerifyWin(state, score, win);
-			} else if (score == maxScore) {
-				VerifySearchResult.verifyBetterImpossible(state, score, lose);
-			} else {
-				VerifySearchResult.VerifyWin(state, score, win);
-				VerifySearchResult.verifyBetterImpossible(state, score, lose);
-			}
-		}
-
+		VerifySearchResult.verify(state, score, win, lose);
 		return score;
 	}
 	

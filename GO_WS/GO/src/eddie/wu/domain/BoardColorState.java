@@ -731,6 +731,10 @@ public class BoardColorState {
 
 		List<StateSymmetry> list = new ArrayList<StateSymmetry>();
 		Set<StateSymmetry> set = new HashSet<StateSymmetry>();
+
+		SymmetryResult originalSym = new SymmetryResult();
+		set.add(new StateSymmetry(this, originalSym));
+		
 		byte[][] originalState = getMatrixState();
 		byte[][] verticalMirrorState = GoBoardSymmetry
 				.verticalMirror(originalState);
@@ -739,8 +743,6 @@ public class BoardColorState {
 		byte[][] horizontalVerticalMirrorState = GoBoardSymmetry
 				.horizontalMirror(verticalMirrorState);
 
-		SymmetryResult originalSym = new SymmetryResult();
-		set.add(new StateSymmetry(this, originalSym));
 		SymmetryResult verticalSym = new SymmetryResult();
 		verticalSym.setVerticalSymmetry(true);
 		set.add(new StateSymmetry(BoardColorState.getInstance(
@@ -778,8 +780,9 @@ public class BoardColorState {
 			}
 		}
 
-		boolean colorSwitchIncluded = list.contains(this.blackWhiteSwitch());
+		
 		Collections.sort(list, new StateComparator());
+		boolean colorSwitchIncluded = list.contains(this.blackWhiteSwitch());
 		if (colorSwitchIncluded) {
 			log.info("colorSwitchIncluded:" + colorSwitchIncluded);
 		}

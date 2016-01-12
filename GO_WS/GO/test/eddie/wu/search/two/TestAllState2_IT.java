@@ -38,7 +38,6 @@ public class TestAllState2_IT extends TestCase {
 	private static Logger log = Logger.getLogger(TestAllState2.class);
 	private static String manualFolder = Constant.DYNAMIC_DATA
 			+ "small_board/two_two/";
-	
 
 	/**
 	 * B-->[1,1]W-->[2,2]B-->[1,2]W-->[2,1
@@ -321,6 +320,7 @@ public class TestAllState2_IT extends TestCase {
 		TwoTwoBoardSearch goS = new TwoTwoBoardSearch(boardState, 2);
 		goS.setDepth(12);
 		int score = goS.globalSearch();
+		goS.outputSearchStatistics();
 		assertEquals(1, score);
 
 		goS.outputSearchStatistics();
@@ -691,20 +691,24 @@ public class TestAllState2_IT extends TestCase {
 		text[0] = new String("[B, _]");
 		text[1] = new String("[_, W]");
 		byte[][] state = StateLoader.LoadStateFromText(text);
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-			log.warn(Arrays.deepToString(state));
-		BoardColorState boardState = new BoardColorState(state, Constant.BLACK);
-		GoBoardSearch goS = new TwoTwoBoardSearch(boardState, 4);
-		int score = goS.globalSearch();
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-			log.warn("Score=" + score);
+
+		BoardColorState boardState;
+		GoBoardSearch goS;
+		int score;
+//		Logger.getLogger("search.state.add").setLevel(Level.DEBUG);;
+//		Logger.getLogger("search.verify").setLevel(Level.DEBUG); 
+
+		boardState = new BoardColorState(state, Constant.BLACK);
+		goS = new TwoTwoBoardSearch(boardState, 4);
+		score = goS.globalSearch();
+		log.debug("Score=" + score);
 		assertEquals(1, score);
+
 		boardState = new BoardColorState(state, Constant.WHITE);
 		goS = new TwoTwoBoardSearch(boardState, -4);
 		// goS = new TwoTwoBoardSearch(state, Constant.WHITE, -3, -4);
 		score = goS.globalSearch();
-		if (log.isEnabledFor(org.apache.log4j.Level.WARN))
-			log.warn("Score=" + score);
+		log.debug("Score=" + score);
 		assertEquals(-1, score);
 	}
 
@@ -821,6 +825,6 @@ public class TestAllState2_IT extends TestCase {
 			}
 		}
 		log.error("History Independent state");
-		
+
 	}
 }

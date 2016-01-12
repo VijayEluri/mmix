@@ -8,6 +8,7 @@ import eddie.wu.domain.Constant;
 public class BoardColorComparator implements Comparator<BoardColorState> {
 	public static int compare_(BoardColorState o1, BoardColorState o2) {
 		if (o1.getWhoseTurn() != o2.getWhoseTurn()) {
+			//black precedes white
 			return (o1.getWhoseTurn() == Constant.BLACK) ? -1 : 1;
 		}
 
@@ -34,6 +35,7 @@ public class BoardColorComparator implements Comparator<BoardColorState> {
 				}
 			}
 		}
+		//when state are same!
 		return 0;
 	}
 
@@ -41,7 +43,6 @@ public class BoardColorComparator implements Comparator<BoardColorState> {
 	public int compare(BoardColorState o1, BoardColorState o2) {
 		int compareRes = compare_(o1, o2);
 		if (compareRes == 0) {
-
 			// if white is also exactly same
 			System.out.println(o1.getStateString());
 			System.out.println(o2.getStateString());

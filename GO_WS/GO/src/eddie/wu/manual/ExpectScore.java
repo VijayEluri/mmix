@@ -1,5 +1,12 @@
 package eddie.wu.manual;
 
+/**
+ * simplex class to represent both max and min's expect score
+ * 
+ * @author think
+ * @immutable
+ * 
+ */
 public class ExpectScore {
 	private int highExp;
 	private int lowExp;
@@ -13,21 +20,13 @@ public class ExpectScore {
 		return highExp;
 	}
 
-	// public void setHighExp(int highExp) {
-	// this.highExp = highExp;
-	// }
-
 	public int getLowExp() {
 		return lowExp;
 	}
 
-	// public void setLowExp(int lowExp) {
-	// this.lowExp = lowExp;
-	// }
-
 	@Override
 	public String toString() {
-		return "ExpectScore [highExp=" + highExp + ", lowExp=" + lowExp + "]";
+		return "[" + lowExp + ", " + highExp + "]";
 	}
 
 	/**

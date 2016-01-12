@@ -48,18 +48,24 @@ public abstract class GoBoardSearch {
 	 */
 	protected static Map<BoardColorState, ScoreWithManual> stateReached_ = new HashMap<BoardColorState, ScoreWithManual>();
 
-	public static Map<BoardColorState, ScoreWithManual> getStateReached_() {
-		return stateReached_;
-	}
-
-	public static Map<BoardColorState, HistoryDepScore> getHisDepState_() {
-		return hisDepState_;
-	}
-
 	/**
 	 * history dependent state Reached, mainly for 2*2 board.
 	 */
 	protected static Map<BoardColorState, HistoryDepScore> hisDepState_ = new HashMap<BoardColorState, HistoryDepScore>();
+
+	/**
+	 * store the state encountered during search, since we may reach same state
+	 * again and again. especially in case of small board like 2*2, where most
+	 * state is history dependent, so there might be many variant. it is
+	 * different with known state identified before hand.
+	 * 
+	 * @return
+	 */
+	private Map<BoardColorState, ScoreWithManual> stateReached = new HashMap<BoardColorState, ScoreWithManual>();
+
+	
+
+	public SearchParam searchParam = new SearchParam();
 
 	protected static final String DB_PASS = " DB_PASS";
 
@@ -67,23 +73,7 @@ public abstract class GoBoardSearch {
 
 	private int id;// for log information to distinguish instances
 
-	/**
-	 * whether we store and reuse state we ever encountered.
-	 */
-	public boolean store_state = true;
-	public boolean reuse_state = false;// true;
-
 	private ExpectScore expScore;
-
-	// set it big to deal with ladder calculation
-	public int depth = 81;
-	/**
-	 * 1. set it small to ensure we have efficient algorithm <br/>
-	 * 2. could be controlled outside. 3. it counts the number of final state we
-	 * reached.
-	 */
-
-	private int NUMBER_OF_VARIANT = 50000 * 3;
 
 	private static final Logger log = Logger.getLogger(GoBoardSearch.class);
 	// when we apply the stored state.
@@ -95,7 +85,8 @@ public abstract class GoBoardSearch {
 	// when adding terminal state.
 	private static final Logger logTerminalState = Logger
 			.getLogger("search.terminal.state.add");
-	private List<SearchLevel> levels = new ArrayList<SearchLevel>(depth);
+	private List<SearchLevel> levels = new ArrayList<SearchLevel>(
+			this.searchParam.depth);
 
 	/**
 	 * initial state is in level 0
@@ -110,8 +101,6 @@ public abstract class GoBoardSearch {
 	 * 将每个搜索到终点的过程记录下来.便于排错.
 	 */
 	private List<String> searchProcess = new ArrayList<String>();
-
-	// List<Step> bestResult;
 
 	/**
 	 * keep the search tree internally and help output result tree.
@@ -138,7 +127,6 @@ public abstract class GoBoardSearch {
 	public int globalSearch() {
 		GoBoard goBoard = this.getGoBoard();
 		SearchLevel initLevel = getInitLevel();
-		root.setMax(initLevel.isMax());
 		initLevel.setNode(root);
 		levels.add(initLevel);
 		logProcess.debug("search with " + expScore);
@@ -156,15 +144,18 @@ public abstract class GoBoardSearch {
 					.getBoardColorState();
 			boolean justInitialized = false;
 
-			String stateMessage = currentState.getStateString() + "<---"
-					+ currentLevel.getPrevStep();
-			if (currentLevel.isInitialized()) {
-				stateMessage = "Old Current Search state:" + stateMessage;
-
-			} else {
-				stateMessage = "New Current Search state:" + stateMessage;
+			if (logProcess.isDebugEnabled()) {
+				String stateMessage = currentState.getStateString() + "<---"
+						+ currentLevel.getPrevStep();
+				if (currentLevel.isInitialized()) {
+					stateMessage = "Revisist Old Current Search state:"
+							+ stateMessage;
+				} else {
+					stateMessage = "Visit New Current Search state:"
+							+ stateMessage;
+				}
+				logProcess.debug(stateMessage);
 			}
-			logProcess.debug(stateMessage);
 
 			/**
 			 * 解决最终状态识别的问题.<br/>
@@ -173,7 +164,7 @@ public abstract class GoBoardSearch {
 
 			if (currentLevel.isInitialized() == false
 					&& currentLevel.noExpansion == false) {
-				if (reuse_state) {
+				if (searchParam.reuse_state) {
 					// identify final state per history knowledge.
 					reuseEverEncounteredState(currentLevel, currentState);
 				}
@@ -190,7 +181,7 @@ public abstract class GoBoardSearch {
 				 * whether search depth is reached!
 				 */
 				if (currentLevel.noExpansion == false) {
-					if (levels.size() == depth) {
+					if (levels.size() == this.searchParam.depth) {
 						currentLevel.setUnknownChild();
 						currentLevel.noExpansion = true;
 					}
@@ -261,7 +252,15 @@ public abstract class GoBoardSearch {
 			}
 
 			/**
-			 * goBoard is in state of level above.<br/>
+			 * we already reach the processes limit and we cannot move on with
+			 * new branch.
+			 */
+			if (this.searchProcess.size() >= this.searchParam.NUMBER_OF_VARIANT) {
+				log.error("variants >=" + this.searchParam.NUMBER_OF_VARIANT);
+				break;
+			}
+			/**
+			 * goBoard is in state of current level .<br/>
 			 * 现在处理候选点，展开得到下一level
 			 */
 			Candidate nextCandidate = currentLevel.getNextCandidate();
@@ -280,16 +279,6 @@ public abstract class GoBoardSearch {
 			boolean valid = getGoBoard().oneStepForward(step);
 			if (valid == false) {
 				// dead path after redesign - identify duplicates before hand.
-				System.out.println(getGoBoard().getStateString().toString());
-				for (StepMemo stepTemp : getGoBoard().getStepHistory()
-						.getAllSteps()) {
-					System.err.println(stepTemp.getStep());
-					System.err.println(stepTemp.getColorState());
-				}
-				for (BoardColorState state : getGoBoard().getStepHistory()
-						.getColorStates()) {
-					System.err.println(state);
-				}
 				// we already check before hand when getting candidates.
 				throw new RuntimeException("duplicate state leaked" + step);
 			}
@@ -301,23 +290,12 @@ public abstract class GoBoardSearch {
 						+ " moves=" + forwardMoves + " " + step);
 			}
 
-			if (log.isInfoEnabled()) {
-				log.info("check state after step " + step);
-				log.info(goBoard.getStateString());
-				if (goBoard.noStep() == false) {
-					log.info("Last Step at " + goBoard.getLastPoint());
-				}
-			}
-
 			if (step.isPass() == false
 					&& goBoard.getColor(step.getPoint()) != step.getColor()) {
 				String message = "step " + step + " does not take effect";
 				log.error(message);
 				throw new RuntimeException(message);
 			}
-
-			// reuse ever encountered states
-			// check terminal state;
 
 			/**
 			 * continue expanding <br/>
@@ -326,32 +304,23 @@ public abstract class GoBoardSearch {
 			SearchLevel newLevel = buildNewLevel(currentLevel, step);
 			updateTreeWithNewLevel(newLevel, currentLevel);
 			levels.add(newLevel);
-			if (levels.size() > depth) {
-				String string = "levels size: " + levels.size() + " > " + depth;
-				log.error(string);
-				throw new RuntimeException(string);
-			}
 
-			if (this.searchProcess.size() > NUMBER_OF_VARIANT) {
-				log.error("variants >" + NUMBER_OF_VARIANT);
-				break;
-			}
-			log.warn(Constant.lineSeparator);
 		} // while
-
+		ScopeScore.merge(stateReached_, stateReached);
 		if (levelIndex == 0) {
 			/**
-			 * 算完了所有变化，回到level 0，此时的结果即最佳结果。
+			 * 算完了所有变化，回到level 0，但是此时的结果未必就是最佳结果。因为可能深度不够。或者受限于搜索的分支数目。
 			 * 
 			 */
-			if (this.getClass().getName().endsWith("ThreeThreeBoardSearch")) {
-				if (log.isInfoEnabled()) {
-					log.info(this.getGoBoard().getInitColorState()
-							.getStateString());
-					log.info(this.getGoBoard().getBoardColorState()
-							.getStateString());
-				}
-			}
+			// if (this.getClass().getName().endsWith("ThreeThreeBoardSearch"))
+			// {
+			// if (log.isInfoEnabled()) {
+			// log.info(this.getGoBoard().getInitColorState()
+			// .getStateString());
+			// log.info(this.getGoBoard().getBoardColorState()
+			// .getStateString());
+			// }
+			// }
 			GoBoard goDemo = new GoBoard(this.getGoBoard().getInitColorState());
 			log.warn("Initial state");
 			goDemo.printState(log);
@@ -360,7 +329,7 @@ public abstract class GoBoardSearch {
 					&& searchLevel.hasUnknownChild()) {
 				throw new RuntimeException(
 						"no enough terminal state, search Depth is not enough,"
-								+ this.depth);
+								+ this.searchParam.depth);
 			}
 			return searchLevel.getTempBestScore();
 		} else if (levelIndex < 0) {
@@ -396,34 +365,35 @@ public abstract class GoBoardSearch {
 
 	public void logProcess_1(SearchLevel currentLevel,
 			BoardColorState currentState, boolean justInitialized) {
-		if (logProcess.isDebugEnabled()) {
-			if (currentLevel.alreadyWin()) {
-				logProcess.debug("Win by score = "
+		if (logProcess.isDebugEnabled() == false)
+			return;
+		if (currentLevel.alreadyWin()) {
+			logProcess.debug("Win by score = "
+					+ currentLevel.getTempBestScore() + ", "
+					+ currentLevel.getExpScoreAsString());
+		} else if (currentLevel.exhausted()) {
+			if (currentLevel.getTempBestScore() == Constant.UNKNOWN) {
+				logProcess.debug("score is unknown ");
+			} else {
+				logProcess.debug("Lose by score = "
 						+ currentLevel.getTempBestScore() + ", "
 						+ currentLevel.getExpScoreAsString());
-			} else if (currentLevel.exhausted()) {
-				if (currentLevel.getTempBestScore() == Constant.UNKNOWN) {
-					logProcess.debug("score is unknown ");
-				} else {
-					logProcess.debug("Lose by score = "
-							+ currentLevel.getTempBestScore() + ", "
-							+ currentLevel.getExpScoreAsString());
-				}
-			} else if (justInitialized == false) {
-				logProcess.debug("temp best score = "
-						+ currentLevel.getTempBestScore());
 			}
+		} else if (justInitialized == false) {
+			logProcess.debug("temp best score = "
+					+ currentLevel.getTempBestScore());
 		}
-		if (log.isEnabledFor(Level.WARN)) {
-			log.warn("id=" + id + "; level=" + currentLevel);
-			log.warn("new Round started in search" + " at previous state: ");
-			this.getGoBoard().printState(log);
-			if (levelIndex != 0) {
-				log.warn(" with history: "
-						+ getGoBoard().getCurrent()
-								.getSingleManualStringToRoot(false));
-			}
-		}
+
+		// if (log.isEnabledFor(Level.WARN)) {
+		// log.warn("id=" + id + "; level=" + currentLevel);
+		// log.warn("new Round started in search" + " at previous state: ");
+		// this.getGoBoard().printState(log);
+		// if (levelIndex != 0) {
+		// log.warn(" with history: "
+		// + getGoBoard().getCurrent()
+		// .getSingleManualStringToRoot(false));
+		// }
+		// }
 	}
 
 	protected SearchLevel buildNewLevel(SearchLevel preLevel, Step step) {
@@ -443,20 +413,6 @@ public abstract class GoBoardSearch {
 
 	public ExpectScore getExpScore() {
 		return this.expScore;
-	}
-
-	/**
-	 * store the state encountered during search, since we may reach same state
-	 * again and again. especially in case of small board like 2*2, where most
-	 * state is history dependent, so there might be many variant. it is
-	 * different with known state identified before hand.
-	 * 
-	 * @return
-	 */
-	private Map<BoardColorState, ScoreWithManual> stateReached = new HashMap<BoardColorState, ScoreWithManual>();
-
-	public Map<BoardColorState, ScoreWithManual> getStateReached() {
-		return stateReached;
 	}
 
 	/**
@@ -514,11 +470,11 @@ public abstract class GoBoardSearch {
 	}
 
 	public void setVariant(int variant) {
-		NUMBER_OF_VARIANT = variant;
+		this.searchParam.NUMBER_OF_VARIANT = variant;
 	}
 
 	public void setDepth(int deepth) {
-		this.depth = deepth;
+		this.searchParam.depth = deepth;
 	}
 
 	public List<String> getSearchProcess() {
@@ -558,7 +514,6 @@ public abstract class GoBoardSearch {
 			SearchNode newNode = new SearchNode(step);
 			currentLevel.getNode().addChild(newNode);
 			newLevel.setNode(newNode);
-			newNode.setMax(newLevel.isMax());
 		}
 	}
 
@@ -606,8 +561,8 @@ public abstract class GoBoardSearch {
 	 * 
 	 * @param level
 	 */
-	private void reachState(SearchLevel level) {
-		if (store_state == false)
+	private void reachState(SearchLevel level, BoardColorState state) {
+		if (searchParam.store_state == false)
 			return;
 
 		StepMemo lastStep = this.getGoBoard().getLastStep();
@@ -634,23 +589,26 @@ public abstract class GoBoardSearch {
 				} else {
 					// win means lose one change reaching duplicates did not
 					// impact the result
-					reachHisIndepState(level);
+					reachHisIndepState(level, state);
 				}
 			}
 		} else if (level.isReachingDupIndirectly()) {
 			reachHisDepState(level);
 		} else {
-			reachHisIndepState(level);
+			reachHisIndepState(level, state);
 		}
 	}
 
-	private void reachHisIndepState(SearchLevel level) {
-		BoardColorState originalState = getGoBoard().getBoardColorState();
-
+	private void reachHisIndepState(SearchLevel level,
+			BoardColorState originalState) {
 		if (logState.isDebugEnabled()) {
 			logState.debug("History Independent State");
-			logState.debug("Add state:" + originalState.getStateString());
-			logState.debug("with temp. best Score: " + level.getTempBestScore());
+			logState.debug("Original state: " + originalState.getStateString());
+			logState.debug("With temp. best Score: " + level.getTempBestScore());
+		}
+		boolean mirror = false; // whether we need to switch color!
+		if (originalState.isBlackTurn() == false) {
+
 		}
 
 		BoardColorState normalizedState;
@@ -659,53 +617,69 @@ public abstract class GoBoardSearch {
 			StateSymmetry symmetryState = originalState.normalizeInternal();
 			normalizedState = symmetryState.getState();
 			symOper = symmetryState.getSymmetry();
+			if (logState.isDebugEnabled()) {
+				logState.debug("Normalized state: "
+						+ originalState.getStateString());
+			}
 		} else {
+			mirror = true;
+			BoardColorState mirrorState = originalState.blackWhiteSwitch();
+			if (logState.isDebugEnabled()) {
+				logState.debug("Black/White switched state: "
+						+ mirrorState.getStateString());
+			}
 			// after color switch, may be no longer normalized.
-			StateSymmetry mirrorSymmetryState = originalState
-					.blackWhiteSwitch().normalizeInternal();
-			BoardColorState mirrorState = mirrorSymmetryState.getState();
-			normalizedState = mirrorState;
-			SymmetryResult symOperMirror = mirrorSymmetryState.getSymmetry();
-			symOper = symOperMirror;
+			StateSymmetry mirrorSymmetryState = mirrorState.normalizeInternal();
+			normalizedState = mirrorSymmetryState.getState();
+			symOper = mirrorSymmetryState.getSymmetry();
 			symOper.blackWhiteSymmetric = true;// important
 		}
 
-		// symOperMirror.cascaseOperation(symOper);
-		// int boardSize = this.getGoBoard().boardSize;
-		ScoreWithManual score = level.getScopeScore_(normalizedState, symOper);
+		ScoreWithManual scoreWithManual = level.getScopeScore_(normalizedState,
+				symOper);
 		if (stateReached.containsKey(normalizedState)) {
-			score = stateReached.get(normalizedState);
-			score.merge(level.getScopeScore_(normalizedState, symOper));
-			score.scopeScore.increaseNotAppliedTimes();
-			if (logState.isDebugEnabled()) {
+			scoreWithManual = stateReached.get(normalizedState);
+			if(normalizedState.isBlackTurn()!=scoreWithManual.max){
+				log.error(normalizedState);
+				log.error(scoreWithManual);
+				throw new RuntimeException();
+			}
+			boolean updated = scoreWithManual.merge(scoreWithManual);
+			scoreWithManual.scopeScore.increaseNotAppliedTimes();
+			if (updated && logState.isDebugEnabled()) {
 				logState.debug("Update state:"
 						+ normalizedState.getStateString());
-				logState.debug("Original Score: " + score);
-				logState.debug("with Score: " + level.getTempBestScore());
-
+				logState.debug("with Score and manual: " + scoreWithManual);
 			}
 		} else {// new state
-			stateReached.put(normalizedState, score);
+			stateReached.put(normalizedState, scoreWithManual);
+			if(normalizedState.isBlackTurn()!=scoreWithManual.max){
+				log.error(normalizedState);
+				log.error(scoreWithManual);
+				throw new RuntimeException();
+			}
 			if (logState.isDebugEnabled()) {
 				logState.debug("Add state:" + normalizedState.getStateString());
-				logState.debug("with Score: " + score);
+				logState.debug("with Score and Manual: " + scoreWithManual);
 			}
 		}
 
 		if (logState.isDebugEnabled()) {
-			if (score.win != null) {
-				logState.debug(score.win.getSGFBodyString(false, true));
+			if (scoreWithManual.win != null) {
+				logState.debug(scoreWithManual.win
+						.getSGFBodyString(false, true));
 			}
-			if (score.lose != null) {
-				logState.debug(score.lose.getSGFBodyString(false, true));
+			if (scoreWithManual.lose != null) {
+				logState.debug(scoreWithManual.lose.getSGFBodyString(false,
+						true));
 			}
-			logState.debug("Max = " + level.isMax());
-			logState.debug("Win = " + level.alreadyWin());
-			logState.debug("exp = " + level.getExpScore());
-			logState.debug("expScore=" + expScore);
-			logState.debug(this.getGoBoard().getLastStep().getStep());
-			logState.debug(level.getAllCanPoint());
-			logState.debug("Result Score: " + score);
+			// logState.debug("Max = " + level.isMax());
+			// logState.debug("Win = " + level.alreadyWin());
+			// logState.debug("exp = " + level.getExpScore());
+			// logState.debug("expScore=" + expScore);
+			// logState.debug(this.getGoBoard().getLastStep().getStep());
+			// logState.debug(level.getAllCanPoint());
+			// logState.debug("Result Score: " + scoreWithManual);
 		}
 	}
 
@@ -906,17 +880,26 @@ public abstract class GoBoardSearch {
 
 	}
 
+	/**
+	 * TODO
+	 * 
+	 * @param level
+	 * @param newState
+	 * @param mirror
+	 */
 	public void reuseIndependentState(SearchLevel level,
 			BoardColorState newState, boolean mirror) {
 		boolean alreadyWin = false;
-		ScopeScore scopeScore = stateReached.get(newState).scopeScore;
+		ScoreWithManual scoreWithManual = stateReached.get(newState);
+		ScopeScore scopeScore = scoreWithManual.scopeScore;
 		if (mirror) {
 			scopeScore = scopeScore.mirror();
 		}
-		level.updateWithFuzzyScore(scopeScore);
+		level.updateWithFuzzyScore(scoreWithManual, mirror);
 		scopeScore.increaseAppliedTimes();
 		alreadyWin = level.alreadyWin();
-		if (alreadyWin) {
+		boolean opponentWin = level.opponentWin_();
+		if (alreadyWin || opponentWin) {
 			level.noExpansion = true;
 		}
 		if (logApply.isDebugEnabled()) {
@@ -951,10 +934,12 @@ public abstract class GoBoardSearch {
 				state.blackWhiteSwitch();
 			}
 			if (getGoBoard().getStepHistory().containState(state)) {
-				ScopeScore temp = depScore.getValue().scopeScore;
-				if (mirror)
+				ScoreWithManual scoreWithManual = depScore.getValue();
+				ScopeScore temp = scoreWithManual.scopeScore;
+				if (mirror) {
 					temp = temp.mirror();
-				level.updateWithFuzzyScore(temp);
+				}
+				level.updateWithFuzzyScore(scoreWithManual, mirror);
 				level.addIndirectDupStates(depScore.getKey());
 				alreadyWin = level.alreadyWin();
 				if (alreadyWin) {
@@ -994,20 +979,23 @@ public abstract class GoBoardSearch {
 	 */
 	public void reuseEverEncounteredState(SearchLevel level,
 			BoardColorState currentState) {
-		BoardColorState newState = currentState.normalize();
-		BoardColorState newStateMirror = newState.blackWhiteSwitch()
-				.normalize();
+		BoardColorState newState;
+		boolean mirror = false;
+		if (currentState.isBlackTurn()) {
+			newState = currentState.normalize();
+		} else {
+			mirror = true;
+			BoardColorState newStateMirror = currentState.blackWhiteSwitch();
+			newState = newStateMirror.normalize();
+		}
 		if (this.stateReached.containsKey(newState)) {
-			reuseIndependentState(level, newState, false);
-		} else if (this.stateReached.containsKey(newStateMirror)) {
-			reuseIndependentState(level, newStateMirror, true);
+			reuseIndependentState(level, newState, mirror);
 		}
 		if (level.noExpansion)
 			return;
+
 		if (this.hisDepState.containsKey(newState)) {
-			reuseDependentState(level, newState, false);
-		} else if (this.hisDepState.containsKey(newStateMirror)) {
-			reuseDependentState(level, newStateMirror, true);
+			reuseDependentState(level, newState, mirror);
 		}
 
 	}
@@ -1073,8 +1061,9 @@ public abstract class GoBoardSearch {
 		// log.warn(currentLevel.getWhoseTurnString() + " Already Win: " +
 		// score);
 
-		if (currentLevel.isPrevStepPass() == false) {
-			reachState(currentLevel);
+		if (currentLevel.noExpansion == false
+				&& currentLevel.isPrevStepPass() == false) {
+			reachState(currentLevel, currentState);
 		}
 		if (noUp)
 			return;
@@ -1153,13 +1142,14 @@ public abstract class GoBoardSearch {
 		Set<BoardColorState> dupStates = currentLevel.getAllDupStates();
 		if (dupStates.isEmpty() == false) {
 			logState.debug("historyDep = " + true + ", begin");
+			logState.debug("depends on state");
 			for (BoardColorState state : dupStates) {
 				logState.debug(Constant.lineSeparator + state);
 			}
 			logState.debug("historyDep = " + true + ", end");
 		}
 		// try {
-		this.reachState(currentLevel);
+		this.reachState(currentLevel, currentState);
 		// } catch (RuntimeException e) {
 		// this.getGoBoard().errorState();
 		// ScopeScore score2 = this.stateReached.get(this.getGoBoard()
@@ -1250,4 +1240,38 @@ public abstract class GoBoardSearch {
 		}
 	}
 
+	public static ScopeScore getScoreOfKnonwState(BoardColorState boardState) {
+		// means the terminal state caused by reusing known state's
+		// score directly.
+		BoardColorState standard;
+		boolean mirror = false;
+		if (boardState.isBlackTurn() == false) {
+			standard = boardState.blackWhiteSwitch().normalize();
+			mirror = true;
+		} else {
+			standard = boardState.normalize();
+		}
+		if (GoBoardSearch.getStateReached_().containsKey(standard)) {
+			ScoreWithManual scoreWithManual = GoBoardSearch.getStateReached_()
+					.get(standard);
+			ScopeScore scopeScore = scoreWithManual.scopeScore;
+			if (mirror) {
+				scopeScore = scopeScore.mirror();
+			}
+			return scopeScore;
+		} else {
+			throw new RuntimeException("step is not handled: " + standard);
+		}
+	}
+
+	public static Map<BoardColorState, ScoreWithManual> getStateReached_() {
+		return stateReached_;
+	}
+
+	public static Map<BoardColorState, HistoryDepScore> getHisDepState_() {
+		return hisDepState_;
+	}
+	public Map<BoardColorState, ScoreWithManual> getStateReached() {
+		return stateReached;
+	}
 }
