@@ -3,8 +3,10 @@ package eddie.wu.search;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import junit.framework.TestCase;
 import eddie.wu.domain.BoardColorState;
 import eddie.wu.manual.TreeGoManual;
+import eddie.wu.search.global.VerifySearchResult;
 
 /**
  * in order to store inaccurate score. <br/>
@@ -224,7 +226,7 @@ public class ScopeScore {
 		int low = 0 - this.high;
 		int high = 0 - this.low;
 		ScopeScore mirror = new ScopeScore(low, high);
-		//mirror.l
+		// mirror.l
 		return mirror;
 	}
 
@@ -256,15 +258,32 @@ public class ScopeScore {
 	 */
 	public static void merge(Map<BoardColorState, ScoreWithManual> oldStates,
 			Map<BoardColorState, ScoreWithManual> newStates) {
-		for (Entry<BoardColorState, ScoreWithManual> newEntry : newStates.entrySet()) {
+
+		for (Entry<BoardColorState, ScoreWithManual> newEntry : newStates
+				.entrySet()) {
+			// verify new States in current search first
+			BoardColorState state = newEntry.getKey();
+			ScoreWithManual scoreWithManual = newEntry.getValue();
+			// ScopeScore scopeScore = scoreWithManual.scopeScore;
+			try {
+				
+				VerifySearchResult.verify(state, scoreWithManual);
+			} catch (Throwable e) {
+				System.err.println("wrong state " + state);
+				System.err.println("manual " + scoreWithManual);
+				throw e;
+			}
 			if (oldStates.containsKey(newEntry.getKey())) {
-				oldStates.get(newEntry.getKey()).merge(newEntry.getValue());
+				try {
+					oldStates.get(newEntry.getKey()).merge(newEntry.getValue());
+				} catch (RuntimeException e) {
+					System.err.println(newEntry.getKey());
+					throw e;
+				}
 			} else {
 				oldStates.put(newEntry.getKey(), newEntry.getValue());
 			}
 		}
 	}
-
-	
 
 }

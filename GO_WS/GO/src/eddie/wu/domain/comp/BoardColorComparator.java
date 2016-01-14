@@ -6,9 +6,9 @@ import eddie.wu.domain.BoardColorState;
 import eddie.wu.domain.Constant;
 
 public class BoardColorComparator implements Comparator<BoardColorState> {
-
 	public static int compare_(BoardColorState o1, BoardColorState o2) {
 		if (o1.getWhoseTurn() != o2.getWhoseTurn()) {
+			//black precedes white
 			return (o1.getWhoseTurn() == Constant.BLACK) ? -1 : 1;
 		}
 
@@ -35,21 +35,14 @@ public class BoardColorComparator implements Comparator<BoardColorState> {
 				}
 			}
 		}
+		//when state are same!
 		return 0;
 	}
 
-	/**
-	 * normalize state.<br/>
-	 * 1. black first if two color exist at the same time<br/>
-	 * 2. less black stone is better<br/>
-	 * 3. in tie, lower coordinate is better<br/>
-	 * 4. other wise check white stone.
-	 */
 	@Override
 	public int compare(BoardColorState o1, BoardColorState o2) {
 		int compareRes = compare_(o1, o2);
 		if (compareRes == 0) {
-
 			// if white is also exactly same
 			System.out.println(o1.getStateString());
 			System.out.println(o2.getStateString());

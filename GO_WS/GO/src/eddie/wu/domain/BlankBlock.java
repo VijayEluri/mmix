@@ -258,7 +258,7 @@ public class BlankBlock extends BasicBlock {
 
 	public boolean isEyeBlock() {
 		/**
-		 * allow the empty blank block. (some single point blankblock will
+		 * allow the empty blank block. (some single point blank block will
 		 * disappear after you play on it.
 		 */
 		if (this.allPoints.isEmpty()) {// TODO
@@ -307,7 +307,12 @@ public class BlankBlock extends BasicBlock {
 	}
 
 	public boolean isBlackEye() {
-		return blackEye;
+		// return blackEye; Bug here, may not initialized yet.
+		if (this.isEyeBlock()) {
+			return this.blackEye == true;
+		}else{
+			return false;
+		}
 	}
 
 	public boolean isLiveEye() {
@@ -725,8 +730,11 @@ public class BlankBlock extends BasicBlock {
 	}
 
 	public boolean isWhiteEye() {
-
-		return this.isEyeBlock()==true && this.isBlackEye() == false;
+		if (this.isEyeBlock()) {// init data
+			return this.blackEye == false;
+		} else {
+			return false;
+		}
 	}
 
 	public boolean isInitBlankBlock() {

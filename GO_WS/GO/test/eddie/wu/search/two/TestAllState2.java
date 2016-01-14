@@ -54,7 +54,7 @@ public class TestAllState2 extends TestAllState2_IT {
 		// Logger.getLogger(GoBoardSearch.class).setLevel(Level.INFO);
 		Logger.getLogger(GoBoardForward.class).setLevel(Level.ERROR);
 		Logger.getLogger(TestAllState2.class).setLevel(Level.INFO);
-		Logger.getLogger("search.statistic").setLevel(Level.INFO);
+		Logger.getLogger("search.statistic").setLevel(Level.DEBUG);
 		Logger.getLogger("search.verify").setLevel(Level.DEBUG);
 		;
 
@@ -102,5 +102,9 @@ public class TestAllState2 extends TestAllState2_IT {
 
 	public void testState_blackFirst_lose_9_8() {
 		testState1_blackFirst_lose(3, 9, 8);// 5s
+	}
+	
+	public void testState2_AA1(){
+		super.testState2_AA1();
 	}
 }

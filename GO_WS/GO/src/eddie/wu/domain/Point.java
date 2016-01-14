@@ -578,6 +578,8 @@ public class Point implements java.io.Serializable {
 				list.add(point.backwardSlashMirror());
 			}
 			list.add(point);
+		}else{
+			list.add(point);
 		}
 		
 		return list;

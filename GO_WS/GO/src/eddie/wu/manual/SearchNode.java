@@ -94,13 +94,14 @@ public class SearchNode {
 			nodeCopy = new SearchNode(stepTemp);
 		}
 		if (sym.blackWhiteSymmetric) {
-//			nodeCopy.getStep().
+			// nodeCopy.getStep().
 			nodeCopy.score = -this.score;
 			nodeCopy.max = !this.max;
 		} else {
 			nodeCopy.score = this.score;
 			nodeCopy.max = this.max;
 		}
+
 		return nodeCopy;
 	}
 
@@ -141,6 +142,18 @@ public class SearchNode {
 		return list;
 	}
 
+	public List<Step> getChildrenStep() {
+		if (child == null)
+			return null;
+		List<Step> list = new ArrayList<Step>();
+		SearchNode temp = child;
+		while (temp != null) {
+			list.add(temp.getStep());
+			temp = temp.brother;
+		}
+		return list;
+	}
+
 	public SearchNode getBrother() {
 		return brother;
 	}
@@ -171,6 +184,19 @@ public class SearchNode {
 			return;
 		}
 		this.child.addBrother(child);
+	}
+
+	/**
+	 * add all root's children to current node as child
+	 * 
+	 * @param root
+	 */
+	public void addSubTree(SearchNode root) {
+		SearchNode temp = root.child;
+		while (temp != null) {
+			this.addChild(temp);
+			temp = temp.brother;
+		}
 	}
 
 	private void addBrother(SearchNode brother) {
@@ -824,32 +850,51 @@ public class SearchNode {
 	 */
 	public boolean containsChildMove_mirrorSubTree(SymmetryResult sym, Step step) {
 		Point move = step.getPoint();
-		SymmetryResult normalizeOperation = GoBoardSymmetry
-				.getNormalizeOperation(move, sym);
-		Point moveNorm = move.normalize(sym);
+		Point moveNorm;
+		SymmetryResult normalizeOperation;
 		SymmetryResult normalizeManual = null;
+		if (step.isPass()) {
+			normalizeOperation = new SymmetryResult();
+			normalizeManual = new SymmetryResult();
+			moveNorm = move;
+		} else {
+			normalizeOperation = GoBoardSymmetry.getNormalizeOperation(move,
+					sym);
+			moveNorm = move.normalize(sym);
+		}
 
 		boolean found = false;
 		SearchNode temp = child;
 		while (temp != null) {
-			if (temp.getStep().isPass()) {
+			if (step.isPass()) {
+				if (temp.getStep().isPass()) {
+					found = true;
+					break;
+				}
 				temp = temp.brother;
 				continue;
-			}
-			if (temp.getStep().getPoint().normalize(sym).equals(moveNorm)) {
-				System.out.println(temp.getStep().getPoint());
-				normalizeManual = GoBoardSymmetry.getNormalizeOperation(temp
-						.getStep().getPoint(), sym);
-				System.out.println(normalizeManual);
-				found = true;
-				break;
 			} else {
-				temp = temp.brother;
+				if (temp.getStep().isPass()) {
+					temp = temp.brother;
+				} else if (temp.getStep().getPoint().normalize(sym)
+						.equals(moveNorm)) {
+					// System.out.println(temp.getStep().getPoint());
+					normalizeManual = GoBoardSymmetry.getNormalizeOperation(
+							temp.getStep().getPoint(), sym);
+					// System.out.println(normalizeManual);
+					found = true;
+					break;
+				} else {
+					temp = temp.brother;
+				}
 			}
-
 		}
 		if (found == false)
 			return false;
+
+		// if (step.isPass()) {
+		// return true;
+		// }
 
 		// mirror the child inclusive.
 		System.out.println(normalizeOperation);

@@ -100,37 +100,46 @@ public class Step {// implements Step{
 		this.point = point.normalize(operation);
 	}
 
+	/**
+	 * the idea is to change the manual with different representation/initial state
+	 * , the current state may not symmetric.
+	 * <br/>current step is already a copy, we can change it safely.
+	 * @param operation
+	 */
 	public void convert(SymmetryResult operation) {
-		if (point == null)
+		if (operation.blackWhiteSymmetric) {
+			blackWhiteMirror();
+		}
+		if (point == null) {
 			return;
-		System.out.println(operation.getNumberOfSymmetry());
+		}
 		if (operation.getNumberOfSymmetry() == 0)
 			return;
 		if (operation.getNumberOfSymmetry() == 4) {
 			throw new RuntimeException("operation.getNumberOfSymmetry() = "
 					+ operation.getNumberOfSymmetry());
 		}
-
-		if (operation.isBackwardSlashSymmetry()) {
-			backwardSlashMirror();
-		}
-		if (operation.isForwardSlashSymmetry()) {
-			forwardSlashMirror();
-
+		/**
+		 * the sequence is important, vertical first, then horizontal, 
+		 * later forward slash, backward slash is not used actually.
+		 */
+		if (operation.isVerticalSymmetry()) {
+			verticalMirror();
 		}
 		if (operation.isHorizontalSymmetry()) {
 			horizontalMirror();
 		}
-		if (operation.isVerticalSymmetry()) {
-			verticalMirror();
+		if (operation.isForwardSlashSymmetry()) {
+			forwardSlashMirror();
 		}
-		if(operation.blackWhiteSymmetric){
-			blackWhiteMirror();
+		if (operation.isBackwardSlashSymmetry()) {
+			backwardSlashMirror();
 		}
+		
 	}
 
 	public void blackWhiteMirror() {
-		this.color = (byte)ColorUtil.enemyColor(this.color);
+		this.color = (byte) ColorUtil.enemyColor(this.color);
 	}
 
 	public void forwardSlashMirror() {
@@ -326,7 +335,7 @@ public class Step {// implements Step{
 	}
 
 	public Step getCopy() {
-		return new Step(point, color);
+		return new Step(point, color, index);
 	}
 
 	public void switchColor() {

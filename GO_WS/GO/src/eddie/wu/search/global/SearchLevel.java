@@ -382,44 +382,41 @@ public class SearchLevel {
 
 	/**
 	 * when apply terminal state's known score (maybe not accurate) to parent
-	 * level. parent state level v.s. child state's score!
+	 * level. parent state level v.s. child state's score! TODO: add manual
 	 * 
 	 * @param score
 	 * @return
 	 */
-	public SearchLevel updateWithFuzzyScore(ScopeScore score) {
-		// score maybe still initial, e.g. unknown score due to limit.
-		// if (score.isInit())
-		// return this;
-		// boolean win = false;
+	public SearchLevel updateWithFuzzyScore(ScoreWithManual manual,
+			boolean mirror) {
 		assert this.alreadyWin() == false;
-		// if (score.isInit()) {
-		// throw new RuntimeException("is init");
-		// }
+		assert this.tempBestScore == Constant.UNKNOWN;
+		ScopeScore score = manual.scopeScore;
+		if (mirror) {
+			score = score.mirror();
+		}
 		if (score.isExact()) {
 			if (max) {
-				if (score.getLow() > this.tempBestScore) {
-					this.tempBestScore = score.getLow();
-				}
+				this.tempBestScore = score.getLow();
 			} else {
-				if (score.getLow() < this.tempBestScore) {
-					this.tempBestScore = score.getLow();
-				}
+				this.tempBestScore = score.getLow();
 			}
 		} else if (max) {// parent is max// child is min.
 			if (score.getLow() >= this.getExpScore()) {
-				this.tempBestScore = score.getLow();
-			} else if (score.getLow() > this.getTempBestScore()) {
 				this.tempBestScore = score.getLow();
 			}
 
 		} else { // parent is min, child is max
 			if (score.getHigh() <= this.getExpScore()) {
 				this.tempBestScore = score.getHigh();
-			} else if (score.getHigh() < this.tempBestScore) {
-				this.tempBestScore = score.getHigh();
 			}
 		}
+		// design choice: handle map when verify the result
+		// if(this.alreadyWin_()){
+		// this.getNode().addSubTree(manual.win.getRoot());
+		// }else if(this.opponentWin_()){
+		// this.getNode().addSubTree(manual.lose.getRoot());
+		// }
 		return this;
 	}
 
@@ -489,6 +486,7 @@ public class SearchLevel {
 
 	public void setNode(SearchNode node) {
 		this.node = node;
+		this.node.setMax(max);
 	}
 
 	public boolean isInitialized() {
@@ -521,21 +519,33 @@ public class SearchLevel {
 	// return score2;
 	// }
 
+	/**
+	 * TODO
+	 * 
+	 * @param normalizedState
+	 * @param sym
+	 * @return
+	 */
 	public ScoreWithManual getScopeScore_(BoardColorState normalizedState,
 			SymmetryResult sym) {
 		int boardSize = normalizedState.boardSize;
 		ScoreWithManual scopeScore = null;
-		if (this.tempBestScore == Constant.UNKNOWN){
-		return null;
-			//return ScopeScore.getInitScore(boardSize);
+		if (this.tempBestScore == Constant.UNKNOWN) {
+			return null;
+			// return ScopeScore.getInitScore(boardSize);
 		}
 		if (this.alreadyWin_()) {
-			TreeGoManual manual = this.getNode().wrapAsManual(
-					normalizedState, sym);
+			TreeGoManual manual = this.getNode().wrapAsManual(normalizedState,
+					sym);
 			manual.cleanupBadMoveForWinner(max);
-			scopeScore = new ScoreWithManual(this.tempBestScore, max, boardSize,max,manual);
-			if(sym.blackWhiteSymmetric){
-				scopeScore.mirrorScore();
+
+			if (sym.blackWhiteSymmetric) {
+				scopeScore = new ScoreWithManual(-this.tempBestScore, !max,
+						boardSize, !max, manual);
+				//scopeScore.mirrorScore();
+			} else {
+				scopeScore = new ScoreWithManual(this.tempBestScore, max,
+						boardSize, max, manual);
 			}
 		} else if (this.hasNext() == false) {
 			if (this.opponentWin_() == false) {
@@ -546,23 +556,30 @@ public class SearchLevel {
 				TreeGoManual manualWin = this.getNode().wrapAsManual(
 						normalizedState, sym);
 				manualWin.cleanupBadMoveForWinner(max);
-//				scopeScore.win = manualWin;
-//				scopeScore.lose = manualLose;
-				scopeScore =  new ScoreWithManual(tempBestScore, manualWin, manualLose);
-				if(sym.blackWhiteSymmetric){
+				// scopeScore.win = manualWin;
+				// scopeScore.lose = manualLose;
+				scopeScore = new ScoreWithManual(tempBestScore, manualWin,
+						manualLose);
+				if (sym.blackWhiteSymmetric) {
 					scopeScore.mirrorScore();
+				} else {
+					//nothing to do.
 				}
-				
+
 			} else {
 				TreeGoManual manual = this.getNode().wrapAsManual(
 						normalizedState, sym);
 				manual.cleanupBadMoveForWinner(!max);
-				
-				scopeScore = new ScoreWithManual(this.tempBestScore, !max, boardSize,max,manual);
-				if(sym.blackWhiteSymmetric){
-					scopeScore.mirrorScore();
+
+				if (sym.blackWhiteSymmetric) {
+					scopeScore = new ScoreWithManual(-this.tempBestScore, max,
+							boardSize, !max, manual);
+					//scopeScore.mirrorScore();
+				} else {
+					scopeScore = new ScoreWithManual(this.tempBestScore, !max,
+							boardSize, max, manual);
 				}
-				
+
 			}
 		} else {
 			return null;
