@@ -1,4 +1,5 @@
-
+0. without any issue. I upgrade to VMWare 12.5. however the window cannot be maxed any more.
+after that, I can update Ubuntu itself. 
 
 1. to use git, we need to setup proxy if working in company network 
 otherwise we needn't use proxy.
