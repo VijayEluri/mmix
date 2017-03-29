@@ -6,15 +6,14 @@ In Chinese, Hua Rong Dao
 
 package toy;
 
-import java.util.ArrayList;
+import static toy.Constant.Debug;
+
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-import static toy.Constant.Debug;
-import static toy.Constant.Debug;
 
 public class Search {
 	public static void main(String[] args) {

@@ -2,7 +2,6 @@ package toy.applet.result.broadfirst;
 
 import toy.CengCengSheFang;
 import toy.Search;
-import toy.applet.OldDadApplet;
 
 public class CengCengSheFangBroadApplet extends BroadFirstManualApplet {
 	@Override

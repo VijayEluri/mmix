@@ -1,0 +1,12 @@
+install oracle 11g XE at 
+SQL*plus is at 
+C:\oraclexe\app\oracle\product\11.2.0\
+C:\oraclexe\app\oracle\product\11.2.0\server\bin
+
+
+SQL> create user eddie identified by eddie;
+SQL> alter user eddie default tablespace users;
+SQL> grant create session to eddie;
+SQL> grant create table to eddie;
+
+

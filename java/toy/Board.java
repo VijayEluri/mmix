@@ -1,18 +1,16 @@
 package toy;
 
+import static toy.Constant.BIGBOSS;
 import static toy.Constant.COL;
-import static toy.Constant.ROW;
 import static toy.Constant.Debug;
+import static toy.Constant.ROW;
 
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
-import static toy.Constant.*;
 
 /**
  * Record Current Status of the Board.

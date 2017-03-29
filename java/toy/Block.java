@@ -1,8 +1,12 @@
 package toy;
 
+import static toy.Constant.BIGBOSS;
+import static toy.Constant.DOUBLE;
+import static toy.Constant.HORIZONTAL;
+import static toy.Constant.SINGLE;
+import static toy.Constant.VERTICAL;
+
 import java.util.Arrays;
-import java.util.List;
-import static toy.Constant.*;
 
 public class Block {
 	private byte points; // number of points in one block.

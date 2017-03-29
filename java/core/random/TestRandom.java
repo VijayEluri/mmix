@@ -1,7 +1,6 @@
 package core.random;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Random;
 
 import junit.framework.TestCase;
@@ -15,7 +14,7 @@ public class TestRandom extends TestCase {
 			a[j] = a[k];
 			a[k] = j + 1;
 		}
-		// ±¾ÖÊ»¹ÊÇshuffle£¡
+		// ï¿½ï¿½ï¿½Ê»ï¿½ï¿½ï¿½shuffleï¿½ï¿½
 		System.out.println(Arrays.toString(a));
 	}
 
