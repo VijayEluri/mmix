@@ -8,17 +8,22 @@ Do NOT be too quick.
 Please raise question when you have, do not hesitate. questions are more than welcomed. 
 
 
-If you are interested, (I suppose you are interested in this since you attend this training), I have a very good book to recommend. it is a book called <<Effective Oracle By Design>>, written by Thomas Kyte  -- emphasis this in the end
+If you are interested, (I suppose you are interested in this since you attend this training), 
+I have a very good book to recommend. it is a book called <<Effective Oracle By Design>>, 
+written by Thomas Kyte  -- emphasis this in the end
 By the way, most of the material i will show you comes from the second chapter of this book.
 
 Agenda
 What is execution plan?
 How to get the execution plan?
 How to read the execution plan?
-a case study (more detailed explanation of the output of execution plan, the oracle internal mechanism will be disccussed here to explain the result we got)
+a case study (more detailed explanation of the output of execution plan, the oracle internal
+ mechanism will be disccussed here to explain the result we got)
 
 What is executive plan?
-An execution plan defines how Oracle finds or writes the data. For example, an important decision that Oracle has to take is if it uses indexes or not. And if there are more indexes, which of these is used. All this is contained in an execution plan.
+An execution plan defines how Oracle finds or writes the data. For example, an important
+ decision that Oracle has to take is if it uses indexes or not. And if there are more indexes, 
+which of these is used. All this is contained in an execution plan.
 when you write a SQL statement, you are thinking 
 
 When we talk about the SQL, we majorly care about the LOGIC view of SQL statement.
@@ -105,12 +110,13 @@ alter system flush buffer_cache;
 select * from I1 where n2 = 30000; 
 -- no index on it
 
-set timing on 
+set timing on;
+set autotrace off;
 alter system flush buffer_cache;
-select * from I1 where n = 30000;
+select * from I1 where n = 18193;
 --primary key by default is a unique index
 alter system flush buffer_cache;
-select * from I1 where n2 = 30000; 
+select * from I1 where n2 = 18193; 
 -- no index on it
 
 alter system flush shared_pool;

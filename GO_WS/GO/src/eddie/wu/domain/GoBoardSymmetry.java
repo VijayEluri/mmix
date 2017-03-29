@@ -442,11 +442,11 @@ public abstract class GoBoardSymmetry extends BasicGoBoard {
 	public byte[][] convertToTopLeft(Point target) {
 		byte[][] matrixState = this.getMatrixState();
 		if (target.isRightTop()) {
-			return this.verticalMirror(matrixState);
+			return GoBoardSymmetry.verticalMirror(matrixState);
 		} else if (target.isLeftBottom()) {
-			return this.horizontalMirror(matrixState);
+			return GoBoardSymmetry.horizontalMirror(matrixState);
 		} else if (target.isRightBottom()) {
-			return this.forwardSlashMirror(matrixState);
+			return GoBoardSymmetry.forwardSlashMirror(matrixState);
 		} else if (target.isLeftTop()) {
 			return matrixState;
 		} else {
@@ -471,15 +471,15 @@ public abstract class GoBoardSymmetry extends BasicGoBoard {
 				whoseTurn), score);
 
 	}
-
+	@Deprecated
 	public byte[][] convertFromTopLeft(Point target) {
 		byte[][] matrixState = this.getMatrixState();
 		if (target.isRightTop()) {
-			return this.verticalMirror(matrixState);
+			return verticalMirror(matrixState);
 		} else if (target.isLeftBottom()) {
-			return this.horizontalMirror(matrixState);
+			return horizontalMirror(matrixState);
 		} else if (target.isRightBottom()) {
-			return this.forwardSlashMirror(matrixState);
+			return forwardSlashMirror(matrixState);
 		} else if (target.isLeftTop()) {
 			return matrixState;
 		} else {

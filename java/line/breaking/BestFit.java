@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Copy from First Fit and change Algorithm accordingly. without Look Ahead. <br/>
- * 1. each line choose the minimum strechability/shrinkability.<br/>
+ * 1. each line choose the minimum stretcheability/shrinkability.<br/>
  * there are still many issues in the implementation.
  */
 public class BestFit extends TypeSet {

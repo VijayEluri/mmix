@@ -1,3 +1,12 @@
+0. without any issue. I upgrade to VMWare 12.5. however the window cannot be maxed any more.
+after that, I can update Ubuntu itself. 
+
+1. to use git, we need to setup proxy if working in company network 
+otherwise we needn't use proxy.
+we may dynamically execure the script to set it up.
+
+
+
 
 I have a lot of pain experience on use home lan.
 
@@ -19,7 +28,7 @@ on Modem except the Diagnose.
 if the cable connectting modem and router does not work. then at lease one of
 the LED will be black.
 
-
+Now I can use VMWare to try Linux in leisure time.
 
 
 1. in home network, proxy is disabled.

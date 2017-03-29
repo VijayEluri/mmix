@@ -10,7 +10,7 @@ public class OutOfTime {
 		Timer timer = new Timer();
 		timer.schedule(new ThrowTask(), 1);
 		TimeUnit.SECONDS.sleep(1);
-		timer.schedule(new ThrowTask(), 1);
+		timer.schedule(new ThrowTask(), 1); //timer is no longer use-able!
 		TimeUnit.SECONDS.sleep(5);
 	}
 
